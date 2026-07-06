@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+.opencode/node_modules/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Logs and runtime output
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.space/missions/*/outputs/
+
+# Node / Next.js build output
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+.vercel/
+
+# Rust build output
+target/
+
+# Local databases and generated data
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql.gz
+postgres-data/
+pgdata/
+
+# Caches
+.cache/
+.parcel-cache/
+.eslintcache
+.pytest_cache/
+
+# OS / editor / machine-local files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OpenCode local dependency install metadata
+.opencode/package.json
+.opencode/package-lock.json
+.opencode/bun.lock
+
+# Spacecraft local mission state
+.space/
+
+# signs
+signs/*

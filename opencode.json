@@ -1,0 +1,41 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "sc-commander",
+  "share": "disabled",
+  "lsp": true,
+  "permission": {
+    "read": "allow",
+    "list": "allow",
+    "grep": "allow",
+    "glob": "allow",
+    "edit": "ask",
+    "external_directory": "deny",
+    "bash": {
+      "*": "ask",
+      "node scripts/spacecraft.mjs *": "allow",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "npm test*": "ask",
+      "npm run test*": "ask",
+      "npm run build*": "ask",
+      "npm run lint*": "ask",
+      "npm install*": "ask",
+      "git push*": "deny",
+      "sudo *": "deny",
+      "rm -rf *": "deny"
+    },
+    "task": {
+      "*": "deny",
+      "sc-planner": "allow",
+      "sc-designer": "allow",
+      "sc-reviewer": "allow"
+    },
+    "skill": {
+      "*": "deny",
+      "sc-*": "allow"
+    },
+    "webfetch": "ask",
+    "websearch": "ask"
+  }
+}

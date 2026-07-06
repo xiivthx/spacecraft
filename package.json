@@ -1,0 +1,16 @@
+{
+  "name": "spacecraft",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "spacecraft": "node scripts/spacecraft.mjs",
+    "sc:init": "node scripts/spacecraft.mjs init",
+    "sc:status": "node scripts/spacecraft.mjs status",
+    "sc:git": "node scripts/spacecraft.mjs git-info",
+    "sc:git:suggest": "node scripts/spacecraft.mjs git-suggest",
+    "sc:validate": "node scripts/spacecraft.mjs validate",
+    "sc:design:serve": "node .opencode/skills/sc-design/scripts/serve-html.mjs",
+    "sc:design:open": "node .opencode/skills/sc-design/scripts/serve-html.mjs --open"
+  }
+}

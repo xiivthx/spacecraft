@@ -1,0 +1,3 @@
+interface:
+  display_name: "Spacecraft Git"
+  short_description: "Release branching, commits, versioning, merge, and tag policy for Spacecraft"
