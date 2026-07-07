@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import assert from "node:assert/strict";
@@ -17,7 +17,8 @@ async function writeMission(cwd, {
   id,
   title,
   state = "implementing",
-  git = {}
+  git = {},
+  clarification = undefined
 }) {
   const dir = path.join(cwd, ".space", "missions", id);
   await mkdir(dir, { recursive: true });
@@ -27,13 +28,23 @@ async function writeMission(cwd, {
     state,
     createdAt: "2026-07-07T00:00:00.000Z",
     updatedAt: "2026-07-07T00:00:00.000Z",
-    git
+    git,
+    ...(clarification ? { clarification } : {})
   }, null, 2)}\n`);
 }
 
 async function writeCurrent(cwd, id) {
   await mkdir(path.join(cwd, ".space"), { recursive: true });
   await writeFile(path.join(cwd, ".space", "current"), `${id}\n`);
+}
+
+async function pathExists(filePath) {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function writeSession(cwd, key, id) {
@@ -92,6 +103,17 @@ function ids(records) {
   return records.map((record) => record.id).sort();
 }
 
+function readyReleaseReadiness(overrides = {}) {
+  return {
+    version: { status: "bumped" },
+    changelog: { status: "updated" },
+    specNote: { status: "updated" },
+    tagPlan: { status: "planned" },
+    postRebaseVerification: { status: "passed" },
+    ...overrides
+  };
+}
+
 async function initGitOnBranch(cwd, branch) {
   runGit(cwd, ["init", "-b", "main"]);
   runGit(cwd, ["checkout", "-b", branch]);
@@ -99,6 +121,21 @@ async function initGitOnBranch(cwd, branch) {
 
 async function initGitOnMain(cwd) {
   runGit(cwd, ["init", "-b", "main"]);
+}
+
+async function initCommittedFeatureBranch(cwd, branch) {
+  runGit(cwd, ["init", "-b", "main"]);
+  runGit(cwd, ["config", "user.email", "spacecraft@example.invalid"]);
+  runGit(cwd, ["config", "user.name", "Spacecraft Test"]);
+  await writeFile(path.join(cwd, "README.md"), "base\n");
+  runGit(cwd, ["add", "README.md"]);
+  runGit(cwd, ["commit", "-m", "chore: base"]);
+  runGit(cwd, ["checkout", "-b", branch]);
+}
+
+function commitAll(cwd, message) {
+  runGit(cwd, ["add", "."]);
+  runGit(cwd, ["commit", "-m", message]);
 }
 
 test("explicit selectors override lower-priority signals", async () => {
@@ -169,6 +206,86 @@ test("branch mission id overrides current fallback and conflict blocks write pat
   assert.notEqual(blocked.status, 0);
   assert.match(blocked.stderr, /cannot safely choose a mission for validate/);
   assert.match(blocked.stderr, /mission signals disagree/);
+});
+
+test("compact mission ids are created without separators and remain selectable", async () => {
+  const cwd = await createWorkspace();
+
+  const created = runSpacecraft(cwd, ["new", "Compact id mission"]);
+  const match = created.stdout.match(/Created Spacecraft mission (M[0-9A-Z]{8})/);
+  assert.ok(match, created.stdout);
+  const id = match[1];
+  assert.doesNotMatch(id, /-/);
+
+  const current = await readFile(path.join(cwd, ".space", "current"), "utf8");
+  assert.equal(current.trim(), id);
+  assert.equal((await readFile(path.join(cwd, ".space", "missions", id, "mission.json"), "utf8")).includes(`"id": "${id}"`), true);
+
+  const byId = resolveJson(cwd, [id.toLowerCase()]);
+  assert.equal(byId.selected.id, id);
+  assert.equal(byId.source, "selector");
+});
+
+test("compact evidence ids are created without separators", async () => {
+  const cwd = await createWorkspace();
+
+  runSpacecraft(cwd, ["new", "Evidence id mission"]);
+  const evidence = runSpacecraft(cwd, ["evidence", "true command", "--", "node", "-e", ""]);
+  const match = evidence.stdout.match(/Evidence: (E[0-9A-Z]{8})/);
+  assert.ok(match, evidence.stdout);
+  assert.doesNotMatch(match[1], /-/);
+});
+
+test("evidence id collision generates distinct valid compact ids", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000X";
+
+  await writeMission(cwd, { id, title: "Collision mission" });
+  await writeCurrent(cwd, id);
+  await mkdir(path.join(cwd, ".space", "missions", id, "outputs"), { recursive: true });
+  await writeFile(path.join(cwd, ".space", "missions", id, "spec.md"), "# Spec\n");
+  await writeFile(path.join(cwd, ".space", "missions", id, "plan.json"), "{}\n");
+
+  const { spawn } = await import("node:child_process");
+
+  const runEvidence = () => new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [spacecraft, "evidence", "true", "--", "node", "-e", ""], {
+      cwd,
+      env: cleanEnv()
+    });
+    let out = "";
+    child.stdout.on("data", (d) => { out += d.toString(); });
+    child.on("close", (code) => {
+      if (code === 0) resolve(out);
+      else reject(new Error("Failed"));
+    });
+  });
+
+  // Run 10 in parallel. Likely some will hit the exact same millisecond.
+  const results = await Promise.all(Array.from({ length: 10 }).map(runEvidence));
+  
+  const extractedIds = results.map(out => {
+    const match = out.match(/Evidence: (E[0-9A-Z]{8})/);
+    return match ? match[1] : null;
+  }).filter(Boolean);
+
+  assert.equal(extractedIds.length, 10, "All 10 should succeed and produce valid 9-char IDs");
+  
+  const uniqueIds = new Set(extractedIds);
+  assert.equal(uniqueIds.size, 10, "All generated IDs should be unique despite potential collisions");
+});
+
+test("compact mission ids resolve from branch names", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000A";
+
+  await writeMission(cwd, { id, title: "Compact branch mission" });
+  await initGitOnBranch(cwd, `feat/${id.toLowerCase()}-compact-branch`);
+
+  const resolution = resolveJson(cwd);
+  assert.equal(resolution.selected.id, id);
+  assert.equal(resolution.source, "branch");
+  assert.equal(resolution.safety, "safe");
 });
 
 test("branch metadata resolves branches that do not include a mission id", async () => {
@@ -364,4 +481,239 @@ test("conflict candidate numbers match use selector ordering with shipped missio
 
   const selected = runSpacecraft(cwd, ["use", "3"]);
   assert.match(selected.stdout, new RegExp(`Selected mission: Current shipped \\(${currentShipped}\\)`));
+});
+
+test("flow reports next task without bypassing gates", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000B";
+
+  await writeMission(cwd, {
+    id,
+    title: "Workflow mission",
+    state: "planned",
+    git: { workBranch: `feat/${id.toLowerCase()}-workflow` }
+  });
+  await writeFile(path.join(cwd, ".space", "missions", id, "spec.md"), "# Mission Spec\n");
+  await writeFile(path.join(cwd, ".space", "missions", id, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "First task", status: "pending", evidence: [] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(cwd, ".space", "missions", id, "evidence.jsonl"), "");
+  await writeCurrent(cwd, id);
+
+  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const flow = JSON.parse(result.stdout);
+  assert.equal(flow.next, "/sc-work T01");
+  assert.equal(flow.nextTask.id, "T01");
+  assert.deepEqual(flow.blockers, []);
+});
+
+test("flow prioritizes blocking clarification over work", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000D";
+
+  await writeMission(cwd, {
+    id,
+    title: "Blocked workflow mission",
+    state: "planned",
+    clarification: { status: "open", blockingQuestions: 1 }
+  });
+  await writeFile(path.join(cwd, ".space", "missions", id, "spec.md"), "# Mission Spec\n");
+  await writeFile(path.join(cwd, ".space", "missions", id, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "Blocked task", status: "pending", evidence: [] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(cwd, ".space", "missions", id, "evidence.jsonl"), "");
+  await writeCurrent(cwd, id);
+
+  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const flow = JSON.parse(result.stdout);
+  assert.equal(flow.next, "/sc-clarify");
+  assert.ok(flow.blockers.includes("blocking clarification remains open"));
+});
+
+test("flow blocks missing spec before recommending work", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000E";
+  const missionDir = path.join(cwd, ".space", "missions", id);
+
+  await writeMission(cwd, {
+    id,
+    title: "Missing spec workflow mission",
+    state: "planned"
+  });
+  await writeFile(path.join(missionDir, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "Unsafe task", status: "pending", evidence: [] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(missionDir, "evidence.jsonl"), "");
+  await writeCurrent(cwd, id);
+
+  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const flow = JSON.parse(result.stdout);
+  assert.notEqual(flow.next, "/sc-work T01");
+  assert.ok(flow.blockers.includes("spec.md is missing"));
+});
+
+test("flow blocks missing plan before recommending work", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000F";
+  const missionDir = path.join(cwd, ".space", "missions", id);
+
+  await writeMission(cwd, {
+    id,
+    title: "Missing plan workflow mission",
+    state: "planned"
+  });
+  await writeFile(path.join(missionDir, "spec.md"), "# Mission Spec\n");
+  await writeFile(path.join(missionDir, "evidence.jsonl"), "");
+  await writeCurrent(cwd, id);
+
+  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const flow = JSON.parse(result.stdout);
+  assert.equal(flow.next, "/sc-plan");
+  assert.ok(flow.blockers.includes("plan.json is missing"));
+});
+
+test("archive compacts shipped missions and removes the active mission copy", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000C";
+  const missionDir = path.join(cwd, ".space", "missions", id);
+  const archiveDir = path.join(cwd, ".space", "archive", id);
+
+  await writeMission(cwd, {
+    id,
+    title: "Archive mission",
+    state: "shipped",
+    git: { workBranch: `feat/${id.toLowerCase()}-archive` }
+  });
+  await writeFile(path.join(missionDir, "spec.md"), "# Mission Spec\n");
+  await writeFile(path.join(missionDir, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "Done task", status: "completed", evidence: ["E0000000A"] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(missionDir, "evidence.jsonl"), `${JSON.stringify({
+    id: "E0000000A",
+    label: "test",
+    command: "true",
+    exitCode: 0,
+    stdout: ".space/missions/M0000000C/outputs/E0000000A.stdout.txt",
+    stderr: ".space/missions/M0000000C/outputs/E0000000A.stderr.txt",
+    createdAt: "2026-07-07T00:00:00.000Z"
+  })}\n`);
+  await writeFile(path.join(missionDir, "review.json"), `${JSON.stringify({
+    status: "ready",
+    findings: [],
+    releaseReadiness: readyReleaseReadiness()
+  }, null, 2)}\n`);
+  await writeFile(path.join(missionDir, "review.md"), "# Review\n");
+  await writeFile(path.join(missionDir, "decisions.md"), "# Decisions\n");
+  await writeFile(path.join(missionDir, "questions.md"), "# Questions\n");
+  await writeCurrent(cwd, id);
+
+  const archived = runSpacecraft(cwd, ["archive", id]);
+  assert.match(archived.stdout, new RegExp(`Archived mission ${id}`));
+  assert.equal(await pathExists(missionDir), false);
+  assert.equal(await pathExists(path.join(archiveDir, "SUMMARY.md")), true);
+  assert.equal(await pathExists(path.join(archiveDir, "outputs")), false);
+
+  const compactMission = JSON.parse(await readFile(path.join(archiveDir, "mission.json"), "utf8"));
+  assert.equal(compactMission.id, id);
+  assert.equal(compactMission.state, "shipped");
+  const compactEvidence = await readFile(path.join(archiveDir, "evidence.jsonl"), "utf8");
+  assert.match(compactEvidence, /"id":"E0000000A"/);
+  assert.doesNotMatch(compactEvidence, /stdout/);
+  assert.equal((await readFile(path.join(cwd, ".space", "current"), "utf8")).trim(), "");
+});
+
+test("archive blocks shipped missions without ready review", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000G";
+  const missionDir = path.join(cwd, ".space", "missions", id);
+
+  await writeMission(cwd, {
+    id,
+    title: "Unsafe archive mission",
+    state: "shipped"
+  });
+  await writeFile(path.join(missionDir, "spec.md"), "# Mission Spec\n");
+  await writeFile(path.join(missionDir, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "Done task", status: "completed", evidence: ["E0000000B"] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(missionDir, "evidence.jsonl"), `${JSON.stringify({
+    id: "E0000000B",
+    label: "test",
+    command: "true",
+    exitCode: 0,
+    createdAt: "2026-07-07T00:00:00.000Z"
+  })}\n`);
+  await writeFile(path.join(missionDir, "review.json"), `${JSON.stringify({ status: "blocked", findings: [] }, null, 2)}\n`);
+  await writeCurrent(cwd, id);
+
+  const archived = runSpacecraft(cwd, ["archive", id], { check: false });
+  assert.notEqual(archived.status, 0);
+  assert.match(archived.stderr, /Archive blocked/);
+  assert.match(archived.stderr, /review status is blocked/);
+  assert.equal(await pathExists(missionDir), true);
+});
+
+test("closeout rejects planned release gates except tag plan", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000H";
+  const branch = `feat/${id.toLowerCase()}-release-gates`;
+  const missionDir = path.join(cwd, ".space", "missions", id);
+
+  await initCommittedFeatureBranch(cwd, branch);
+  await writeMission(cwd, {
+    id,
+    title: "Release gate mission",
+    state: "ready",
+    git: { workBranch: branch },
+    clarification: { status: "clear", blockingQuestions: 0 }
+  });
+  await writeFile(path.join(missionDir, "spec.md"), "# Mission Spec\n");
+  await writeFile(path.join(missionDir, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "Done task", status: "completed", evidence: ["E0000000C"] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(missionDir, "evidence.jsonl"), `${JSON.stringify({
+    id: "E0000000C",
+    label: "test",
+    command: "true",
+    exitCode: 0,
+    createdAt: "2026-07-07T00:00:00.000Z"
+  })}\n`);
+  await writeFile(path.join(missionDir, "review.json"), `${JSON.stringify({
+    status: "ready",
+    findings: [],
+    releaseReadiness: readyReleaseReadiness({
+      version: { status: "planned" },
+      changelog: { status: "planned" },
+      specNote: { status: "planned" },
+      postRebaseVerification: { status: "planned" }
+    })
+  }, null, 2)}\n`);
+  await writeCurrent(cwd, id);
+  commitAll(cwd, "feat: add ready mission");
+
+  const closeout = runSpacecraft(cwd, ["closeout-check"], { check: false });
+  assert.notEqual(closeout.status, 0);
+  assert.match(closeout.stdout, /releaseReadiness.version/);
+  assert.match(closeout.stdout, /releaseReadiness.changelog/);
+  assert.match(closeout.stdout, /releaseReadiness.specNote/);
+  assert.match(closeout.stdout, /releaseReadiness.postRebaseVerification/);
+  assert.doesNotMatch(closeout.stdout, /releaseReadiness.tagPlan/);
 });

@@ -23,4 +23,4 @@ UI tasks must include visual intent, target component/screen, accessibility chec
 For new screens, recommend /sc-design before /sc-work.
 Set state to planned.
 Do not implement product code.
-End with the recommended next action and session advice. Recommend a new session if implementation is the next large phase and the plan is fully captured in plan.json.
+End with the recommended next action and session advice. Recommend `/sc-git` then `/sc-flow` when implementation can begin. Recommend a new session if implementation is the next large phase and the plan is fully captured in plan.json.

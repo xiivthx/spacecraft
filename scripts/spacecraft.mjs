@@ -8,7 +8,10 @@ import process from "node:process";
 const ROOT = process.cwd();
 const SPACE_DIR = path.join(ROOT, ".space");
 const MISSIONS_DIR = path.join(SPACE_DIR, "missions");
+const ARCHIVE_DIR = path.join(SPACE_DIR, "archive");
 const CURRENT_FILE = path.join(SPACE_DIR, "current");
+const ID_EPOCH_MS = Date.UTC(2026, 0, 1);
+const SHORT_ID_WIDTH = 8;
 
 const STATES = new Set([
   "draft",
@@ -36,6 +39,7 @@ Usage:
   node scripts/spacecraft.mjs use <number|id|title>
   node scripts/spacecraft.mjs bind-branch [selector]
   node scripts/spacecraft.mjs status
+  node scripts/spacecraft.mjs flow [--json]
   node scripts/spacecraft.mjs git-info
   node scripts/spacecraft.mjs git-suggest [type] [slug]
   node scripts/spacecraft.mjs set-state <state>
@@ -43,6 +47,7 @@ Usage:
   node scripts/spacecraft.mjs evidence <label> -- <command...>
   node scripts/spacecraft.mjs validate
   node scripts/spacecraft.mjs closeout-check
+  node scripts/spacecraft.mjs archive [selector]
 `;
 }
 
@@ -52,28 +57,21 @@ function fail(message, code = 1) {
   throw error;
 }
 
-function pad(value) {
-  return String(value).padStart(2, "0");
-}
-
-function timestampForId(date = new Date()) {
-  return [
-    date.getFullYear(),
-    pad(date.getMonth() + 1),
-    pad(date.getDate())
-  ].join("") + "-" + [
-    pad(date.getHours()),
-    pad(date.getMinutes()),
-    pad(date.getSeconds())
-  ].join("");
+function shortTimeId(prefix, date = new Date()) {
+  const offset = date.getTime() - ID_EPOCH_MS;
+  if (!Number.isFinite(offset) || offset < 0) {
+    fail(`Cannot create ${prefix} id before 2026-01-01T00:00:00.000Z.`);
+  }
+  const encoded = Math.floor(offset).toString(36).toUpperCase();
+  return `${prefix}${encoded.padStart(SHORT_ID_WIDTH, "0")}`;
 }
 
 function missionId(date = new Date()) {
-  return `M-${timestampForId(date)}`;
+  return shortTimeId("M", date);
 }
 
 function evidenceId(date = new Date()) {
-  return `E-${timestampForId(date)}`;
+  return shortTimeId("E", date);
 }
 
 function isoNow() {
@@ -118,7 +116,7 @@ async function readCurrentMissionId({ required = false } = {}) {
     }
     return null;
   }
-  return value;
+  return normalizeMissionId(value) ?? value;
 }
 
 function missionDir(id) {
@@ -150,8 +148,13 @@ async function writeJson(filePath, data) {
 }
 
 function normalizeMissionId(value) {
-  const match = String(value ?? "").match(/\b[Mm]-(\d{8}-\d{6})\b/);
-  return match ? `M-${match[1]}` : null;
+  const text = String(value ?? "");
+  const legacy = text.match(/\b[Mm]-(\d{8}-\d{6})\b/);
+  if (legacy) {
+    return `M-${legacy[1]}`;
+  }
+  const compact = text.match(/(?:^|[^A-Za-z0-9])([Mm][0-9A-Za-z]{8})(?=$|[^A-Za-z0-9])/);
+  return compact ? compact[1].toUpperCase() : null;
 }
 
 function missionBranchNames(mission) {
@@ -959,6 +962,165 @@ async function countEvidence(filePath) {
   return content.split(/\r?\n/).filter((line) => line.trim()).length;
 }
 
+async function readTextIfExists(filePath) {
+  if (!(await exists(filePath))) {
+    return null;
+  }
+  return fs.readFile(filePath, "utf8");
+}
+
+async function readEvidenceEntries(filePath) {
+  const content = await readTextIfExists(filePath);
+  if (!content) {
+    return [];
+  }
+
+  const entries = [];
+  for (const [index, line] of content.split(/\r?\n/).entries()) {
+    if (!line.trim()) {
+      continue;
+    }
+    try {
+      entries.push(JSON.parse(line));
+    } catch (error) {
+      entries.push({
+        id: `invalid-line-${index + 1}`,
+        label: "Invalid evidence entry",
+        command: "",
+        exitCode: 1,
+        createdAt: null,
+        parseError: error.message
+      });
+    }
+  }
+  return entries;
+}
+
+function taskDisplay(task) {
+  const id = task?.id ? String(task.id) : "task";
+  const title = task?.title ? ` ${task.title}` : "";
+  return `${id}${title}`;
+}
+
+function nextOpenTask(tasks) {
+  return tasks.find((task) => task?.status !== "completed") ?? null;
+}
+
+function workflowSnapshot({ resolution, mission, specExists, planExists, plan, evidenceCount, git }) {
+  const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
+  const nextTask = nextOpenTask(tasks);
+  const blockers = [];
+  const hasBlockingClarification = mission?.clarification?.status === "open" || (mission?.clarification?.blockingQuestions ?? 0) > 0;
+  const hasTaskPlan = planExists && tasks.length > 0;
+  const artifactGateClear = specExists && hasTaskPlan;
+  let next = nextCommandForMission({
+    mission,
+    active: missionActive(mission),
+    branches: missionBranchNames(mission),
+    id: mission.id
+  });
+
+  if (hasBlockingClarification) {
+    blockers.push("blocking clarification remains open");
+    next = "/sc-clarify";
+  }
+  if (!specExists) {
+    blockers.push("spec.md is missing");
+    if (!hasBlockingClarification) {
+      next = "/sc-status";
+    }
+  }
+  if (!planExists) {
+    blockers.push("plan.json is missing");
+    if (!hasBlockingClarification && specExists) {
+      next = "/sc-plan";
+    }
+  } else if (!hasTaskPlan) {
+    blockers.push("plan.json has no tasks");
+    if (!hasBlockingClarification && specExists) {
+      next = "/sc-plan";
+    }
+  }
+  if (["planned", "implementing", "verifying"].includes(mission?.state) && git.isRepo && (!git.branch || git.branch === "main")) {
+    blockers.push("implementation workflow requires a non-main work branch");
+  }
+  if (["planned", "implementing", "verifying"].includes(mission?.state) && git.isRepo && git.dirty) {
+    blockers.push(`worktree is dirty (${git.dirtyFiles} files); inspect before automated workflow`);
+  }
+  if (!hasBlockingClarification && artifactGateClear && (mission?.state === "planned" || mission?.state === "implementing")) {
+    next = nextTask ? `/sc-work ${nextTask.id ?? ""}`.trim() : "/sc-review";
+  }
+  if (!hasBlockingClarification && artifactGateClear && mission?.state === "verifying") {
+    next = nextTask ? `/sc-verify ${nextTask.id ?? ""}`.trim() : "/sc-review";
+  }
+  if (!hasBlockingClarification && artifactGateClear && !nextTask) {
+    next = mission?.state === "ready" ? "/sc-ship" : "/sc-review";
+  }
+
+  return {
+    missionId: mission.id,
+    title: mission.title,
+    state: mission.state,
+    safety: resolution.safety,
+    source: resolution.source,
+    next,
+    nextTask: nextTask ? {
+      id: nextTask.id ?? null,
+      title: nextTask.title ?? null,
+      status: nextTask.status ?? null
+    } : null,
+    tasks: {
+      total: tasks.length,
+      completed: tasks.filter((task) => task?.status === "completed").length
+    },
+    evidenceCount,
+    blockers,
+    checkpointPolicy: "After passing verification, checkpoint commit on a clean non-main work branch before the next task."
+  };
+}
+
+async function printWorkflow(args) {
+  const json = args.includes("--json");
+  const resolution = await resolveMission();
+  if (resolution.safety !== "safe" || !resolution.selected) {
+    fail(formatResolutionBlock(resolution, "flow"));
+  }
+
+  const id = resolution.selected.id;
+  const dir = missionDir(id);
+  const mission = await readJson(artifactPath(id, "mission.json"));
+  const specExists = await exists(path.join(dir, "spec.md"));
+  const planPath = path.join(dir, "plan.json");
+  const planExists = await exists(planPath);
+  const plan = planExists ? await readJson(planPath) : null;
+  const evidenceCount = await countEvidence(path.join(dir, "evidence.jsonl"));
+  const git = await gitInfo();
+  const snapshot = workflowSnapshot({ resolution, mission, specExists, planExists, plan, evidenceCount, git });
+
+  if (json) {
+    console.log(JSON.stringify(snapshot, null, 2));
+    return;
+  }
+
+  console.log(`Workflow: ${snapshot.blockers.length > 0 ? "blocked" : "ready"}`);
+  console.log(`Mission: ${snapshot.title} (${snapshot.missionId})`);
+  console.log(`State: ${snapshot.state}`);
+  console.log(`Tasks: ${snapshot.tasks.completed}/${snapshot.tasks.total} completed`);
+  console.log(`Evidence: ${snapshot.evidenceCount}`);
+  if (snapshot.nextTask) {
+    console.log(`Next task: ${taskDisplay(snapshot.nextTask)}`);
+  }
+  console.log(`Next: ${snapshot.next}`);
+  console.log("Loop: /sc-work Txx -> /sc-verify Txx -> checkpoint commit -> next task, until a gate blocks.");
+  console.log(`Checkpoint: ${snapshot.checkpointPolicy}`);
+  if (snapshot.blockers.length > 0) {
+    console.log("Blockers:");
+    for (const blocker of snapshot.blockers) {
+      console.log(`- ${blocker}`);
+    }
+  }
+}
+
 async function printStatus() {
   const resolution = await resolveMission();
   if (!resolution.selected) {
@@ -1112,24 +1274,33 @@ function evidenceFilePath(entryPath) {
   return path.isAbsolute(entryPath) ? entryPath : path.join(ROOT, entryPath);
 }
 
-function releaseGateSatisfied(gate) {
+const DEFAULT_RELEASE_GATE_STATUSES = [
+  "bumped",
+  "checked",
+  "complete",
+  "completed",
+  "deferred",
+  "done",
+  "passed",
+  "present",
+  "updated"
+];
+
+const RELEASE_GATE_DEFINITIONS = [
+  ["version", "Record version bump or explicit deferral with rationale in review.json releaseReadiness.version.", DEFAULT_RELEASE_GATE_STATUSES],
+  ["changelog", "Record changelog update or explicit deferral with rationale in review.json releaseReadiness.changelog.", DEFAULT_RELEASE_GATE_STATUSES],
+  ["specNote", "Record short spec/release note update or explicit deferral with rationale in review.json releaseReadiness.specNote.", DEFAULT_RELEASE_GATE_STATUSES],
+  ["tagPlan", "Record the post-merge version tag plan in review.json releaseReadiness.tagPlan.", [...DEFAULT_RELEASE_GATE_STATUSES, "planned"]],
+  ["postRebaseVerification", "Record verification after latest rebase in review.json releaseReadiness.postRebaseVerification.", DEFAULT_RELEASE_GATE_STATUSES]
+];
+
+function releaseGateSatisfied(gate, allowedStatuses = DEFAULT_RELEASE_GATE_STATUSES) {
   if (!gate || typeof gate !== "object" || Array.isArray(gate)) {
     return false;
   }
 
   const status = String(gate.status ?? "").trim().toLowerCase();
-  const satisfiedStatuses = new Set([
-    "bumped",
-    "checked",
-    "complete",
-    "completed",
-    "deferred",
-    "done",
-    "passed",
-    "planned",
-    "present",
-    "updated"
-  ]);
+  const satisfiedStatuses = new Set(allowedStatuses);
   if (!satisfiedStatuses.has(status)) {
     return false;
   }
@@ -1137,6 +1308,16 @@ function releaseGateSatisfied(gate) {
     return false;
   }
   return true;
+}
+
+function releaseReadinessErrors(releaseReadiness) {
+  const errors = [];
+  for (const [key, message, allowedStatuses] of RELEASE_GATE_DEFINITIONS) {
+    if (!releaseGateSatisfied(releaseReadiness?.[key], allowedStatuses)) {
+      errors.push(message);
+    }
+  }
+  return errors;
 }
 
 function conventionalCommitSubject(subject) {
@@ -1158,7 +1339,7 @@ async function reserveEvidencePaths(dir) {
       if (error?.code !== "EEXIST") {
         throw error;
       }
-      candidate = `${base}-${index}`;
+      candidate = evidenceId(new Date(Date.now() + index));
       index += 1;
     }
   }
@@ -1355,6 +1536,196 @@ async function validateMission() {
   console.log(`Spacecraft mission ${id} is valid.`);
 }
 
+function compactEvidenceEntry(entry) {
+  return {
+    id: entry.id ?? null,
+    label: entry.label ?? null,
+    command: entry.command ?? null,
+    exitCode: entry.exitCode ?? null,
+    createdAt: entry.createdAt ?? null
+  };
+}
+
+function compactMissionRecord(mission, { archivedAt }) {
+  return {
+    id: mission.id,
+    title: mission.title,
+    state: mission.state,
+    createdAt: mission.createdAt ?? null,
+    updatedAt: mission.updatedAt ?? null,
+    archivedAt,
+    baseSha: mission.baseSha ?? mission.git?.baseSha ?? null,
+    headSha: mission.headSha ?? null,
+    git: {
+      root: mission.git?.root ?? null,
+      branch: mission.git?.workBranch ?? mission.git?.branch ?? null,
+      baseSha: mission.git?.baseSha ?? mission.baseSha ?? null
+    }
+  };
+}
+
+function compactPlanRecord(plan) {
+  const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
+  return {
+    missionId: plan?.missionId ?? null,
+    tasks: tasks.map((task) => ({
+      id: task.id ?? null,
+      title: task.title ?? null,
+      status: task.status ?? null,
+      evidence: Array.isArray(task.evidence) ? task.evidence : []
+    }))
+  };
+}
+
+function blockingReviewFindings(review) {
+  const findings = Array.isArray(review?.findings) ? review.findings : [];
+  return findings.filter((finding) => finding?.blocksShip || finding?.severity === "critical");
+}
+
+function archiveReadinessErrors({ plan, review, evidenceEntries }) {
+  const errors = [];
+  if (!plan) {
+    errors.push("missing plan.json");
+  }
+  if (!review) {
+    errors.push("missing review.json");
+  } else if (review.status !== "ready") {
+    errors.push(`review status is ${review.status ?? "missing"}`);
+  }
+
+  const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
+  if (tasks.length === 0) {
+    errors.push("plan.json has no tasks");
+  }
+  const incompleteTasks = tasks.filter((task) => task?.status !== "completed");
+  if (incompleteTasks.length > 0) {
+    errors.push(`incomplete tasks: ${incompleteTasks.map((task) => task.id ?? task.title ?? "unnamed").join(", ")}`);
+  }
+  if (evidenceEntries.length === 0) {
+    errors.push("evidence.jsonl has no evidence");
+  }
+
+  const blockingFindings = blockingReviewFindings(review);
+  if (blockingFindings.length > 0) {
+    errors.push(`blocking review findings: ${blockingFindings.map((finding) => finding.id ?? finding.summary ?? "unnamed").join(", ")}`);
+  }
+  errors.push(...releaseReadinessErrors(review?.releaseReadiness));
+  return errors;
+}
+
+async function copyArchiveText(source, destination) {
+  const content = await readTextIfExists(source);
+  if (content === null) {
+    return false;
+  }
+  await fs.writeFile(destination, content);
+  return true;
+}
+
+async function clearArchivedMissionSelection(id) {
+  const currentMissionId = await readCurrentMissionId();
+  if (currentMissionId === id) {
+    await fs.writeFile(CURRENT_FILE, "");
+  }
+
+  const sessionsDir = path.join(SPACE_DIR, "sessions");
+  if (!(await exists(sessionsDir))) {
+    return;
+  }
+  const entries = await fs.readdir(sessionsDir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isFile()) {
+      continue;
+    }
+    const sessionPath = path.join(sessionsDir, entry.name);
+    const sessionMissionId = normalizeMissionId(await fs.readFile(sessionPath, "utf8"));
+    if (sessionMissionId === id) {
+      await fs.writeFile(sessionPath, "");
+    }
+  }
+}
+
+async function archiveMission(args) {
+  const selector = args.join(" ").trim() || null;
+  const resolution = selector ? await resolveMission({ selector }) : await requireResolvedMission("archive");
+  if (!resolution.selected || resolution.safety !== "safe") {
+    fail(formatResolutionBlock(resolution, "archive"));
+  }
+
+  const id = resolution.selected.id;
+  const sourceDir = missionDir(id);
+  const mission = await readJson(artifactPath(id, "mission.json"));
+  if (mission.state !== "shipped") {
+    fail(`Archive blocked: mission ${id} state is ${mission.state}. Archive only shipped missions.`);
+  }
+
+  const plan = await readJsonIfExists(path.join(sourceDir, "plan.json"));
+  const review = await readJsonIfExists(path.join(sourceDir, "review.json"));
+  const evidenceEntries = await readEvidenceEntries(path.join(sourceDir, "evidence.jsonl"));
+  const readinessErrors = archiveReadinessErrors({ plan, review, evidenceEntries });
+  if (readinessErrors.length > 0) {
+    fail(`Archive blocked for ${id}:\n- ${readinessErrors.join("\n- ")}`);
+  }
+
+  await fs.mkdir(ARCHIVE_DIR, { recursive: true });
+  const archiveDir = path.join(ARCHIVE_DIR, id);
+  if (await exists(archiveDir)) {
+    fail(`Archive already exists: ${displayPath(archiveDir)}`);
+  }
+  await fs.mkdir(archiveDir, { recursive: false });
+
+  const archivedAt = isoNow();
+  const compactEvidence = evidenceEntries.map(compactEvidenceEntry);
+  const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
+  const completedTasks = tasks.filter((task) => task?.status === "completed").length;
+
+  const summary = [
+    `# Archived Mission ${id}`,
+    "",
+    `Title: ${mission.title ?? "(untitled)"}`,
+    `State: ${mission.state}`,
+    `Created: ${mission.createdAt ?? "(unknown)"}`,
+    `Archived: ${archivedAt}`,
+    `Branch: ${mission.git?.workBranch ?? mission.git?.branch ?? "(unknown)"}`,
+    `Tasks: ${completedTasks}/${tasks.length} completed`,
+    `Evidence: ${compactEvidence.length}`,
+    `Review: ${review?.status ?? "missing"}`,
+    "",
+    "## Evidence",
+    ...compactEvidence.map((entry) => `- ${entry.id}: ${entry.label ?? "(unlabeled)"} [exit ${entry.exitCode ?? "?"}] ${entry.command ?? ""}`),
+    "",
+    "## Kept Artifacts",
+    "- SUMMARY.md",
+    "- mission.json",
+    "- plan.json",
+    "- evidence.jsonl",
+    "- review.json / review.md when present",
+    "- spec.md, decisions.md, and questions.md when present",
+    ""
+  ].join("\n");
+
+  await fs.writeFile(path.join(archiveDir, "SUMMARY.md"), summary);
+  await writeJson(path.join(archiveDir, "mission.json"), compactMissionRecord(mission, { archivedAt }));
+  await writeJson(path.join(archiveDir, "plan.json"), compactPlanRecord(plan));
+  await fs.writeFile(
+    path.join(archiveDir, "evidence.jsonl"),
+    compactEvidence.map((entry) => JSON.stringify(entry)).join("\n") + (compactEvidence.length ? "\n" : "")
+  );
+  if (review) {
+    await writeJson(path.join(archiveDir, "review.json"), review);
+  }
+  await copyArchiveText(path.join(sourceDir, "review.md"), path.join(archiveDir, "review.md"));
+  await copyArchiveText(path.join(sourceDir, "spec.md"), path.join(archiveDir, "spec.md"));
+  await copyArchiveText(path.join(sourceDir, "decisions.md"), path.join(archiveDir, "decisions.md"));
+  await copyArchiveText(path.join(sourceDir, "questions.md"), path.join(archiveDir, "questions.md"));
+
+  await fs.rm(sourceDir, { recursive: true, force: false });
+  await clearArchivedMissionSelection(id);
+
+  console.log(`Archived mission ${id}`);
+  console.log(`Archive: ${displayPath(archiveDir)}`);
+}
+
 async function releaseCloseoutCheck() {
   const errors = [];
   const warnings = [];
@@ -1395,25 +1766,12 @@ async function releaseCloseoutCheck() {
     errors.push(`Review status must be ready; current status is ${review.status ?? "missing"}.`);
   }
 
-  const findings = Array.isArray(review?.findings) ? review.findings : [];
-  const blockingFindings = findings.filter((finding) => finding?.blocksShip || finding?.severity === "critical");
+  const blockingFindings = blockingReviewFindings(review);
   if (blockingFindings.length > 0) {
     errors.push(`Fix blocking review findings: ${blockingFindings.map((finding) => finding.id ?? finding.summary ?? "unnamed").join(", ")}.`);
   }
 
-  const releaseReadiness = review?.releaseReadiness ?? null;
-  const releaseGates = [
-    ["version", "Record version bump or explicit deferral with rationale in review.json releaseReadiness.version."],
-    ["changelog", "Record changelog update or explicit deferral with rationale in review.json releaseReadiness.changelog."],
-    ["specNote", "Record short spec/release note update or explicit deferral with rationale in review.json releaseReadiness.specNote."],
-    ["tagPlan", "Record the post-merge version tag plan in review.json releaseReadiness.tagPlan."],
-    ["postRebaseVerification", "Record verification after latest rebase in review.json releaseReadiness.postRebaseVerification."]
-  ];
-  for (const [key, message] of releaseGates) {
-    if (!releaseGateSatisfied(releaseReadiness?.[key])) {
-      errors.push(message);
-    }
-  }
+  errors.push(...releaseReadinessErrors(review?.releaseReadiness));
 
   const git = await gitInfo();
   if (!git.isRepo) {
@@ -1510,6 +1868,9 @@ async function main() {
     case "status":
       await printStatus();
       break;
+    case "flow":
+      await printWorkflow(args);
+      break;
     case "git-info":
       await printGitInfo();
       break;
@@ -1530,6 +1891,9 @@ async function main() {
       break;
     case "closeout-check":
       await releaseCloseoutCheck();
+      break;
+    case "archive":
+      await archiveMission(args);
       break;
     case undefined:
     case "-h":
