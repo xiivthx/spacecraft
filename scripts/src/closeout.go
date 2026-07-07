@@ -9,32 +9,6 @@ import (
 	"strings"
 )
 
-type ReleaseGate struct {
-	Status    *string `json:"status"`
-	Rationale *string `json:"rationale"`
-}
-
-type ReleaseReadiness struct {
-	Version                  *ReleaseGate `json:"version"`
-	Changelog                *ReleaseGate `json:"changelog"`
-	SpecNote                 *ReleaseGate `json:"specNote"`
-	TagPlan                  *ReleaseGate `json:"tagPlan"`
-	PostRebaseVerification   *ReleaseGate `json:"postRebaseVerification"`
-}
-
-type Finding struct {
-	ID         *string `json:"id"`
-	Summary    *string `json:"summary"`
-	Severity   *string `json:"severity"`
-	BlocksShip *bool   `json:"blocksShip"`
-}
-
-type Review struct {
-	Status           *string          `json:"status"`
-	Findings         []Finding        `json:"findings"`
-	ReleaseReadiness ReleaseReadiness `json:"releaseReadiness"`
-}
-
 var defaultReleaseGateStatuses = map[string]bool{
 	"bumped": true, "checked": true, "complete": true, "completed": true,
 	"deferred": true, "done": true, "passed": true, "present": true, "updated": true,

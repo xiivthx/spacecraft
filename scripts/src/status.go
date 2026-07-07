@@ -8,31 +8,6 @@ import (
 	"strings"
 )
 
-type TasksSummary struct {
-	Total     int `json:"total"`
-	Completed int `json:"completed"`
-}
-
-type WorkflowSnapshot struct {
-	MissionID        string       `json:"missionId"`
-	Title            string       `json:"title"`
-	State            string       `json:"state"`
-	Safety           string       `json:"safety"`
-	Source           string       `json:"source"`
-	Next             string       `json:"next"`
-	NextTask         *Task        `json:"nextTask"`
-	Tasks            TasksSummary `json:"tasks"`
-	EvidenceCount    int          `json:"evidenceCount"`
-	Blockers         []string     `json:"blockers"`
-	CheckpointPolicy string       `json:"checkpointPolicy"`
-}
-
-type Task struct {
-	ID     *string `json:"id"`
-	Title  *string `json:"title"`
-	Status *string `json:"status"`
-}
-
 func taskIsOpen(task Task) bool {
 	if task.Status == nil {
 		return true

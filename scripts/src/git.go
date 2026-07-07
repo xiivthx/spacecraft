@@ -4,51 +4,12 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"spacecraft/internal/gitutil"
 )
 
-type GitInfoData struct {
-	Available  bool   `json:"available"`
-	IsRepo     bool   `json:"isRepo"`
-	Root       string `json:"root"`
-	Branch     string `json:"branch"`
-	Sha        string `json:"sha"`
-	Dirty      bool   `json:"dirty"`
-	DirtyFiles int    `json:"dirtyFiles"`
-}
-
 func gitInfo() GitInfoData {
-	inside := runCommand([]string{"git", "rev-parse", "--is-inside-work-tree"})
-	if inside.exitCode != 0 || strings.TrimSpace(inside.stdout) != "true" {
-		return GitInfoData{
-			Available: inside.exitCode != 127,
-			IsRepo:    false,
-		}
-	}
-
-	rootCmd := runCommand([]string{"git", "rev-parse", "--show-toplevel"})
-	branchCmd := runCommand([]string{"git", "branch", "--show-current"})
-	shaCmd := runCommand([]string{"git", "rev-parse", "HEAD"})
-	statusCmd := runCommand([]string{"git", "status", "--short"})
-
-	statusOut := strings.TrimSpace(statusCmd.stdout)
-	var statusLines []string
-	if statusOut != "" {
-		for _, line := range strings.Split(statusOut, "\n") {
-			if strings.TrimSpace(line) != "" {
-				statusLines = append(statusLines, line)
-			}
-		}
-	}
-
-	return GitInfoData{
-		Available:  true,
-		IsRepo:     true,
-		Root:       strings.TrimSpace(rootCmd.stdout),
-		Branch:     strings.TrimSpace(branchCmd.stdout),
-		Sha:        strings.TrimSpace(shaCmd.stdout),
-		Dirty:      statusCmd.exitCode == 0 && len(statusLines) > 0,
-		DirtyFiles: len(statusLines),
-	}
+	return gitutil.GitInfo(gitutil.OSCommandRunner{})
 }
 
 func printGitInfo() {

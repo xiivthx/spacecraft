@@ -9,57 +9,6 @@ import (
 	"strings"
 )
 
-type GitBlock struct {
-	IsRepo            bool    `json:"isRepo"`
-	Root              *string `json:"root"`
-	Branch            *string `json:"branch"`
-	WorkBranch        *string `json:"workBranch,omitempty"`
-	WorkBranchBoundAt *string `json:"workBranchBoundAt,omitempty"`
-	BaseSha           *string `json:"baseSha"`
-	DirtyAtStart      *bool   `json:"dirtyAtStart"`
-	DirtyFilesAtStart int     `json:"dirtyFilesAtStart"`
-}
-
-type ArtifactsBlock struct {
-	Spec       string `json:"spec"`
-	Plan       string `json:"plan"`
-	Evidence   string `json:"evidence"`
-	Review     string `json:"review"`
-	ReviewJson string `json:"reviewJson"`
-	Questions  string `json:"questions"`
-	Decisions  string `json:"decisions"`
-	Design     string `json:"design"`
-}
-
-type ClarificationBlock struct {
-	Status            string  `json:"status"`
-	BlockingQuestions int     `json:"blockingQuestions"`
-	LastQuestion      *string `json:"lastQuestion"`
-}
-
-type Mission struct {
-	ID            string             `json:"id"`
-	Title         string             `json:"title"`
-	State         string             `json:"state"`
-	CreatedAt     string             `json:"createdAt"`
-	UpdatedAt     string             `json:"updatedAt"`
-	BaseSha       *string            `json:"baseSha"`
-	HeadSha       *string            `json:"headSha"`
-	Branch        *string            `json:"branch,omitempty"`
-	WorkBranch    *string            `json:"workBranch,omitempty"`
-	Git           GitBlock           `json:"git"`
-	Artifacts     ArtifactsBlock     `json:"artifacts"`
-	Clarification ClarificationBlock `json:"clarification"`
-}
-
-type MissionRecord struct {
-	ID       string
-	Mission  *Mission
-	Dir      string
-	Active   bool
-	Branches []string
-}
-
 func initSpacecraft(silent bool) {
 	err := os.MkdirAll(MISSIONS_DIR, 0755)
 	if err != nil {
@@ -484,10 +433,5 @@ func bindBranch(args []string) {
 	}
 
 	fmt.Printf("Bound branch %s to mission %s\n", git.Branch, record.ID)
-}
-
-type Plan struct {
-	MissionId string `json:"missionId"`
-	Tasks     []Task `json:"tasks"`
 }
 

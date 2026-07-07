@@ -8,38 +8,6 @@ import (
 	"strings"
 )
 
-type CompactEvidenceEntry struct {
-	ID        string `json:"id"`
-	Label     string `json:"label,omitempty"`
-	Command   string `json:"command,omitempty"`
-	ExitCode  int    `json:"exitCode"`
-	CreatedAt string `json:"createdAt"`
-}
-
-type CompactMission struct {
-	ID         string   `json:"id"`
-	Title      string   `json:"title"`
-	State      string   `json:"state"`
-	CreatedAt  string   `json:"createdAt"`
-	UpdatedAt  string   `json:"updatedAt"`
-	ArchivedAt string   `json:"archivedAt"`
-	BaseSha    *string  `json:"baseSha"`
-	HeadSha    *string  `json:"headSha"`
-	Git        GitBlock `json:"git"`
-}
-
-type CompactTask struct {
-	ID       *string  `json:"id"`
-	Title    *string  `json:"title"`
-	Status   *string  `json:"status"`
-	Evidence []string `json:"evidence"`
-}
-
-type CompactPlan struct {
-	MissionID string        `json:"missionId"`
-	Tasks     []CompactTask `json:"tasks"`
-}
-
 func readEvidenceEntries(filePath string) []EvidenceEntry {
 	if !exists(filePath) {
 		return nil

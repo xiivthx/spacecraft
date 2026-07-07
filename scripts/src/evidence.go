@@ -11,16 +11,6 @@ import (
 	"time"
 )
 
-type EvidenceEntry struct {
-	ID        string `json:"id"`
-	Label     string `json:"label"`
-	Command   string `json:"command"`
-	ExitCode  int    `json:"exitCode"`
-	Stdout    string `json:"stdout"`
-	Stderr    string `json:"stderr"`
-	CreatedAt string `json:"createdAt"`
-}
-
 type CommandResult struct {
 	exitCode int
 	stdout   string

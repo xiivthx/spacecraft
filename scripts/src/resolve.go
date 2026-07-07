@@ -7,54 +7,6 @@ import (
 	"os"
 )
 
-type MissionInfo struct {
-	ID       string   `json:"id"`
-	Title    string   `json:"title"`
-	State    string   `json:"state"`
-	Active   bool     `json:"active"`
-	Branches []string `json:"branches"`
-	Signal   *string  `json:"signal"`
-}
-
-type SignalInfo struct {
-	Source            string   `json:"source"`
-	Value             string   `json:"value"`
-	ExpectedMissionId string   `json:"expectedMissionId,omitempty"`
-	MissionId         *string  `json:"missionId"`
-	MissionIds        []string `json:"missionIds,omitempty"`
-}
-
-type ConflictInfo struct {
-	Type       string       `json:"type"`
-	Source     string       `json:"source,omitempty"`
-	MissionId  string       `json:"missionId,omitempty"`
-	Value      string       `json:"value,omitempty"`
-	MissionIds []string     `json:"missionIds,omitempty"`
-	Signals    []SignalInfo `json:"signals,omitempty"`
-}
-
-type CandidateInfo struct {
-	MissionInfo
-	Number *int `json:"number"`
-}
-
-type GitInfo struct {
-	Branch string `json:"branch"`
-	Sha    string `json:"sha"`
-	IsRepo bool   `json:"isRepo"`
-}
-
-type ResolveOutput struct {
-	Selected         *MissionInfo    `json:"selected"`
-	Source           *string         `json:"source"`
-	Safety           string          `json:"safety"`
-	Signals          []SignalInfo    `json:"signals"`
-	Conflicts        []ConflictInfo  `json:"conflicts"`
-	Candidates       []CandidateInfo `json:"candidates"`
-	CurrentMissionId *string         `json:"currentMissionId"`
-	Git              GitInfo         `json:"git"`
-}
-
 func resolveSafety(selected *MissionRecord, conflicts []ConflictInfo, ambiguous bool) string {
 	if len(conflicts) > 0 {
 		return "conflict"
