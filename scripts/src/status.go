@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"strings"
 )
 
 type TasksSummary struct {
@@ -275,8 +276,139 @@ func printWorkflow(args []string) {
 }
 
 func printStatus() {
-	// Stub until T04 is fully implemented, but flow is now implemented
-	fmt.Println("Status printed")
+	res := resolveMission("")
+	if res.Safety != "safe" || res.Selected == nil {
+		fmt.Println("No selected Spacecraft mission. Start one with /sc-start <title>.")
+		if len(res.Candidates) > 0 {
+			fmt.Println("Candidates:")
+			for i, c := range res.Candidates {
+				num := i + 1
+				if c.Number != nil {
+					num = *c.Number
+				}
+				branchHint := ""
+				if len(c.Branches) > 0 {
+					branchHint = " branch:" + strings.Join(c.Branches, ",")
+				}
+				signal := ""
+				if c.Signal != nil {
+					signal = " signal:" + *c.Signal
+				}
+				fmt.Printf("%d. %s (%s) - state:%s%s%s\n", num, c.Title, c.ID, c.State, signal, branchHint)
+			}
+		}
+		return
+	}
+
+	id := res.Selected.ID
+	dir := missionDir(id)
+	missionPath := filepath.Join(dir, "mission.json")
+	if !exists(missionPath) {
+		fail(fmt.Sprintf("Selected mission %s is missing mission.json.", id))
+	}
+
+	var mission Mission
+	readJson(missionPath, &mission)
+
+	var plan Plan
+	planPath := filepath.Join(dir, "plan.json")
+	planExists := exists(planPath)
+	if planExists {
+		readJson(planPath, &plan)
+	}
+
+	var review map[string]interface{}
+	reviewPath := filepath.Join(dir, "review.json")
+	reviewExists := exists(reviewPath)
+	if reviewExists {
+		readJson(reviewPath, &review)
+	}
+
+	taskCount := 0
+	if plan.Tasks != nil {
+		taskCount = len(plan.Tasks)
+	}
+
+	evCount := countEvidence(filepath.Join(dir, "evidence.jsonl"))
+
+	src := "unknown"
+	if res.Source != nil {
+		src = *res.Source
+	}
+
+	fmt.Printf("Mission: %s\n", mission.ID)
+	fmt.Printf("Selected by: %s\n", src)
+	if res.Safety != "safe" {
+		fmt.Printf("Mission safety: %s\n", res.Safety)
+	}
+	if res.CurrentMissionId != nil {
+		fmt.Printf("Current: %s\n", *res.CurrentMissionId)
+	}
+	if len(res.Conflicts) > 0 {
+		fmt.Println("Conflicts:")
+		for _, c := range res.Conflicts {
+			fmt.Printf("- %s\n", c.Type)
+		}
+	}
+	if res.Safety != "safe" && len(res.Candidates) > 0 {
+		fmt.Println("Candidates:")
+		for _, c := range res.Candidates {
+			fmt.Printf("- %s (%s)\n", c.Title, c.ID)
+		}
+	}
+	fmt.Printf("Title: %s\n", mission.Title)
+	fmt.Printf("State: %s\n", mission.State)
+	if mission.Clarification.Status != "" {
+		fmt.Printf("Clarification: %s\n", mission.Clarification.Status)
+		fmt.Printf("Blocking questions: %d\n", mission.Clarification.BlockingQuestions)
+	}
+
+	git := gitInfo()
+	if git.IsRepo {
+		branch := "(detached)"
+		if git.Branch != "" {
+			branch = git.Branch
+		}
+		sha := "(no commit)"
+		if git.Sha != "" && len(git.Sha) >= 12 {
+			sha = git.Sha[:12]
+		}
+		status := " clean"
+		if git.Dirty {
+			status = fmt.Sprintf(" dirty:%d", git.DirtyFiles)
+		}
+		fmt.Printf("Git: %s %s%s\n", branch, sha, status)
+		if mission.BaseSha != nil && git.Sha != "" && *mission.BaseSha != git.Sha {
+			fmt.Printf("Mission base: %s\n", (*mission.BaseSha)[:12])
+		}
+	} else {
+		fmt.Println("Git: not a git worktree")
+	}
+
+	fmt.Println("Artifacts:")
+	fmt.Printf("  spec: %s\n", displayPath(filepath.Join(dir, "spec.md")))
+	fmt.Printf("  plan: %s\n", displayPath(planPath))
+	fmt.Printf("  evidence: %s\n", displayPath(filepath.Join(dir, "evidence.jsonl")))
+	fmt.Printf("  review: %s\n", displayPath(filepath.Join(dir, "review.md")))
+	fmt.Printf("  reviewJson: %s\n", displayPath(reviewPath))
+	if exists(filepath.Join(dir, "questions.md")) {
+		fmt.Printf("  questions: %s\n", displayPath(filepath.Join(dir, "questions.md")))
+	}
+	if exists(filepath.Join(dir, "decisions.md")) {
+		fmt.Printf("  decisions: %s\n", displayPath(filepath.Join(dir, "decisions.md")))
+	}
+	if exists(filepath.Join(dir, "design")) {
+		fmt.Printf("  design: %s\n", displayPath(filepath.Join(dir, "design")))
+	}
+	fmt.Printf("Tasks: %d\n", taskCount)
+	fmt.Printf("Evidence: %d\n", evCount)
+	reviewStatus := "not-reviewed"
+	if reviewExists {
+		if s, ok := review["status"].(string); ok && s != "" {
+			reviewStatus = s
+		}
+	}
+	fmt.Printf("Review: %s\n", reviewStatus)
 }
 
 func getString(s *string) string {

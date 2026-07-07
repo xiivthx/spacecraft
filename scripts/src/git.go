@@ -137,8 +137,7 @@ func printGitSuggestion(args []string) {
 		versionStr = "v0.1.0"
 	}
 
-	branchSlug := fmt.Sprintf("%s-%s", missionPart, slug)
-	branch := fmt.Sprintf("%s/%s", typ, branchSlug)
+	branch := fmt.Sprintf("%s/%s/%s", typ, missionPart, slug)
 	if typ == "release" {
 		branch = fmt.Sprintf("release/%s", versionStr)
 	}

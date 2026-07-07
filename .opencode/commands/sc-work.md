@@ -4,8 +4,8 @@ agent: sc-commander
 ---
 Use sc-mission, sc-clarify, and sc-git.
 Run:
-node scripts/spacecraft.mjs resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before editing. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+scripts/spacecraft resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before editing. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
 Treat `.space/current` as fallback state, not sole authority.
 Read the resolved mission's mission.json, spec.md, and plan.json.
 If spec.md or plan.json is missing, stop and tell the user to run /sc-start or /sc-plan.
@@ -14,17 +14,17 @@ If blocking clarification remains open, stop.
 Do not implement product code until clarification status is clear or explicitly deferred by the user.
 If the user explicitly chooses to defer a decision, record the deferral in decisions.md and keep the implementation limited to unaffected tasks.
 Run:
-node scripts/spacecraft.mjs git-info
+scripts/spacecraft git-info
 If the workspace is not a git worktree, stop before editing product files unless the user has explicitly accepted no-git implementation risk for this mission in decisions.md.
 If git exists, inspect dirty state before edits. Work with user changes; do not revert unrelated changes.
 For large, risky, or multi-session slices, prefer a separate branch or git worktree.
 Use sc-git branch naming when suggesting a branch:
-<type>/<issue-or-mission>-<slug>
+<type>/<id>/<title>
 Use:
-node scripts/spacecraft.mjs git-suggest <type> <slug>
+scripts/spacecraft git-suggest <type> <slug>
 to generate the suggested branch and commit examples.
 Never edit product files directly on main.
-If the current branch is main and the task clearly requires edits, create or switch to a feature/issue branch without asking again. If branch intent is unclear, use `node scripts/spacecraft.mjs git-suggest`.
+If the current branch is main and the task clearly requires edits, create or switch to a feature/issue branch without asking again. If branch intent is unclear, use `scripts/spacecraft git-suggest`.
 The agent may create checkpoint commits only on a valid non-main work branch.
 Before staging or committing, ensure `.gitignore` is current and unsafe files are not staged.
 Do not stage secrets, local env files, private data, dependency folders, build outputs, caches, logs, local databases, or machine-specific files.

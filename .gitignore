@@ -67,4 +67,6 @@ Thumbs.db
 signs/*
 scripts/spacecraft
 scripts/sc
+scripts/src/spacecraft
+scripts/src/sc
 *.json

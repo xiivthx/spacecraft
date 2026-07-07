@@ -7,7 +7,7 @@ Spacecraft is a local-first mission-control harness for OpenCode-driven software
 ## Core Contract
 
 - Mission state is stored under `.space/missions/<mission-id>/`.
-- Active mission resolution must use `node scripts/spacecraft.mjs resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
+- Active mission resolution must use `scripts/spacecraft resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
 - Product implementation must not begin before `spec.md` and `plan.json` exist for the resolved mission.
 - Work is not done, passed, verified, ready, shipped, or releasable without evidence in `evidence.jsonl`.
 - Git is the default rollback boundary for implementation work.
@@ -46,7 +46,7 @@ The workflow runner stops on resolver conflicts, open blocking clarification, mi
 Verification evidence is captured with:
 
 ```sh
-node scripts/spacecraft.mjs evidence "<label>" -- <command>
+scripts/spacecraft evidence "<label>" -- <command>
 ```
 
 Each evidence entry records the evidence id, label, command, exit code, output file paths, and creation timestamp. Failures are evidence too.
@@ -56,7 +56,7 @@ Each evidence entry records the evidence id, label, command, exit code, output f
 Spacecraft uses release branching:
 
 - one non-main branch per feature, fix, issue, or tightly scoped change
-- branch names follow `<type>/<issue-or-mission>-<slug>`
+- branch names follow `<type>/<id>/<title>`
 - checkpoint commits are allowed only on valid non-main work branches
 - final branch history should be 1 to 3 logical Conventional Commits and must not exceed 5 without justification
 - work branches are rebased on latest `main` before merge

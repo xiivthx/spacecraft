@@ -4,8 +4,8 @@ agent: sc-commander
 ---
 Use sc-mission and sc-design.
 Run:
-node scripts/spacecraft.mjs resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before polishing. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+scripts/spacecraft resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before polishing. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
 Treat `.space/current` as fallback state, not sole authority.
 Read DESIGN.md, the resolved mission's spec.md, plan.json, review.md, review.json, and git diff.
 If the mission has no UI changes, say so and stop.

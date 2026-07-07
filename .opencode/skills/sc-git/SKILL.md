@@ -5,9 +5,9 @@ license: MIT
 ---
 - Treat git as the rollback and release boundary for mutating work.
 - Discovery, clarification, design exploration, planning, and read-only review may run without git.
-- Before implementation, commit, merge, or release prep, resolve the mission with `node scripts/spacecraft.mjs resolve --json`; `.space/current` is fallback state, not sole authority.
-- If resolver safety is not `safe`, block git-changing work until the user selects with `node scripts/spacecraft.mjs use <number|id|title>` or an explicit `SPACECRAFT_MISSION`.
-- Before implementation, commit, merge, or release prep, run `node scripts/spacecraft.mjs git-info`.
+- Before implementation, commit, merge, or release prep, resolve the mission with `scripts/spacecraft resolve --json`; `.space/current` is fallback state, not sole authority.
+- If resolver safety is not `safe`, block git-changing work until the user selects with `scripts/spacecraft use <number|id|title>` or an explicit `SPACECRAFT_MISSION`.
+- Before implementation, commit, merge, or release prep, run `scripts/spacecraft git-info`.
 - Never write product changes directly on `main`.
 - If clear mutating work is requested and the current branch is `main`, create or switch to a non-main work branch without another blocking question when policy permits it.
 - Do not auto-run `git init`, create worktrees, rebase, merge, tag, or push unless the user explicitly asks.
@@ -23,14 +23,14 @@ license: MIT
 - One branch equals one feature, fix, issue, or tightly scoped change.
 - Branch from the latest `main`.
 - Use branch names:
-  - `feat/<issue-or-mission>-<slug>`
-  - `fix/<issue-or-mission>-<slug>`
-  - `docs/<issue-or-mission>-<slug>`
-  - `refactor/<issue-or-mission>-<slug>`
-  - `chore/<issue-or-mission>-<slug>`
+  - `<type>/<id>/<title>`
+  - `feat/m07fp1l7z/go-rewrite`
+  - `fix/m07fp1l7z/resolve-review-findings`
+  - `chore/m07fp1l7z/update-docs-and-skills`
+  - `docs/m07fp1l7z/add-api-reference`
+  - `refactor/m07fp1l7z/extract-mission-module`
   - `release/v<major>.<minor>.<patch>` only for release preparation work.
-- Prefer mission ids when no issue id exists, for example:
-  `feat/m07fyb5w5-workflow-runner`
+- Prefer mission ids over issue ids when both exist.
 - Prefer a separate git worktree for large, risky, or multi-session branches.
 - If a branch is expected to need more than 5 final commits, split the feature before implementation.
 
@@ -60,19 +60,36 @@ license: MIT
 ## Conventional Commits
 
 - Use Conventional Commits for every final commit.
-- Format:
-  `<type>[optional scope]: <description>`
+- Subject format:
+  `<type>: <description>`
+- Avoid scopes (`(scope)`) unless the change touches a distinct subsystem and the scope meaningfully aids review.
 - Common types:
   `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `perf`, `style`, `revert`.
 - Use imperative, lowercase descriptions.
 - Keep the subject short, roughly 72 characters when practical.
-- Put mission id, evidence ids, and longer rationale in the body/footer when useful.
-- Mark breaking changes with `!` after the type/scope or a `BREAKING CHANGE:` footer.
+- Body format:
+  - Use bullet points with `- ` prefix.
+  - Start each bullet with a **lowercase** letter.
+  - No period at end of each bullet.
+- Put mission id, evidence ids, and longer rationale in the body when useful.
+- Mark breaking changes with `!` after the type or a `BREAKING CHANGE:` footer.
 - Examples:
-  - `feat(trips): add itinerary planning workspace`
-  - `fix(map): handle empty place results`
-  - `docs(release): update changelog for v0.2.0`
-  - `chore(release): bump version to v0.2.0`
+  - `feat: implement core CLI commands`
+    ```
+    - add Go mission CRUD, resolution, workflow, and evidence subcommands
+    ```
+  - `fix: resolve review findings`
+    ```
+    - remove tracked Go binaries
+    - implement printStatus() matching mjs behavior
+    - update .gitignore for scripts/src/ binary patterns
+    ```
+  - `chore: update docs and skills to reference Go binary`
+    ```
+    - replace node scripts/spacecraft.mjs with scripts/spacecraft in AGENTS.md, SPEC.md
+    - update all 14 command files in .opencode/commands/
+    - update 3 skills: sc-git, sc-mission, sc-verification
+    ```
 
 ## Rebase And Merge
 
@@ -92,7 +109,7 @@ license: MIT
 - Treat ordinary stop-chat, close-session, end-session, or continue-in-new-session requests as session handoff. Do not merge, tag, or delete branches for handoff.
 - If "close session" is ambiguous and work appears ready, recommend `/sc-ship`; do not merge automatically.
 - Closeout must prepare the branch for merge into `main`.
-- Run `node scripts/spacecraft.mjs closeout-check` before claiming closeout readiness.
+- Run `scripts/spacecraft closeout-check` before claiming closeout readiness.
 - `closeout-check` requires `review.json.releaseReadiness` object entries for version, changelog, spec note, tag plan, and post-rebase verification; deferred gates need rationale. String and boolean gates are invalid.
 - If any gate is incomplete, block closeout and list exact missing actions.
 - Before merging into `main`, bump the project version.

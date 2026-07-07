@@ -4,16 +4,16 @@ agent: sc-commander
 ---
 Use sc-mission, sc-verification, and sc-git.
 Run:
-node scripts/spacecraft.mjs resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before release closeout. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+scripts/spacecraft resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before release closeout. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
 Treat `.space/current` as fallback state, not sole authority.
 Read the resolved mission's spec.md, plan.json, evidence.jsonl, review.md, review.json, questions.md, decisions.md, and git diff when git is available.
 Run:
-node scripts/spacecraft.mjs validate
+scripts/spacecraft validate
 Run:
-node scripts/spacecraft.mjs git-info
+scripts/spacecraft git-info
 Run:
-node scripts/spacecraft.mjs closeout-check
+scripts/spacecraft closeout-check
 Treat "ship", "release", "merge", "finish mission", and "close branch" as release closeout requests.
 Do not treat ordinary session handoff or "continue in a new session" as release closeout.
 Only close/ship/merge if:
@@ -44,7 +44,7 @@ If all gates pass, prepare merge to main with sc-git:
 - merge uses `git merge --no-ff <branch>`
 - version tag is created after merge when version was bumped
 - merged local branch is deleted unless user asks to keep it
-- shipped mission artifacts are compacted with `node scripts/spacecraft.mjs archive` unless the user asks to keep the full live mission folder
+- shipped mission artifacts are compacted with `scripts/spacecraft archive` unless the user asks to keep the full live mission folder
 - no push unless explicitly requested
 Produce concise final summary:
 - Mission id
@@ -58,8 +58,8 @@ Produce concise final summary:
 - Known limitations
 - Suggested next step
 Then set state to shipped if appropriate.
-After state is shipped and release closeout is complete, run `node scripts/spacecraft.mjs archive` to move the mission from `.space/missions/` to `.space/archive/` with compact durable artifacts, unless the user asks to keep the full live mission folder.
+After state is shipped and release closeout is complete, run `scripts/spacecraft archive` to move the mission from `.space/missions/` to `.space/archive/` with compact durable artifacts, unless the user asks to keep the full live mission folder.
 Do not git push unless the user explicitly asks.
 Suggested commit messages must follow Conventional Commits:
-<type>[optional scope]: <description>
+`<type>: <description>` — no scope by default; body uses `- ` bullet points with lowercase first character.
 End with session advice. Usually recommend a new session after a shipped mission or major phase boundary, with `/sc-status` as pickup.
