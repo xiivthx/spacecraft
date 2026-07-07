@@ -1,9 +1,13 @@
 ---
-description: Shape UI direction for the current Spacecraft mission
+description: Shape UI direction for the resolved Spacecraft mission
 agent: sc-commander
 ---
 Use sc-mission, sc-clarify, and sc-design.
-Read .space/current, DESIGN.md, the current mission spec.md, questions.md, decisions.md, and plan.json if present.
+Run:
+node scripts/spacecraft.mjs resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before writing design artifacts. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+Treat `.space/current` as fallback state, not sole authority.
+Read DESIGN.md and the resolved mission's spec.md, questions.md, decisions.md, and plan.json if present.
 If there is no active mission, explain that /sc-start should be used first.
 If DESIGN.md is missing, create it using the Orbital Console defaults.
 
@@ -110,7 +114,7 @@ The HTML artifact should be dependency-free and directly openable in a browser. 
 When creating or referencing an HTML artifact, also provide an easy preview command using the bundled local server:
 node .opencode/skills/sc-design/scripts/serve-html.mjs .space/missions/<id>/design/<artifact>.html --open
 
-If the user wants to browse all current mission design artifacts, use:
+If the user wants to browse all resolved mission design artifacts, use:
 node .opencode/skills/sc-design/scripts/serve-html.mjs --open
 
 Treat each HTML artifact as a decision aid, not a design essay. Apply a Feynman explanation pass before showing it:
@@ -179,7 +183,7 @@ Do not lock design direction until required configs are chosen or explicitly def
 
 Invoke sc-designer as a read-only subagent to shape the UI direction.
 A user invocation of /sc-design is explicit permission to use the read-only sc-designer subagent; do not ask for separate subagent permission.
-Then update the current mission spec.md and/or plan.json with a concise UI section covering:
+Then update the resolved mission spec.md and/or plan.json with a concise UI section covering:
 - target screen or component
 - user goal
 - chosen mood and tone

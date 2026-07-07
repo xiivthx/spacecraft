@@ -1,9 +1,13 @@
 ---
-description: Capture verification evidence for the current mission
+description: Capture verification evidence for the resolved mission
 agent: sc-commander
 ---
 Use sc-verification.
-Read plan.json and acceptance checks.
+Run:
+node scripts/spacecraft.mjs resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before capturing evidence. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+Treat `.space/current` as fallback state, not sole authority.
+Read the resolved mission's plan.json and acceptance checks.
 Run focused verification using:
 node scripts/spacecraft.mjs evidence "<label>" -- <command>
 Capture evidence for tests, build, typecheck, or lint as appropriate.

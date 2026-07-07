@@ -3,8 +3,11 @@ description: Resolve the next blocking Spacecraft mission question
 agent: sc-commander
 ---
 Use sc-mission and sc-clarify.
-Read .space/current.
-Read the current mission's mission.json, spec.md, questions.md, decisions.md, and plan.json if present.
+Run:
+node scripts/spacecraft.mjs resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before writing clarification artifacts. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+Treat `.space/current` as fallback state, not sole authority.
+Read the resolved mission's mission.json, spec.md, questions.md, decisions.md, and plan.json if present.
 Create questions.md or decisions.md with the standard headings if either is missing.
 Inspect repo files if they can answer the ambiguity.
 If the ambiguity is visual mood, theme, layout feel, art direction, 3D, transition, or animation, prefer /sc-design because it can create HTML comparison artifacts when seeing options is clearer than a text question.

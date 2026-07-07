@@ -3,7 +3,11 @@ description: Prepare final Spacecraft delivery summary
 agent: sc-commander
 ---
 Use sc-mission, sc-verification, and sc-git.
-Read spec.md, plan.json, evidence.jsonl, review.md, review.json, questions.md, decisions.md, and git diff when git is available.
+Run:
+node scripts/spacecraft.mjs resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before release closeout. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+Treat `.space/current` as fallback state, not sole authority.
+Read the resolved mission's spec.md, plan.json, evidence.jsonl, review.md, review.json, questions.md, decisions.md, and git diff when git is available.
 Run:
 node scripts/spacecraft.mjs validate
 Run:

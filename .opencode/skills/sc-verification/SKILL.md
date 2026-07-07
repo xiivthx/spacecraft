@@ -5,6 +5,8 @@ license: MIT
 compatibility: opencode
 ---
 - No done/pass/verified/ready claim without evidence.
+- Resolve the mission with `node scripts/spacecraft.mjs resolve --json`; `.space/current` is fallback state, not sole authority.
+- If resolver safety is not `safe`, stop before evidence capture and ask the user to choose with `node scripts/spacecraft.mjs use <number|id|title>` or an explicit `SPACECRAFT_MISSION`.
 - Use `node scripts/spacecraft.mjs evidence "<label>" -- <command>`.
 - Capture failures too.
 - Map acceptance checks to evidence ids in final summaries.

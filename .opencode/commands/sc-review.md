@@ -1,9 +1,13 @@
 ---
-description: Review current mission diff and evidence
+description: Review resolved mission diff and evidence
 agent: sc-commander
 ---
 Use sc-mission, sc-verification, and sc-git.
-Read current mission spec.md, plan.json, evidence.jsonl, review.json, and git diff when git is available.
+Run:
+node scripts/spacecraft.mjs resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before review. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+Treat `.space/current` as fallback state, not sole authority.
+Read the resolved mission's spec.md, plan.json, evidence.jsonl, review.json, and git diff when git is available.
 Run:
 node scripts/spacecraft.mjs git-info
 Review sc-git readiness:

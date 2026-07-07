@@ -3,7 +3,11 @@ description: Run read-only design critique for current UI work
 agent: sc-commander
 ---
 Use sc-mission and sc-design.
-Read DESIGN.md, current mission spec.md, plan.json, decisions.md, design artifacts if present, evidence.jsonl if present, and git diff.
+Run:
+node scripts/spacecraft.mjs resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before design review. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+Treat `.space/current` as fallback state, not sole authority.
+Read DESIGN.md, the resolved mission's spec.md, plan.json, decisions.md, design artifacts if present, evidence.jsonl if present, and git diff.
 Invoke sc-designer as a read-only subagent.
 A user invocation of /sc-design-review is explicit permission to use the read-only sc-designer subagent; do not ask for separate subagent permission.
 The subagent must not edit files.

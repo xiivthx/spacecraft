@@ -9,7 +9,7 @@ compatibility: opencode
 - First inspect available context before asking:
   - `AGENTS.md`
   - `DESIGN.md` if UI/design is involved
-  - current mission `spec.md`
+  - resolved mission `spec.md`
   - `plan.json` if present
   - package/project files when relevant
   - existing source files when relevant

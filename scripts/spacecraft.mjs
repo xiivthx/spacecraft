@@ -31,6 +31,10 @@ Usage:
   node scripts/spacecraft.mjs init
   node scripts/spacecraft.mjs new <title>
   node scripts/spacecraft.mjs current
+  node scripts/spacecraft.mjs resolve [selector] [--json]
+  node scripts/spacecraft.mjs missions
+  node scripts/spacecraft.mjs use <number|id|title>
+  node scripts/spacecraft.mjs bind-branch [selector]
   node scripts/spacecraft.mjs status
   node scripts/spacecraft.mjs git-info
   node scripts/spacecraft.mjs git-suggest [type] [slug]
@@ -145,6 +149,338 @@ async function writeJson(filePath, data) {
   await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`);
 }
 
+function normalizeMissionId(value) {
+  const match = String(value ?? "").match(/\b[Mm]-(\d{8}-\d{6})\b/);
+  return match ? `M-${match[1]}` : null;
+}
+
+function missionBranchNames(mission) {
+  const candidates = [
+    mission?.branch,
+    mission?.workBranch,
+    mission?.git?.workBranch
+  ];
+  return candidates.filter((value) => typeof value === "string" && value.trim());
+}
+
+function missionActive(mission) {
+  return mission?.state !== "shipped";
+}
+
+async function listMissionRecords() {
+  if (!(await exists(MISSIONS_DIR))) {
+    return [];
+  }
+
+  const entries = await fs.readdir(MISSIONS_DIR, { withFileTypes: true });
+  const records = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) {
+      continue;
+    }
+    const id = entry.name;
+    const missionPath = path.join(MISSIONS_DIR, id, "mission.json");
+    if (!(await exists(missionPath))) {
+      continue;
+    }
+    const mission = await readJson(missionPath);
+    records.push({
+      id,
+      mission,
+      dir: missionDir(id),
+      active: missionActive(mission),
+      branches: missionBranchNames(mission)
+    });
+  }
+  return records.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function missionSummary(record, signal = null) {
+  return {
+    id: record.id,
+    title: displayMissionTitle(record.mission?.title),
+    state: record.mission?.state ?? "unknown",
+    active: record.active,
+    branches: record.branches,
+    signal
+  };
+}
+
+function displayMissionTitle(title) {
+  const text = String(title ?? "(untitled)").replace(/\s+/g, " ").trim();
+  if (text.length <= 88) {
+    return text || "(untitled)";
+  }
+  return `${text.slice(0, 85)}...`;
+}
+
+function findMissionRecord(records, id) {
+  return records.find((record) => record.id === id) ?? null;
+}
+
+function missionDisplayRecords(records) {
+  return [...records].sort((a, b) => {
+    if (a.active !== b.active) {
+      return a.active ? -1 : 1;
+    }
+    return b.id.localeCompare(a.id);
+  });
+}
+
+function findMissionBySelector(records, selector, orderedRecords = missionDisplayRecords(records)) {
+  const text = String(selector ?? "").trim();
+  if (!text) {
+    return null;
+  }
+
+  if (/^\d+$/.test(text)) {
+    const index = Number.parseInt(text, 10) - 1;
+    return orderedRecords[index] ?? null;
+  }
+
+  const id = normalizeMissionId(text);
+  if (id) {
+    return findMissionRecord(records, id);
+  }
+
+  const exactTitle = records.filter((record) => record.mission?.title === text);
+  if (exactTitle.length === 1) {
+    return exactTitle[0];
+  }
+
+  const normalized = text.toLowerCase();
+  const titleMatches = records.filter((record) => String(record.mission?.title ?? "").toLowerCase().includes(normalized));
+  return titleMatches.length === 1 ? titleMatches[0] : null;
+}
+
+function currentSessionKey() {
+  return process.env.SPACECRAFT_SESSION
+    || process.env.OPENCODE_SESSION_ID
+    || process.env.CODEX_SESSION_ID
+    || null;
+}
+
+function sessionFilePath() {
+  const key = currentSessionKey();
+  if (!key) {
+    return null;
+  }
+  const safeKey = slugify(key).slice(0, 80);
+  if (!safeKey) {
+    return null;
+  }
+  return path.join(SPACE_DIR, "sessions", `${safeKey}.current`);
+}
+
+async function readSessionMissionId() {
+  const sessionFile = sessionFilePath();
+  if (!sessionFile) {
+    return null;
+  }
+  if (!(await exists(sessionFile))) {
+    return null;
+  }
+  return normalizeMissionId(await fs.readFile(sessionFile, "utf8"));
+}
+
+async function writeSessionMissionId(id) {
+  const sessionFile = sessionFilePath();
+  if (!sessionFile) {
+    return null;
+  }
+  await fs.mkdir(path.dirname(sessionFile), { recursive: true });
+  await fs.writeFile(sessionFile, `${id}\n`);
+  return sessionFile;
+}
+
+function resolveSafety(selected, conflicts, ambiguous) {
+  if (conflicts.length > 0) {
+    return "conflict";
+  }
+  if (ambiguous) {
+    return "ambiguous";
+  }
+  if (!selected) {
+    return "none";
+  }
+  return "safe";
+}
+
+const AUTHORITATIVE_SIGNAL_SOURCES = new Set([
+  "session",
+  "branch",
+  "branch-metadata",
+  ".space/current"
+]);
+
+function authoritativeSignals(signals) {
+  return signals.filter((signal) => AUTHORITATIVE_SIGNAL_SOURCES.has(signal.source));
+}
+
+function signalConflicts(signals, explicitSelector, selectedMissionId = null, selectedSource = null) {
+  if (explicitSelector) {
+    return [];
+  }
+
+  const strongSignals = authoritativeSignals(signals);
+  const conflicts = [];
+  const selectedByStrongSignal = AUTHORITATIVE_SIGNAL_SOURCES.has(selectedSource);
+  for (const signal of strongSignals) {
+    if (signal.expectedMissionId && !signal.missionId) {
+      conflicts.push({
+        type: "missing-signal-mission",
+        source: signal.source,
+        missionId: signal.expectedMissionId,
+        value: signal.value
+      });
+    }
+    if (Array.isArray(signal.missionIds) && signal.missionIds.length > 1) {
+      if (!selectedByStrongSignal || !selectedMissionId || !signal.missionIds.includes(selectedMissionId)) {
+        conflicts.push({
+          type: "ambiguous-signal",
+          source: signal.source,
+          value: signal.value,
+          missionIds: signal.missionIds
+        });
+      }
+    }
+  }
+
+  const resolvedSignals = strongSignals
+    .filter((signal) => signal.missionId)
+    .map((signal) => ({
+      source: signal.source,
+      missionId: signal.missionId,
+      value: signal.value
+    }));
+  const distinctMissionIds = new Set(resolvedSignals.map((signal) => signal.missionId));
+  if (distinctMissionIds.size > 1) {
+    conflicts.push({
+      type: "signal-mismatch",
+      signals: resolvedSignals
+    });
+  }
+
+  return conflicts;
+}
+
+function candidateRecordsForResolution(records, selected, activeRecords, signals) {
+  const candidateIds = new Set();
+  if (selected) {
+    candidateIds.add(selected.id);
+  }
+  for (const signal of authoritativeSignals(signals)) {
+    if (signal.missionId) {
+      candidateIds.add(signal.missionId);
+    }
+    if (Array.isArray(signal.missionIds)) {
+      for (const id of signal.missionIds) {
+        candidateIds.add(id);
+      }
+    }
+  }
+  for (const record of activeRecords) {
+    candidateIds.add(record.id);
+  }
+
+  return missionDisplayRecords(records).filter((record) => candidateIds.has(record.id));
+}
+
+async function resolveMission({ selector = null } = {}) {
+  const records = await listMissionRecords();
+  const signals = [];
+  const conflicts = [];
+  let selected = null;
+  let source = null;
+  let ambiguous = false;
+  const explicitSelector = selector || process.env.SPACECRAFT_MISSION || null;
+  const explicitSources = new Set(["selector", "SPACECRAFT_MISSION"]);
+
+  function select(record, signal) {
+    if (!record || selected) {
+      return;
+    }
+    if (explicitSelector && !explicitSources.has(signal)) {
+      return;
+    }
+    selected = record;
+    source = signal;
+  }
+
+  if (explicitSelector) {
+    const record = findMissionBySelector(records, explicitSelector);
+    signals.push({ source: selector ? "selector" : "SPACECRAFT_MISSION", value: explicitSelector, missionId: record?.id ?? null });
+    if (!record) {
+      ambiguous = true;
+    }
+    select(record, selector ? "selector" : "SPACECRAFT_MISSION");
+  }
+
+  const sessionMissionId = await readSessionMissionId();
+  const sessionRecord = sessionMissionId ? findMissionRecord(records, sessionMissionId) : null;
+  if (sessionMissionId) {
+    signals.push({ source: "session", value: sessionMissionId, expectedMissionId: sessionMissionId, missionId: sessionRecord?.id ?? null });
+    select(sessionRecord, "session");
+  }
+
+  const git = await gitInfo();
+  const branchMissionId = git.branch ? normalizeMissionId(git.branch) : null;
+  const branchRecord = branchMissionId ? findMissionRecord(records, branchMissionId) : null;
+  if (branchMissionId) {
+    signals.push({ source: "branch", value: git.branch, expectedMissionId: branchMissionId, missionId: branchRecord?.id ?? null });
+    select(branchRecord, "branch");
+  }
+
+  const branchMetadataMatches = git.branch
+    ? records.filter((record) => record.branches.includes(git.branch))
+    : [];
+  if (branchMetadataMatches.length === 1) {
+    signals.push({ source: "branch-metadata", value: git.branch, missionId: branchMetadataMatches[0].id });
+    select(branchMetadataMatches[0], "branch-metadata");
+  } else if (branchMetadataMatches.length > 1) {
+    signals.push({ source: "branch-metadata", value: git.branch, missionId: null, missionIds: branchMetadataMatches.map((record) => record.id) });
+  }
+
+  const currentMissionId = await readCurrentMissionId();
+  const currentRecord = currentMissionId ? findMissionRecord(records, currentMissionId) : null;
+  if (currentMissionId) {
+    signals.push({ source: ".space/current", value: currentMissionId, expectedMissionId: currentMissionId, missionId: currentRecord?.id ?? null });
+    select(currentRecord, ".space/current");
+  }
+
+  const activeRecords = records.filter((record) => record.active);
+  if (activeRecords.length === 1) {
+    signals.push({ source: "single-active", value: activeRecords[0].id, missionId: activeRecords[0].id });
+    select(activeRecords[0], "single-active");
+  } else if (!selected && activeRecords.length > 1) {
+    ambiguous = true;
+  }
+
+  conflicts.push(...signalConflicts(signals, explicitSelector, selected?.id ?? null, source));
+
+  const orderedRecords = missionDisplayRecords(records);
+  const displayNumberById = new Map(orderedRecords.map((record, index) => [record.id, index + 1]));
+  const candidateRecords = candidateRecordsForResolution(records, selected, activeRecords, signals);
+
+  return {
+    selected: selected ? missionSummary(selected, source) : null,
+    source,
+    safety: resolveSafety(selected, conflicts, ambiguous),
+    signals,
+    conflicts,
+    candidates: candidateRecords.map((record) => ({
+      ...missionSummary(record),
+      number: displayNumberById.get(record.id) ?? null
+    })),
+    currentMissionId,
+    git: {
+      branch: git.branch,
+      sha: git.sha,
+      isRepo: git.isRepo
+    }
+  };
+}
+
 function specTemplate() {
   return `# Mission Spec
 
@@ -226,7 +562,12 @@ function slugify(value) {
 }
 
 async function printGitSuggestion(args) {
-  const id = await readCurrentMissionId();
+  const resolution = await resolveMission();
+  if (resolution.safety !== "safe" || !resolution.selected) {
+    fail(formatResolutionBlock(resolution, "git-suggest"));
+  }
+
+  const id = resolution.selected?.id ?? null;
   const mission = id ? await readJsonIfExists(path.join(missionDir(id), "mission.json")) : null;
   const missionPart = id ? id.toLowerCase() : "no-mission";
   const branchTypes = new Set(["feat", "fix", "docs", "refactor", "test", "build", "ci", "chore", "perf", "style", "issue", "release"]);
@@ -244,6 +585,10 @@ async function printGitSuggestion(args) {
   const commitType = ["issue", "release"].includes(type) ? "chore" : type;
 
   console.log("Spacecraft git strategy: release branching");
+  if (resolution.selected) {
+    console.log(`Mission: ${resolution.selected.title} (${resolution.selected.id})`);
+    console.log(`Selected by: ${resolution.source}`);
+  }
   console.log("Base: latest main");
   console.log("Main: protected; no direct writes");
   console.log(`Branch: ${branch}`);
@@ -333,8 +678,12 @@ async function createMission(title) {
     findings: []
   });
   await fs.writeFile(CURRENT_FILE, `${id}\n`);
+  const sessionFile = await writeSessionMissionId(id);
 
   console.log(`Created Spacecraft mission ${id}`);
+  if (sessionFile) {
+    console.log(`Session: ${displayPath(sessionFile)}`);
+  }
   if (git.isRepo) {
     console.log(`Git: ${git.branch ?? "(detached)"} ${git.sha ? git.sha.slice(0, 12) : "(no commit)"}${git.dirty ? ` dirty:${git.dirtyFiles}` : ""}`);
   } else {
@@ -352,6 +701,256 @@ async function printCurrent() {
   console.log(id);
 }
 
+function printMissionCandidate(candidate, index = null) {
+  const displayIndex = Number.isInteger(candidate.number) ? candidate.number : index;
+  const prefix = displayIndex === null ? "-" : `${displayIndex}.`;
+  const branchHint = candidate.branches?.length ? ` branch:${candidate.branches.join(",")}` : "";
+  const signal = candidate.signal ? ` signal:${candidate.signal}` : "";
+  console.log(`${prefix} ${candidate.title} (${candidate.id}) - state:${candidate.state}${signal}${branchHint}`);
+}
+
+function nextCommandForMission(record) {
+  const status = record.mission?.clarification?.status ?? "open";
+  const blockingQuestions = record.mission?.clarification?.blockingQuestions ?? 0;
+  if (status === "open" || blockingQuestions > 0) {
+    return "/sc-clarify";
+  }
+
+  switch (record.mission?.state) {
+    case "draft":
+    case "specified":
+      return "/sc-plan";
+    case "planned":
+    case "implementing":
+      return "/sc-work";
+    case "verifying":
+      return "/sc-verify";
+    case "reviewing":
+      return "/sc-review";
+    case "ready":
+      return "/sc-ship";
+    case "shipped":
+      return "(shipped)";
+    case "blocked":
+      return "/sc-status";
+    default:
+      return "/sc-status";
+  }
+}
+
+function branchHintsForRecord(record, resolution) {
+  const hints = new Set(record.branches);
+  if (resolution.git.branch && normalizeMissionId(resolution.git.branch) === record.id) {
+    hints.add(resolution.git.branch);
+  }
+  return Array.from(hints);
+}
+
+function printMissionRecord(record, index, resolution) {
+  const selected = resolution.selected?.id === record.id;
+  const marker = selected ? "*" : " ";
+  const signal = selected && resolution.source ? ` signal:${resolution.source}` : "";
+  const branchHints = branchHintsForRecord(record, resolution);
+  const branchHint = branchHints.length > 0 ? ` branch:${branchHints.join(",")}` : "";
+  console.log(`${index}. ${marker} ${displayMissionTitle(record.mission?.title)} (${record.id}) - state:${record.mission?.state ?? "unknown"}${signal}${branchHint} next:${nextCommandForMission(record)}`);
+}
+
+function resolutionCandidateLines(resolution) {
+  return resolution.candidates.map((candidate, index) => {
+    const displayIndex = Number.isInteger(candidate.number) ? candidate.number : index + 1;
+    const branchHint = candidate.branches?.length ? ` branch:${candidate.branches.join(",")}` : "";
+    const signal = candidate.signal ? ` signal:${candidate.signal}` : "";
+    return `${displayIndex}. ${candidate.title} (${candidate.id}) - state:${candidate.state}${signal}${branchHint}`;
+  });
+}
+
+function resolutionConflictLines(resolution) {
+  return resolution.conflicts.map((conflict) => {
+    if (conflict.type === "branch-current") {
+      return `branch mission ${conflict.branchMissionId} differs from .space/current ${conflict.currentMissionId}`;
+    }
+    if (conflict.type === "missing-current") {
+      return `.space/current points to missing mission ${conflict.currentMissionId}`;
+    }
+    if (conflict.type === "missing-signal-mission") {
+      return `${conflict.source} points to missing mission ${conflict.missionId}`;
+    }
+    if (conflict.type === "ambiguous-signal") {
+      return `${conflict.source} matches multiple missions for ${conflict.value}: ${conflict.missionIds.join(", ")}`;
+    }
+    if (conflict.type === "signal-mismatch") {
+      const signals = conflict.signals
+        .map((signal) => `${signal.source} -> ${signal.missionId}`)
+        .join("; ");
+      return `mission signals disagree: ${signals}`;
+    }
+    return conflict.type;
+  });
+}
+
+function formatResolutionBlock(resolution, commandName) {
+  const lines = [
+    `Spacecraft cannot safely choose a mission for ${commandName}.`,
+    "No product files or mission artifacts changed.",
+    `Safety: ${resolution.safety}`
+  ];
+  if (resolution.git.isRepo) {
+    lines.push(`Branch: ${resolution.git.branch ?? "(detached)"}`);
+  }
+  if (resolution.currentMissionId) {
+    lines.push(`Current: ${resolution.currentMissionId}`);
+  }
+  const conflicts = resolutionConflictLines(resolution);
+  if (conflicts.length > 0) {
+    lines.push("Conflicts:");
+    lines.push(...conflicts.map((line) => `- ${line}`));
+  }
+  const candidates = resolutionCandidateLines(resolution);
+  if (candidates.length > 0) {
+    lines.push("Candidates:");
+    lines.push(...candidates);
+  }
+  lines.push("Select a mission with: node scripts/spacecraft.mjs use <number|title>");
+  lines.push("Advanced fallback: set SPACECRAFT_MISSION=<mission-id> for one command.");
+  return lines.join("\n");
+}
+
+async function requireResolvedMission(commandName) {
+  const resolution = await resolveMission();
+  if (resolution.safety !== "safe" || !resolution.selected) {
+    fail(formatResolutionBlock(resolution, commandName));
+  }
+  return resolution;
+}
+
+async function printMissions() {
+  const records = await listMissionRecords();
+  const resolution = await resolveMission();
+  const orderedRecords = missionDisplayRecords(records);
+
+  if (orderedRecords.length === 0) {
+    console.log("No Spacecraft missions. Start one with /sc-start <title>.");
+    return;
+  }
+
+  if (resolution.selected) {
+    console.log(`Selected: ${resolution.selected.title} (${resolution.selected.id})`);
+    console.log(`Selected by: ${resolution.source}`);
+  } else {
+    console.log("Selected: unresolved");
+  }
+  console.log(`Safety: ${resolution.safety}`);
+  if (resolution.currentMissionId) {
+    console.log(`Current: ${resolution.currentMissionId}`);
+  }
+  if (resolution.git.isRepo) {
+    console.log(`Branch: ${resolution.git.branch ?? "(detached)"}`);
+  }
+  if (resolution.conflicts.length > 0) {
+    console.log("Conflicts:");
+    for (const line of resolutionConflictLines(resolution)) {
+      console.log(`- ${line}`);
+    }
+  }
+
+  console.log("Missions:");
+  orderedRecords.forEach((record, index) => printMissionRecord(record, index + 1, resolution));
+  console.log("Use: node scripts/spacecraft.mjs use <number|id|title>");
+}
+
+async function useMission(args) {
+  const selector = args.join(" ").trim();
+  if (!selector) {
+    await printMissions();
+    fail("Missing mission selector.");
+  }
+
+  const records = await listMissionRecords();
+  const resolution = await resolveMission();
+  const orderedRecords = missionDisplayRecords(records);
+  const record = findMissionBySelector(records, selector, orderedRecords);
+  if (!record) {
+    console.log(`No unique mission matches "${selector}".`);
+    console.log("Candidates:");
+    orderedRecords.forEach((candidate, index) => printMissionRecord(candidate, index + 1, resolution));
+    fail("Choose a mission by number, mission id, exact title, or unique title substring.");
+  }
+
+  await fs.writeFile(CURRENT_FILE, `${record.id}\n`);
+  const sessionFile = await writeSessionMissionId(record.id);
+  console.log(`Selected mission: ${displayMissionTitle(record.mission?.title)} (${record.id})`);
+  if (sessionFile) {
+    console.log(`Session: ${displayPath(sessionFile)}`);
+  }
+  console.log(`Next: ${nextCommandForMission(record)}`);
+}
+
+async function bindBranch(args) {
+  const selector = args.join(" ").trim() || null;
+  const resolution = selector ? await resolveMission({ selector }) : await requireResolvedMission("bind-branch");
+  if (!resolution.selected || resolution.safety !== "safe") {
+    fail(formatResolutionBlock(resolution, "bind-branch"));
+  }
+
+  const git = await gitInfo();
+  if (!git.isRepo) {
+    fail("Cannot bind branch outside a git worktree.");
+  }
+  if (!git.branch) {
+    fail("Cannot bind branch while HEAD is detached.");
+  }
+
+  const missionPath = artifactPath(resolution.selected.id, "mission.json");
+  const mission = await readJson(missionPath);
+  mission.git = {
+    ...(mission.git ?? {}),
+    workBranch: git.branch,
+    workBranchBoundAt: isoNow()
+  };
+  mission.updatedAt = isoNow();
+  await writeJson(missionPath, mission);
+
+  console.log(`Bound branch: ${git.branch}`);
+  console.log(`Mission: ${displayMissionTitle(mission.title)} (${mission.id})`);
+}
+
+async function printResolvedMission(args) {
+  const json = args.includes("--json");
+  const selector = args.filter((arg) => arg !== "--json").join(" ").trim() || null;
+  const resolution = await resolveMission({ selector });
+
+  if (json) {
+    console.log(JSON.stringify(resolution, null, 2));
+    return;
+  }
+
+  if (resolution.selected) {
+    console.log(`Mission: ${resolution.selected.title} (${resolution.selected.id})`);
+    console.log(`Source: ${resolution.source}`);
+  } else {
+    console.log("Mission: unresolved");
+  }
+  console.log(`Safety: ${resolution.safety}`);
+  if (resolution.git.isRepo) {
+    console.log(`Branch: ${resolution.git.branch ?? "(detached)"}`);
+  }
+  if (resolution.currentMissionId) {
+    console.log(`Current: ${resolution.currentMissionId}`);
+  }
+
+  if (resolution.conflicts.length > 0) {
+    console.log("Conflicts:");
+    for (const line of resolutionConflictLines(resolution)) {
+      console.log(`- ${line}`);
+    }
+  }
+
+  if (resolution.candidates.length > 0) {
+    console.log("Candidates:");
+    resolution.candidates.forEach((candidate, index) => printMissionCandidate(candidate, index + 1));
+  }
+}
+
 async function countEvidence(filePath) {
   if (!(await exists(filePath))) {
     return 0;
@@ -361,16 +960,21 @@ async function countEvidence(filePath) {
 }
 
 async function printStatus() {
-  const id = await readCurrentMissionId();
-  if (!id) {
-    console.log("No current Spacecraft mission. Start one with /sc-start <title>.");
+  const resolution = await resolveMission();
+  if (!resolution.selected) {
+    console.log("No selected Spacecraft mission. Start one with /sc-start <title>.");
+    if (resolution.candidates.length > 0) {
+      console.log("Candidates:");
+      resolution.candidates.forEach((candidate, index) => printMissionCandidate(candidate, index + 1));
+    }
     return;
   }
 
+  const id = resolution.selected.id;
   const dir = missionDir(id);
   const missionPath = path.join(dir, "mission.json");
   if (!(await exists(missionPath))) {
-    fail(`Current mission ${id} is missing mission.json.`);
+    fail(`Selected mission ${id} is missing mission.json.`);
   }
 
   const mission = await readJson(missionPath);
@@ -380,6 +984,23 @@ async function printStatus() {
   const evidenceCount = await countEvidence(path.join(dir, "evidence.jsonl"));
 
   console.log(`Mission: ${mission.id}`);
+  console.log(`Selected by: ${resolution.source}`);
+  if (resolution.safety !== "safe") {
+    console.log(`Mission safety: ${resolution.safety}`);
+  }
+  if (resolution.currentMissionId) {
+    console.log(`Current: ${resolution.currentMissionId}`);
+  }
+  if (resolution.conflicts.length > 0) {
+    console.log("Conflicts:");
+    for (const line of resolutionConflictLines(resolution)) {
+      console.log(`- ${line}`);
+    }
+  }
+  if (resolution.safety !== "safe" && resolution.candidates.length > 0) {
+    console.log("Candidates:");
+    resolution.candidates.forEach((candidate, index) => printMissionCandidate(candidate, index + 1));
+  }
   console.log(`Title: ${mission.title}`);
   console.log(`State: ${mission.state}`);
   if (mission.clarification?.status) {
@@ -441,7 +1062,8 @@ async function setState(state) {
     fail(`Invalid state "${state}". Allowed states: ${Array.from(STATES).join(", ")}`);
   }
 
-  const id = await readCurrentMissionId({ required: true });
+  const resolution = await requireResolvedMission("set-state");
+  const id = resolution.selected.id;
   const missionPath = artifactPath(id, "mission.json");
   const mission = await readJson(missionPath);
   mission.state = state;
@@ -458,7 +1080,8 @@ async function setClarificationStatus(status) {
     fail(`Invalid clarification status "${status}". Allowed statuses: ${Array.from(CLARIFICATION_STATUSES).join(", ")}`);
   }
 
-  const id = await readCurrentMissionId({ required: true });
+  const resolution = await requireResolvedMission("clarify-status");
+  const id = resolution.selected.id;
   const missionPath = artifactPath(id, "mission.json");
   const mission = await readJson(missionPath);
   mission.clarification = {
@@ -595,7 +1218,8 @@ async function recordEvidence(args) {
     fail(`Missing command after --.\n\n${usage()}`);
   }
 
-  const id = await readCurrentMissionId({ required: true });
+  const resolution = await requireResolvedMission("evidence");
+  const id = resolution.selected.id;
   const dir = missionDir(id);
   const outputsDir = path.join(dir, "outputs");
   await fs.mkdir(outputsDir, { recursive: true });
@@ -625,7 +1249,8 @@ async function recordEvidence(args) {
 
 async function validateMission() {
   const errors = [];
-  const id = await readCurrentMissionId({ required: true });
+  const resolution = await requireResolvedMission("validate");
+  const id = resolution.selected.id;
   const dir = missionDir(id);
 
   async function requireFile(relativePath) {
@@ -733,7 +1358,8 @@ async function validateMission() {
 async function releaseCloseoutCheck() {
   const errors = [];
   const warnings = [];
-  const id = await readCurrentMissionId({ required: true });
+  const resolution = await requireResolvedMission("closeout-check");
+  const id = resolution.selected.id;
   const dir = missionDir(id);
 
   const mission = await readJsonIfExists(path.join(dir, "mission.json"));
@@ -868,6 +1494,18 @@ async function main() {
       break;
     case "current":
       await printCurrent();
+      break;
+    case "resolve":
+      await printResolvedMission(args);
+      break;
+    case "missions":
+      await printMissions();
+      break;
+    case "use":
+      await useMission(args);
+      break;
+    case "bind-branch":
+      await bindBranch(args);
       break;
     case "status":
       await printStatus();

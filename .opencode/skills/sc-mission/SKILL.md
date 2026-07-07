@@ -4,8 +4,11 @@ description: Manage Spacecraft mission artifacts and lifecycle for local OpenCod
 license: MIT
 compatibility: opencode
 ---
-- Read `.space/current`.
-- Read `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
+- Resolve the active mission with `node scripts/spacecraft.mjs resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
+- Resolver priority is explicit selector or `SPACECRAFT_MISSION`, session binding, branch mission id, branch metadata, `.space/current`, then single active mission.
+- Strong signal conflicts or ambiguous active missions block mission writes until the user selects with `node scripts/spacecraft.mjs use <number|id|title>` or an explicit selector.
+- Users may choose by list number, mission id, exact title, or unique title substring; do not expect the user to know a mission id.
+- Read the resolved mission's `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
 - sc-mission owns lifecycle but must route ambiguity to sc-clarify.
 - Enforce order: mission -> clarify -> spec -> design if needed -> plan -> work -> verify -> review -> ship.
 - Do not skip clarification when user intent, scope, acceptance criteria, or design direction is materially ambiguous.
