@@ -3,29 +3,19 @@ description: Resolve the next blocking Spacecraft mission question
 agent: sc-commander
 ---
 Use sc-mission and sc-clarify.
-Run:
-scripts/spacecraft resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before writing clarification artifacts. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
-Treat `.space/current` as fallback state, not sole authority.
+Load sc-clarify skill for the detailed workflow; this command provides dispatch only.
+Resolve the mission. Block if unsafe.
 Read the resolved mission's mission.json, spec.md, questions.md, decisions.md, and plan.json if present.
-Create questions.md or decisions.md with the standard headings if either is missing.
+Create questions.md or decisions.md with standard headings if either is missing.
 Inspect repo files if they can answer the ambiguity.
-If the ambiguity is visual mood, theme, layout feel, art direction, 3D, transition, or animation, prefer /sc-design because it can create HTML comparison artifacts when seeing options is clearer than a text question.
+If the ambiguity is visual mood/theme/layout/art/3D/transition/animation, prefer /sc-design — it can create HTML comparisons when seeing is clearer than text.
 Do not implement product code.
 Do not create or modify product files.
-If there is an unanswered blocking question already in questions.md, ask that one question again with:
-- why it matters
-- your recommended answer
-- what happens if the recommendation is accepted
-If the user has answered a previous question in the conversation, record the answer in questions.md and decisions.md.
-Then determine whether another blocking question remains.
-If yes, ask exactly one next blocking question and stop.
-If no blocking questions remain, set clarification status to clear using:
+Ask exactly one blocking question at a time if one is open in questions.md. Include why it matters, your recommendation, and what happens if accepted.
+Record answered questions in questions.md and decisions.md.
+When no blocking questions remain, run:
 scripts/spacecraft clarify-status clear
-If the helper is unavailable, update mission.json directly.
-Summarize the current confirmed decisions briefly.
-Recommend the next command:
-- /sc-design if UI/design direction is needed
-- /sc-plan if ready to plan
-- /sc-work only if already planned
-Also recommend whether to continue this chat or start a new session. Prefer continuing this chat when the user should answer the current question.
+If unavailable, update mission.json directly.
+Summarize confirmed decisions briefly.
+Recommend next command: /sc-design, /sc-plan, or /sc-work only if already planned.
+Recommend whether to continue this chat or start a new session.

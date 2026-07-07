@@ -475,13 +475,11 @@ test("conflict candidate numbers match use selector ordering with shipped missio
   assert.notEqual(blocked.status, 0);
   assert.match(blocked.stderr, /Resolution failed or blocked/);
 
-  // The Go binary's `use` is a stub; write .space/current directly
-  await writeCurrent(cwd, currentShipped);
   const selected = runSpacecraft(cwd, ["use", "3"]);
-  assert.match(selected.stdout, /useMission called/);
+  assert.match(selected.stdout, /Selected mission/);
 });
 
-test("flow reports next task without bypassing gates", async () => {
+test("workflow reports next task without bypassing gates", async () => {
   const cwd = await createWorkspace();
   const id = "M0000000B";
 
@@ -501,14 +499,14 @@ test("flow reports next task without bypassing gates", async () => {
   await writeFile(path.join(cwd, ".space", "missions", id, "evidence.jsonl"), "");
   await writeCurrent(cwd, id);
 
-  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
   assert.equal(flow.next, "/sc-work T01");
   assert.equal(flow.nextTask.id, "T01");
   assert.deepEqual(flow.blockers, []);
 });
 
-test("flow prioritizes blocking clarification over work", async () => {
+test("workflow prioritizes blocking clarification over work", async () => {
   const cwd = await createWorkspace();
   const id = "M0000000D";
 
@@ -528,13 +526,13 @@ test("flow prioritizes blocking clarification over work", async () => {
   await writeFile(path.join(cwd, ".space", "missions", id, "evidence.jsonl"), "");
   await writeCurrent(cwd, id);
 
-  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
   assert.equal(flow.next, "/sc-clarify");
   assert.ok(flow.blockers.includes("blocking clarification remains open"));
 });
 
-test("flow blocks missing spec before recommending work", async () => {
+test("workflow blocks missing spec before recommending work", async () => {
   const cwd = await createWorkspace();
   const id = "M0000000E";
   const missionDir = path.join(cwd, ".space", "missions", id);
@@ -553,13 +551,13 @@ test("flow blocks missing spec before recommending work", async () => {
   await writeFile(path.join(missionDir, "evidence.jsonl"), "");
   await writeCurrent(cwd, id);
 
-  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
   assert.notEqual(flow.next, "/sc-work T01");
   assert.ok(flow.blockers.includes("spec.md is missing"));
 });
 
-test("flow blocks missing plan before recommending work", async () => {
+test("workflow blocks missing plan before recommending work", async () => {
   const cwd = await createWorkspace();
   const id = "M0000000F";
   const missionDir = path.join(cwd, ".space", "missions", id);
@@ -573,7 +571,7 @@ test("flow blocks missing plan before recommending work", async () => {
   await writeFile(path.join(missionDir, "evidence.jsonl"), "");
   await writeCurrent(cwd, id);
 
-  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
   assert.equal(flow.next, "/sc-plan");
   assert.ok(flow.blockers.includes("plan.json is missing"));

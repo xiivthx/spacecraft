@@ -3,10 +3,7 @@ description: Create or update resolved mission flight plan
 agent: sc-commander
 ---
 Use sc-mission, sc-clarify, and sc-planning.
-Run:
-scripts/spacecraft resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before writing plan.json. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
-Treat `.space/current` as fallback state, not sole authority.
+Resolve the mission. Block if unsafe.
 Read the resolved mission's spec.md, questions.md, decisions.md, and plan.json if present.
 Use sc-clarify before finalizing a plan.
 If mission clarification status is open and there are blocking questions, stop and tell the user to run /sc-clarify or answer the current question.
