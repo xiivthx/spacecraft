@@ -176,10 +176,10 @@ func printGitSuggestion(args []string) {
 	fmt.Println("Common types: feat, fix, docs, refactor, test, build, ci, chore, perf, style, revert")
 	fmt.Println("Examples:")
 	if typ == "release" {
-		fmt.Printf("chore(release): prepare %s\n", versionStr)
+		fmt.Printf("chore: prepare release %s\n", versionStr)
 	} else {
-		fmt.Printf("%s(%s): add focused mission change\n", commitType, slug)
+		fmt.Printf("%s: add focused mission change\n", commitType)
 	}
-	fmt.Println("docs(release): update changelog for v0.2.0")
-	fmt.Println("chore(release): bump version to v0.2.0")
+	fmt.Println("docs: update changelog for v0.2.0")
+	fmt.Println("chore: bump version to v0.2.0")
 }
