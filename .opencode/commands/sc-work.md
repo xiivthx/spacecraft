@@ -32,6 +32,17 @@ Do not invent a new visual language when DESIGN.md exists.
 Prefer CSS custom properties and local component styles.
 Do not add broad styling frameworks unless explicitly requested.
 Prefer test-first work where practical.
+Before ending, run a bounded lightweight self-review/self-test loop over the touched diff:
+- make at most two short self-review passes unless the user explicitly asks for more
+- in each pass, check the change against the current task and acceptance checks
+- remove accidental debug code, unrelated edits, dead code, and noisy formatting churn
+- check obvious edge cases, error/loading states, accessibility labels, and mobile layout when relevant
+- run the nearest cheap focused self-test when practical, such as a touched unit test, typecheck, lint, or targeted build
+- if the pass finds small, low-risk issues, fix them and repeat the loop once
+- stop when a pass finds no small self-found issues, or when the next fix would be broad, risky, design-level, blocked by ambiguity, or better suited to independent review
+Keep this self-review lightweight. Do not invoke sc-reviewer, do not write review.md or review.json, and do not treat it as independent expert review.
+If the loop stops with known remaining risk, state that risk and recommend the next concrete command or clarification.
+If a useful self-test is skipped, say why and recommend the next concrete verification command.
 Update plan.json task status conservatively.
 Do not claim completion until /sc-verify captures evidence.
 End with the recommended next action and session advice. Prefer continuing this chat for immediate /sc-verify; recommend a new session when the next task is a separate implementation slice or context is heavy.

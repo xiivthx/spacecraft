@@ -178,6 +178,7 @@ Do not require the user to understand design theory.
 Do not lock design direction until required configs are chosen or explicitly deferred.
 
 Invoke sc-designer as a read-only subagent to shape the UI direction.
+A user invocation of /sc-design is explicit permission to use the read-only sc-designer subagent; do not ask for separate subagent permission.
 Then update the current mission spec.md and/or plan.json with a concise UI section covering:
 - target screen or component
 - user goal
