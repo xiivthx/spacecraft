@@ -10,3 +10,4 @@ compatibility: opencode
 - Map acceptance checks to evidence ids in final summaries.
 - If a check cannot be automated, state why and mark it manual.
 - Prefer focused verification first, then broader build/test checks before shipping.
+- Use rtk for noisy verification commands when available. Use raw output or `rtk proxy` passthrough when exact evidence is needed.

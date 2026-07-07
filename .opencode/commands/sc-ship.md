@@ -8,7 +8,11 @@ Run:
 node scripts/spacecraft.mjs validate
 Run:
 node scripts/spacecraft.mjs git-info
-Only ship if:
+Run:
+node scripts/spacecraft.mjs closeout-check
+Treat "ship", "release", "merge", "finish mission", and "close branch" as release closeout requests.
+Do not treat ordinary session handoff or "continue in a new session" as release closeout.
+Only close/ship/merge if:
 - blocking clarification questions are resolved
 - acceptance checks have evidence
 - important verification commands have passing evidence
@@ -28,7 +32,16 @@ Only ship if:
 - if UI files changed, review.md or review.json includes a design review result
 - UI work has no unresolved critical design findings
 - if UI files changed, art direction decisions are recorded in decisions.md or explicitly deferred
-Produce a concise final summary:
+If any gate fails, block closeout. List exact missing actions and next command.
+If all gates pass, prepare merge to main with sc-git:
+- final commits are logical Conventional Commits
+- branch is rebased on latest main
+- verification is rerun after rebase
+- merge uses `git merge --no-ff <branch>`
+- version tag is created after merge when version was bumped
+- merged local branch is deleted unless user asks to keep it
+- no push unless explicitly requested
+Produce concise final summary:
 - Mission id
 - What changed
 - Evidence ids
@@ -40,10 +53,7 @@ Produce a concise final summary:
 - Known limitations
 - Suggested next step
 Then set state to shipped if appropriate.
-Do not git push.
-Do not create commits unless the user explicitly asks.
+Do not git push unless the user explicitly asks.
 Suggested commit messages must follow Conventional Commits:
 <type>[optional scope]: <description>
-Do not auto-merge.
-Do not create tags unless the user explicitly asks.
-End with session advice. Usually recommend starting a new session after a shipped mission or major phase boundary, with `/sc-status` as the pickup command.
+End with session advice. Usually recommend a new session after a shipped mission or major phase boundary, with `/sc-status` as pickup.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
-import { constants as fsConstants } from "node:fs";
+import { constants as fsConstants, existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -38,6 +38,7 @@ Usage:
   node scripts/spacecraft.mjs clarify-status <open|clear|deferred>
   node scripts/spacecraft.mjs evidence <label> -- <command...>
   node scripts/spacecraft.mjs validate
+  node scripts/spacecraft.mjs closeout-check
 `;
 }
 
@@ -481,15 +482,63 @@ function commandToString(parts) {
     .join(" ");
 }
 
-async function nextEvidenceId(dir) {
+function evidenceFilePath(entryPath) {
+  if (!entryPath || typeof entryPath !== "string") {
+    return null;
+  }
+  return path.isAbsolute(entryPath) ? entryPath : path.join(ROOT, entryPath);
+}
+
+function releaseGateSatisfied(gate) {
+  if (!gate || typeof gate !== "object" || Array.isArray(gate)) {
+    return false;
+  }
+
+  const status = String(gate.status ?? "").trim().toLowerCase();
+  const satisfiedStatuses = new Set([
+    "bumped",
+    "checked",
+    "complete",
+    "completed",
+    "deferred",
+    "done",
+    "passed",
+    "planned",
+    "present",
+    "updated"
+  ]);
+  if (!satisfiedStatuses.has(status)) {
+    return false;
+  }
+  if (status === "deferred" && !String(gate.rationale ?? "").trim()) {
+    return false;
+  }
+  return true;
+}
+
+function conventionalCommitSubject(subject) {
+  return /^(feat|fix|docs|refactor|test|build|ci|chore|perf|style|revert)(\([a-z0-9._/-]+\))?!?: .+/.test(subject);
+}
+
+async function reserveEvidencePaths(dir) {
   const base = evidenceId();
   let candidate = base;
   let index = 2;
-  while (await exists(path.join(dir, "outputs", `${candidate}.stdout.txt`))) {
-    candidate = `${base}-${index}`;
-    index += 1;
+  while (true) {
+    const stdoutPath = path.join(dir, "outputs", `${candidate}.stdout.txt`);
+    const stderrPath = path.join(dir, "outputs", `${candidate}.stderr.txt`);
+    try {
+      const handle = await fs.open(stdoutPath, "wx");
+      await handle.close();
+      return { evidence: candidate, stdoutPath, stderrPath };
+    } catch (error) {
+      if (error?.code !== "EEXIST") {
+        throw error;
+      }
+      candidate = `${base}-${index}`;
+      index += 1;
+    }
   }
-  return candidate;
 }
 
 function runCommand(commandParts) {
@@ -551,9 +600,7 @@ async function recordEvidence(args) {
   const outputsDir = path.join(dir, "outputs");
   await fs.mkdir(outputsDir, { recursive: true });
 
-  const evidence = await nextEvidenceId(dir);
-  const stdoutPath = path.join(outputsDir, `${evidence}.stdout.txt`);
-  const stderrPath = path.join(outputsDir, `${evidence}.stderr.txt`);
+  const { evidence, stdoutPath, stderrPath } = await reserveEvidencePaths(dir);
   const result = await runCommand(commandParts);
 
   await fs.writeFile(stdoutPath, result.stdout);
@@ -624,12 +671,38 @@ async function validateMission() {
   const evidencePath = await requireFile("evidence.jsonl");
   if (evidencePath) {
     const lines = (await fs.readFile(evidencePath, "utf8")).split(/\r?\n/);
+    const evidenceIds = new Map();
+    const evidenceOutputs = new Map();
     lines.forEach((line, index) => {
       if (!line.trim()) {
         return;
       }
       try {
-        JSON.parse(line);
+        const entry = JSON.parse(line);
+        if (!entry.id || typeof entry.id !== "string") {
+          errors.push(`evidence.jsonl line ${index + 1} must have string id`);
+        } else if (evidenceIds.has(entry.id)) {
+          errors.push(`Duplicate evidence id ${entry.id} on lines ${evidenceIds.get(entry.id)} and ${index + 1}`);
+        } else {
+          evidenceIds.set(entry.id, index + 1);
+        }
+
+        for (const field of ["stdout", "stderr"]) {
+          const filePath = evidenceFilePath(entry[field]);
+          if (!filePath) {
+            errors.push(`evidence.jsonl line ${index + 1} must have ${field} path`);
+            continue;
+          }
+          const key = path.resolve(filePath);
+          if (evidenceOutputs.has(key)) {
+            errors.push(`Duplicate evidence ${field} path ${entry[field]} on lines ${evidenceOutputs.get(key)} and ${index + 1}`);
+          } else {
+            evidenceOutputs.set(key, index + 1);
+          }
+          if (!existsSync(filePath)) {
+            errors.push(`Missing evidence ${field} file for line ${index + 1}: ${entry[field]}`);
+          }
+        }
       } catch (error) {
         errors.push(`Invalid JSON in evidence.jsonl line ${index + 1}: ${error.message}`);
       }
@@ -655,6 +728,132 @@ async function validateMission() {
   }
 
   console.log(`Spacecraft mission ${id} is valid.`);
+}
+
+async function releaseCloseoutCheck() {
+  const errors = [];
+  const warnings = [];
+  const id = await readCurrentMissionId({ required: true });
+  const dir = missionDir(id);
+
+  const mission = await readJsonIfExists(path.join(dir, "mission.json"));
+  const plan = await readJsonIfExists(path.join(dir, "plan.json"));
+  const review = await readJsonIfExists(path.join(dir, "review.json"));
+  const evidenceCount = await countEvidence(path.join(dir, "evidence.jsonl"));
+
+  if (!mission) {
+    errors.push("Missing mission.json");
+  }
+  if (!plan) {
+    errors.push("Missing plan.json");
+  }
+  if (!review) {
+    errors.push("Missing review.json");
+  }
+
+  if (mission?.clarification?.status === "open" || (mission?.clarification?.blockingQuestions ?? 0) > 0) {
+    errors.push("Resolve blocking clarification questions.");
+  }
+
+  const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
+  const incompleteTasks = tasks.filter((task) => task.status !== "completed");
+  if (incompleteTasks.length > 0) {
+    errors.push(`Complete plan tasks: ${incompleteTasks.map((task) => task.id ?? task.title).join(", ")}.`);
+  }
+
+  if (evidenceCount === 0) {
+    errors.push("Capture verification evidence in evidence.jsonl.");
+  }
+
+  if (review && review.status !== "ready") {
+    errors.push(`Review status must be ready; current status is ${review.status ?? "missing"}.`);
+  }
+
+  const findings = Array.isArray(review?.findings) ? review.findings : [];
+  const blockingFindings = findings.filter((finding) => finding?.blocksShip || finding?.severity === "critical");
+  if (blockingFindings.length > 0) {
+    errors.push(`Fix blocking review findings: ${blockingFindings.map((finding) => finding.id ?? finding.summary ?? "unnamed").join(", ")}.`);
+  }
+
+  const releaseReadiness = review?.releaseReadiness ?? null;
+  const releaseGates = [
+    ["version", "Record version bump or explicit deferral with rationale in review.json releaseReadiness.version."],
+    ["changelog", "Record changelog update or explicit deferral with rationale in review.json releaseReadiness.changelog."],
+    ["specNote", "Record short spec/release note update or explicit deferral with rationale in review.json releaseReadiness.specNote."],
+    ["tagPlan", "Record the post-merge version tag plan in review.json releaseReadiness.tagPlan."],
+    ["postRebaseVerification", "Record verification after latest rebase in review.json releaseReadiness.postRebaseVerification."]
+  ];
+  for (const [key, message] of releaseGates) {
+    if (!releaseGateSatisfied(releaseReadiness?.[key])) {
+      errors.push(message);
+    }
+  }
+
+  const git = await gitInfo();
+  if (!git.isRepo) {
+    errors.push("Run closeout inside a git worktree.");
+  } else {
+    if (!git.branch || git.branch === "main") {
+      errors.push("Closeout must run from a non-main work branch.");
+    }
+    if (git.dirty) {
+      errors.push(`Commit, stash, or remove dirty worktree changes (${git.dirtyFiles} files).`);
+    }
+
+    const mainAncestor = await runCommand(["git", "merge-base", "--is-ancestor", "main", "HEAD"]);
+    if (mainAncestor.exitCode !== 0) {
+      errors.push("Rebase the work branch on latest main, then rerun verification.");
+    }
+
+    const commitCount = await runCommand(["git", "rev-list", "--count", "main..HEAD"]);
+    let count = null;
+    if (commitCount.exitCode === 0) {
+      count = Number.parseInt(commitCount.stdout.trim(), 10);
+      if (Number.isFinite(count) && count > 5) {
+        errors.push(`Squash/fixup branch history to 5 or fewer final commits; current count is ${count}.`);
+      }
+    } else {
+      warnings.push("Could not count commits from main..HEAD.");
+    }
+
+    const commitSubjects = await runCommand(["git", "log", "--format=%s", "main..HEAD"]);
+    if (commitSubjects.exitCode === 0) {
+      const subjects = commitSubjects.stdout.split(/\r?\n/).filter((line) => line.trim());
+      if (count === 0 || subjects.length === 0) {
+        errors.push("Create at least one final Conventional Commit before closeout.");
+      }
+      const invalidSubjects = subjects.filter((subject) => !conventionalCommitSubject(subject));
+      if (invalidSubjects.length > 0) {
+        errors.push(`Fix non-Conventional Commit subjects: ${invalidSubjects.join("; ")}`);
+      }
+    } else {
+      errors.push("Check final commit subjects before closeout.");
+    }
+  }
+
+  if (errors.length > 0) {
+    console.log(`Spacecraft closeout blocked for ${id}:`);
+    for (const error of errors) {
+      console.log(`- ${error}`);
+    }
+    if (warnings.length > 0) {
+      console.log("Warnings:");
+      for (const warning of warnings) {
+        console.log(`- ${warning}`);
+      }
+    }
+    process.exitCode = 1;
+    return;
+  }
+
+  console.log(`Spacecraft closeout ready for ${id}.`);
+  console.log("Next: rebase already satisfied, run final verification if needed, merge with git merge --no-ff <branch>, tag release, then delete merged branch unless kept.");
+  if (warnings.length > 0) {
+    console.log("Warnings:");
+    for (const warning of warnings) {
+      console.log(`- ${warning}`);
+    }
+  }
 }
 
 async function main() {
@@ -690,6 +889,9 @@ async function main() {
       break;
     case "validate":
       await validateMission();
+      break;
+    case "closeout-check":
+      await releaseCloseoutCheck();
       break;
     case undefined:
     case "-h":

@@ -7,6 +7,7 @@ Start a new Spacecraft mission for: $ARGUMENTS
 Run:
 node scripts/spacecraft.mjs new "$ARGUMENTS"
 The helper records git base sha when the workspace is a git worktree.
+If the request clearly includes mutating work, also create a non-main Spacecraft branch from main using sc-git naming. Do not ask another question for this.
 Draft only a minimal initial spec.md from the user request.
 Create or update questions.md and decisions.md.
 Inspect available repo context if useful.
@@ -19,4 +20,4 @@ Do not implement product code.
 Do not create a detailed plan.
 Do not run /sc-design implicitly.
 Do not assume product or design direction silently.
-End with the recommended next action and whether the user should continue this chat or start a new session.
+End with next action and session advice.
