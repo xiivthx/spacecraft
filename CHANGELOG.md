@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.3 - 2026-07-07
+
+- Refactor `scripts/src` from flat `package main` monolith (12 files, 2900 lines) into 10 internal/ Go packages with interfaces, dependency injection, and error returns.
+- Split packages: `config`, `id`, `util`, `gitutil`, `mission/model`, `mission/store`, `resolver`, `state`, `workflow`, `closeout`, `archive`.
+- All business logic returns errors; single `os.Exit(1)` in `main()`.
+- ~140 Go unit tests + 23 Node integration tests pass. No behavior changes.
+
 ## 0.5.2 - 2026-07-07
 
 - Migrate package.json scripts to GNU Makefile with `make test`, `make build`, `make help`, and `make sc-*` targets.
