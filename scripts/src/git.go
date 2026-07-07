@@ -125,6 +125,18 @@ func printGitSuggestion(args []string) {
 		}
 	}
 	slug := slugify(slugBase)
+	// Strip mission id prefix from slug to avoid duplication:
+	// e.g. "m07fsgjf6-makefile-migration" becomes "makefile-migration"
+	missionPrefix := strings.ToLower(id)
+	if strings.HasPrefix(slug, missionPrefix+"-") {
+		slug = slug[len(missionPrefix)+1:]
+	} else if strings.HasPrefix(slug, missionPrefix) && slug != missionPrefix {
+		slug = slug[len(missionPrefix):]
+	}
+	slug = strings.Trim(slug, "-")
+	if slug == "" {
+		slug = "mission"
+	}
 
 	versionStr := strings.TrimSpace(strings.Join(slugParts, " "))
 	versionStr = strings.ToLower(versionStr)
