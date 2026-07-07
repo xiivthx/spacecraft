@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.5.0 - 2026-07-07
+
 - Add `/sc-flow` workflow runner guidance and `flow` helper status for repeated work, verify, checkpoint loops.
 - Add compact sortable mission and evidence ids without hyphens while preserving legacy mission id resolution.
 - Add shipped mission archive compaction with `node scripts/spacecraft.mjs archive`.
