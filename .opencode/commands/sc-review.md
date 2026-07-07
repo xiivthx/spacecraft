@@ -16,8 +16,10 @@ Review sc-git readiness:
 - merge plan is no-ff
 - version bump, changelog/spec note, and tag plan exist when shipping
 Invoke sc-reviewer as a read-only subagent.
+A user invocation of /sc-review is explicit permission to use the read-only sc-reviewer subagent; do not ask for separate subagent permission.
 The reviewer must not edit files.
 If UI files changed, recommend /sc-design-review or invoke sc-designer read-only if appropriate.
+A user invocation of /sc-review is also sufficient permission for a focused read-only sc-designer sidecar when UI changes need design-risk triage; do not ask for separate subagent permission.
 Critical design findings block shipping the same way critical code findings do.
 After the subagent returns findings, record the review in:
 - review.md

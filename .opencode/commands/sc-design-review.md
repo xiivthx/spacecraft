@@ -5,6 +5,7 @@ agent: sc-commander
 Use sc-mission and sc-design.
 Read DESIGN.md, current mission spec.md, plan.json, decisions.md, design artifacts if present, evidence.jsonl if present, and git diff.
 Invoke sc-designer as a read-only subagent.
+A user invocation of /sc-design-review is explicit permission to use the read-only sc-designer subagent; do not ask for separate subagent permission.
 The subagent must not edit files.
 Ask the subagent to review:
 - hierarchy

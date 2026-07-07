@@ -11,6 +11,7 @@ Non-blocking assumptions must be recorded in decisions.md.
 If the mission includes UI, use sc-design and read DESIGN.md.
 If UI art direction is not chosen, stop and recommend /sc-design before finalizing UI tasks.
 Invoke sc-planner as a read-only subagent to draft the plan.
+A user invocation of /sc-plan is explicit permission to use the read-only sc-planner subagent; do not ask for separate subagent permission.
 Then write or update the current mission plan.json yourself.
 The plan must contain no more than 7 tasks.
 Each task must have id, title, status, files, acceptance, verify, and evidence.

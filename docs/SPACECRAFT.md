@@ -59,7 +59,7 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 3. `/sc-design` clears the main UI direction when the mission includes screens or components.
 4. `/sc-plan` creates or updates `plan.json`.
 5. `/sc-git` prepares or reviews branch, commit, release, merge, and tag policy when implementation is next.
-6. `/sc-work` implements the next smallest pending task.
+6. `/sc-work` implements the next smallest pending task and runs a lightweight self-review/self-test to catch obvious issues.
 7. `/sc-verify` captures command evidence.
 8. `/sc-design-review` checks visual quality and anti-slop issues when UI changed.
 9. `/sc-polish` performs focused design cleanup before shipping UI work.
@@ -67,6 +67,20 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 11. `/sc-ship` ships only when evidence, clarification, git, release, and review gates pass.
 
 Do not implement product code before `spec.md` and `plan.json` exist. Do not claim work is done, verified, ready, or shipped without evidence in `evidence.jsonl`.
+
+## Subagent Invocation Model
+
+Some slash commands include required read-only subagents as part of their normal workflow. Invoking these commands is explicit permission to use the named subagent; do not ask for separate subagent permission:
+
+- `/sc-plan`: use `sc-planner` to draft the plan.
+- `/sc-design`: use `sc-designer` to shape UI direction.
+- `/sc-design-review`: use `sc-designer` to critique UI/design quality.
+- `/sc-polish`: use `sc-designer` to identify focused polish items before small UI cleanup.
+- `/sc-review`: use `sc-reviewer` for independent review of diff and evidence.
+
+When `/sc-review` covers UI changes, it may also use a focused read-only `sc-designer` sidecar for design-risk triage without asking again. For a full design critique, use `/sc-design-review`.
+
+Other commands should not spawn subagents unless the user explicitly asks for delegation or the command is updated to make that subagent part of its contract.
 
 ## Git And Release Branching
 
@@ -185,7 +199,7 @@ Without an artifact path, the preview server opens the current mission's `design
 npm run sc:design:open
 ```
 
-Use `/sc-work` to implement the next planned UI slice. Use `/sc-verify` to capture technical evidence. Use `/sc-design-review` to check hierarchy, layout, typography, spacing, color, interaction states, accessibility, responsiveness, Feynman clarity, and anti-slop issues. Use `/sc-polish` for final cleanup before `/sc-ship`.
+Use `/sc-work` to implement the next planned UI slice and catch small issues with a lightweight self-review/self-test. Use `/sc-verify` to capture technical evidence. Use `/sc-design-review` to check hierarchy, layout, typography, spacing, color, interaction states, accessibility, responsiveness, Feynman clarity, and anti-slop issues. Use `/sc-polish` for final cleanup before `/sc-ship`.
 
 Design review is not a replacement for browser or manual visual review unless browser tooling already exists. Spacecraft does not add screenshot automation by default.
 
@@ -204,6 +218,10 @@ Evidence is append-only JSON Lines in `evidence.jsonl`. Each entry records:
 Command output is stored under `outputs/` inside the mission directory.
 
 ## Review Model
+
+`/sc-work` self-review is a local cleanup pass only. It should not write `review.md` or `review.json`, and it is not a replacement for independent review.
+
+`/sc-review` must invoke the read-only `sc-reviewer` subagent. See the Subagent Invocation Model above for permission rules.
 
 `review.md` stores the human-readable review. `review.json` stores structured review status and findings. Critical findings block `/sc-ship`.
 

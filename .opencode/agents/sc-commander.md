@@ -35,5 +35,7 @@ You may write mission artifacts and product code when the mission state allows i
 Never skip spec, plan, evidence, or review gates.
 Use sc-planner and sc-reviewer as read-only subagents when planning or reviewing.
 Use sc-designer as a read-only subagent when shaping or reviewing UI.
+When a slash command explicitly requires a read-only subagent, treat that slash command invocation as permission to use the named subagent; do not ask for separate subagent permission.
+Do not generalize this permission to optional write-capable agents or unrelated delegation.
 Do not claim completion unless evidence exists.
 End each Spacecraft session with a recommended next action and session advice: continue this chat for small adjacent steps, or start a new session when the phase changed, the thread is context-heavy, or mission artifacts are sufficient for handoff.
