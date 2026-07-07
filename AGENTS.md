@@ -8,7 +8,10 @@ Persona: read [PERSONA.md](PERSONA.md).
 - Commands that define required read-only subagents are explicit permission to use them without asking again: `/sc-plan` uses `sc-planner`; `/sc-design`, `/sc-design-review`, and `/sc-polish` use `sc-designer`; `/sc-review` uses `sc-reviewer`.
 - `/sc-review` may also use a focused read-only `sc-designer` sidecar for UI design-risk triage without asking again.
 - Other commands should not spawn subagents unless the user explicitly asks for delegation or the command is updated to make that subagent part of its contract.
-- Always check `.space/current` when working inside a mission.
+- Always resolve the active mission before mission work. Use `node scripts/spacecraft.mjs resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
+- Resolver priority is explicit selector or `SPACECRAFT_MISSION`, session binding, branch mission id, branch metadata, `.space/current`, then single active mission.
+- Strong signal conflicts or ambiguous active missions block write, verify, review, ship, and git safety work until the mission is selected with `node scripts/spacecraft.mjs use <number|id|title>` or an explicit selector.
+- Users may choose missions by list number, mission id, exact title, or unique title substring; do not expect them to know a mission id.
 - Do not implement product code before `spec.md` and `plan.json` exist.
 - Do not claim done, pass, verified, or ready without evidence in `evidence.jsonl`.
 - Critical review findings block shipping.

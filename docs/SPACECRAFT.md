@@ -32,7 +32,8 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 - `.opencode/skills/`: reusable Spacecraft workflow skills.
 - `.opencode/skills/sc-design/scripts/serve-html.mjs`: local preview server for design HTML artifacts.
 - `scripts/spacecraft.mjs`: dependency-free Node.js helper.
-- `.space/current`: current mission id.
+- `.space/current`: fallback selected mission id.
+- `.space/sessions/`: local session-to-mission bindings when the host exposes a stable session key.
 - `.space/missions/<mission-id>/`: mission artifacts and command output.
 - `.space/missions/<mission-id>/questions.md`: open and answered clarification questions.
 - `.space/missions/<mission-id>/decisions.md`: confirmed choices and assumptions.
@@ -42,20 +43,51 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 
 - `node scripts/spacecraft.mjs init`: create `.space/`, `.space/missions/`, and `.space/current`.
 - `node scripts/spacecraft.mjs new "<title>"`: create a new mission and select it.
-- `node scripts/spacecraft.mjs current`: print the current mission id.
-- `node scripts/spacecraft.mjs status`: print current mission state, artifact paths, task count, evidence count, and review status.
+- `node scripts/spacecraft.mjs current`: print the `.space/current` fallback mission id.
+- `node scripts/spacecraft.mjs resolve [selector] [--json]`: resolve the active mission from explicit, session, branch, metadata, current, and single-active signals.
+- `node scripts/spacecraft.mjs missions`: list missions, selected signal, safety, branch hints, and next command.
+- `node scripts/spacecraft.mjs use <number|id|title>`: select a mission by list number, mission id, exact title, or unique title substring.
+- `node scripts/spacecraft.mjs bind-branch [selector]`: record the current branch on a mission without switching branches.
+- `node scripts/spacecraft.mjs status`: print resolved mission state, resolver source/safety, artifact paths, task count, evidence count, and review status.
 - `node scripts/spacecraft.mjs git-info`: print git worktree, branch, HEAD, and dirty status.
 - `node scripts/spacecraft.mjs git-suggest [type] [slug]`: print recommended release-branching branch name and Conventional Commit examples.
 - `node scripts/spacecraft.mjs set-state <state>`: set mission state.
 - `node scripts/spacecraft.mjs clarify-status <open|clear|deferred>`: set mission clarification status.
 - `node scripts/spacecraft.mjs evidence "<label>" -- <command>`: run a command and record stdout, stderr, exit code, and evidence metadata.
-- `node scripts/spacecraft.mjs validate`: validate the current mission artifacts.
+- `node scripts/spacecraft.mjs validate`: validate the resolved mission artifacts.
 - `node scripts/spacecraft.mjs closeout-check`: block or confirm release closeout readiness.
 - `npm run sc:git`: shortcut for git safety status.
+- `npm run sc:missions`: shortcut for mission list and resolver safety.
+- `npm run sc:use -- <number|id|title>`: shortcut for selecting a mission.
 - `npm run sc:git:suggest -- [type] [slug]`: shortcut for branch and commit suggestions.
 - `npm run sc:closeout`: shortcut for release closeout readiness.
 - `node .opencode/skills/sc-design/scripts/serve-html.mjs [artifact-or-dir] --open`: serve and open design HTML artifacts.
 - `npm run sc:design:open -- [artifact-or-dir]`: shortcut for the same design preview server.
+
+## Mission Resolution
+
+Spacecraft can have multiple active missions. Agents should resolve the selected mission with the helper instead of trusting `.space/current` alone.
+
+Resolver priority:
+
+1. explicit selector argument or `SPACECRAFT_MISSION`
+2. local session binding from `SPACECRAFT_SESSION`, `OPENCODE_SESSION_ID`, or `CODEX_SESSION_ID`
+3. mission id embedded in the current git branch name
+4. branch metadata recorded in `mission.json`
+5. `.space/current` fallback
+6. single active mission fallback
+
+Strong signals are session, branch id, branch metadata, and `.space/current`. If strong signals point to different missions, point to a missing mission, or branch metadata matches multiple missions, resolver safety becomes `conflict` or `ambiguous`. Write paths such as `set-state`, `clarify-status`, `evidence`, `validate`, `closeout-check`, and unqualified `bind-branch` must block until the user selects a mission.
+
+Use `node scripts/spacecraft.mjs missions` when selection is unclear. Users can choose without knowing mission ids:
+
+```sh
+node scripts/spacecraft.mjs use 2
+node scripts/spacecraft.mjs use "Add multi-mission active detection"
+node scripts/spacecraft.mjs use "multi-mission"
+```
+
+An explicit selector or `SPACECRAFT_MISSION=<mission-id>` is an advanced one-command override. `.space/current` remains useful as portable fallback state, but it is not the only source of active mission truth.
 
 ## Mission Lifecycle
 
@@ -168,7 +200,7 @@ Use session handoff when:
 
 Handoff must include:
 
-- current mission and branch
+- resolved mission and branch
 - state, blockers, and dirty git status
 - exact pickup command, usually `/sc-status` followed by the next intended command
 
@@ -184,7 +216,7 @@ Use release closeout for `/sc-ship` or explicit requests to ship, release, merge
 
 Release closeout must check:
 
-- current mission, spec, plan, questions, decisions, evidence, and review
+- resolved mission, spec, plan, questions, decisions, evidence, and review
 - git branch, dirty state, final commit count, Conventional Commit subjects, and rebase status
 - version bump, changelog/spec release notes, no-ff merge plan, and tag plan
 - verification evidence after the latest rebase
@@ -234,7 +266,7 @@ Do not use rtk to bypass denied git, push, destructive, or secret-touching opera
 
 `/sc-start` may stop after creating a mission if the request has blocking ambiguity. Spacecraft should ask one blocking question at a time, include why it matters, provide a recommended answer, and explain what happens if the recommendation is accepted.
 
-`/sc-clarify` resolves one question at a time. It reads the current mission, inspects repo files when they can answer the question, records open and answered questions in `questions.md`, and records confirmed choices or low-risk assumptions in `decisions.md`.
+`/sc-clarify` resolves one question at a time. It reads the resolved mission, inspects repo files when they can answer the question, records open and answered questions in `questions.md`, and records confirmed choices or low-risk assumptions in `decisions.md`.
 
 `/sc-design` must clarify visual and product direction before locking design. `/sc-plan` should not finalize a plan while blocking questions remain. `/sc-work` should not implement while blocking clarification remains open unless the user explicitly defers the decision and the work is limited to unaffected tasks.
 
@@ -276,7 +308,7 @@ To preview design artifacts through a local server, run:
 npm run sc:design:open -- .space/missions/<mission-id>/design/<artifact>.html
 ```
 
-Without an artifact path, the preview server opens the current mission's `design/` folder:
+Without an artifact path, the preview server opens the resolved mission's `design/` folder:
 
 ```sh
 npm run sc:design:open
@@ -335,6 +367,8 @@ If the user does not specify a stack, Spacecraft defaults future web service wor
 ```sh
 node scripts/spacecraft.mjs init
 node scripts/spacecraft.mjs new "Smoke test Spacecraft harness"
+node scripts/spacecraft.mjs resolve --json
+node scripts/spacecraft.mjs missions
 node scripts/spacecraft.mjs status
 node scripts/spacecraft.mjs validate
 ```

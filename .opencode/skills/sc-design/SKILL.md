@@ -59,7 +59,7 @@ compatibility: opencode
 - Use the artifact to show options, not to implement product UI.
 - To preview HTML artifacts through a local server, use the bundled script:
   `node .opencode/skills/sc-design/scripts/serve-html.mjs [artifact-or-dir] --open`
-- If no artifact path is provided, the preview script serves the current mission's `design/` folder.
+- If no artifact path is provided, the preview script serves the resolved mission's `design/` folder.
 - After creating an HTML artifact, include the exact preview command in the response so the user can open it easily.
 - Treat HTML artifacts as decision aids, not design essays.
 - Apply a Feynman explanation pass before showing any HTML artifact:

@@ -5,6 +5,8 @@ license: MIT
 ---
 - Treat git as the rollback and release boundary for mutating work.
 - Discovery, clarification, design exploration, planning, and read-only review may run without git.
+- Before implementation, commit, merge, or release prep, resolve the mission with `node scripts/spacecraft.mjs resolve --json`; `.space/current` is fallback state, not sole authority.
+- If resolver safety is not `safe`, block git-changing work until the user selects with `node scripts/spacecraft.mjs use <number|id|title>` or an explicit `SPACECRAFT_MISSION`.
 - Before implementation, commit, merge, or release prep, run `node scripts/spacecraft.mjs git-info`.
 - Never write product changes directly on `main`.
 - If clear mutating work is requested and the current branch is `main`, create or switch to a non-main work branch without another blocking question when policy permits it.

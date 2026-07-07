@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 - 2026-07-07
+
+- Add active mission resolver docs and prompts for multi-mission sessions, including title/number selection.
+
 ## 0.3.0 - 2026-07-07
 
 - Add session handoff versus release closeout policy so chat handoff does not trigger merges.

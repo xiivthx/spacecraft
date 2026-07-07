@@ -1,9 +1,13 @@
 ---
-description: Create or update current mission flight plan
+description: Create or update resolved mission flight plan
 agent: sc-commander
 ---
 Use sc-mission, sc-clarify, and sc-planning.
-Read .space/current, the current mission spec.md, questions.md, decisions.md, and plan.json if present.
+Run:
+node scripts/spacecraft.mjs resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before writing plan.json. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+Treat `.space/current` as fallback state, not sole authority.
+Read the resolved mission's spec.md, questions.md, decisions.md, and plan.json if present.
 Use sc-clarify before finalizing a plan.
 If mission clarification status is open and there are blocking questions, stop and tell the user to run /sc-clarify or answer the current question.
 Do not finalize plan.json while blocking clarification remains open.
@@ -12,7 +16,7 @@ If the mission includes UI, use sc-design and read DESIGN.md.
 If UI art direction is not chosen, stop and recommend /sc-design before finalizing UI tasks.
 Invoke sc-planner as a read-only subagent to draft the plan.
 A user invocation of /sc-plan is explicit permission to use the read-only sc-planner subagent; do not ask for separate subagent permission.
-Then write or update the current mission plan.json yourself.
+Then write or update the resolved mission plan.json yourself.
 The plan must contain no more than 7 tasks.
 Each task must have id, title, status, files, acceptance, verify, and evidence.
 UI tasks must include visual intent, target component/screen, accessibility checks, and verification method.

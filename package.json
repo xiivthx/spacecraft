@@ -1,12 +1,15 @@
 {
   "name": "spacecraft",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node --test tests/*.test.mjs",
     "spacecraft": "node scripts/spacecraft.mjs",
     "sc:init": "node scripts/spacecraft.mjs init",
     "sc:status": "node scripts/spacecraft.mjs status",
+    "sc:missions": "node scripts/spacecraft.mjs missions",
+    "sc:use": "node scripts/spacecraft.mjs use",
     "sc:git": "node scripts/spacecraft.mjs git-info",
     "sc:git:suggest": "node scripts/spacecraft.mjs git-suggest",
     "sc:closeout": "node scripts/spacecraft.mjs closeout-check",
