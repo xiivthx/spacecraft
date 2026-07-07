@@ -13,6 +13,7 @@ Spacecraft is operated from the OpenCode UI or TUI with slash commands:
 - `/sc-git`
 - `/sc-work`
 - `/sc-verify`
+- `/sc-flow`
 - `/sc-design-review`
 - `/sc-polish`
 - `/sc-review`
@@ -25,6 +26,7 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 
 - `AGENTS.md`: project rules for Spacecraft work.
 - `PERSONA.md`: commander tone and communication rules.
+- `SPEC.md`: English-only project-level specification.
 - `DESIGN.md`: Orbital Console visual source of truth for UI work.
 - `opencode.json`: local OpenCode configuration and conservative permissions.
 - `.opencode/agents/`: Spacecraft commander, planner, designer, and reviewer agents.
@@ -35,6 +37,7 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 - `.space/current`: fallback selected mission id.
 - `.space/sessions/`: local session-to-mission bindings when the host exposes a stable session key.
 - `.space/missions/<mission-id>/`: mission artifacts and command output.
+- `.space/archive/<mission-id>/`: compact shipped mission artifacts.
 - `.space/missions/<mission-id>/questions.md`: open and answered clarification questions.
 - `.space/missions/<mission-id>/decisions.md`: confirmed choices and assumptions.
 - `.space/missions/<mission-id>/design/`: local HTML art-direction and design exploration artifacts.
@@ -49,6 +52,7 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 - `node scripts/spacecraft.mjs use <number|id|title>`: select a mission by list number, mission id, exact title, or unique title substring.
 - `node scripts/spacecraft.mjs bind-branch [selector]`: record the current branch on a mission without switching branches.
 - `node scripts/spacecraft.mjs status`: print resolved mission state, resolver source/safety, artifact paths, task count, evidence count, and review status.
+- `node scripts/spacecraft.mjs flow [--json]`: print workflow readiness, blockers, next task, and checkpoint policy.
 - `node scripts/spacecraft.mjs git-info`: print git worktree, branch, HEAD, and dirty status.
 - `node scripts/spacecraft.mjs git-suggest [type] [slug]`: print recommended release-branching branch name and Conventional Commit examples.
 - `node scripts/spacecraft.mjs set-state <state>`: set mission state.
@@ -56,10 +60,13 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 - `node scripts/spacecraft.mjs evidence "<label>" -- <command>`: run a command and record stdout, stderr, exit code, and evidence metadata.
 - `node scripts/spacecraft.mjs validate`: validate the resolved mission artifacts.
 - `node scripts/spacecraft.mjs closeout-check`: block or confirm release closeout readiness.
+- `node scripts/spacecraft.mjs archive [selector]`: compact a shipped mission into `.space/archive/` and remove the live mission copy.
 - `npm run sc:git`: shortcut for git safety status.
 - `npm run sc:missions`: shortcut for mission list and resolver safety.
 - `npm run sc:use -- <number|id|title>`: shortcut for selecting a mission.
+- `npm run sc:flow`: shortcut for workflow readiness.
 - `npm run sc:git:suggest -- [type] [slug]`: shortcut for branch and commit suggestions.
+- `npm run sc:archive -- [selector]`: shortcut for mission archive compaction.
 - `npm run sc:closeout`: shortcut for release closeout readiness.
 - `node .opencode/skills/sc-design/scripts/serve-html.mjs [artifact-or-dir] --open`: serve and open design HTML artifacts.
 - `npm run sc:design:open -- [artifact-or-dir]`: shortcut for the same design preview server.
@@ -89,6 +96,17 @@ node scripts/spacecraft.mjs use "multi-mission"
 
 An explicit selector or `SPACECRAFT_MISSION=<mission-id>` is an advanced one-command override. `.space/current` remains useful as portable fallback state, but it is not the only source of active mission truth.
 
+## Id Format
+
+New mission and evidence ids are compact sortable ids with no separator:
+
+```text
+M07FYB5W5
+E07FYB5W5
+```
+
+The first character is the kind (`M` for mission, `E` for evidence). The remaining 8 characters are fixed-width uppercase base36 milliseconds since `2026-01-01T00:00:00.000Z`. This preserves lexicographic time ordering and covers about 89 years. Legacy ids such as `M-20260707-141230` remain valid for old missions, branch names, and session/current files.
+
 ## Mission Lifecycle
 
 1. `/sc-start` creates a mission, drafts a minimal `spec.md`, and identifies blocking ambiguity.
@@ -98,14 +116,27 @@ An explicit selector or `SPACECRAFT_MISSION=<mission-id>` is an advanced one-com
 5. `/sc-git` prepares or reviews branch, commit, release, merge, and tag policy when implementation is next.
 6. `/sc-work` implements the next smallest pending task and runs a lightweight self-review/self-test to catch obvious issues.
 7. `/sc-verify` captures command evidence.
-8. `/sc-design-review` checks visual quality and anti-slop issues when UI changed.
-9. `/sc-polish` performs focused design cleanup before shipping UI work.
-10. `/sc-review` reviews the diff and evidence.
-11. `/sc-ship` or a user request to ship/release/merge/finish the mission/close the branch runs release closeout. It ships only when evidence, clarification, git, release, and review gates pass.
+8. `/sc-flow` can run the safe loop of `/sc-work Txx`, `/sc-verify Txx`, checkpoint commit, and next task until a real gate blocks.
+9. `/sc-design-review` checks visual quality and anti-slop issues when UI changed.
+10. `/sc-polish` performs focused design cleanup before shipping UI work.
+11. `/sc-review` reviews the diff and evidence.
+12. `/sc-ship` or a user request to ship/release/merge/finish the mission/close the branch runs release closeout. It ships only when evidence, clarification, git, release, and review gates pass, then archives the shipped mission unless the user asks to keep it live.
 
 Do not implement product code before `spec.md` and `plan.json` exist. Do not claim work is done, verified, ready, or shipped without evidence in `evidence.jsonl`.
 
 When the user clearly asks for mutating work and no suitable mission or non-main branch exists, Spacecraft may create the mission and branch without asking another blocking question. This keeps flow moving while preserving the spec, plan, git, evidence, and review gates.
+
+## Workflow Runner
+
+`/sc-flow` reduces repeated HIL during implementation. It uses mission artifacts as workflow memory and continues through:
+
+```text
+/sc-work Txx -> /sc-verify Txx -> checkpoint commit -> next task
+```
+
+The runner stops when a real gate blocks progress: unsafe resolver state, open blocking clarification, missing spec or plan, missing design direction for UI work, dependency/API freshness work, main-branch write risk, dirty or unsafe files, failed verification, failed validation, critical review findings, release actions, or context that is too heavy for safe continuation.
+
+Checkpoint commits are local rollback points created only on a valid non-main work branch after passing evidence exists for the task. Before `/sc-ship`, checkpoint commits should be squashed or fixed up into logical Conventional Commits.
 
 ## Subagent Invocation Model
 
@@ -133,14 +164,14 @@ Spacecraft uses release branching:
 - Do not write product changes directly on `main`.
 - Use one non-main branch per feature, fix, issue, or tightly scoped change.
 - Branch from the latest `main`.
-- Branch names should follow `<type>/<issue-or-mission>-<slug>`, for example `feat/m-20260706-120409-okinawa-planner-ui`.
+- Branch names should follow `<type>/<issue-or-mission>-<slug>`, for example `feat/m07fyb5w5-workflow-runner`.
 - Use `release/v<major>.<minor>.<patch>` only for release preparation work.
 - Merge only after verification, git, release, and review gates pass.
 
 For large, risky, or multi-session implementation slices, prefer a separate branch or git worktree:
 
 ```sh
-git worktree add ../spacecraft-okinawa -b feat/m-20260706-120409-okinawa-planner-ui main
+git worktree add ../spacecraft-flow -b feat/m07fyb5w5-workflow-runner main
 ```
 
 For small adjacent edits in an existing git worktree, the current branch is acceptable when the dirty state has been inspected and unrelated user changes are preserved.
@@ -234,7 +265,19 @@ Each gate must be an object with a `status`, such as `{ "status": "completed" }`
 
 If any gate is missing, Spacecraft blocks release closeout and names the exact missing action. It does not call work done.
 
-If gates pass, Spacecraft prepares merge into `main` using `git merge --no-ff <branch>`, creates the version tag after merge when needed, and cleans up the merged branch. Push still requires explicit user request.
+If gates pass, Spacecraft prepares merge into `main` using `git merge --no-ff <branch>`, creates the version tag after merge when needed, cleans up the merged branch, and compacts the shipped mission into `.space/archive/` unless the user asks to keep the full live mission folder. Push still requires explicit user request.
+
+## Mission Archive
+
+`node scripts/spacecraft.mjs archive [selector]` moves a shipped mission from `.space/missions/` to `.space/archive/`. It writes compact durable artifacts:
+
+- `SUMMARY.md`
+- compact `mission.json`
+- compact `plan.json`
+- compact `evidence.jsonl` without stdout/stderr output files
+- review, spec, decisions, and questions files when present
+
+The archive command refuses non-shipped missions. It also clears `.space/current` and session bindings that still point to the archived mission.
 
 ## Common Scenarios
 
@@ -370,5 +413,6 @@ node scripts/spacecraft.mjs new "Smoke test Spacecraft harness"
 node scripts/spacecraft.mjs resolve --json
 node scripts/spacecraft.mjs missions
 node scripts/spacecraft.mjs status
+node scripts/spacecraft.mjs flow
 node scripts/spacecraft.mjs validate
 ```

@@ -39,4 +39,4 @@ Apply Spacecraft release branching:
 Use Conventional Commits.
 Do not push unless the user explicitly asks.
 Use rtk for noisy git/status/diff/log output when available; never use it to bypass denied operations.
-End with next action and session advice.
+End with next action and session advice. If implementation gates are ready, recommend `/sc-flow`.

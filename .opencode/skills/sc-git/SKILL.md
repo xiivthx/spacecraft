@@ -30,7 +30,7 @@ license: MIT
   - `chore/<issue-or-mission>-<slug>`
   - `release/v<major>.<minor>.<patch>` only for release preparation work.
 - Prefer mission ids when no issue id exists, for example:
-  `feat/m-20260706-120409-okinawa-planner-ui`
+  `feat/m07fyb5w5-workflow-runner`
 - Prefer a separate git worktree for large, risky, or multi-session branches.
 - If a branch is expected to need more than 5 final commits, split the feature before implementation.
 
@@ -40,6 +40,7 @@ license: MIT
 - Target 1 to 3 final commits per branch.
 - A branch merged into `main` should not exceed 5 final commits unless explicitly justified in `decisions.md`.
 - The agent may commit frequently inside a valid non-main work branch.
+- After a task has passing verification evidence, `/sc-flow` may create a local checkpoint commit before starting the next task.
 - Frequent WIP/checkpoint commits are allowed only on the work branch.
 - Before merge, squash/fixup/checkpoint commits into logical commits so the branch history stays reviewable.
 - Do not squash unrelated logical changes together.

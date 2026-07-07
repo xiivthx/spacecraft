@@ -51,4 +51,4 @@ If the loop stops with known remaining risk, state that risk and recommend the n
 If a useful self-test is skipped, say why and recommend the next concrete verification command.
 Update plan.json task status conservatively.
 Do not claim completion until /sc-verify captures evidence.
-End with next action and session advice. Prefer continuing for immediate /sc-verify.
+End with next action and session advice. Prefer continuing for immediate /sc-verify, or `/sc-flow` when the user wants the runner to verify and continue through remaining tasks.

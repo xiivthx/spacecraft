@@ -17,4 +17,4 @@ Run:
 node scripts/spacecraft.mjs validate
 Use rtk for noisy verification commands when available. Use raw output or `rtk proxy` passthrough when exact evidence is needed.
 Do not say verified without evidence ids.
-End with next action and session advice. Suggest /sc-design-review if UI changed, otherwise /sc-review or /sc-work.
+End with next action and session advice. Suggest /sc-design-review if UI changed, otherwise /sc-flow when tasks remain, or /sc-review when implementation is complete.

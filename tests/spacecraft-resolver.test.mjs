@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import assert from "node:assert/strict";
@@ -17,7 +17,8 @@ async function writeMission(cwd, {
   id,
   title,
   state = "implementing",
-  git = {}
+  git = {},
+  clarification = undefined
 }) {
   const dir = path.join(cwd, ".space", "missions", id);
   await mkdir(dir, { recursive: true });
@@ -27,13 +28,23 @@ async function writeMission(cwd, {
     state,
     createdAt: "2026-07-07T00:00:00.000Z",
     updatedAt: "2026-07-07T00:00:00.000Z",
-    git
+    git,
+    ...(clarification ? { clarification } : {})
   }, null, 2)}\n`);
 }
 
 async function writeCurrent(cwd, id) {
   await mkdir(path.join(cwd, ".space"), { recursive: true });
   await writeFile(path.join(cwd, ".space", "current"), `${id}\n`);
+}
+
+async function pathExists(filePath) {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function writeSession(cwd, key, id) {
@@ -169,6 +180,47 @@ test("branch mission id overrides current fallback and conflict blocks write pat
   assert.notEqual(blocked.status, 0);
   assert.match(blocked.stderr, /cannot safely choose a mission for validate/);
   assert.match(blocked.stderr, /mission signals disagree/);
+});
+
+test("compact mission ids are created without separators and remain selectable", async () => {
+  const cwd = await createWorkspace();
+
+  const created = runSpacecraft(cwd, ["new", "Compact id mission"]);
+  const match = created.stdout.match(/Created Spacecraft mission (M[0-9A-Z]{8})/);
+  assert.ok(match, created.stdout);
+  const id = match[1];
+  assert.doesNotMatch(id, /-/);
+
+  const current = await readFile(path.join(cwd, ".space", "current"), "utf8");
+  assert.equal(current.trim(), id);
+  assert.equal((await readFile(path.join(cwd, ".space", "missions", id, "mission.json"), "utf8")).includes(`"id": "${id}"`), true);
+
+  const byId = resolveJson(cwd, [id.toLowerCase()]);
+  assert.equal(byId.selected.id, id);
+  assert.equal(byId.source, "selector");
+});
+
+test("compact evidence ids are created without separators", async () => {
+  const cwd = await createWorkspace();
+
+  runSpacecraft(cwd, ["new", "Evidence id mission"]);
+  const evidence = runSpacecraft(cwd, ["evidence", "true command", "--", "node", "-e", ""]);
+  const match = evidence.stdout.match(/Evidence: (E[0-9A-Z]{8})/);
+  assert.ok(match, evidence.stdout);
+  assert.doesNotMatch(match[1], /-/);
+});
+
+test("compact mission ids resolve from branch names", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000A";
+
+  await writeMission(cwd, { id, title: "Compact branch mission" });
+  await initGitOnBranch(cwd, `feat/${id.toLowerCase()}-compact-branch`);
+
+  const resolution = resolveJson(cwd);
+  assert.equal(resolution.selected.id, id);
+  assert.equal(resolution.source, "branch");
+  assert.equal(resolution.safety, "safe");
 });
 
 test("branch metadata resolves branches that do not include a mission id", async () => {
@@ -364,4 +416,104 @@ test("conflict candidate numbers match use selector ordering with shipped missio
 
   const selected = runSpacecraft(cwd, ["use", "3"]);
   assert.match(selected.stdout, new RegExp(`Selected mission: Current shipped \\(${currentShipped}\\)`));
+});
+
+test("flow reports next task without bypassing gates", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000B";
+
+  await writeMission(cwd, {
+    id,
+    title: "Workflow mission",
+    state: "planned",
+    git: { workBranch: `feat/${id.toLowerCase()}-workflow` }
+  });
+  await writeFile(path.join(cwd, ".space", "missions", id, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "First task", status: "pending", evidence: [] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(cwd, ".space", "missions", id, "evidence.jsonl"), "");
+  await writeCurrent(cwd, id);
+
+  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const flow = JSON.parse(result.stdout);
+  assert.equal(flow.next, "/sc-work T01");
+  assert.equal(flow.nextTask.id, "T01");
+  assert.deepEqual(flow.blockers, []);
+});
+
+test("flow prioritizes blocking clarification over work", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000D";
+
+  await writeMission(cwd, {
+    id,
+    title: "Blocked workflow mission",
+    state: "planned",
+    clarification: { status: "open", blockingQuestions: 1 }
+  });
+  await writeFile(path.join(cwd, ".space", "missions", id, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "Blocked task", status: "pending", evidence: [] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(cwd, ".space", "missions", id, "evidence.jsonl"), "");
+  await writeCurrent(cwd, id);
+
+  const result = runSpacecraft(cwd, ["flow", "--json"]);
+  const flow = JSON.parse(result.stdout);
+  assert.equal(flow.next, "/sc-clarify");
+  assert.ok(flow.blockers.includes("blocking clarification remains open"));
+});
+
+test("archive compacts shipped missions and removes the active mission copy", async () => {
+  const cwd = await createWorkspace();
+  const id = "M0000000C";
+  const missionDir = path.join(cwd, ".space", "missions", id);
+  const archiveDir = path.join(cwd, ".space", "archive", id);
+
+  await writeMission(cwd, {
+    id,
+    title: "Archive mission",
+    state: "shipped",
+    git: { workBranch: `feat/${id.toLowerCase()}-archive` }
+  });
+  await writeFile(path.join(missionDir, "spec.md"), "# Mission Spec\n");
+  await writeFile(path.join(missionDir, "plan.json"), `${JSON.stringify({
+    missionId: id,
+    tasks: [
+      { id: "T01", title: "Done task", status: "completed", evidence: ["E0000000A"] }
+    ]
+  }, null, 2)}\n`);
+  await writeFile(path.join(missionDir, "evidence.jsonl"), `${JSON.stringify({
+    id: "E0000000A",
+    label: "test",
+    command: "true",
+    exitCode: 0,
+    stdout: ".space/missions/M0000000C/outputs/E0000000A.stdout.txt",
+    stderr: ".space/missions/M0000000C/outputs/E0000000A.stderr.txt",
+    createdAt: "2026-07-07T00:00:00.000Z"
+  })}\n`);
+  await writeFile(path.join(missionDir, "review.json"), `${JSON.stringify({ status: "ready", findings: [] }, null, 2)}\n`);
+  await writeFile(path.join(missionDir, "review.md"), "# Review\n");
+  await writeFile(path.join(missionDir, "decisions.md"), "# Decisions\n");
+  await writeFile(path.join(missionDir, "questions.md"), "# Questions\n");
+  await writeCurrent(cwd, id);
+
+  const archived = runSpacecraft(cwd, ["archive", id]);
+  assert.match(archived.stdout, new RegExp(`Archived mission ${id}`));
+  assert.equal(await pathExists(missionDir), false);
+  assert.equal(await pathExists(path.join(archiveDir, "SUMMARY.md")), true);
+  assert.equal(await pathExists(path.join(archiveDir, "outputs")), false);
+
+  const compactMission = JSON.parse(await readFile(path.join(archiveDir, "mission.json"), "utf8"));
+  assert.equal(compactMission.id, id);
+  assert.equal(compactMission.state, "shipped");
+  const compactEvidence = await readFile(path.join(archiveDir, "evidence.jsonl"), "utf8");
+  assert.match(compactEvidence, /"id":"E0000000A"/);
+  assert.doesNotMatch(compactEvidence, /stdout/);
+  assert.equal((await readFile(path.join(cwd, ".space", "current"), "utf8")).trim(), "");
 });

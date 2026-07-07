@@ -4,7 +4,7 @@ Spacecraft is a mission-control harness.
 
 Persona: read [PERSONA.md](PERSONA.md).
 
-- Use the commands: `/sc-start`, `/sc-clarify`, `/sc-design`, `/sc-plan`, `/sc-git`, `/sc-work`, `/sc-verify`, `/sc-design-review`, `/sc-polish`, `/sc-review`, `/sc-status`, and `/sc-ship`.
+- Use the commands: `/sc-start`, `/sc-clarify`, `/sc-design`, `/sc-plan`, `/sc-git`, `/sc-work`, `/sc-verify`, `/sc-flow`, `/sc-design-review`, `/sc-polish`, `/sc-review`, `/sc-status`, and `/sc-ship`.
 - Commands that define required read-only subagents are explicit permission to use them without asking again: `/sc-plan` uses `sc-planner`; `/sc-design`, `/sc-design-review`, and `/sc-polish` use `sc-designer`; `/sc-review` uses `sc-reviewer`.
 - `/sc-review` may also use a focused read-only `sc-designer` sidecar for UI design-risk triage without asking again.
 - Other commands should not spawn subagents unless the user explicitly asks for delegation or the command is updated to make that subagent part of its contract.
@@ -12,11 +12,14 @@ Persona: read [PERSONA.md](PERSONA.md).
 - Resolver priority is explicit selector or `SPACECRAFT_MISSION`, session binding, branch mission id, branch metadata, `.space/current`, then single active mission.
 - Strong signal conflicts or ambiguous active missions block write, verify, review, ship, and git safety work until the mission is selected with `node scripts/spacecraft.mjs use <number|id|title>` or an explicit selector.
 - Users may choose missions by list number, mission id, exact title, or unique title substring; do not expect them to know a mission id.
+- New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.
 - Do not implement product code before `spec.md` and `plan.json` exist.
 - Do not claim done, pass, verified, or ready without evidence in `evidence.jsonl`.
 - Critical review findings block shipping.
 - Prefer small tasks and focused verification.
+- Use `/sc-flow` to continue `work -> verify -> checkpoint commit -> next task` loops in the same chat until a real gate blocks.
 - Keep mission artifacts small and human-readable.
+- Keep root `SPEC.md` as the English-only project-level specification.
 - Keep prompts lean: only necessary words, commands, and gates.
 - Use caveman-style brevity for nonessential communication; keep technical content exact.
 - Use git as the default rollback boundary for implementation work.
@@ -27,14 +30,16 @@ Persona: read [PERSONA.md](PERSONA.md).
 - Do not auto-run `git init`, create worktrees, rebase, merge, tag, or push unless the user explicitly asks.
 - Never write product changes directly on `main`.
 - Use Spacecraft release branching: one non-main branch per feature, fix, issue, or tightly scoped change.
-- Branch names follow `<type>/<issue-or-mission>-<slug>`, for example `feat/m-20260706-120409-okinawa-planner-ui`.
+- Branch names follow `<type>/<issue-or-mission>-<slug>`, for example `feat/m07fyb5w5-workflow-runner`.
 - The agent may commit frequently only inside a valid non-main work branch.
+- After a task has passing verification evidence, `/sc-flow` may create a local checkpoint commit before starting the next task.
 - Before merge, squash/fixup checkpoint commits into logical Conventional Commits.
 - A branch merged to `main` should have 1 to 3 final commits and should not exceed 5 unless justified.
 - Rebase the work branch on latest `main` before merge, then merge with `git merge --no-ff <branch>`.
 - Release closeout is only for `/sc-ship`, ship/release/merge requests, finished-mission closeout, or closing a branch.
 - Session handoff is not release: if the user wants to stop this chat or continue in a new session while work is unfinished, summarize state and pickup command without merging.
 - After a successful merge to `main`, clean up the merged branch unless the user asks to keep it.
+- After successful release closeout, archive shipped mission artifacts under `.space/archive/` unless the user asks to keep the full live mission folder.
 - Keep `.gitignore` current before staging, committing, or merging.
 - Never let secrets, local env files, private data, caches, logs, dependency folders, build outputs, or machine-specific files enter git/public artifacts.
 - Test, verify, and validate after the latest rebase and before any merge into `main`.

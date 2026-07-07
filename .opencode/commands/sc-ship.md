@@ -44,6 +44,7 @@ If all gates pass, prepare merge to main with sc-git:
 - merge uses `git merge --no-ff <branch>`
 - version tag is created after merge when version was bumped
 - merged local branch is deleted unless user asks to keep it
+- shipped mission artifacts are compacted with `node scripts/spacecraft.mjs archive` unless the user asks to keep the full live mission folder
 - no push unless explicitly requested
 Produce concise final summary:
 - Mission id
@@ -57,6 +58,7 @@ Produce concise final summary:
 - Known limitations
 - Suggested next step
 Then set state to shipped if appropriate.
+After state is shipped and release closeout is complete, run `node scripts/spacecraft.mjs archive` to move the mission from `.space/missions/` to `.space/archive/` with compact durable artifacts, unless the user asks to keep the full live mission folder.
 Do not git push unless the user explicitly asks.
 Suggested commit messages must follow Conventional Commits:
 <type>[optional scope]: <description>
