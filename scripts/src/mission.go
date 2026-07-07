@@ -254,7 +254,7 @@ func printCurrent() {
 }
 
 func missionBranchNames(m *Mission) []string {
-	var res []string
+	res := []string{}
 	if m == nil {
 		return res
 	}

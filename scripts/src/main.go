@@ -98,5 +98,3 @@ func stringsJoin(args []string, sep string) string {
 }
 
 // Stubs to allow compilation before all files are written
-func releaseCloseoutCheck()                {}
-func archiveMission(args []string)         {}

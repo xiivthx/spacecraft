@@ -135,6 +135,25 @@ func slugify(value string) string {
 	return slug
 }
 
+func countEvidence(filePath string) int {
+	if !exists(filePath) {
+		return 0
+	}
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return 0
+	}
+	lines := strings.Split(string(content), "\n")
+	count := 0
+	for _, line := range lines {
+		if strings.TrimSpace(line) != "" {
+			count++
+		}
+	}
+	return count
+}
+
+
 func commandToString(parts []string) string {
 	safeRegex := regexp.MustCompile(`^[A-Za-z0-9_./:=@%+-]+$`)
 	var result []string

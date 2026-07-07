@@ -433,6 +433,14 @@ func printResolvedMission(args []string) {
 	}
 }
 
+func requireResolvedMission(commandName string) ResolveOutput {
+	res := resolveMission("")
+	if res.Safety != "safe" || res.Selected == nil {
+		fail(formatResolutionBlock(res, commandName))
+	}
+	return res
+}
+
 func formatResolutionBlock(out ResolveOutput, context string) string {
 	return "Resolution failed or blocked."
 }
