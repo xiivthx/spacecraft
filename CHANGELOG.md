@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.5.2 - 2026-07-07
+
+- Migrate package.json scripts to GNU Makefile with `make test`, `make build`, `make help`, and `make sc-*` targets.
+- Update docs and agent permissions to reference `make` instead of `npm run`.
+- Remove package.json (Node.js `type:module` setting was unused).
 
 ## 0.5.1 - 2026-07-07
 

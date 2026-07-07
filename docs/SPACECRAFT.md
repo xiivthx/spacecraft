@@ -61,15 +61,15 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 - `scripts/spacecraft validate`: validate the resolved mission artifacts.
 - `scripts/spacecraft closeout-check`: block or confirm release closeout readiness.
 - `scripts/spacecraft archive [selector]`: compact a shipped mission into `.space/archive/` and remove the live mission copy.
-- `npm run sc:git`: shortcut for git safety status.
-- `npm run sc:missions`: shortcut for mission list and resolver safety.
-- `npm run sc:use -- <number|id|title>`: shortcut for selecting a mission.
-- `npm run sc:flow`: shortcut for workflow readiness.
-- `npm run sc:git:suggest -- [type] [slug]`: shortcut for branch and commit suggestions.
-- `npm run sc:archive -- [selector]`: shortcut for mission archive compaction.
-- `npm run sc:closeout`: shortcut for release closeout readiness.
+- `make sc-git`: shortcut for git safety status.
+- `make sc-missions`: shortcut for mission list and resolver safety.
+- `make sc-use ARGS="<number|id|title>"`: shortcut for selecting a mission.
+- `make sc-flow`: shortcut for workflow readiness.
+- `make sc-git-suggest ARGS="[type] [slug]"`: shortcut for branch and commit suggestions.
+- `make sc-archive ARGS="[selector]"`: shortcut for mission archive compaction.
+- `make sc-closeout`: shortcut for release closeout readiness.
 - `node .opencode/skills/sc-design/scripts/serve-html.mjs [artifact-or-dir] --open`: serve and open design HTML artifacts.
-- `npm run sc:design:open -- [artifact-or-dir]`: shortcut for the same design preview server.
+- `make sc-design-open ARGS="[artifact-or-dir]"`: shortcut for the same design preview server.
 
 ## Mission Resolution
 
@@ -352,13 +352,13 @@ Design artifacts are not product UI. They are local-first selection aids. They s
 To preview design artifacts through a local server, run:
 
 ```sh
-npm run sc:design:open -- .space/missions/<mission-id>/design/<artifact>.html
+make sc-design-open ARGS=".space/missions/<mission-id>/design/<artifact>.html"
 ```
 
 Without an artifact path, the preview server opens the resolved mission's `design/` folder:
 
 ```sh
-npm run sc:design:open
+make sc-design-open
 ```
 
 Use `/sc-work` to implement the next planned UI slice and catch small issues with a lightweight self-review/self-test. Use `/sc-verify` to capture technical evidence. Use `/sc-design-review` to check hierarchy, layout, typography, spacing, color, interaction states, accessibility, responsiveness, Feynman clarity, and anti-slop issues. Use `/sc-polish` for final cleanup before `/sc-ship`.
