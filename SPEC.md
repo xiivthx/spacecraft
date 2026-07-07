@@ -66,4 +66,4 @@ Spacecraft uses release branching:
 
 ## Archive
 
-After successful release closeout, shipped missions are compacted from `.space/missions/` into `.space/archive/` unless the user asks to keep the full live mission folder. Archives keep durable summary artifacts and omit bulky command output files.
+After successful release closeout, shipped missions are compacted from `.space/missions/` into `.space/archive/` unless the user asks to keep the full live mission folder. Archive compaction requires completed plan tasks, evidence, ready review, no critical findings, and recorded release-readiness gates. Archives keep durable summary artifacts and omit bulky command output files.

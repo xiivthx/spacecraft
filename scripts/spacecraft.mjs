@@ -1006,12 +1006,13 @@ function nextOpenTask(tasks) {
   return tasks.find((task) => task?.status !== "completed") ?? null;
 }
 
-function workflowSnapshot({ resolution, mission, plan, evidenceCount, git }) {
+function workflowSnapshot({ resolution, mission, specExists, planExists, plan, evidenceCount, git }) {
   const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
   const nextTask = nextOpenTask(tasks);
   const blockers = [];
   const hasBlockingClarification = mission?.clarification?.status === "open" || (mission?.clarification?.blockingQuestions ?? 0) > 0;
-  const hasTaskPlan = Boolean(plan) && tasks.length > 0;
+  const hasTaskPlan = planExists && tasks.length > 0;
+  const artifactGateClear = specExists && hasTaskPlan;
   let next = nextCommandForMission({
     mission,
     active: missionActive(mission),
@@ -1023,9 +1024,20 @@ function workflowSnapshot({ resolution, mission, plan, evidenceCount, git }) {
     blockers.push("blocking clarification remains open");
     next = "/sc-clarify";
   }
-  if (!hasTaskPlan) {
-    blockers.push("plan.json has no tasks");
+  if (!specExists) {
+    blockers.push("spec.md is missing");
     if (!hasBlockingClarification) {
+      next = "/sc-status";
+    }
+  }
+  if (!planExists) {
+    blockers.push("plan.json is missing");
+    if (!hasBlockingClarification && specExists) {
+      next = "/sc-plan";
+    }
+  } else if (!hasTaskPlan) {
+    blockers.push("plan.json has no tasks");
+    if (!hasBlockingClarification && specExists) {
       next = "/sc-plan";
     }
   }
@@ -1035,13 +1047,13 @@ function workflowSnapshot({ resolution, mission, plan, evidenceCount, git }) {
   if (["planned", "implementing", "verifying"].includes(mission?.state) && git.isRepo && git.dirty) {
     blockers.push(`worktree is dirty (${git.dirtyFiles} files); inspect before automated workflow`);
   }
-  if (!hasBlockingClarification && hasTaskPlan && (mission?.state === "planned" || mission?.state === "implementing")) {
+  if (!hasBlockingClarification && artifactGateClear && (mission?.state === "planned" || mission?.state === "implementing")) {
     next = nextTask ? `/sc-work ${nextTask.id ?? ""}`.trim() : "/sc-review";
   }
-  if (!hasBlockingClarification && hasTaskPlan && mission?.state === "verifying") {
+  if (!hasBlockingClarification && artifactGateClear && mission?.state === "verifying") {
     next = nextTask ? `/sc-verify ${nextTask.id ?? ""}`.trim() : "/sc-review";
   }
-  if (!hasBlockingClarification && hasTaskPlan && !nextTask) {
+  if (!hasBlockingClarification && artifactGateClear && !nextTask) {
     next = mission?.state === "ready" ? "/sc-ship" : "/sc-review";
   }
 
@@ -1077,10 +1089,13 @@ async function printWorkflow(args) {
   const id = resolution.selected.id;
   const dir = missionDir(id);
   const mission = await readJson(artifactPath(id, "mission.json"));
-  const plan = await readJsonIfExists(path.join(dir, "plan.json"));
+  const specExists = await exists(path.join(dir, "spec.md"));
+  const planPath = path.join(dir, "plan.json");
+  const planExists = await exists(planPath);
+  const plan = planExists ? await readJson(planPath) : null;
   const evidenceCount = await countEvidence(path.join(dir, "evidence.jsonl"));
   const git = await gitInfo();
-  const snapshot = workflowSnapshot({ resolution, mission, plan, evidenceCount, git });
+  const snapshot = workflowSnapshot({ resolution, mission, specExists, planExists, plan, evidenceCount, git });
 
   if (json) {
     console.log(JSON.stringify(snapshot, null, 2));
@@ -1259,24 +1274,33 @@ function evidenceFilePath(entryPath) {
   return path.isAbsolute(entryPath) ? entryPath : path.join(ROOT, entryPath);
 }
 
-function releaseGateSatisfied(gate) {
+const DEFAULT_RELEASE_GATE_STATUSES = [
+  "bumped",
+  "checked",
+  "complete",
+  "completed",
+  "deferred",
+  "done",
+  "passed",
+  "present",
+  "updated"
+];
+
+const RELEASE_GATE_DEFINITIONS = [
+  ["version", "Record version bump or explicit deferral with rationale in review.json releaseReadiness.version.", DEFAULT_RELEASE_GATE_STATUSES],
+  ["changelog", "Record changelog update or explicit deferral with rationale in review.json releaseReadiness.changelog.", DEFAULT_RELEASE_GATE_STATUSES],
+  ["specNote", "Record short spec/release note update or explicit deferral with rationale in review.json releaseReadiness.specNote.", DEFAULT_RELEASE_GATE_STATUSES],
+  ["tagPlan", "Record the post-merge version tag plan in review.json releaseReadiness.tagPlan.", [...DEFAULT_RELEASE_GATE_STATUSES, "planned"]],
+  ["postRebaseVerification", "Record verification after latest rebase in review.json releaseReadiness.postRebaseVerification.", DEFAULT_RELEASE_GATE_STATUSES]
+];
+
+function releaseGateSatisfied(gate, allowedStatuses = DEFAULT_RELEASE_GATE_STATUSES) {
   if (!gate || typeof gate !== "object" || Array.isArray(gate)) {
     return false;
   }
 
   const status = String(gate.status ?? "").trim().toLowerCase();
-  const satisfiedStatuses = new Set([
-    "bumped",
-    "checked",
-    "complete",
-    "completed",
-    "deferred",
-    "done",
-    "passed",
-    "planned",
-    "present",
-    "updated"
-  ]);
+  const satisfiedStatuses = new Set(allowedStatuses);
   if (!satisfiedStatuses.has(status)) {
     return false;
   }
@@ -1284,6 +1308,16 @@ function releaseGateSatisfied(gate) {
     return false;
   }
   return true;
+}
+
+function releaseReadinessErrors(releaseReadiness) {
+  const errors = [];
+  for (const [key, message, allowedStatuses] of RELEASE_GATE_DEFINITIONS) {
+    if (!releaseGateSatisfied(releaseReadiness?.[key], allowedStatuses)) {
+      errors.push(message);
+    }
+  }
+  return errors;
 }
 
 function conventionalCommitSubject(subject) {
@@ -1305,7 +1339,7 @@ async function reserveEvidencePaths(dir) {
       if (error?.code !== "EEXIST") {
         throw error;
       }
-      candidate = `${base}${index.toString(36).toUpperCase()}`;
+      candidate = evidenceId(new Date(Date.now() + index));
       index += 1;
     }
   }
@@ -1543,6 +1577,42 @@ function compactPlanRecord(plan) {
   };
 }
 
+function blockingReviewFindings(review) {
+  const findings = Array.isArray(review?.findings) ? review.findings : [];
+  return findings.filter((finding) => finding?.blocksShip || finding?.severity === "critical");
+}
+
+function archiveReadinessErrors({ plan, review, evidenceEntries }) {
+  const errors = [];
+  if (!plan) {
+    errors.push("missing plan.json");
+  }
+  if (!review) {
+    errors.push("missing review.json");
+  } else if (review.status !== "ready") {
+    errors.push(`review status is ${review.status ?? "missing"}`);
+  }
+
+  const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
+  if (tasks.length === 0) {
+    errors.push("plan.json has no tasks");
+  }
+  const incompleteTasks = tasks.filter((task) => task?.status !== "completed");
+  if (incompleteTasks.length > 0) {
+    errors.push(`incomplete tasks: ${incompleteTasks.map((task) => task.id ?? task.title ?? "unnamed").join(", ")}`);
+  }
+  if (evidenceEntries.length === 0) {
+    errors.push("evidence.jsonl has no evidence");
+  }
+
+  const blockingFindings = blockingReviewFindings(review);
+  if (blockingFindings.length > 0) {
+    errors.push(`blocking review findings: ${blockingFindings.map((finding) => finding.id ?? finding.summary ?? "unnamed").join(", ")}`);
+  }
+  errors.push(...releaseReadinessErrors(review?.releaseReadiness));
+  return errors;
+}
+
 async function copyArchiveText(source, destination) {
   const content = await readTextIfExists(source);
   if (content === null) {
@@ -1589,6 +1659,14 @@ async function archiveMission(args) {
     fail(`Archive blocked: mission ${id} state is ${mission.state}. Archive only shipped missions.`);
   }
 
+  const plan = await readJsonIfExists(path.join(sourceDir, "plan.json"));
+  const review = await readJsonIfExists(path.join(sourceDir, "review.json"));
+  const evidenceEntries = await readEvidenceEntries(path.join(sourceDir, "evidence.jsonl"));
+  const readinessErrors = archiveReadinessErrors({ plan, review, evidenceEntries });
+  if (readinessErrors.length > 0) {
+    fail(`Archive blocked for ${id}:\n- ${readinessErrors.join("\n- ")}`);
+  }
+
   await fs.mkdir(ARCHIVE_DIR, { recursive: true });
   const archiveDir = path.join(ARCHIVE_DIR, id);
   if (await exists(archiveDir)) {
@@ -1597,9 +1675,6 @@ async function archiveMission(args) {
   await fs.mkdir(archiveDir, { recursive: false });
 
   const archivedAt = isoNow();
-  const plan = await readJsonIfExists(path.join(sourceDir, "plan.json"));
-  const review = await readJsonIfExists(path.join(sourceDir, "review.json"));
-  const evidenceEntries = await readEvidenceEntries(path.join(sourceDir, "evidence.jsonl"));
   const compactEvidence = evidenceEntries.map(compactEvidenceEntry);
   const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
   const completedTasks = tasks.filter((task) => task?.status === "completed").length;
@@ -1691,25 +1766,12 @@ async function releaseCloseoutCheck() {
     errors.push(`Review status must be ready; current status is ${review.status ?? "missing"}.`);
   }
 
-  const findings = Array.isArray(review?.findings) ? review.findings : [];
-  const blockingFindings = findings.filter((finding) => finding?.blocksShip || finding?.severity === "critical");
+  const blockingFindings = blockingReviewFindings(review);
   if (blockingFindings.length > 0) {
     errors.push(`Fix blocking review findings: ${blockingFindings.map((finding) => finding.id ?? finding.summary ?? "unnamed").join(", ")}.`);
   }
 
-  const releaseReadiness = review?.releaseReadiness ?? null;
-  const releaseGates = [
-    ["version", "Record version bump or explicit deferral with rationale in review.json releaseReadiness.version."],
-    ["changelog", "Record changelog update or explicit deferral with rationale in review.json releaseReadiness.changelog."],
-    ["specNote", "Record short spec/release note update or explicit deferral with rationale in review.json releaseReadiness.specNote."],
-    ["tagPlan", "Record the post-merge version tag plan in review.json releaseReadiness.tagPlan."],
-    ["postRebaseVerification", "Record verification after latest rebase in review.json releaseReadiness.postRebaseVerification."]
-  ];
-  for (const [key, message] of releaseGates) {
-    if (!releaseGateSatisfied(releaseReadiness?.[key])) {
-      errors.push(message);
-    }
-  }
+  errors.push(...releaseReadinessErrors(review?.releaseReadiness));
 
   const git = await gitInfo();
   if (!git.isRepo) {

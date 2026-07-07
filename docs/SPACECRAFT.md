@@ -261,7 +261,7 @@ Release closeout must check:
 - `tagPlan`
 - `postRebaseVerification`
 
-Each gate must be an object with a `status`, such as `{ "status": "completed" }`. Accepted statuses include complete, completed, checked, planned, updated, passed, bumped, present, done, and deferred. Deferred gates need a non-empty `rationale`. Strings and booleans are not valid gates.
+Each gate must be an object with a `status`, such as `{ "status": "completed" }`. Accepted statuses include complete, completed, checked, updated, passed, bumped, present, done, and deferred. The `planned` status is only accepted for the `tagPlan` gate. Deferred gates need a non-empty `rationale`. Strings and booleans are not valid gates.
 
 If any gate is missing, Spacecraft blocks release closeout and names the exact missing action. It does not call work done.
 
@@ -269,7 +269,7 @@ If gates pass, Spacecraft prepares merge into `main` using `git merge --no-ff <b
 
 ## Mission Archive
 
-`node scripts/spacecraft.mjs archive [selector]` moves a shipped mission from `.space/missions/` to `.space/archive/`. It writes compact durable artifacts:
+`node scripts/spacecraft.mjs archive [selector]` moves a shipped mission from `.space/missions/` to `.space/archive/` after release-readiness gates are recorded. It writes compact durable artifacts:
 
 - `SUMMARY.md`
 - compact `mission.json`
@@ -277,7 +277,7 @@ If gates pass, Spacecraft prepares merge into `main` using `git merge --no-ff <b
 - compact `evidence.jsonl` without stdout/stderr output files
 - review, spec, decisions, and questions files when present
 
-The archive command refuses non-shipped missions. It also clears `.space/current` and session bindings that still point to the archived mission.
+The archive command refuses non-shipped missions, missing or incomplete plans, missing evidence, non-ready reviews, critical findings, and incomplete release-readiness gates. It also clears `.space/current` and session bindings that still point to the archived mission.
 
 ## Common Scenarios
 
