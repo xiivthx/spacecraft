@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.5.1 - 2026-07-07
+
+- Rewrite `scripts/spacecraft.mjs` (Node.js) as a zero-dependency Go binary (`scripts/spacecraft`) with sub-5ms cold-start.
+- All 18 subcommands behave identically; JSON output (`--json` flags) is byte-compatible.
+- Invocation changes from `node scripts/spacecraft.mjs <cmd>` to `scripts/spacecraft <cmd>`.
+- Update all docs, skills, and command files to reference the Go binary.
+- Update branch naming convention to `<type>/<id>/<title>`.
+- Refine Conventional Commits guidance: no scopes by default, lowercase bullet-point bodies.
+
 ## 0.5.0 - 2026-07-07
 
 - Add `/sc-flow` workflow runner guidance and `flow` helper status for repeated work, verify, checkpoint loops.

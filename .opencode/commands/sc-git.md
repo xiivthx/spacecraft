@@ -4,21 +4,21 @@ agent: sc-commander
 ---
 Use sc-mission and sc-git.
 Run:
-node scripts/spacecraft.mjs resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before branch, commit, merge, or release prep. Show the conflict/candidates and tell the user to run `node scripts/spacecraft.mjs missions` then `node scripts/spacecraft.mjs use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
+scripts/spacecraft resolve --json
+If resolver safety is not `safe` or no mission is selected, stop before branch, commit, merge, or release prep. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
 Treat `.space/current` as fallback state, not sole authority.
 Read the resolved mission's mission.json, plan.json, decisions.md, evidence.jsonl, and git state.
 Run:
-node scripts/spacecraft.mjs git-info
+scripts/spacecraft git-info
 
 If the user asks for a branch suggestion, run:
-node scripts/spacecraft.mjs git-suggest $ARGUMENTS
+scripts/spacecraft git-suggest $ARGUMENTS
 
 Apply Spacecraft release branching:
 - never write product changes directly on main
 - one branch per feature, fix, issue, or tightly scoped change
 - branch from latest main
-- use branch names like `<type>/<issue-or-mission>-<slug>`
+- use branch names like `<type>/<id>/<title>`
 - when clear mutating work has no non-main branch, create/switch to the branch without another blocking question
 - keep `.gitignore` current before staging, committing, or merging
 - do not allow secrets, local env files, private data, caches, logs, dependency folders, build outputs, or machine-specific files into git/public artifacts
@@ -36,7 +36,7 @@ Apply Spacecraft release branching:
 - if the user asks to ship/release/merge/finish mission/close branch, run release closeout prep; block if any gate is incomplete and list exact missing actions
 - if the user asks only to stop this chat or continue in a new session while work is unfinished, do session handoff instead of release closeout
 
-Use Conventional Commits.
+Use Conventional Commits: `<type>: <description>` subject, no scope by default. Body uses `- ` bullet points with lowercase first character.
 Do not push unless the user explicitly asks.
 Use rtk for noisy git/status/diff/log output when available; never use it to bypass denied operations.
 End with next action and session advice. If implementation gates are ready, recommend `/sc-flow`.

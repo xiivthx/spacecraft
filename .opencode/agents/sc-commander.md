@@ -7,7 +7,7 @@ permission:
   external_directory: deny
   bash:
     "*": ask
-    "node scripts/spacecraft.mjs *": allow
+    "scripts/spacecraft *": allow
     "git status*": allow
     "git diff*": allow
     "git log*": allow
@@ -27,7 +27,7 @@ permission:
     "rtk proxy git status*": allow
     "rtk proxy git diff*": allow
     "rtk proxy git log*": allow
-    "rtk proxy node scripts/spacecraft.mjs *": allow
+    "rtk proxy scripts/spacecraft *": allow
     "rtk git push*": deny
     "rtk proxy git push*": deny
     "rtk proxy sudo *": deny

@@ -8,9 +8,9 @@ Persona: read [PERSONA.md](PERSONA.md).
 - Commands that define required read-only subagents are explicit permission to use them without asking again: `/sc-plan` uses `sc-planner`; `/sc-design`, `/sc-design-review`, and `/sc-polish` use `sc-designer`; `/sc-review` uses `sc-reviewer`.
 - `/sc-review` may also use a focused read-only `sc-designer` sidecar for UI design-risk triage without asking again.
 - Other commands should not spawn subagents unless the user explicitly asks for delegation or the command is updated to make that subagent part of its contract.
-- Always resolve the active mission before mission work. Use `node scripts/spacecraft.mjs resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
+- Always resolve the active mission before mission work. Use `scripts/spacecraft resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
 - Resolver priority is explicit selector or `SPACECRAFT_MISSION`, session binding, branch mission id, branch metadata, `.space/current`, then single active mission.
-- Strong signal conflicts or ambiguous active missions block write, verify, review, ship, and git safety work until the mission is selected with `node scripts/spacecraft.mjs use <number|id|title>` or an explicit selector.
+- Strong signal conflicts or ambiguous active missions block write, verify, review, ship, and git safety work until the mission is selected with `scripts/spacecraft use <number|id|title>` or an explicit selector.
 - Users may choose missions by list number, mission id, exact title, or unique title substring; do not expect them to know a mission id.
 - New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.
 - Do not implement product code before `spec.md` and `plan.json` exist.
@@ -30,7 +30,7 @@ Persona: read [PERSONA.md](PERSONA.md).
 - Do not auto-run `git init`, create worktrees, rebase, merge, tag, or push unless the user explicitly asks.
 - Never write product changes directly on `main`.
 - Use Spacecraft release branching: one non-main branch per feature, fix, issue, or tightly scoped change.
-- Branch names follow `<type>/<issue-or-mission>-<slug>`, for example `feat/m07fyb5w5-workflow-runner`.
+- Branch names follow `<type>/<id>/<title>`, for example `feat/m07fp1l7z/go-rewrite`.
 - The agent may commit frequently only inside a valid non-main work branch.
 - After a task has passing verification evidence, `/sc-flow` may create a local checkpoint commit before starting the next task.
 - Before merge, squash/fixup checkpoint commits into logical Conventional Commits.

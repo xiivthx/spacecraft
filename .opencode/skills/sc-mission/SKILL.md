@@ -4,9 +4,9 @@ description: Manage Spacecraft mission artifacts and lifecycle for local OpenCod
 license: MIT
 compatibility: opencode
 ---
-- Resolve the active mission with `node scripts/spacecraft.mjs resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
+- Resolve the active mission with `scripts/spacecraft resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
 - Resolver priority is explicit selector or `SPACECRAFT_MISSION`, session binding, branch mission id, branch metadata, `.space/current`, then single active mission.
-- Strong signal conflicts or ambiguous active missions block mission writes until the user selects with `node scripts/spacecraft.mjs use <number|id|title>` or an explicit selector.
+- Strong signal conflicts or ambiguous active missions block mission writes until the user selects with `scripts/spacecraft use <number|id|title>` or an explicit selector.
 - Users may choose by list number, mission id, exact title, or unique title substring; do not expect the user to know a mission id.
 - New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.
 - Read the resolved mission's `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.

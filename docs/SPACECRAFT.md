@@ -44,23 +44,23 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 
 ## Commands
 
-- `node scripts/spacecraft.mjs init`: create `.space/`, `.space/missions/`, and `.space/current`.
-- `node scripts/spacecraft.mjs new "<title>"`: create a new mission and select it.
-- `node scripts/spacecraft.mjs current`: print the `.space/current` fallback mission id.
-- `node scripts/spacecraft.mjs resolve [selector] [--json]`: resolve the active mission from explicit, session, branch, metadata, current, and single-active signals.
-- `node scripts/spacecraft.mjs missions`: list missions, selected signal, safety, branch hints, and next command.
-- `node scripts/spacecraft.mjs use <number|id|title>`: select a mission by list number, mission id, exact title, or unique title substring.
-- `node scripts/spacecraft.mjs bind-branch [selector]`: record the current branch on a mission without switching branches.
-- `node scripts/spacecraft.mjs status`: print resolved mission state, resolver source/safety, artifact paths, task count, evidence count, and review status.
-- `node scripts/spacecraft.mjs flow [--json]`: print workflow readiness, blockers, next task, and checkpoint policy.
-- `node scripts/spacecraft.mjs git-info`: print git worktree, branch, HEAD, and dirty status.
-- `node scripts/spacecraft.mjs git-suggest [type] [slug]`: print recommended release-branching branch name and Conventional Commit examples.
-- `node scripts/spacecraft.mjs set-state <state>`: set mission state.
-- `node scripts/spacecraft.mjs clarify-status <open|clear|deferred>`: set mission clarification status.
-- `node scripts/spacecraft.mjs evidence "<label>" -- <command>`: run a command and record stdout, stderr, exit code, and evidence metadata.
-- `node scripts/spacecraft.mjs validate`: validate the resolved mission artifacts.
-- `node scripts/spacecraft.mjs closeout-check`: block or confirm release closeout readiness.
-- `node scripts/spacecraft.mjs archive [selector]`: compact a shipped mission into `.space/archive/` and remove the live mission copy.
+- `scripts/spacecraft init`: create `.space/`, `.space/missions/`, and `.space/current`.
+- `scripts/spacecraft new "<title>"`: create a new mission and select it.
+- `scripts/spacecraft current`: print the `.space/current` fallback mission id.
+- `scripts/spacecraft resolve [selector] [--json]`: resolve the active mission from explicit, session, branch, metadata, current, and single-active signals.
+- `scripts/spacecraft missions`: list missions, selected signal, safety, branch hints, and next command.
+- `scripts/spacecraft use <number|id|title>`: select a mission by list number, mission id, exact title, or unique title substring.
+- `scripts/spacecraft bind-branch [selector]`: record the current branch on a mission without switching branches.
+- `scripts/spacecraft status`: print resolved mission state, resolver source/safety, artifact paths, task count, evidence count, and review status.
+- `scripts/spacecraft flow [--json]`: print workflow readiness, blockers, next task, and checkpoint policy.
+- `scripts/spacecraft git-info`: print git worktree, branch, HEAD, and dirty status.
+- `scripts/spacecraft git-suggest [type] [slug]`: print recommended release-branching branch name and Conventional Commit examples.
+- `scripts/spacecraft set-state <state>`: set mission state.
+- `scripts/spacecraft clarify-status <open|clear|deferred>`: set mission clarification status.
+- `scripts/spacecraft evidence "<label>" -- <command>`: run a command and record stdout, stderr, exit code, and evidence metadata.
+- `scripts/spacecraft validate`: validate the resolved mission artifacts.
+- `scripts/spacecraft closeout-check`: block or confirm release closeout readiness.
+- `scripts/spacecraft archive [selector]`: compact a shipped mission into `.space/archive/` and remove the live mission copy.
 - `npm run sc:git`: shortcut for git safety status.
 - `npm run sc:missions`: shortcut for mission list and resolver safety.
 - `npm run sc:use -- <number|id|title>`: shortcut for selecting a mission.
@@ -86,12 +86,12 @@ Resolver priority:
 
 Strong signals are session, branch id, branch metadata, and `.space/current`. If strong signals point to different missions, point to a missing mission, or branch metadata matches multiple missions, resolver safety becomes `conflict` or `ambiguous`. Write paths such as `set-state`, `clarify-status`, `evidence`, `validate`, `closeout-check`, and unqualified `bind-branch` must block until the user selects a mission.
 
-Use `node scripts/spacecraft.mjs missions` when selection is unclear. Users can choose without knowing mission ids:
+Use `scripts/spacecraft missions` when selection is unclear. Users can choose without knowing mission ids:
 
 ```sh
-node scripts/spacecraft.mjs use 2
-node scripts/spacecraft.mjs use "Add multi-mission active detection"
-node scripts/spacecraft.mjs use "multi-mission"
+scripts/spacecraft use 2
+scripts/spacecraft use "Add multi-mission active detection"
+scripts/spacecraft use "multi-mission"
 ```
 
 An explicit selector or `SPACECRAFT_MISSION=<mission-id>` is an advanced one-command override. `.space/current` remains useful as portable fallback state, but it is not the only source of active mission truth.
@@ -164,7 +164,7 @@ Spacecraft uses release branching:
 - Do not write product changes directly on `main`.
 - Use one non-main branch per feature, fix, issue, or tightly scoped change.
 - Branch from the latest `main`.
-- Branch names should follow `<type>/<issue-or-mission>-<slug>`, for example `feat/m07fyb5w5-workflow-runner`.
+- Branch names follow `<type>/<id>/<title>`, for example `feat/m07fp1l7z/go-rewrite`.
 - Use `release/v<major>.<minor>.<patch>` only for release preparation work.
 - Merge only after verification, git, release, and review gates pass.
 
@@ -184,15 +184,19 @@ Keep `.gitignore` current before staging, committing, or merging. When new tools
 
 Never allow secrets, credentials, local env files, private data, dependency folders, build outputs, caches, logs, local databases, or machine-specific files into git or public release artifacts. If unsure whether a file is safe to track, ask before staging it.
 
-Commit messages should follow Conventional Commits:
+Commit messages follow Conventional Commits:
 
 ```text
-<type>[optional scope]: <description>
+<type>: <description>
 ```
 
-Common types are `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `perf`, `style`, and `revert`.
+Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `perf`, `style`, `revert`.
 
-Use `!` after the type or scope, or a `BREAKING CHANGE:` footer, for breaking changes. Keep the subject imperative, lowercase, and short. Put mission ids or evidence ids in the body/footer when useful rather than forcing them into the subject.
+Avoid scopes in the subject unless the change touches a distinct subsystem. Write the subject imperative, lowercase, and roughly 72 characters.
+
+Body uses bullet points with `- ` prefix, each starting **lowercase** with no trailing period. Put mission or evidence ids in the body when useful rather than forcing them into the subject.
+
+Use `!` after the type or a `BREAKING CHANGE:` footer for breaking changes.
 
 Before merge:
 
@@ -269,7 +273,7 @@ If gates pass, Spacecraft prepares merge into `main` using `git merge --no-ff <b
 
 ## Mission Archive
 
-`node scripts/spacecraft.mjs archive [selector]` moves a shipped mission from `.space/missions/` to `.space/archive/` after release-readiness gates are recorded. It writes compact durable artifacts:
+`scripts/spacecraft archive [selector]` moves a shipped mission from `.space/missions/` to `.space/archive/` after release-readiness gates are recorded. It writes compact durable artifacts:
 
 - `SUMMARY.md`
 - compact `mission.json`
@@ -408,11 +412,11 @@ If the user does not specify a stack, Spacecraft defaults future web service wor
 ## Smoke Test Commands
 
 ```sh
-node scripts/spacecraft.mjs init
-node scripts/spacecraft.mjs new "Smoke test Spacecraft harness"
-node scripts/spacecraft.mjs resolve --json
-node scripts/spacecraft.mjs missions
-node scripts/spacecraft.mjs status
-node scripts/spacecraft.mjs flow
-node scripts/spacecraft.mjs validate
+scripts/spacecraft init
+scripts/spacecraft new "Smoke test Spacecraft harness"
+scripts/spacecraft resolve --json
+scripts/spacecraft missions
+scripts/spacecraft status
+scripts/spacecraft flow
+scripts/spacecraft validate
 ```
