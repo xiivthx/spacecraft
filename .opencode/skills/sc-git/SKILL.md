@@ -7,11 +7,12 @@ license: MIT
 - Discovery, clarification, design exploration, planning, and read-only review may run without git.
 - Before implementation, commit, merge, or release prep, run `node scripts/spacecraft.mjs git-info`.
 - Never write product changes directly on `main`.
-- If the current branch is `main`, stop before editing product files and ask to create or switch to a work branch.
-- Do not auto-run `git init`, create branches/worktrees, rebase, merge, tag, or push unless the user explicitly asks.
+- If clear mutating work is requested and the current branch is `main`, create or switch to a non-main work branch without another blocking question when policy permits it.
+- Do not auto-run `git init`, create worktrees, rebase, merge, tag, or push unless the user explicitly asks.
 - Do not push unless the user explicitly asks.
 - Keep `.gitignore` current before staging, committing, or merging.
 - Never allow secrets, credentials, local env files, generated dependency folders, build outputs, caches, logs, private artifacts, or machine-specific files into git or public release artifacts.
+- Use rtk for noisy git/status/diff/log output when available. Do not use rtk to bypass denied operations.
 
 ## Branching Model
 
@@ -80,9 +81,17 @@ license: MIT
 - Do not squash-merge into `main`; squash/fixup on the branch before the no-ff merge.
 - Do not rebase or rewrite `main`.
 - Resolve conflicts on the work branch, then verify again.
+- After a successful merge to `main`, delete the merged local branch unless the user asks to keep it.
 
 ## Release Prep
 
+- Treat user requests to ship, release, merge, finish the mission, or close a branch as release closeout prep.
+- Treat ordinary stop-chat, close-session, end-session, or continue-in-new-session requests as session handoff. Do not merge, tag, or delete branches for handoff.
+- If "close session" is ambiguous and work appears ready, recommend `/sc-ship`; do not merge automatically.
+- Closeout must prepare the branch for merge into `main`.
+- Run `node scripts/spacecraft.mjs closeout-check` before claiming closeout readiness.
+- `closeout-check` requires `review.json.releaseReadiness` object entries for version, changelog, spec note, tag plan, and post-rebase verification; deferred gates need rationale. String and boolean gates are invalid.
+- If any gate is incomplete, block closeout and list exact missing actions.
 - Before merging into `main`, bump the project version.
 - Before merging into `main`, run the mission's required tests, verification commands, and validation commands.
 - Choose version bump by impact:
@@ -121,3 +130,10 @@ Before shipping or merging, check:
 - verification evidence exists after the latest rebase
 - merge plan uses `--no-ff`
 - tag plan exists for the bumped version
+
+## Dependency Freshness
+
+- Before adding or updating direct dependencies, frameworks, or generated code that depends on current APIs, check official docs, registries, or releases.
+- Prefer latest stable direct dependency versions.
+- Exceptions: deep transitive dependencies, ecosystem pins, lockfile constraints, security advisories, or explicit user instruction.
+- Record source, version, and date in decisions or evidence when the choice affects implementation.

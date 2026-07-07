@@ -15,6 +15,7 @@ Apply Spacecraft release branching:
 - one branch per feature, fix, issue, or tightly scoped change
 - branch from latest main
 - use branch names like `<type>/<issue-or-mission>-<slug>`
+- when clear mutating work has no non-main branch, create/switch to the branch without another blocking question
 - keep `.gitignore` current before staging, committing, or merging
 - do not allow secrets, local env files, private data, caches, logs, dependency folders, build outputs, or machine-specific files into git/public artifacts
 - agent may commit frequently only on a valid non-main work branch
@@ -27,7 +28,11 @@ Apply Spacecraft release branching:
 - bump version before merge unless explicitly deferred with rationale
 - update changelog and short spec/release note before merge when behavior changed
 - create version tag after the no-ff merge into main
+- after successful merge to main, delete the merged local branch unless the user asks to keep it
+- if the user asks to ship/release/merge/finish mission/close branch, run release closeout prep; block if any gate is incomplete and list exact missing actions
+- if the user asks only to stop this chat or continue in a new session while work is unfinished, do session handoff instead of release closeout
 
-Use Conventional Commits for final commit suggestions.
-Do not create branches, commits, rebases, merges, tags, or pushes unless the user explicitly asks.
-End with the recommended next action and session advice.
+Use Conventional Commits.
+Do not push unless the user explicitly asks.
+Use rtk for noisy git/status/diff/log output when available; never use it to bypass denied operations.
+End with next action and session advice.

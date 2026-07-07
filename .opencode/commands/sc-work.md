@@ -13,17 +13,19 @@ Run:
 node scripts/spacecraft.mjs git-info
 If the workspace is not a git worktree, stop before editing product files unless the user has explicitly accepted no-git implementation risk for this mission in decisions.md.
 If git exists, inspect dirty state before edits. Work with user changes; do not revert unrelated changes.
-For large, risky, or multi-session implementation slices, recommend a separate branch or git worktree before editing.
+For large, risky, or multi-session slices, prefer a separate branch or git worktree.
 Use sc-git branch naming when suggesting a branch:
 <type>/<issue-or-mission>-<slug>
 Use:
 node scripts/spacecraft.mjs git-suggest <type> <slug>
 to generate the suggested branch and commit examples.
 Never edit product files directly on main.
-If the current branch is main, stop and ask to create or switch to a feature/issue branch.
+If the current branch is main and the task clearly requires edits, create or switch to a feature/issue branch without asking again. If branch intent is unclear, use `node scripts/spacecraft.mjs git-suggest`.
 The agent may create checkpoint commits only on a valid non-main work branch.
 Before staging or committing, ensure `.gitignore` is current and unsafe files are not staged.
 Do not stage secrets, local env files, private data, dependency folders, build outputs, caches, logs, local databases, or machine-specific files.
+Before code or dependency changes, check official current docs/registry/releases for direct dependencies and framework APIs. Use latest stable direct versions unless a deep dependency, ecosystem pin, or explicit user instruction says otherwise. Record source/version/date when it affects implementation.
+Use rtk for noisy shell commands when available: installed hook, `rtk <supported command...>`, or `rtk proxy <command...>` for passthrough/tracking. Raw commands are allowed when rtk is missing or exact output is needed.
 Implement only the next smallest pending task.
 If implementing UI, read DESIGN.md and use sc-design.
 If UI mood/theme/art direction is not recorded in decisions.md or plan.json, stop and recommend /sc-design before implementation.
@@ -45,4 +47,4 @@ If the loop stops with known remaining risk, state that risk and recommend the n
 If a useful self-test is skipped, say why and recommend the next concrete verification command.
 Update plan.json task status conservatively.
 Do not claim completion until /sc-verify captures evidence.
-End with the recommended next action and session advice. Prefer continuing this chat for immediate /sc-verify; recommend a new session when the next task is a separate implementation slice or context is heavy.
+End with next action and session advice. Prefer continuing for immediate /sc-verify.

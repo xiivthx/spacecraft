@@ -2,6 +2,8 @@
 
 Spacecraft is a lean, local-first OpenCode harness for mission-driven software development. It is not a web server, dashboard, background service, database, or cloud sync tool.
 
+Persona lives in `PERSONA.md`. Operational rules live in `AGENTS.md`.
+
 Spacecraft is operated from the OpenCode UI or TUI with slash commands:
 
 - `/sc-start`
@@ -22,6 +24,7 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 ## File Layout
 
 - `AGENTS.md`: project rules for Spacecraft work.
+- `PERSONA.md`: commander tone and communication rules.
 - `DESIGN.md`: Orbital Console visual source of truth for UI work.
 - `opencode.json`: local OpenCode configuration and conservative permissions.
 - `.opencode/agents/`: Spacecraft commander, planner, designer, and reviewer agents.
@@ -47,8 +50,10 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 - `node scripts/spacecraft.mjs clarify-status <open|clear|deferred>`: set mission clarification status.
 - `node scripts/spacecraft.mjs evidence "<label>" -- <command>`: run a command and record stdout, stderr, exit code, and evidence metadata.
 - `node scripts/spacecraft.mjs validate`: validate the current mission artifacts.
+- `node scripts/spacecraft.mjs closeout-check`: block or confirm release closeout readiness.
 - `npm run sc:git`: shortcut for git safety status.
 - `npm run sc:git:suggest -- [type] [slug]`: shortcut for branch and commit suggestions.
+- `npm run sc:closeout`: shortcut for release closeout readiness.
 - `node .opencode/skills/sc-design/scripts/serve-html.mjs [artifact-or-dir] --open`: serve and open design HTML artifacts.
 - `npm run sc:design:open -- [artifact-or-dir]`: shortcut for the same design preview server.
 
@@ -64,9 +69,11 @@ The helper script at `scripts/spacecraft.mjs` exists only to create file-backed 
 8. `/sc-design-review` checks visual quality and anti-slop issues when UI changed.
 9. `/sc-polish` performs focused design cleanup before shipping UI work.
 10. `/sc-review` reviews the diff and evidence.
-11. `/sc-ship` ships only when evidence, clarification, git, release, and review gates pass.
+11. `/sc-ship` or a user request to ship/release/merge/finish the mission/close the branch runs release closeout. It ships only when evidence, clarification, git, release, and review gates pass.
 
 Do not implement product code before `spec.md` and `plan.json` exist. Do not claim work is done, verified, ready, or shipped without evidence in `evidence.jsonl`.
+
+When the user clearly asks for mutating work and no suitable mission or non-main branch exists, Spacecraft may create the mission and branch without asking another blocking question. This keeps flow moving while preserving the spec, plan, git, evidence, and review gates.
 
 ## Subagent Invocation Model
 
@@ -86,7 +93,7 @@ Other commands should not spawn subagents unless the user explicitly asks for de
 
 Git is the default rollback boundary for implementation work. Spacecraft should allow discovery, clarification, design exploration, planning, and read-only review without git, but `/sc-work` must not edit product files outside a git worktree unless the user explicitly accepts no-git implementation risk for that mission.
 
-Git policy lives in `sc-git`. Spacecraft does not auto-run `git init`, create branches, create worktrees, rebase, merge, tag, or push. Those operations change project state and require an explicit user request.
+Git policy lives in `sc-git`. Spacecraft may create a non-main branch when the user's mutating intent is clear and policy permits it. Spacecraft does not auto-run `git init`, create worktrees, rebase, merge, tag, or push unless the user explicitly asks or the request is a release closeout/ship flow that authorizes release prep. Push always requires explicit user request.
 
 Spacecraft uses release branching:
 
@@ -146,6 +153,82 @@ git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"
 ```
 
 Do not push commits or tags unless the user explicitly asks.
+
+After a successful merge into `main`, delete the merged local branch unless the user asks to keep it.
+
+## Session Handoff
+
+Session handoff means the chat can stop while the branch or mission remains unfinished.
+
+Use session handoff when:
+
+- the user asks to stop this chat, end the session, or continue in a new session
+- work is mid-task, unreviewed, dirty, blocked, or not release-ready
+- Spacecraft itself recommends a new session because context is heavy or the phase changed
+
+Handoff must include:
+
+- current mission and branch
+- state, blockers, and dirty git status
+- exact pickup command, usually `/sc-status` followed by the next intended command
+
+Handoff must not merge, tag, delete branches, or claim release readiness.
+
+If "close session" is ambiguous, default to handoff. If the mission appears release-ready, recommend `/sc-ship` as the next command instead of merging automatically.
+
+## Release Closeout
+
+Release closeout means the work is intended to become releasable on `main`.
+
+Use release closeout for `/sc-ship` or explicit requests to ship, release, merge, finish the mission, or close the branch.
+
+Release closeout must check:
+
+- current mission, spec, plan, questions, decisions, evidence, and review
+- git branch, dirty state, final commit count, Conventional Commit subjects, and rebase status
+- version bump, changelog/spec release notes, no-ff merge plan, and tag plan
+- verification evidence after the latest rebase
+- no critical review or design findings
+
+`review.json.releaseReadiness` records release gates for `closeout-check`:
+
+- `version`
+- `changelog`
+- `specNote`
+- `tagPlan`
+- `postRebaseVerification`
+
+Each gate must be an object with a `status`, such as `{ "status": "completed" }`. Accepted statuses include complete, completed, checked, planned, updated, passed, bumped, present, done, and deferred. Deferred gates need a non-empty `rationale`. Strings and booleans are not valid gates.
+
+If any gate is missing, Spacecraft blocks release closeout and names the exact missing action. It does not call work done.
+
+If gates pass, Spacecraft prepares merge into `main` using `git merge --no-ff <branch>`, creates the version tag after merge when needed, and cleans up the merged branch. Push still requires explicit user request.
+
+## Common Scenarios
+
+- Mid-task, user says "open a new session": handoff only, no release.
+- Plan done, implementation next, context heavy: recommend new session with `/sc-status` then `/sc-work`; no release.
+- Verification failed or review blocked: handoff or fix loop; release closeout blocks.
+- Review ready, evidence fresh, branch clean, user says "ship": release closeout, rebase, verify, no-ff merge, tag, cleanup branch.
+- User says "close branch" while tasks are incomplete: release closeout check blocks and lists missing tasks.
+- User says only "close session" after work seems ready: handoff plus recommend `/sc-ship`; no merge without release intent.
+
+## Dependency Freshness
+
+Before code work that chooses direct dependencies, framework versions, generated scaffolds, or current APIs, Spacecraft checks official docs, registries, or releases. It uses latest stable direct versions unless a deep dependency, ecosystem pin, lockfile constraint, security advisory, or explicit user instruction says otherwise.
+
+Record source, version, and date in `decisions.md` or `evidence.jsonl` when the choice affects implementation.
+
+## Shell Output
+
+Use rtk as the shell-output proxy when available:
+
+- prefer installed rtk hooks for automatic command rewrite
+- use `rtk <supported command...>` for noisy commands such as git, grep, tests, build, lint, docker, and cargo
+- use `rtk proxy <command...>` for unsupported commands when passthrough plus tracking is useful
+- use raw commands when exact byte output is required or rtk is unavailable
+
+Do not use rtk to bypass denied git, push, destructive, or secret-touching operations.
 
 ## Clarification Workflow
 
@@ -225,7 +308,7 @@ Command output is stored under `outputs/` inside the mission directory.
 
 `review.md` stores the human-readable review. `review.json` stores structured review status and findings. Critical findings block `/sc-ship`.
 
-## Session Closeout
+## Response Closeout
 
 Spacecraft command responses should end with a concrete next action and session advice.
 
@@ -234,6 +317,8 @@ Continue the current chat when the next step is small, adjacent, and depends on 
 Start a new session when the mission or major phase ended, the next step is a large implementation slice, the thread is context-heavy, or mission artifacts already contain enough state for a clean handoff.
 
 When recommending a new session, Spacecraft should include a compact pickup instruction, usually `/sc-status` followed by the next intended command.
+
+Response closeout and session handoff are not release closeout.
 
 ## Future Web Service Mission
 

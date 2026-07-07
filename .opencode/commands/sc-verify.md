@@ -11,5 +11,6 @@ Capture failures too.
 Update plan.json task evidence references when a check maps to a task.
 Run:
 node scripts/spacecraft.mjs validate
+Use rtk for noisy verification commands when available. Use raw output or `rtk proxy` passthrough when exact evidence is needed.
 Do not say verified without evidence ids.
-End with the recommended next action and session advice. Suggest /sc-design-review if UI changed, otherwise /sc-review or /sc-work for remaining tasks.
+End with next action and session advice. Suggest /sc-design-review if UI changed, otherwise /sc-review or /sc-work.
