@@ -65,3 +65,6 @@ Thumbs.db
 
 # signs
 signs/*
+scripts/spacecraft/spacecraft
+scripts/spacecraft/sc
+*.json
