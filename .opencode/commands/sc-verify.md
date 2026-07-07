@@ -3,10 +3,7 @@ description: Capture verification evidence for the resolved mission
 agent: sc-commander
 ---
 Use sc-verification.
-Run:
-scripts/spacecraft resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before capturing evidence. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
-Treat `.space/current` as fallback state, not sole authority.
+Resolve the mission. Block if unsafe.
 Read the resolved mission's plan.json and acceptance checks.
 Run focused verification using:
 scripts/spacecraft evidence "<label>" -- <command>

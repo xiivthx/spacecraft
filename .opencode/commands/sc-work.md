@@ -3,10 +3,7 @@ description: Implement the next smallest task in the resolved Spacecraft mission
 agent: sc-commander
 ---
 Use sc-mission, sc-clarify, and sc-git.
-Run:
-scripts/spacecraft resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before editing. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
-Treat `.space/current` as fallback state, not sole authority.
+Resolve the mission. Block if unsafe.
 Read the resolved mission's mission.json, spec.md, and plan.json.
 If spec.md or plan.json is missing, stop and tell the user to run /sc-start or /sc-plan.
 Read questions.md and decisions.md when present.

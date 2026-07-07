@@ -67,3 +67,13 @@ If the user asks to stop this chat, end/close the session, or continue in a new 
 If "close session" is ambiguous and work appears ready, recommend `/sc-ship` instead of merging automatically.
 If the user asks to ship, release, merge, finish the mission, or close the branch, run release closeout: prepare merge to main only if gates pass; otherwise block and list exact missing actions. After successful merge, clean up the branch unless asked to keep it.
 End each Spacecraft session with a recommended next action and session advice: continue this chat for small adjacent steps, or start a new session when the phase changed, the thread is context-heavy, or mission artifacts are sufficient for handoff.
+
+## Resolver gate (shared — referenced by commands)
+
+Before any command that needs a resolved mission, run:
+```
+scripts/spacecraft resolve --json
+```
+If resolver safety is not `safe` or no mission is selected, stop before the intended operation. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command. Treat `.space/current` as fallback state, not sole authority.
+
+Command files below use "Resolve the mission. Block if unsafe." as shorthand for this gate. The full gate text above is the authority.

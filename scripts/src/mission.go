@@ -374,19 +374,116 @@ func findMissionBySelector(records []MissionRecord, selector string, orderedReco
 	return nil
 }
 
-func bindBranch(args []string) {
-	// Simple stub for now. Will be completed.
-	fmt.Println("bindBranch called")
+func printMissions() {
+	records := listMissionRecords()
+	ordered := missionDisplayRecords(records)
+	if len(ordered) == 0 {
+		fmt.Println("No missions.")
+		return
+	}
+	// Resolve for safety/conflict info to print signal info
+	res := resolveMission("")
+	signalByID := make(map[string]string)
+	for _, sig := range res.Signals {
+		if sig.MissionId != nil {
+			signalByID[*sig.MissionId] = sig.Source
+		}
+	}
+
+	for i, r := range ordered {
+		num := i + 1
+		title := displayMissionTitle(r.Mission.Title)
+		state := r.Mission.State
+		active := ""
+		if !r.Active {
+			active = " shipped"
+		}
+		branchHint := ""
+		if len(r.Branches) > 0 {
+			branchHint = " [" + strings.Join(r.Branches, ",") + "]"
+		}
+		sig := ""
+		if s, ok := signalByID[r.ID]; ok {
+			sig = " <" + s + ">"
+		}
+		fmt.Printf("%d. %s (%s) state:%s%s%s%s\n", num, title, r.ID, state, active, sig, branchHint)
+	}
 }
 
 func useMission(args []string) {
-	// Simple stub for now. Will be completed.
-	fmt.Println("useMission called")
+	if len(args) == 0 {
+		fail("Missing selector.\nUsage: spacecraft use <number|id|title>")
+	}
+	selector := strings.TrimSpace(strings.Join(args, " "))
+	records := listMissionRecords()
+	ordered := missionDisplayRecords(records)
+	record := findMissionBySelector(records, selector, ordered)
+	if record == nil {
+		fail(fmt.Sprintf("No mission matches %q.\nRun 'spacecraft missions' to see available missions.", selector))
+	}
+	// Write to .space/current
+	err := os.WriteFile(CURRENT_FILE, []byte(record.ID+"\n"), 0644)
+	if err != nil {
+		fail("Failed to write .space/current: " + err.Error())
+	}
+	// Write to session binding if available
+	sessFile := writeSessionMissionId(record.ID)
+	fmt.Printf("Selected mission %s (%s)\n", record.ID, record.Mission.Title)
+	if sessFile != nil {
+		fmt.Printf("Session: %s\n", displayPath(*sessFile))
+	}
 }
 
-func printMissions() {
-	// Simple stub for now. Will be completed.
-	fmt.Println("printMissions called")
+func bindBranch(args []string) {
+	selector := ""
+	if len(args) > 0 {
+		selector = strings.TrimSpace(strings.Join(args, " "))
+	}
+	var record *MissionRecord
+	if selector != "" {
+		records := listMissionRecords()
+		ordered := missionDisplayRecords(records)
+		record = findMissionBySelector(records, selector, ordered)
+		if record == nil {
+			fail(fmt.Sprintf("No mission matches %q.", selector))
+		}
+	} else {
+		res := requireResolvedMission("bind-branch")
+		if res.Selected == nil {
+			fail("No resolved mission to bind branch.")
+		}
+		rec := findMissionRecord(listMissionRecords(), res.Selected.ID)
+		if rec == nil {
+			fail("Selected mission not found on disk.")
+		}
+		record = rec
+	}
+
+	git := gitInfo()
+	if !git.IsRepo {
+		fail("Not a git worktree; cannot bind branch.")
+	}
+	if git.Branch == "" {
+		fail("No current branch to bind.")
+	}
+
+	// Read mission.json
+	var m Mission
+	mPath := filepath.Join(record.Dir, "mission.json")
+	if err := readJson(mPath, &m); err != nil {
+		fail("Failed to read mission.json: " + err.Error())
+	}
+
+	m.WorkBranch = &git.Branch
+	m.Git.WorkBranch = &git.Branch
+	m.Branch = &git.Branch
+	m.UpdatedAt = isoNow()
+
+	if err := writeJson(mPath, m); err != nil {
+		fail("Failed to write mission.json: " + err.Error())
+	}
+
+	fmt.Printf("Bound branch %s to mission %s\n", git.Branch, record.ID)
 }
 
 type Plan struct {

@@ -252,7 +252,7 @@ func archiveMission(args []string) {
 	}
 	completedCount := 0
 	for _, t := range tasks {
-		if t.Status != nil && *t.Status == "completed" {
+		if t.Status != nil && (*t.Status == "completed" || *t.Status == "done") {
 			completedCount++
 		}
 	}

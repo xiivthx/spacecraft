@@ -33,9 +33,20 @@ type Task struct {
 	Status *string `json:"status"`
 }
 
+func taskIsOpen(task Task) bool {
+	if task.Status == nil {
+		return true
+	}
+	switch *task.Status {
+	case "completed", "done", "cancelled":
+		return false
+	}
+	return true
+}
+
 func nextOpenTask(tasks []Task) *Task {
 	for _, task := range tasks {
-		if task.Status == nil || *task.Status != "completed" {
+		if taskIsOpen(task) {
 			t := task
 			return &t
 		}
@@ -55,9 +66,9 @@ func nextCommandForMission(m *Mission) string {
 		return "/sc-clarify"
 	}
 	switch m.State {
-	case "draft", "specified":
+	case "draft":
 		return "/sc-plan"
-	case "planned", "implementing":
+	case "planned":
 		return "/sc-work"
 	case "verifying":
 		return "/sc-verify"
@@ -119,10 +130,16 @@ func workflowSnapshot(res ResolveOutput, mission *Mission, specExists bool, plan
 		state = mission.State
 	}
 	
-	if (state == "planned" || state == "implementing" || state == "verifying") && git.IsRepo && (git.Branch == "main") {
+	onMainBlock := state == "planned" || state == "verifying"
+	// Backward compat for missions with legacy 'implementing' state
+	if state == "implementing" {
+		onMainBlock = true
+	}
+	
+	if onMainBlock && git.IsRepo && (git.Branch == "main") {
 		blockers = append(blockers, "implementation workflow requires a non-main work branch")
 	}
-	if (state == "planned" || state == "implementing" || state == "verifying") && git.IsRepo && git.Dirty {
+	if onMainBlock && git.IsRepo && git.Dirty {
 		blockers = append(blockers, fmt.Sprintf("worktree is dirty (%d files); inspect before automated workflow", git.DirtyFiles))
 	}
 	
@@ -166,7 +183,7 @@ func workflowSnapshot(res ResolveOutput, mission *Mission, specExists bool, plan
 
 	completedCount := 0
 	for _, t := range tasks {
-		if t.Status != nil && *t.Status == "completed" {
+		if t.Status != nil && (*t.Status == "completed" || *t.Status == "done") {
 			completedCount++
 		}
 	}

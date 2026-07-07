@@ -3,12 +3,9 @@ description: Run the resolved Spacecraft mission workflow until a real gate bloc
 agent: sc-commander
 ---
 Use sc-mission, sc-git, and sc-verification.
+Resolve the mission. Block if unsafe.
 Run:
-scripts/spacecraft resolve --json
-Run:
-scripts/spacecraft flow
-If resolver safety is not `safe` or `flow` reports blockers, stop before writing. Show the blockers and exact next action.
-Treat `.space/current` as fallback state, not sole authority.
+scripts/spacecraft workflow
 
 Purpose: reduce unnecessary HIL inside one chat. Continue through the safe loop without asking the user to type each command:
 `/sc-work Txx -> /sc-verify Txx -> checkpoint commit -> next task`.

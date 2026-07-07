@@ -16,7 +16,7 @@ Identify gray areas before planning or implementation.
 If there is a blocking ambiguity, ask exactly one question and stop.
 Include your recommended answer.
 If no blocking ambiguity exists, record assumptions in decisions.md and set clarification status to clear.
-Set state to specified only when the mission has enough clarity for the initial spec.
+Set state to draft (default) when the mission has enough clarity for the initial spec.
 Do not implement product code.
 Do not create a detailed plan.
 Do not run /sc-design implicitly.

@@ -55,7 +55,7 @@ func main() {
 		bindBranch(args)
 	case "status":
 		printStatus()
-	case "flow":
+	case "flow", "workflow":
 		printWorkflow(args)
 	case "git-info":
 		printGitInfo()

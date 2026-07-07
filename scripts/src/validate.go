@@ -124,12 +124,20 @@ func validateMission() {
 
 func setState(state string) {
 	allowed := map[string]bool{
-		"draft": true, "specified": true, "planned": true,
-		"implementing": true, "verifying": true, "reviewing": true,
+		"draft": true, "planned": true,
+		"verifying": true, "reviewing": true,
 		"ready": true, "shipped": true, "blocked": true,
 	}
+	// Backward compat: map removed states to their replacement
 	if !allowed[state] {
-		fail("Invalid state. Allowed states: draft, specified, planned, implementing, verifying, reviewing, ready, shipped, blocked")
+		switch state {
+		case "specified":
+			state = "draft"
+		case "implementing":
+			state = "planned"
+		default:
+			fail("Invalid state. Allowed states: draft, planned, verifying, reviewing, ready, shipped, blocked")
+		}
 	}
 
 	res := resolveMission("")

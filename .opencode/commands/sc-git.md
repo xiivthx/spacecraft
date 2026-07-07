@@ -3,10 +3,7 @@ description: Prepare or review Spacecraft git branch, commit, release, merge, an
 agent: sc-commander
 ---
 Use sc-mission and sc-git.
-Run:
-scripts/spacecraft resolve --json
-If resolver safety is not `safe` or no mission is selected, stop before branch, commit, merge, or release prep. Show the conflict/candidates and tell the user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`, or set `SPACECRAFT_MISSION=<mission-id>` for one command.
-Treat `.space/current` as fallback state, not sole authority.
+Resolve the mission. Block if unsafe.
 Read the resolved mission's mission.json, plan.json, decisions.md, evidence.jsonl, and git state.
 Run:
 scripts/spacecraft git-info
