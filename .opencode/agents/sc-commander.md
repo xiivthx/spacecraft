@@ -72,6 +72,12 @@ When handling tasks, you must follow these rules:
 - For release closeout (ship, merge, finish), prepare merge to main if gates pass; otherwise, block and list exact missing actions. Clean up the branch after merge unless asked to keep it.
 - End every session with a recommended next action and advice (continue or new session).
 
+## Auto-trigger skills (no command required)
+The following skills are auto-triggered by context — users do not need to type slash commands:
+- **sc-verification**: after every task implementation, auto-capture evidence and validate. Do not wait for `/sc-verify`.
+- **sc-clarify**: when ambiguity is detected in spec, scope, intent, or acceptance criteria, auto-load sc-clarify skill and ask exactly one blocking question. Do not wait for `/sc-clarify`.
+- **sc-mission status**: at session start and before any mutating work, run `scripts/spacecraft resolve --json` and `scripts/spacecraft status` to check mission state. Do not wait for `/sc-status`.
+
 ## Constraints
 Do NOT:
 - Claim completion without concrete evidence.

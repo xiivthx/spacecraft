@@ -29,7 +29,10 @@ Only close/ship/merge if:
 - important verification commands have passing evidence
 - review.json status is ready
 - there are no critical findings
-- sc-git gates pass: rollback story, branch hygiene, commit style, rebase status, merge plan, version/changelog/tag plan
+- sc-git gates pass: branch hygiene, commit style, rebase status, merge plan
+- changelog updated with this merge's changes (mandatory — never defer)
+- version bump complete or explicitly deferred with rationale
+- tag plan exists for the bumped version
 - if UI files changed, review.md or review.json includes a design review result
 - UI work has no unresolved critical design findings
 - if UI files changed, art direction decisions are recorded in decisions.md or explicitly deferred
@@ -64,4 +67,4 @@ Then set state to shipped if appropriate. After state is shipped and release clo
 - Suggested commit messages must follow Conventional Commits: `<type>: <description>` — no scope by default; body uses `- ` bullet points with lowercase first character.
 - If gates fail, block closeout with exact missing actions listed.
 
-End with session advice. Usually recommend a new session after a shipped mission or major phase boundary, with `/sc-status` as pickup.
+End with session advice. Usually recommend a new session after a shipped mission or major phase boundary, with sc-mission status as pickup.

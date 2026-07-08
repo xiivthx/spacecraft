@@ -57,14 +57,14 @@ Keep this self-review lightweight. Do not invoke sc-reviewer, do not write revie
 
 ### 5. Update plan
 
-Update plan.json task status conservatively. Do not claim completion until /sc-verify captures evidence.
+Update plan.json task status conservatively. Do not claim completion until sc-verification captures evidence.
 
 ## Error handling
 
 - No git worktree → stop unless no-git risk accepted in decisions.md.
-- Blocking clarification → stop and tell user to run /sc-clarify.
+- Blocking clarification → stop and use sc-clarify skill.
 - Missing spec.md or plan.json → stop and tell user to run /sc-start or /sc-plan.
 - If self-review loop stops with known remaining risk, state that risk and recommend the next concrete command or clarification.
 - If a useful self-test is skipped, say why and recommend the next concrete verification command.
 
-End with next action and session advice. Prefer continuing for immediate /sc-verify, or `/sc-flow` when the user wants the runner to verify and continue through remaining tasks.
+End with next action and session advice. Prefer continuing for immediate sc-verification, or `/sc-flow` when the user wants the runner to verify and continue through remaining tasks.
