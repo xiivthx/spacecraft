@@ -28,10 +28,11 @@ Use this exact sequence unless the user specifies otherwise:
 1. **Resolve mission** — Before git work, resolve mission with `scripts/spacecraft resolve --json`. If safety ≠ `safe`, block until user selects.
 2. **Check git state** — Run `scripts/spacecraft git-info` before committing/merging/releasing.
 3. **Branch** — Create a non-main work branch from latest `main` before mutating. Never write product changes on `main`.
-4. **Commit** — Use Conventional Commits. Target 1–3 final commits per branch, max 5 unless justified in decisions.md.
-5. **Verify** — After latest rebase, reverify. Run `scripts/spacecraft closeout-check` before claiming release readiness.
-6. **Rebase & Merge** — Before merge, rebase on latest `main`. Merge with `--no-ff` only.
-7. **Tag** — After no-ff merge, create annotated tag. Do not tag before merge exists.
+4. **Commit (implementation)** — Use Conventional Commits. Target 1–3 final commits per branch, max 5 unless justified in decisions.md.
+5. **Commit (release notes)** — Add version bump + changelog update as a **separate commit** in the work branch before merge (type `chore:` or `docs:`). Never defer after merge.
+6. **Verify** — After latest rebase, reverify. Run `scripts/spacecraft closeout-check` before claiming release readiness.
+7. **Rebase & Merge** — Before merge, rebase on latest `main`. Merge with `--no-ff` only.
+8. **Tag** — After no-ff merge, create annotated tag. Do not tag before merge exists.
 
 ## Rules
 
@@ -55,6 +56,7 @@ Use this exact sequence unless the user specifies otherwise:
 ### Commits
 
 - **Must**: Target 1–3 final commits per branch, max 5 unless justified in decisions.md.
+- **Must**: Separate version bump + changelog update into its own `chore:` or `docs:` commit — do not bundle with implementation commit.
 - **May**: Frequent WIP/checkpoint commits OK on work branch only. After a passing `/sc-flow` task, may create a checkpoint commit.
 - **Must**: Before merge, squash/fixup into logical Conventional Commits. Do not squash unrelated changes.
 - **Must not**: Stage unrelated user changes. Prefer `git add <specific-files>`.
@@ -115,7 +117,7 @@ Before shipping or merging, check:
 - [ ] final commits use Conventional Commits
 - [ ] `.gitignore` current; no secrets/deps/builds staged
 - [ ] tests/verification pass after latest rebase
-- [ ] version + changelog/spec update present or deferred with rationale
+- [ ] version bump + changelog/spec update in a **separate commit** (`chore:`/`docs:`) in work branch (not deferred after merge)
 - [ ] merge plan uses `--no-ff`; tag plan exists
 
 ### Dependency Freshness
