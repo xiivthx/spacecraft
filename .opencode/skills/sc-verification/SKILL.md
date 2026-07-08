@@ -41,6 +41,11 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: If a check cannot be automated, state why and mark it manual.
 - **Must**: Prefer focused verification first, then broader build/test checks before shipping.
 - **Must**: Use rtk for noisy verification commands when available. Use raw output or `rtk proxy` passthrough when exact evidence is needed.
+- **Must**: Evidence must demonstrate functional correctness, not just configuration validity.
+  - **Weak**: evidence that echoes the config back (e.g., "PASS: model set to X")
+  - **Strong**: evidence that exercises actual behavior (e.g., "PASS: model X produces correct output for test case Y")
+  - Prefer functional proof. If only config validation is possible, explicitly state why.
+- **Must**: Before claiming verification passed, self-audit: "Did I verify behavior or just read config? Did I cover edge cases?"
 
 ## Out of scope
 
