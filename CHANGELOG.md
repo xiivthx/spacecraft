@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.5 - 2026-07-08
+
+- Refactor: move sc-verify, sc-clarify, sc-status from commands to auto-triggered skills (12 → 9 commands)
+- Feat: sc-commander agent auto-triggers sc-verification after every task, sc-clarify on ambiguity, sc-mission at session start
+- Fix: harden changelog merge guard — changelog mandatory before merge, never deferrable in review/ship/git gates
+
 ## 0.6.4 - 2026-07-08
 
 - Refactor: lean 13 → 12 command files — standardized frontmatter (`subtask: true` on sc-flow, sc-ship, sc-work), resolver preamble, and structured sections (Pre-flight/Workflow/Error handling) per `docs/templates/command.md`
