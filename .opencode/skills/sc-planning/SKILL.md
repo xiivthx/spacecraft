@@ -94,6 +94,10 @@ Before claiming the plan is ready:
 - [ ] No vague or unverifiable tasks
 - [ ] Assumptions recorded if low-risk
 
+## Research auto-trigger
+
+When unsure about dependency versions, API compatibility, or best practices during planning, invoke `spacecraft research <query>` to retrieve up-to-date information before committing to a plan.
+
 ---
 
 ## References

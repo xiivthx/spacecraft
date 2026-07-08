@@ -27,3 +27,14 @@ On ship/release/merge/finish: check evidence, review, git, version/changelog, re
 - Selection decisions: enumerate ≥2 alternatives with pros/cons in `decisions.md`.
 - Self-audit before claiming done: "Did I take the shortcut? Did I verify output, not just config?"
 - Evidence must show functional correctness, not just config validity.
+
+## Research auto-trigger
+
+When encountering gray areas, outdated knowledge, or uncertainty, invoke `spacecraft research <query>` before proceeding. The Commander decides when to invoke it; the CLI provides the mechanism.
+
+| Lane | Trigger | Example |
+|------|---------|---------|
+| **Planning** (sc-plan) | Unsure about dependency version, API compatibility, or best practices | `spacecraft research "express v5 migration guide"` before planning an upgrade |
+| **Implementation** (sc-build) | Unfamiliar API, deprecated method, syntax question | `spacecraft research "react useActionState example"` before writing code |
+| **Debugging** (sc-debug) | Unknown error message, stack trace from framework, configuration issue | `spacecraft research "postgresql deadlock detected Error 40P01"` during diagnosis |
+| **Clarification** (sc-clarify) | Ambiguity about ecosystem conventions | `spacecraft research "next.js app router vs pages router 2026"` before asking user |

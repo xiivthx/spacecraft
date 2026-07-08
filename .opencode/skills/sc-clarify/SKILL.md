@@ -93,6 +93,10 @@ Before claiming clarification is resolved:
 - [ ] Confirmed choices and assumptions recorded in `decisions.md`
 - [ ] No blocking question remains open before implementation
 
+## Research auto-trigger
+
+Before asking the user about ecosystem conventions, API usage, or framework-specific practices, invoke `spacecraft research <query>` to check current documentation. Only escalate to the user when research doesn't resolve the ambiguity.
+
 ---
 
 ## References
