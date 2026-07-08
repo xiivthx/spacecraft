@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.2 - 2026-07-08
+
+- Fix: add post-merge checklist in sc-git skill and guard against direct main edits
+
 ## 0.6.1 - 2026-07-08
 
 - Refactor: realign all 7 SKILL.md files to `.space/skill-template.md` format (consistent frontmatter with name, description, license, compatibility, metadata.version, metadata.audience; template section layout: When to use, Workflow, Rules, Out of scope, Output format, Checklist, References).
