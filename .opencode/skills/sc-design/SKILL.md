@@ -1,6 +1,6 @@
 ---
 name: sc-design
-description: Shape, critique, and polish Spacecraft visual/UI design using the project DESIGN.md
+description: Shape, critique, and polish visual/UI design using the project DESIGN.md
 license: MIT
 compatibility: opencode
 metadata:
@@ -10,7 +10,7 @@ metadata:
 
 # sc-design
 
-Shape, critique, and polish Spacecraft visual/UI design using the project DESIGN.md.
+Shape, critique, and polish visual/UI design using the project DESIGN.md.
 
 ## When to use
 

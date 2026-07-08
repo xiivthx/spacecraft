@@ -59,7 +59,7 @@ For each file, classify by category:
 - `code` — source files (.ts, .js, .go, .py, .rs, .sh, etc.)
 - `config` — configuration (.json, .yaml, .yml, .toml, .env.example)
 - `docs` — documentation (.md, .rst, .txt)
-- `skill` — Spacecraft skill files (matches `.opencode/skills/*/`)
+- `skill` — skill files (matches `.opencode/skills/*/`)
 - `script` — scripts, Makefiles, tooling
 - `test` — test files (matches `*test*`, `*spec*`, `tests/`)
 
@@ -110,7 +110,7 @@ Store as `$DEPENDENCY_GRAPH`.
 #### Step 1.5 — Identify entry points
 
 Check for common entry-point patterns (in order):
-- `opencode.json` (Spacecraft config)
+- `opencode.json` (config)
 - `AGENTS.md` (agent rules)
 - `scripts/spacecraft` (CLI entry)
 - `src/main.*`, `src/index.*`, `main.*`, `index.*`
@@ -173,7 +173,7 @@ Classify each file:
 
 Assign each touchpoint and its dependencies to an architectural layer:
 
-| Layer | Spacecraft example |
+| Layer | example |
 |-------|-------------------|
 | `skills` | `.opencode/skills/*/SKILL.md` |
 | `agents` | `AGENTS.md`, `PERSONA.md` |
@@ -359,5 +359,5 @@ Before claiming sc-map is done:
 
 - Understand-Anything: multi-agent codebase knowledge graph (scan → batch → analyze → review → save)
 - Graphiti: temporal context graphs with provenance tracking
-- `.space/skill-template.md` — Spacecraft skill template reference
+- `.space/skill-template.md` — skill template reference
 - `scripts/spacecraft` — CLI for mission resolution
