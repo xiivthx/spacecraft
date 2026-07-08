@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.6 - 2026-07-08
+
+- Fix: accept `"done"` and `"cancelled"` task statuses in closeout-check and archive readiness, matching workflow.go `taskIsOpen` semantics
+- Fix: sc-flow command delegates to sc-coder (implement) and sc-tester (test+verify) instead of spawning a nested sc-commander
+
 ## 0.6.5 - 2026-07-08
 
 - Refactor: move sc-verify, sc-clarify, sc-status from commands to auto-triggered skills (12 → 9 commands)
