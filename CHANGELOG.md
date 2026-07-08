@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.3 - 2026-07-08
+
+- Docs: move skill and command templates from `.space/` to `docs/templates/` and remove `-template` suffix
+- Docs: create `docs/templates/agent.md` from `.opencode/agents/` real-world patterns
+- Fix: add changelog-before-merge guard and separate-commit pattern in sc-git workflow, commits rule, and review gate
+
 ## 0.6.2 - 2026-07-08
 
 - Fix: add post-merge checklist in sc-git skill and guard against direct main edits
