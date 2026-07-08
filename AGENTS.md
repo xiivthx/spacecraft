@@ -49,7 +49,7 @@ Persona: read [PERSONA.md](PERSONA.md).
 - Future product missions may install dependencies with user approval.
 - End each Spacecraft session with a recommended next action and session advice: continue this chat for small adjacent steps, or start a new session when the phase changed, the thread is context-heavy, or mission artifacts are sufficient for handoff.
 
-## Design discipline
+## Visual design discipline (UI)
 
 - Read `DESIGN.md` before UI work.
 - Use `/sc-design` before implementing a new screen or major component.
@@ -77,7 +77,7 @@ Persona: read [PERSONA.md](PERSONA.md).
 
 Before planning, designing, or implementing, resolve meaningful ambiguity.
 
-Use `sc-clarify` when the mission has unclear product behavior, scope, user intent, design direction, constraints, or acceptance criteria.
+Use `sc-clarify` when the mission has unclear product behavior, scope, user intent, visual design direction, constraints, or acceptance criteria.
 
 Do not ask questions that can be answered by reading the repo. Inspect files first.
 

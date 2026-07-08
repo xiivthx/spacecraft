@@ -39,7 +39,7 @@ The normal lifecycle is:
 /sc-work Txx -> /sc-verify Txx -> checkpoint commit -> next task
 ```
 
-The workflow runner stops on resolver conflicts, open blocking clarification, missing mission artifacts, main-branch write risk, unsafe dirty files, missing design direction, failed verification, failed validation, critical review findings, release actions, or context that is too heavy for safe continuation.
+The workflow runner stops on resolver conflicts, open blocking clarification, missing mission artifacts, main-branch write risk, unsafe dirty files, missing visual design direction, failed verification, failed validation, critical review findings, release actions, or context that is too heavy for safe continuation.
 
 ## Verification
 
