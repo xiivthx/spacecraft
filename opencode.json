@@ -3,6 +3,7 @@
   "default_agent": "sc-commander",
   "share": "disabled",
   "lsp": true,
+  "instructions": ["PERSONA.md"],
   "agent": {
     "sc-commander": {
       "mode": "primary",
