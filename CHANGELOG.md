@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0 - 2026-07-08
+
+- Feat: embed proactive rigor into process — selection decisions must enumerate ≥2 alternatives, self-audit before completion, evidence must prove functional correctness
+- Feat: add evidence quality rules to sc-verification skill — distinguish config-echo (weak) from functional proof (strong)
+- Close IS-01: root cause of AI laziness addressed via process gates
+
 ## 0.7.0 - 2026-07-08
 
 - Feat: configure Spacecraft agents with OpenCode Go cost-aware model matrix — 4 distinct models across 6 agents (deepseek-v4-pro, deepseek-v4-flash, glm-5.2, kimi-k2.7-code)

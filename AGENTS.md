@@ -49,6 +49,22 @@ Persona: read [PERSONA.md](PERSONA.md).
 - Future product missions may install dependencies with user approval.
 - End each Spacecraft session with a recommended next action and session advice: continue this chat for small adjacent steps, or start a new session when the phase changed, the thread is context-heavy, or mission artifacts are sufficient for handoff.
 
+## Proactive rigor
+
+### Selection decisions
+- When selecting between models, libraries, dependencies, patterns, tools, or approaches, enumerate at least 2 alternatives with explicit pros and cons. Record in `decisions.md`.
+- Do not default to the first option, the most familiar option, or the cheapest option without explicit justification.
+- If a selection requires domain expertise you lack (model quality, design taste, security impact), escalate to the user or the appropriate subagent — do not guess.
+
+### Self-audit before completion
+- Before claiming any task complete, self-audit: "Did I take the obvious shortcut? Did I verify the output, not just the config? Did I consider edge cases?"
+- If the answer to "did I take the shortcut?" is yes, redo the work properly before claiming done.
+
+### Evidence quality
+- Evidence must demonstrate functional correctness, not just configuration validity.
+- Weak: "PASS: model set to X" (config echo). Strong: "PASS: model X produces correct output for test case Y" (functional proof).
+- Prefer evidence that exercises actual behavior over evidence that reads static config.
+
 ## Visual design discipline (UI)
 
 - Read `DESIGN.md` before UI work.
