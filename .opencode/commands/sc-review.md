@@ -29,7 +29,7 @@ If the diff is intended to ship, record release readiness in review.json:
 - releaseReadiness.tagPlan
 - releaseReadiness.postRebaseVerification
 
-Use structured objects with `status`, plus `rationale` for any deferred gate. Do not use string or boolean releaseReadiness values.
+Use structured objects with `status`, plus `rationale` for deferred gates. Changelog and specNote must never be deferred. Version may be deferred with strong rationale. Do not use string or boolean releaseReadiness values.
 
 ### 3. UI design review (if UI files changed)
 

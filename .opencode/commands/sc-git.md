@@ -44,8 +44,9 @@ Apply Spacecraft release branching:
 - rebase work branch on latest main before merge
 - test, verify, and validate after rebase and before merge into main
 - merge into main only with `git merge --no-ff <branch>`
-- bump version before merge unless explicitly deferred with rationale
-- update changelog and short spec/release note before merge when behavior changed
+- bump version before merge unless explicitly deferred with strong rationale
+- update changelog before merge — always required, never defer
+- update short spec/release note before merge when behavior changed
 - create version tag after the no-ff merge into main
 - after successful merge to main, delete the merged local branch unless the user asks to keep it
 
