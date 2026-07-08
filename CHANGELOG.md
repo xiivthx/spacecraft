@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0 - 2026-07-08
+
+- Feat: add sc-map skill for project structure survey before planning — 3-phase survey (deterministic discovery + LLM semantic analysis) produces map.json with touchpoints, dependencies, risk zones, and layer classification
+- Feat: sc-planning reads map.json as optional input for comprehensive task scoping
+- Refactor: distribute SPEC.md content across AGENTS.md and PERSONA.md; lean AGENTS.md to project conventions
+
 ## 0.8.0 - 2026-07-08
 
 - Feat: embed proactive rigor into process — selection decisions must enumerate ≥2 alternatives, self-audit before completion, evidence must prove functional correctness
