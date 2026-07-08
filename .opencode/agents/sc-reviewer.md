@@ -5,14 +5,7 @@ temperature: 0.1
 permission:
   edit: deny
   external_directory: deny
-  bash:
-    "*": ask
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "scripts/spacecraft resolve*": allow
-    "scripts/spacecraft status*": allow
-    "scripts/spacecraft validate*": allow
+  bash: deny
   skill:
     "*": deny
     "sc-mission": allow

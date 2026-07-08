@@ -11,6 +11,12 @@ permission:
     "git status*": allow
     "git diff*": allow
     "git log*": allow
+    "wc *": allow
+    "echo *": allow
+    "mkdir *": allow
+    "pwd*": allow
+    "which *": allow
+    "node -v*": allow
     "rtk --version": allow
     "rtk gain*": allow
     "rtk git status*": allow
@@ -19,11 +25,17 @@ permission:
     "rtk grep*": allow
     "rtk read*": allow
     "rtk find*": allow
+    "rtk ls*": allow
     "rtk sudo *": deny
     "rtk rm -rf *": deny
     "rtk run *": deny
     "rtk proxy rg*": allow
     "rtk proxy sed*": allow
+    "rtk proxy cat *": allow
+    "rtk proxy head *": allow
+    "rtk proxy tail *": allow
+    "rtk proxy sort *": allow
+    "rtk proxy uniq *": allow
     "rtk proxy git status*": allow
     "rtk proxy git diff*": allow
     "rtk proxy git log*": allow

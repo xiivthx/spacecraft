@@ -5,13 +5,7 @@ temperature: 0.1
 permission:
   edit: deny
   external_directory: deny
-  bash:
-    "*": ask
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "rg *": allow
-    "ls*": allow
+  bash: deny
   skill:
     "*": deny
     "sc-mission": allow
