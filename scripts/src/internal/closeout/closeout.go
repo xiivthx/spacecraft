@@ -60,7 +60,7 @@ func (c *Checker) Check(id string, m *mission.Mission, plan *mission.Plan, revie
 	var incomplete []mission.Task
 	if plan != nil {
 		for _, t := range plan.Tasks {
-			if t.Status == nil || *t.Status != "completed" {
+			if !taskIsComplete(t.Status) {
 				incomplete = append(incomplete, t)
 			}
 		}
@@ -238,6 +238,18 @@ func blockingReviewFindings(review *mission.Review) []mission.Finding {
 		}
 	}
 	return blocking
+}
+
+// taskIsComplete returns true if the task status is a terminal/closed state.
+func taskIsComplete(status *string) bool {
+	if status == nil {
+		return false
+	}
+	switch *status {
+	case "completed", "done", "cancelled":
+		return true
+	}
+	return false
 }
 
 func conventionalCommitSubject(subject string) bool {

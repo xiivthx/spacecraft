@@ -63,7 +63,7 @@ func (r *ReadinessChecker) CheckReadiness(id string, plan *mission.Plan, review 
 
 	var incomplete []string
 	for _, t := range tasks {
-		if t.Status == nil || *t.Status != "completed" {
+		if !taskIsComplete(t.Status) {
 			name := "unnamed"
 			if t.ID != nil {
 				name = *t.ID
@@ -151,7 +151,7 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 	}
 	completedCount := 0
 	for _, t := range tasks {
-		if t.Status != nil && (*t.Status == "completed" || *t.Status == "done") {
+		if taskIsComplete(t.Status) {
 			completedCount++
 		}
 	}
@@ -328,6 +328,18 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 }
 
 // --- helpers ---
+
+// taskIsComplete returns true if the task status is a terminal/closed state.
+func taskIsComplete(status *string) bool {
+	if status == nil {
+		return false
+	}
+	switch *status {
+	case "completed", "done", "cancelled":
+		return true
+	}
+	return false
+}
 
 func compactEvidenceEntry(entry mission.EvidenceEntry) mission.CompactEvidenceEntry {
 	return mission.CompactEvidenceEntry{

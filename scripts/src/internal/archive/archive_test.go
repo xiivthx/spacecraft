@@ -299,6 +299,88 @@ func TestMissionArchiver_clearSelection(t *testing.T) {
 	}
 }
 
+func TestReadinessChecker_closedStatuses(t *testing.T) {
+	t.Run("readiness accepts done and cancelled", func(t *testing.T) {
+		store, _, cleanup := newTestStore(t)
+		defer cleanup()
+
+		checker := NewReadinessChecker(store)
+
+		// All tasks in closed statuses — none pending/in-progress
+		plan := &mission.Plan{
+			Tasks: []mission.Task{
+				{ID: strPtr("T01"), Status: strPtr("completed")},
+				{ID: strPtr("T02"), Status: strPtr("done")},
+				{ID: strPtr("T03"), Status: strPtr("cancelled")},
+			},
+		}
+		review := readyReview()
+		entries := []mission.EvidenceEntry{
+			{ID: "E001", Label: "ok", ExitCode: 0},
+		}
+
+		errs := checker.CheckReadiness("M07AR13", plan, review, entries)
+		if errs != nil {
+			t.Fatalf("expected no errors, got: %v", errs.Errors)
+		}
+	})
+
+	t.Run("completedCount includes cancelled in summary", func(t *testing.T) {
+		store, cfg, cleanup := newTestStore(t)
+		defer cleanup()
+
+		m := &mission.Mission{
+			ID:    "M07AR14",
+			Title: "Summary count test",
+			State: "shipped",
+			Git:   mission.GitBlock{WorkBranch: strPtr("feat/summary")},
+		}
+		if err := store.Create(m); err != nil {
+			t.Fatal(err)
+		}
+
+		dir := cfg.MissionDir("M07AR14")
+		os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{}`), 0644)
+
+		// 3 closed-status tasks: 1 completed, 1 done, 1 cancelled — all should count
+		plan := &mission.Plan{
+			MissionId: "M07AR14",
+			Tasks: []mission.Task{
+				{ID: strPtr("T01"), Status: strPtr("completed")},
+				{ID: strPtr("T02"), Status: strPtr("done")},
+				{ID: strPtr("T03"), Status: strPtr("cancelled")},
+			},
+		}
+		review := readyReview()
+		entries := []mission.EvidenceEntry{
+			{ID: "E001", Label: "ok", ExitCode: 0},
+		}
+
+		archiver := NewArchiver(store)
+		archiver.nowFn = func() string { return "2026-07-07T12:00:00.000Z" }
+
+		result, err := archiver.Archive(ArchiveParams{
+			ID:              "M07AR14",
+			Mission:         m,
+			Plan:            plan,
+			Review:          review,
+			EvidenceEntries: entries,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		summaryPath := filepath.Join(result.ArchiveDir, "SUMMARY.md")
+		data, err := os.ReadFile(summaryPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(string(data), "Tasks: 3/3 completed") {
+			t.Errorf("expected summary to show 3/3 completed, got:\n%s", string(data))
+		}
+	})
+}
+
 // --- helpers ---
 
 func newTestStore(t *testing.T) (mission.MissionStore, *config.Config, func()) {
