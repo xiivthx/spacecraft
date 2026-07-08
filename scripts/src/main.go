@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -19,6 +20,7 @@ import (
 	"spacecraft/internal/gitutil"
 	"spacecraft/internal/id"
 	"spacecraft/internal/mission"
+	"spacecraft/internal/research"
 	"spacecraft/internal/resolver"
 	"spacecraft/internal/state"
 	"spacecraft/internal/workflow"
@@ -99,6 +101,10 @@ func main() {
 		exitCode = closeoutCmd()
 	case "archive":
 		exitCode = archiveCmd(args)
+	case "research":
+		exitCode = researchCmd(args)
+	case "check-deps":
+		exitCode = checkDepsCmd(args)
 	case "-h", "--help", "help":
 		fmt.Print(usage())
 	default:
@@ -129,6 +135,8 @@ Usage:
   spacecraft validate
   spacecraft closeout-check
   spacecraft archive [selector]
+  spacecraft research <query> [flags]
+  spacecraft check-deps [flags]
 `
 }
 
@@ -826,6 +834,622 @@ func archiveCmd(args []string) int {
 	return 0
 }
 
+// ---------- research command ----------
+
+func researchCmd(args []string) int {
+	// Parse flags manually since Go's flag package doesn't support dashes in flag names.
+	var (
+		scope   string
+		deep    string
+		results int    = 5
+		timeout       = 10 * time.Second
+		jsonOut bool
+		noSave  bool
+	)
+	parsed := 0
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "--scope" && i+1 < len(args):
+			i++; scope = args[i]; parsed++
+		case strings.HasPrefix(a, "--scope="):
+			scope = a[len("--scope="):]; parsed++
+		case a == "--deep" && i+1 < len(args) && !strings.HasPrefix(args[i+1], "--"):
+			i++; deep = args[i]; parsed++
+		case strings.HasPrefix(a, "--deep="):
+			deep = a[len("--deep="):]; parsed++
+		case a == "--deep":
+			deep = "true"; parsed++
+		case a == "--results" && i+1 < len(args):
+			i++; n, err := strconv.Atoi(args[i])
+			if err == nil && n > 0 { results = n }; parsed++
+		case strings.HasPrefix(a, "--results="):
+			n, err := strconv.Atoi(a[len("--results="):])
+			if err == nil && n > 0 { results = n }; parsed++
+		case a == "--timeout" && i+1 < len(args):
+			i++; d, err := time.ParseDuration(args[i])
+			if err == nil { timeout = d }; parsed++
+		case strings.HasPrefix(a, "--timeout="):
+			d, err := time.ParseDuration(a[len("--timeout="):])
+			if err == nil { timeout = d }; parsed++
+		case a == "--json":
+			jsonOut = true; parsed++
+		case a == "--no-save":
+			noSave = true; parsed++
+		case a == "-h" || a == "--help":
+			fmt.Print(researchUsage())
+			return 0
+		default:
+			args = args[i:]
+			goto parseDone
+		}
+	}
+	args = nil
+parseDone:
+
+	if len(args) == 0 {
+		return printErr("Missing query.\n\n" + researchUsage())
+	}
+	query := strings.TrimSpace(strings.Join(args, " "))
+	if query == "" {
+		return printErr("Missing query.\n\n" + researchUsage())
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	if deep != "" && deep != "true" && deep != "nlm" {
+		return fatalErr("Invalid --deep value:", deep, "(expected 'true' or 'nlm')")
+	}
+
+	var (
+		outputResults interface{}
+		outputSource  string
+		outputScope   string
+		outputMethod  string
+		outputDeep    *research.DeepResult
+	)
+
+	// Determine if the query looks like a package identifier.
+	// Simple heuristic: single token, no spaces, common package patterns.
+	if isPackageQuery(query) {
+		// Try registry lookup across all registries.
+		pkg, src := lookupPackage(ctx, query, timeout)
+		if pkg != nil {
+			outputResults = pkg
+			outputSource = src
+			goto output
+		}
+		// Registry lookup failed — fall through to Brave Search.
+	}
+
+	// Scope detection.
+	{
+		detectedScope := scope
+		if detectedScope == "" {
+			// Auto-detect from query + project manifests.
+			manifests := detectManifests()
+			detectedScope = research.SmartScope(query, manifests)
+		}
+		outputScope = detectedScope
+
+		// Load scope config once (built-in defaults + .space/scopes.json override).
+		scopeCfg, err := research.LoadScopes(filepath.Join(cfg.Root(), ".space", "scopes.json"))
+		if err != nil {
+			return fatalErr("Failed to load search scopes:", err)
+		}
+
+		// Validate custom scope against known scopes.
+		if scope != "" && detectedScope != "" {
+			if _, ok := scopeCfg.Scopes[detectedScope]; !ok {
+				return fatalErr(fmt.Sprintf("Unknown scope: %q", scope))
+			}
+		}
+
+		// Get Brave Search API key.
+		apiKey := os.Getenv("SPACECRAFT_BRAVE_API_KEY")
+		if apiKey == "" {
+			return fatalErr("SPACECRAFT_BRAVE_API_KEY environment variable is not set. Get a key at https://brave.com/search/api/")
+		}
+
+		// Build domain list from scope config.
+		var domains []string
+		if detectedScope != "" {
+			if s, ok := scopeCfg.Scopes[detectedScope]; ok {
+				domains = s.Domains
+			}
+		}
+
+		brave := research.NewBraveClient(apiKey, "https://api.search.brave.com")
+		searchResults, err := brave.Search(ctx, query, domains, results)
+		if err != nil {
+			return fatalErr("Brave Search error:", err)
+		}
+
+		// Truncate to --results limit.
+		if len(searchResults) > results {
+			searchResults = searchResults[:results]
+		}
+
+		outputResults = searchResults
+		outputSource = "brave-search"
+
+		// Deep analysis: if --deep is set, analyze the top result URL.
+		if deep != "" && len(searchResults) > 0 {
+			topURL := searchResults[0].URL
+			deepResult, deepErr := runDeepAnalysis(ctx, topURL, query, deep, timeout)
+			if deepErr != nil {
+				fmt.Fprintf(os.Stderr, "Deep analysis warning: %v\n", deepErr)
+			} else {
+				outputDeep = deepResult
+			}
+			switch deep {
+			case "true":
+				outputMethod = "browser-use"
+			case "nlm":
+				outputMethod = "nlm"
+			}
+		}
+
+		if len(searchResults) == 0 {
+			fmt.Println("No results found.")
+			return 1
+		}
+	}
+
+output:
+	// Determine persistence directory.
+	persistDir := ""
+	if !noSave {
+		res := r.Resolve("")
+		if res.Selected != nil {
+			persistDir = filepath.Join(store.MissionDir(res.Selected.ID), "research")
+		} else {
+			persistDir = filepath.Join(cfg.Root(), ".space", "research")
+		}
+	}
+
+	opts := research.FormatOptions{
+		JSON:         jsonOut,
+		Query:        query,
+		Scope:        outputScope,
+		Source:       outputSource,
+		Method:       outputMethod,
+		DeepAnalysis: outputDeep,
+		Timestamp:    time.Now().UTC().Format("2006-01-02T15:04:05Z"),
+		PersistDir:   persistDir,
+	}
+
+	if err := research.FormatResults(os.Stdout, outputResults, opts); err != nil {
+		return printErr("Formatting error:", err)
+	}
+
+	// Persist to disk.
+	if persistDir != "" {
+		prefix := slugify(query)
+		if len(prefix) > 40 {
+			prefix = prefix[:40]
+		}
+		path, err := research.SaveResults(persistDir, prefix, outputResults, opts)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to save results: %v\n", err)
+		} else {
+			fmt.Fprintf(os.Stderr, "\nSaved: %s\n", rel(path))
+		}
+	}
+
+	return 0
+}
+
+// runDeepAnalysis invokes the deep-research backend for a single URL.
+// deep: "true" = browser-use, "nlm" = notebooklm-mcp-cli.
+func runDeepAnalysis(ctx context.Context, url, query, deep string, timeout time.Duration) (*research.DeepResult, error) {
+	switch deep {
+	case "true":
+		runner := research.NewBrowserUseRunner(&research.OSExecutor{})
+		if !runner.IsAvailable() {
+			return nil, fmt.Errorf("browser-use not available. Install with: %s", runner.InstallInstructions())
+		}
+		// Extend timeout for deep analysis (use 2x the search timeout or default 30s).
+		deepCtx, cancel := context.WithTimeout(ctx, timeout*2)
+		defer cancel()
+		return runner.Analyze(deepCtx, url)
+	case "nlm":
+		runner := research.NewNotebookLMRunner(&research.OSExecutor{})
+		if !runner.IsAvailable() {
+			return nil, fmt.Errorf("notebooklm-mcp-cli not available. Install with: %s", runner.InstallInstructions())
+		}
+		deepCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+		defer cancel()
+		return runner.Analyze(deepCtx, query)
+	default:
+		return nil, fmt.Errorf("unknown deep mode: %s", deep)
+	}
+}
+
+func researchUsage() string {
+	return `spacecraft research <query> [flags]
+
+Flags:
+  --scope <name>     Force a scope (react, tailwindcss, nextjs, storybook, postgresql, go, rust)
+  --deep [true|nlm]  Deep research (true=browser-use, nlm=notebooklm)
+  --results <n>      Number of results (default 5)
+  --timeout <d>      Request timeout (default 10s)
+  --json             JSON output
+  --no-save          Skip persistence
+`
+}
+
+// isPackageQuery returns true if the query looks like a package identifier.
+// Requires at least one of: dot, slash, or @-scope prefix to avoid triggering
+// 4 registry lookups for every single-token search query.
+func isPackageQuery(query string) bool {
+	if strings.Contains(query, " ") {
+		return false
+	}
+	// Must contain a dot, slash, or @ to look like a package identifier.
+	if !strings.ContainsAny(query, "./@") {
+		return false
+	}
+	for _, r := range query {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') ||
+			(r >= '0' && r <= '9') || r == '.' || r == '-' ||
+			r == '/' || r == '_' || r == '@' {
+			continue
+		}
+		return false
+	}
+	return len(query) > 0
+}
+
+// lookupPackage tries each registry in order and returns the first match.
+func lookupPackage(ctx context.Context, query string, timeout time.Duration) (*research.PackageInfo, string) {
+	clients := []struct {
+		name   string
+		client interface{ Lookup(context.Context, string) (*research.PackageInfo, error) }
+	}{
+		{"npm", research.NewNpmClientWithTimeout("https://registry.npmjs.org", timeout)},
+		{"go", research.NewGoProxyClientWithTimeout("https://proxy.golang.org", timeout)},
+		{"pypi", research.NewPypiClientWithTimeout("https://pypi.org", timeout)},
+		{"crates", research.NewCargoClientWithTimeout("https://crates.io", timeout)},
+	}
+	for _, c := range clients {
+		pkg, err := c.client.Lookup(ctx, query)
+		if err == nil && pkg != nil && pkg.Name != "" {
+			return pkg, c.name
+		}
+	}
+	return nil, ""
+}
+
+// detectManifests returns a list of manifest filenames found in the project root.
+func detectManifests() []string {
+	root := cfg.Root()
+	var manifests []string
+	for _, name := range []string{"go.mod", "package.json", "requirements.txt", "pyproject.toml", "Cargo.toml"} {
+		if _, err := os.Stat(filepath.Join(root, name)); err == nil {
+			manifests = append(manifests, name)
+		}
+	}
+	return manifests
+}
+
+// ---------- check-deps command ----------
+
+func checkDepsCmd(args []string) int {
+	var (
+		timeout     = 10 * time.Second
+		concurrency = 4
+		jsonOut     bool
+		registry    string
+	)
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch {
+		case a == "--timeout" && i+1 < len(args):
+			i++; d, err := time.ParseDuration(args[i])
+			if err == nil { timeout = d }
+		case strings.HasPrefix(a, "--timeout="):
+			d, err := time.ParseDuration(a[len("--timeout="):])
+			if err == nil { timeout = d }
+		case a == "--concurrency" && i+1 < len(args):
+			i++; n, err := strconv.Atoi(args[i])
+			if err == nil && n > 0 { concurrency = n }
+		case strings.HasPrefix(a, "--concurrency="):
+			n, err := strconv.Atoi(a[len("--concurrency="):])
+			if err == nil && n > 0 { concurrency = n }
+		case a == "--registry" && i+1 < len(args):
+			i++; registry = args[i]
+		case strings.HasPrefix(a, "--registry="):
+			registry = a[len("--registry="):]
+		case a == "--json":
+			jsonOut = true
+		case a == "-h" || a == "--help":
+			fmt.Print(checkDepsUsage())
+			return 0
+		}
+	}
+
+	root := cfg.Root()
+	var manifestFiles []string
+
+	if registry != "" {
+		// Limit to specific ecosystem manifest.
+		switch registry {
+		case "go":
+			manifestFiles = []string{filepath.Join(root, "go.mod")}
+		case "npm":
+			manifestFiles = []string{filepath.Join(root, "package.json")}
+		case "pypi":
+			for _, n := range []string{"requirements.txt", "pyproject.toml"} {
+				p := filepath.Join(root, n)
+				if _, err := os.Stat(p); err == nil {
+					manifestFiles = append(manifestFiles, p)
+				}
+			}
+		case "crates":
+			manifestFiles = []string{filepath.Join(root, "Cargo.toml")}
+		default:
+			return fatalErr(fmt.Sprintf("Unknown registry: %q. Supported: go, npm, pypi, crates", registry))
+		}
+	} else {
+		for _, name := range []string{"go.mod", "package.json", "requirements.txt", "pyproject.toml", "Cargo.toml"} {
+			p := filepath.Join(root, name)
+			if _, err := os.Stat(p); err == nil {
+				manifestFiles = append(manifestFiles, p)
+			}
+		}
+	}
+
+	if len(manifestFiles) == 0 {
+		fmt.Println("No supported dependency manifest files found in", root)
+		fmt.Println("Supported: go.mod, package.json, requirements.txt, pyproject.toml, Cargo.toml")
+		return 0
+	}
+
+	// Parse all manifests into a flat dependency list.
+	type depWithSource struct {
+		research.Dependency
+		LatestVersion string
+		UpgradeType   string
+	}
+	var flatDeps []research.Dependency
+	for _, mf := range manifestFiles {
+		deps, err := research.ParseManifest(mf)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: %s: %v\n", filepath.Base(mf), err)
+			continue
+		}
+		flatDeps = append(flatDeps, deps...)
+	}
+
+	// Concurrent registry lookups bounded by --concurrency.
+	type depResult struct {
+		index        int
+		depWithSource depWithSource
+		err          bool
+	}
+	sem := make(chan struct{}, concurrency)
+	resultCh := make(chan depResult, len(flatDeps))
+
+	for i, d := range flatDeps {
+		go func(idx int, dep research.Dependency) {
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			defer cancel()
+			latest, err := lookupLatestVersion(ctx, dep, timeout)
+
+			dws := depWithSource{Dependency: dep}
+			if err != nil {
+				dws.LatestVersion = "?"
+				dws.UpgradeType = "ERROR"
+				resultCh <- depResult{index: idx, depWithSource: dws, err: true}
+				return
+			}
+			dws.LatestVersion = latest
+			dws.UpgradeType = compareNumericVersions(dep.CurrentVersion, latest)
+			resultCh <- depResult{index: idx, depWithSource: dws}
+		}(i, d)
+	}
+
+	// Collect results in original order.
+	ordered := make([]depWithSource, len(flatDeps))
+	hasUpdates := false
+	hasErrors := false
+	for range flatDeps {
+		r := <-resultCh
+		ordered[r.index] = r.depWithSource
+		if r.err {
+			hasErrors = true
+		} else if r.depWithSource.UpgradeType != "current" {
+			hasUpdates = true
+		}
+	}
+	allDeps := ordered
+
+	if jsonOut {
+		type depJSON struct {
+			Name           string `json:"name"`
+			Ecosystem      string `json:"ecosystem"`
+			CurrentVersion string `json:"current_version"`
+			LatestVersion  string `json:"latest_version"`
+			UpgradeType    string `json:"upgrade_type"`
+		}
+		var out []depJSON
+		for _, d := range allDeps {
+			out = append(out, depJSON{
+				Name:           d.Name,
+				Ecosystem:      d.Ecosystem,
+				CurrentVersion: d.CurrentVersion,
+				LatestVersion:  d.LatestVersion,
+				UpgradeType:    d.UpgradeType,
+			})
+		}
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		enc.Encode(out)
+	} else {
+		for _, d := range allDeps {
+			flag := ""
+			switch d.UpgradeType {
+			case "MAJOR UPGRADE":
+				flag = " [MAJOR UPGRADE]"
+			case "MINOR UPGRADE":
+				flag = " [MINOR UPGRADE]"
+			case "PATCH":
+				flag = " [PATCH]"
+			case "current":
+				flag = " [current]"
+			case "ERROR":
+				flag = " [ERROR]"
+			}
+			fmt.Printf("%-50s %-10s → %-10s%s\n", d.Name, d.CurrentVersion, d.LatestVersion, flag)
+		}
+	}
+
+	if hasErrors {
+		return 2
+	}
+	if hasUpdates {
+		return 1
+	}
+	return 0
+}
+
+func checkDepsUsage() string {
+	return `spacecraft check-deps [flags]
+
+Flags:
+  --registry <ecosystem>  Limit to one ecosystem (go, npm, pypi, crates)
+  --timeout <d>           Request timeout (default 10s)
+  --concurrency <n>       Concurrent registry lookups (default 4)
+  --json                  JSON output
+`
+}
+
+// lookupLatestVersion looks up the latest version of a dependency using the matching registry.
+// timeout is used for the HTTP client timeout.
+func lookupLatestVersion(ctx context.Context, dep research.Dependency, timeout time.Duration) (string, error) {
+	switch dep.Ecosystem {
+	case "go":
+		c := research.NewGoProxyClientWithTimeout("https://proxy.golang.org", timeout)
+		pkg, err := c.Lookup(ctx, dep.Name)
+		if err != nil {
+			return "", err
+		}
+		return pkg.LatestVersion, nil
+	case "npm":
+		c := research.NewNpmClientWithTimeout("https://registry.npmjs.org", timeout)
+		pkg, err := c.Lookup(ctx, dep.Name)
+		if err != nil {
+			return "", err
+		}
+		return pkg.LatestVersion, nil
+	case "pypi":
+		c := research.NewPypiClientWithTimeout("https://pypi.org", timeout)
+		pkg, err := c.Lookup(ctx, dep.Name)
+		if err != nil {
+			return "", err
+		}
+		return pkg.LatestVersion, nil
+	case "crates":
+		c := research.NewCargoClientWithTimeout("https://crates.io", timeout)
+		pkg, err := c.Lookup(ctx, dep.Name)
+		if err != nil {
+			return "", err
+		}
+		return pkg.LatestVersion, nil
+	default:
+		return "", fmt.Errorf("unknown ecosystem: %s", dep.Ecosystem)
+	}
+}
+
+// compareNumericVersions compares two version strings and returns the upgrade type.
+// Strips leading non-numeric characters (v, ^, ~, =, >, <) and pre-release suffixes,
+// then compares major.minor.patch components.
+func compareNumericVersions(current, latest string) string {
+	cur := extractNumericVersion(current)
+	lat := extractNumericVersion(latest)
+
+	curParts := splitVersion(cur)
+	latParts := splitVersion(lat)
+
+	if len(curParts) == 0 || len(latParts) == 0 {
+		return "current"
+	}
+
+	// Normalize to at least 3 parts. Extra parts beyond 3 are used
+	// in tiebreakers (e.g., 1.2.3.4 vs 1.2.3.5 → PATCH upgrade).
+	for len(curParts) < len(latParts) {
+		curParts = append(curParts, 0)
+	}
+	for len(latParts) < len(curParts) {
+		latParts = append(latParts, 0)
+	}
+
+	// Check pre-release: if the base versions match but one side has a
+	// pre-release suffix, resolve accordingly.
+	curBase := extractNumericVersion(current)
+	latBase := extractNumericVersion(latest)
+	curHasPre := strings.Contains(current, "-") && !strings.Contains(latest, "-")
+	latHasPre := strings.Contains(latest, "-") && !strings.Contains(current, "-")
+
+	if curBase == latBase {
+		if latHasPre {
+			// Latest is a pre-release while current is a full release → no upgrade.
+			return "current"
+		}
+		if curHasPre {
+			// Current is a pre-release and latest is a full release → upgrade.
+			return "PATCH"
+		}
+	}
+
+	for i := 0; i < len(latParts); i++ {
+		if latParts[i] > curParts[i] {
+			switch {
+			case i == 0:
+				return "MAJOR UPGRADE"
+			case i == 1:
+				return "MINOR UPGRADE"
+			default:
+				return "PATCH"
+			}
+		}
+		if latParts[i] < curParts[i] {
+			return "current"
+		}
+	}
+	return "current"
+}
+
+func extractNumericVersion(v string) string {
+	// Strip leading non-digit characters.
+	v = strings.TrimSpace(v)
+	// Remove leading v, ^, ~, =, >, <
+	v = strings.TrimLeft(v, "v^~=>< ")
+	// Take only the numeric version part (before any space or -).
+	if idx := strings.IndexAny(v, " -"); idx >= 0 {
+		v = v[:idx]
+	}
+	return v
+}
+
+func splitVersion(v string) []int {
+	parts := strings.Split(v, ".")
+	var nums []int
+	for _, p := range parts {
+		n, err := strconv.Atoi(p)
+		if err != nil {
+			break
+		}
+		nums = append(nums, n)
+	}
+	return nums
+}
+
 // ---------- helpers ----------
 
 func requireResolved(cmd string) mission.ResolveOutput {
@@ -937,6 +1561,14 @@ func ifStr(cond bool, t, f string) string {
 func printErr(v ...interface{}) int {
 	fmt.Fprintln(os.Stderr, v...)
 	return 1
+}
+
+// fatalErr prints the error to stderr and returns exit code 2 per spec.
+// Use for: missing API key, Brave failure, unknown scope, --deep unavailable,
+// check-deps errors, and other operational errors.
+func fatalErr(v ...interface{}) int {
+	fmt.Fprintln(os.Stderr, v...)
+	return 2
 }
 
 // ID normalization

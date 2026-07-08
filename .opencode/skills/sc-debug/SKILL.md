@@ -247,6 +247,10 @@ Before claiming the debug session is complete:
 - [ ] Git investigation branch created via sc-git
 - [ ] Fix validated with sc-verification evidence before post-mortem
 
+## Research auto-trigger
+
+When encountering an unknown error message, unexpected framework behavior, or configuration issue during debugging, invoke `spacecraft research <query>` to search for known solutions before forming hypotheses.
+
 ---
 
 ## References
