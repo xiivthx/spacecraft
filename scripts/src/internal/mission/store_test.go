@@ -292,7 +292,7 @@ func TestFSStore_ReviewRoundTrip(t *testing.T) {
 	_, store, cleanup := newTestConfig(t)
 	defer cleanup()
 
-	writeTestMission(t, store, "M07TEST40", "Review test", "reviewing")
+	writeTestMission(t, store, "M07TEST40", "Review test", "built")
 
 	r := &Review{
 		Status: strPtr("ready"),

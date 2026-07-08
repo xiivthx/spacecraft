@@ -486,7 +486,7 @@ func workflowCmd(args []string) int {
 		fmt.Printf("Next task: %s\n", d)
 	}
 	fmt.Printf("Next: %s\n", snap.Next)
-	fmt.Println("Loop: /sc-work Txx -> /sc-verify Txx -> checkpoint commit -> next task, until a gate blocks.")
+	fmt.Println("Loop: /sc-build Txx -> checkpoint commit -> next task, until a gate blocks.")
 	fmt.Printf("Checkpoint: %s\n", snap.CheckpointPolicy)
 	if len(snap.Blockers) > 0 {
 		fmt.Println("Blockers:")
@@ -613,7 +613,7 @@ func gitSuggestCmd(args []string) int {
 
 func setStateCmd(args []string) int {
 	if len(args) == 0 {
-		return printErr("Missing state.\nAllowed states: draft, planned, verifying, reviewing, ready, shipped, blocked")
+		return printErr("Missing state.\nAllowed states: draft, planned, built, ready, shipped, blocked")
 	}
 	res := requireResolved("set-state")
 	state := args[0]

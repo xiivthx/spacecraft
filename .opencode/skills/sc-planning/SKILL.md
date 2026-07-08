@@ -61,7 +61,7 @@ If `map.json` is missing, proceed without it — `sc-map` is optional input, not
 This skill does NOT handle:
 
 - Design or UI work — use sc-design instead
-- Implementation — use sc-work or sc-coder
+- Implementation — use /sc-build or sc-coder
 - Verification — use sc-verification
 
 ## Output format

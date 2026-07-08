@@ -501,7 +501,7 @@ test("workflow reports next task without bypassing gates", async () => {
 
   const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
-  assert.equal(flow.next, "/sc-work T01");
+  assert.equal(flow.next, "/sc-build T01");
   assert.equal(flow.nextTask.id, "T01");
   assert.deepEqual(flow.blockers, []);
 });
@@ -553,7 +553,7 @@ test("workflow blocks missing spec before recommending work", async () => {
 
   const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
-  assert.notEqual(flow.next, "/sc-work T01");
+  assert.notEqual(flow.next, "/sc-build T01");
   assert.ok(flow.blockers.includes("spec.md is missing"));
 });
 

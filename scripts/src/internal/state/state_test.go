@@ -100,6 +100,24 @@ func TestSetState_legacyMapping(t *testing.T) {
 	if m.State != "planned" {
 		t.Errorf("expected state=planned (mapped), got %q", m.State)
 	}
+
+	// "verifying" maps to "built"
+	if err := setter.SetState("M07ST03", "verifying"); err != nil {
+		t.Fatal(err)
+	}
+	m, _ = store.Load("M07ST03")
+	if m.State != "built" {
+		t.Errorf("expected state=built (mapped from verifying), got %q", m.State)
+	}
+
+	// "reviewing" maps to "built"
+	if err := setter.SetState("M07ST03", "reviewing"); err != nil {
+		t.Fatal(err)
+	}
+	m, _ = store.Load("M07ST03")
+	if m.State != "built" {
+		t.Errorf("expected state=built (mapped from reviewing), got %q", m.State)
+	}
 }
 
 func TestSetState_missingMission(t *testing.T) {
@@ -278,7 +296,7 @@ func TestValidateMission_planNoTasks(t *testing.T) {
 }
 
 func TestAllowedStates(t *testing.T) {
-	expected := []string{"draft", "planned", "verifying", "reviewing", "ready", "shipped", "blocked"}
+	expected := []string{"draft", "planned", "built", "ready", "shipped", "blocked"}
 	for _, state := range expected {
 		if !AllowedStates[state] {
 			t.Errorf("expected %q to be allowed", state)

@@ -1,5 +1,5 @@
 ---
-description: Prepare or review Spacecraft git branch, commit, release, merge, and tag plan
+description: Prepare or review git branch, commit, release, merge, and tag plan
 agent: sc-commander
 ---
 Use sc-mission and sc-git.
@@ -18,7 +18,7 @@ scripts/spacecraft git-info
 
 ### 1. Branch management
 
-Apply Spacecraft release branching:
+Apply release branching:
 - never write product changes directly on main
 - one branch per feature, fix, issue, or tightly scoped change
 - branch from latest main
@@ -60,4 +60,4 @@ Apply Spacecraft release branching:
 - Do not push unless the user explicitly asks.
 - Use rtk for noisy git/status/diff/log output when available; never use it to bypass denied operations.
 
-End with next action and session advice. If implementation gates are ready, recommend `/sc-flow`.
+End with next action and session advice. If implementation gates are ready, recommend `/sc-build`.

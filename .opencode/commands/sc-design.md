@@ -1,7 +1,8 @@
 ---
-description: Shape UI direction for the resolved Spacecraft mission
+description: Shape UI direction or polish changes against DESIGN.md
 agent: sc-commander
 ---
+
 Use sc-mission, sc-clarify, and sc-design.
 Resolve the mission. Block if unsafe.
 
@@ -9,9 +10,24 @@ Resolve the mission. Block if unsafe.
 
 Read DESIGN.md and the resolved mission's spec.md, questions.md, decisions.md, and plan.json if present. If no active mission, say to use /sc-start first. If DESIGN.md is missing, create it using Orbital Console defaults.
 
+## Phase detection
+
+Check mission state and design decisions to determine the phase:
+
+| Condition | Phase | Behavior |
+|-----------|-------|----------|
+| State is `draft`, or no design decisions exist | **Design** | Shape UI direction, record decisions, update spec/plan |
+| State is `planned` or later, AND design decisions exist | **Polish** | Small UI fixes before ship |
+
+If ambiguous (e.g. `planned` but no design decisions), ask the user which phase and stop. Do not assume.
+
+---
+
+## Design phase
+
 Goal: clear the main design image before planning or implementation.
 
-## Workflow
+### Workflow
 
 1. If design intent has blocking ambiguity, ask exactly one question and stop — why it matters, your recommendation, what happens if accepted.
 2. When ready, invoke sc-designer as a read-only subagent to shape the UI direction. A user invocation of /sc-design is explicit permission; do not ask for separate permission.
@@ -20,9 +36,40 @@ Goal: clear the main design image before planning or implementation.
 5. When enough configs are chosen, synthesize into one design brief instead of keeping earlier options as packages.
 6. Set mission state to draft/planned depending on progress.
 
-## Error handling
+### Constraints
 
 - Do not implement product code, UI code, or add dependencies.
-- If no active mission, tell user to run /sc-start first.
 
 End with recommended next action and session advice. Prefer /sc-plan next.
+
+---
+
+## Polish phase
+
+Goal: small, low-risk UI fixes before shipping.
+
+### Pre-flight checks
+
+Read DESIGN.md, the resolved mission's spec.md, plan.json, review.md, review.json, and git diff. If the mission has no UI changes, say so and stop.
+
+### Workflow
+
+1. Invoke sc-designer as a read-only subagent to identify focused polish items and critique against DESIGN.md. A user invocation of /sc-design in polish phase is explicit permission; do not ask for separate permission.
+2. Implement only small, low-risk polish changes that improve:
+   - spacing rhythm
+   - typography hierarchy
+   - color consistency
+   - focus/hover/active states
+   - empty/loading/error states
+   - accessible labels and semantics
+   - removal of generic AI-template patterns
+3. After polishing, tell the user to run sc-verification and /sc-review.
+
+### Constraints
+
+- Do not add dependencies.
+- Do not redesign the whole app.
+- Do not change backend behavior.
+- Do not claim the UI is ready without verification and design review.
+
+End with session advice. Prefer continuing this chat for immediate verification, unless the thread is context-heavy.

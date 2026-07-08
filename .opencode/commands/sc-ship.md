@@ -1,5 +1,5 @@
 ---
-description: Prepare final Spacecraft delivery summary
+description: Prepare final delivery summary
 agent: sc-commander
 subtask: true
 ---
