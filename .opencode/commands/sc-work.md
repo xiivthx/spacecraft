@@ -2,7 +2,7 @@
 description: Implement the next smallest task in the resolved Spacecraft mission
 agent: sc-commander
 ---
-Use sc-mission, sc-clarify, and sc-git.
+Use sc-mission, sc-clarify, sc-git, and sc-verification.
 Resolve the mission. Block if unsafe.
 Read the resolved mission's mission.json, spec.md, and plan.json.
 If spec.md or plan.json is missing, stop and tell the user to run /sc-start or /sc-plan.
@@ -34,7 +34,7 @@ Implement only the next planned UI slice.
 Do not invent a new visual language when DESIGN.md exists.
 Prefer CSS custom properties and local component styles.
 Do not add broad styling frameworks unless explicitly requested.
-Prefer test-first work where practical.
+Prefer test-first work where practical. When using pair-programming, delegate test writing to `sc-tester` (Red state), then delegate implementation to `sc-coder` (Green state), and finally have `sc-tester` verify the output.
 Before ending, run a bounded lightweight self-review/self-test loop over the touched diff:
 - make at most two short self-review passes unless the user explicitly asks for more
 - in each pass, check the change against the current task and acceptance checks

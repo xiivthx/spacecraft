@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0 - 2026-07-08
+
+- Add `sc-coder`/`sc-tester` to commander `task.permission` block and `sc-verification` to `sc-work.md` `Use:` frontmatter for `/sc-work` and `/sc-flow` TDD loops.
+- Create centralized routing table at `docs/routing.md` documenting command → agent → subagent → skill → permission.
+- Add `sc-web-service` to coder `skill.permission` block and open bash CLI permissions for tester evidence capture and reviewer resolve/status/validate.
+- All 5 agent-architecture-review issues resolved. Verified with grep-based acceptance checks.
+
 ## 0.5.3 - 2026-07-07
 
 - Refactor `scripts/src` from flat `package main` monolith (12 files, 2900 lines) into 10 internal/ Go packages with interfaces, dependency injection, and error returns.
