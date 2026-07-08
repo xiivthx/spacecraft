@@ -67,4 +67,4 @@ Then set state to shipped if appropriate. After state is shipped and release clo
 - Suggested commit messages must follow Conventional Commits: `<type>: <description>` — no scope by default; body uses `- ` bullet points with lowercase first character.
 - If gates fail, block closeout with exact missing actions listed.
 
-End with session advice. Usually recommend a new session after a shipped mission or major phase boundary, with `/sc-status` as pickup.
+End with session advice. Usually recommend a new session after a shipped mission or major phase boundary, with sc-mission status as pickup.

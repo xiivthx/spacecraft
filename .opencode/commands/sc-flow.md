@@ -18,11 +18,11 @@ Verify mission state is planned, branch is non-main, and git is clean.
 ## Workflow
 
 Continue through the safe loop without asking the user to type each command:
-`/sc-work Txx -> /sc-verify Txx -> checkpoint commit -> next task`.
+`/sc-work Txx -> sc-verification skill auto-trigger -> checkpoint commit -> next task`.
 
 1. Use `$ARGUMENTS` as an optional task selector or mode hint. If no task is given, use the first non-completed task in plan.json.
 2. Follow the `/sc-work` contract for exactly one task at a time: inspect spec.md, plan.json, questions.md, decisions.md, git state, and touched files before editing.
-3. Follow the `/sc-verify` contract immediately after each task: capture focused evidence with `scripts/spacecraft evidence "<label>" -- <command>`, then run `scripts/spacecraft validate`.
+3. Auto-trigger the sc-verification skill immediately after each task: capture focused evidence with `scripts/spacecraft evidence "<label>" -- <command>`, then run `scripts/spacecraft validate`.
 4. Capture failures too. If verification fails, stop, summarize the failure evidence, and recommend the repair step.
 5. After passing verification for a task, update plan.json with evidence ids and mark the task completed only when acceptance checks are satisfied.
 6. Use sc-git for checkpoint commits on valid non-main work branch only. Inspect dirty/untracked files, ensure `.gitignore` is current, stage only task-related safe files and mission artifacts, then create a checkpoint Conventional Commit.

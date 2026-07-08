@@ -7,7 +7,7 @@ Resolve the mission. Block if unsafe.
 
 ## Pre-flight checks
 
-Read the resolved mission's spec.md, questions.md, decisions.md, and plan.json if present. Use sc-clarify before finalizing a plan. If mission clarification status is open and there are blocking questions, stop and tell the user to run /sc-clarify or answer the current question.
+Read the resolved mission's spec.md, questions.md, decisions.md, and plan.json if present. Use sc-clarify skill before finalizing a plan. If mission clarification status is open and there are blocking questions, stop and tell the user to answer the current question.
 
 Do not finalize plan.json while blocking clarification remains open. Non-blocking assumptions must be recorded in decisions.md.
 

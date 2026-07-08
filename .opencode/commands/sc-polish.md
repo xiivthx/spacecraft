@@ -20,7 +20,7 @@ Read DESIGN.md, the resolved mission's spec.md, plan.json, review.md, review.jso
    - empty/loading/error states
    - accessible labels and semantics
    - removal of generic AI-template patterns
-3. After polishing, tell the user to run /sc-verify and /sc-design-review.
+3. After polishing, tell the user to run sc-verification and /sc-review.
 
 ## Error handling
 
