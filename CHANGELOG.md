@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0 - 2026-07-08
+
+- Feat: configure Spacecraft agents with OpenCode Go cost-aware model matrix — 4 distinct models across 6 agents (deepseek-v4-pro, deepseek-v4-flash, glm-5.2, kimi-k2.7-code)
+- Feat: add per-agent colors and task permissions for sc-coder and sc-tester
+
 ## 0.6.6 - 2026-07-08
 
 - Fix: accept `"done"` and `"cancelled"` task statuses in closeout-check and archive readiness, matching workflow.go `taskIsOpen` semantics
