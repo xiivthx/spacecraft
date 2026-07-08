@@ -143,11 +143,11 @@ Use `sc-git` to reference commit/PR pointers in the post-mortem. Use `sc-verific
 - **Must**: Apply the five steps **in order**. The step order is enforced — no skipping ahead.
 - **Must**: If the user says "skip the mantra" → skip the recital but still apply the five steps silently.
 - **Must not**: Propose a fix before step 1 is satisfied (reliable repro exists).
-- **Must not**: Start testing hypotheses before step 2 has narrowed the fail path.
-- **Must not**: Commit to a hypothesis before step 3 has tried to disprove it.
-- **Must not**: Declare a hypothesis correct until step 4 confirms it against every prior breadcrumb.
+- **Must not**: Form a hypothesis before step 2 has narrowed the fail path (no hypothesis before trace).
+- **Must not**: Accept a conclusion before step 3 has tried to disprove the hypothesis (no conclusion before falsification).
+- **Must not**: Commit to a hypothesis before step 4 confirms it against every prior breadcrumb.
 - **Must not**: Draft a post-mortem before step 5's four mandatory inputs are all satisfied.
-- **Must**: If you catch yourself proposing a fix without a reliable repro, stop and return to step 1.
+- **Must**: No fix before reproduction. If you catch yourself proposing a fix without a reliable repro, stop and return to step 1.
 - **Must**: If ambiguity about bug behavior blocks diagnosis, route to `sc-clarify` before continuing.
 - **Must**: Use `sc-verification` for capturing reproducible evidence (step 1) and fix validation (step 5). Do not reimplement evidence capture.
 - **Must**: Use `sc-git` for creating investigation branches before diagnostic code changes and for recording commit/PR references in the post-mortem. Do not reimplement git hygiene.
