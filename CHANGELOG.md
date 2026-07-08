@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.0 - 2026-07-08
+
+- Feat: add sc-debug skill with 5-step debug mantra (reproduce → trace fail path → falsify hypothesis → breadcrumb ledger → post-mortem), anti-rationalization guards, and cross-references to sc-verification, sc-git, sc-clarify
+- Feat: add question-intent pattern to sc-reviewer agent — ask whether the change should exist before line-by-line review, consider simpler alternatives
+
 ## 0.10.0 - 2026-07-08
 
 - Feat: merge sc-design, sc-polish, sc-design-review into single /sc-design with phase detection (design vs polish based on mission state)
