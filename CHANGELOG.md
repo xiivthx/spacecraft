@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.0 - 2026-07-08
+
+- Feat: add `spacecraft research <query>` subcommand — internet research via Brave Search API with config-driven search scopes and package registry lookups (Go, npm, PyPI, crates.io)
+- Feat: add `spacecraft check-deps` subcommand — project-wide dependency freshness audit with concurrent registry lookups
+- Feat: add `--deep` flag for AI-powered page analysis via browser-use (default) and notebooklm-mcp-cli
+- Feat: add Commander auto-trigger to invoke research automatically in planning, implementation, debugging, and clarification lanes
+- Feat: add configurable search scopes (.space/scopes.json) with built-in defaults for react, tailwindcss, nextjs, go, rust, postgresql, npm, pypi
+
 ## 0.11.0 - 2026-07-08
 
 - Feat: add sc-debug skill with 5-step debug mantra (reproduce → trace fail path → falsify hypothesis → breadcrumb ledger → post-mortem), anti-rationalization guards, and cross-references to sc-verification, sc-git, sc-clarify
