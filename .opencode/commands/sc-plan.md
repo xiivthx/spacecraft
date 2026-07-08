@@ -20,7 +20,7 @@ If the mission includes UI, use sc-design and read DESIGN.md. If UI art directio
 3. The plan must contain no more than 7 tasks.
 4. Each task must have id, title, status, files, acceptance, verify, and evidence.
 5. UI tasks must include visual intent, target component/screen, accessibility checks, and verification method.
-6. For new screens, recommend /sc-design before /sc-work.
+6. For new screens, recommend /sc-design before /sc-build.
 7. Set state to planned.
 
 ## Error handling
@@ -28,4 +28,4 @@ If the mission includes UI, use sc-design and read DESIGN.md. If UI art directio
 - Do not implement product code.
 - If blocking clarification remains open, stop and defer planning.
 
-End with the recommended next action and session advice. Recommend `/sc-git` then `/sc-flow` when implementation can begin. Recommend a new session if implementation is the next large phase and the plan is fully captured in plan.json.
+End with the recommended next action and session advice. Recommend `/sc-git` then `/sc-build` when implementation can begin. Recommend a new session if implementation is the next large phase and the plan is fully captured in plan.json.

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.0 - 2026-07-08
+
+- Feat: merge sc-design, sc-polish, sc-design-review into single /sc-design with phase detection (design vs polish based on mission state)
+- Feat: merge sc-work, sc-flow into /sc-build — single implementation loop with TDD cycle, self-review, checkpoint commits
+- Feat: add /sc-resume command for session handoff pickup with live state injection via !`command` syntax
+- Feat: add make status and make resume CLI convenience targets
+- Refactor: remove phantom commands /sc-verify and /sc-status — never had command files
+- Refactor: simplify state machine to 6 states (draft, planned, built, ready, shipped, blocked) — remove verifying and reviewing
+- Refactor: add Kalama Sutta zero-trust self-audit gates to state transitions in /sc-build and /sc-review
+- Command count: 12 → 8
+
 ## 0.9.0 - 2026-07-08
 
 - Feat: add sc-map skill for project structure survey before planning — 3-phase survey (deterministic discovery + LLM semantic analysis) produces map.json with touchpoints, dependencies, risk zones, and layer classification

@@ -16,7 +16,7 @@ scripts/spacecraft status           # show resolved mission state
 
 ## Slash commands
 
-`/sc-start` · `/sc-clarify` · `/sc-design` · `/sc-plan` · `/sc-git` · `/sc-work` · `/sc-verify` · `/sc-flow` · `/sc-design-review` · `/sc-polish` · `/sc-review` · `/sc-status` · `/sc-ship`
+`/sc-start` · `/sc-clarify` · `/sc-design` · `/sc-plan` · `/sc-git` · `/sc-build` · `/sc-review` · `/sc-resume` · `/sc-ship`
 
 ## CLI commands
 
@@ -58,9 +58,9 @@ scripts/spacecraft             Go binary helper
 
 ## Mission lifecycle (summary)
 
-`/sc-start` → `/sc-clarify` → `/sc-design` (if UI) → `/sc-plan` → `/sc-git` → `/sc-work` → `/sc-verify` → `/sc-review` → `/sc-ship`
+`/sc-start` → `/sc-clarify` → `/sc-design` (if UI) → `/sc-plan` → `/sc-git` → `/sc-build` → `/sc-review` → `/sc-ship`
 
-`/sc-flow` can loop `work → verify → checkpoint commit` until blocked.
+`/sc-build` without args loops `build → verify → checkpoint commit` until blocked.
 
 See `SPEC.md` §Workflow and §Verification for full gate rules.
 
@@ -78,7 +78,7 @@ See `AGENTS.md` §Git And Release Branching and skill `sc-git` for full policy.
 
 ## Session handoff vs release closeout
 
-- **Handoff**: stop mid-work, preserve state, no merge. Pickup: `/sc-status` then next command.
+- **Handoff**: stop mid-work, preserve state, no merge. Pickup: `/sc-resume` then next command.
 - **Closeout**: ship/merge/finish mission. Gates: evidence, review, git, release gates all pass.
 
 Default to handoff. Only closeout on explicit ship/release/merge intent.

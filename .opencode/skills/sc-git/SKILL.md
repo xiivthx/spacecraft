@@ -57,7 +57,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: Target 1–3 final commits per branch, max 5 unless justified in decisions.md.
 - **Must**: Separate version bump + changelog update into its own `chore:` or `docs:` commit — do not bundle with implementation commit.
-- **May**: Frequent WIP/checkpoint commits OK on work branch only. After a passing `/sc-flow` task, may create a checkpoint commit.
+- **May**: Frequent WIP/checkpoint commits OK on work branch only. After a passing `/sc-build` task, may create a checkpoint commit.
 - **Must**: Before merge, squash/fixup into logical Conventional Commits. Do not squash unrelated changes.
 - **Must not**: Stage unrelated user changes. Prefer `git add <specific-files>`.
 - **Must**: Subject: `<type>: <description>` — imperative, lowercase, ~72 chars.

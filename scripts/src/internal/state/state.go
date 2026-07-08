@@ -15,8 +15,7 @@ import (
 
 // AllowedStates lists valid mission states.
 var AllowedStates = map[string]bool{
-	"draft": true, "planned": true,
-	"verifying": true, "reviewing": true,
+	"draft": true, "planned": true, "built": true,
 	"ready": true, "shipped": true, "blocked": true,
 }
 
@@ -51,8 +50,12 @@ func (s *StateSetter) SetState(id, newState string) error {
 			newState = "draft"
 		case "implementing":
 			newState = "planned"
+		case "verifying":
+			newState = "built"
+		case "reviewing":
+			newState = "built"
 		default:
-			return fmt.Errorf("invalid mission state %q: allowed: draft, planned, verifying, reviewing, ready, shipped, blocked", newState)
+			return fmt.Errorf("invalid mission state %q: allowed: draft, planned, built, ready, shipped, blocked", newState)
 		}
 	}
 

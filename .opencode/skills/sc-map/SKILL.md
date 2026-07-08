@@ -312,9 +312,9 @@ Commander auto-triggers sc-map when:
 - Uses `dependencies.shared` to flag cross-cutting concerns
 - Uses `riskZones` to warn about high-risk tasks
 
-### sc-work
+### /sc-build
 
-`sc-work` references `map.json` for:
+`/sc-build` references `map.json` for:
 - Listing files to modify per task
 - Warning when touching red-zone files
 - Suggesting test files for changed code (from dependency graph)
@@ -326,7 +326,7 @@ This skill does NOT handle:
 - Full knowledge graph construction — use Understand-Anything for interactive exploration
 - Temporal/git-history analysis — use git log/blame directly
 - Test generation — use sc-tester
-- Implementation — use sc-coder or sc-work
+- Implementation — use sc-coder or /sc-build
 - UI design — use sc-design
 
 ## Output format

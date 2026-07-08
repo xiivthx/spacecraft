@@ -1,9 +1,9 @@
 ---
-description: Start a Spacecraft mission
+description: Start a mission
 agent: sc-commander
 ---
 Use sc-mission and sc-clarify.
-Start a new Spacecraft mission for: $ARGUMENTS
+Start a new mission for: $ARGUMENTS
 
 ## Pre-flight checks
 
@@ -17,7 +17,7 @@ If the user wants an existing mission instead of a new one, run `scripts/spacecr
    ```
    The helper records git base sha when the workspace is a git worktree, writes `.space/current` as fallback, and binds the mission to the local session when a stable session key exists.
 
-2. If the request clearly includes mutating work, also create a non-main Spacecraft branch from main using sc-git naming. Do not ask another question for this.
+2. If the request clearly includes mutating work, also create a non-main branch from main using sc-git naming. Do not ask another question for this.
 3. Draft only a minimal initial spec.md from the user request.
 4. Create or update questions.md and decisions.md.
 5. Inspect available repo context if useful.

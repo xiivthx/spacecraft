@@ -110,7 +110,7 @@ func TestWorkflowSnapshotRoundTrip(t *testing.T) {
 		MissionID: "M07ABCDEF",
 		Title:     "Test",
 		State:     "planned",
-		Next:      "/sc-work",
+		Next:      "/sc-build",
 	}
 	data, err := json.Marshal(ws)
 	if err != nil {

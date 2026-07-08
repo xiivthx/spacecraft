@@ -75,13 +75,12 @@ func TestNextCommand_states(t *testing.T) {
 		want      string
 	}{
 		{"draft", true, "/sc-plan"},
-		{"planned", true, "/sc-work"},
-		{"verifying", true, "/sc-verify"},
-		{"reviewing", true, "/sc-review"},
+		{"planned", true, "/sc-build"},
+		{"built", true, "/sc-review"},
 		{"ready", true, "/sc-ship"},
 		{"shipped", true, "(shipped)"},
-		{"blocked", true, "/sc-status"},
-		{"", true, "/sc-status"},
+		{"blocked", true, "/sc-resume"},
+		{"", true, "/sc-resume"},
 	}
 
 	for _, tc := range tests {
@@ -100,8 +99,8 @@ func TestNextCommand_states(t *testing.T) {
 
 func TestNextCommand_nilMission(t *testing.T) {
 	got := NextCommand(nil)
-	if got != "/sc-status" {
-		t.Errorf("expected /sc-status, got %q", got)
+	if got != "/sc-resume" {
+		t.Errorf("expected /sc-resume, got %q", got)
 	}
 }
 
@@ -182,8 +181,8 @@ func TestSnapshot_Build_nextTask(t *testing.T) {
 	if snap.NextTask == nil || *snap.NextTask.ID != "T02" {
 		t.Errorf("expected next task T02, got %v", snap.NextTask)
 	}
-	if snap.Next != "/sc-work T02" {
-		t.Errorf("expected /sc-work T02, got %q", snap.Next)
+	if snap.Next != "/sc-build T02" {
+		t.Errorf("expected /sc-build T02, got %q", snap.Next)
 	}
 }
 

@@ -62,7 +62,16 @@ After the subagent returns findings, record the review in:
 - review.md
 - review.json
 
-Set state to reviewing while working. If review status is ready, set state to ready. If review status is blocked, set state to blocked.
+Before transitioning state, apply the **Kalama Sutta gate**:
+1. "Does the evidence actually prove the acceptance claims?" — read evidence output, not just labels
+2. "Did I verify behavior or just read config?" — prefer functional proof
+3. "Am I trusting a tool output blindly?" — inspect the evidence stdout/stderr
+4. "Did I skip any acceptance check?" — cross-check evidence against plan.json
+5. "Would an adversary agree this review is honest?" — no rubber-stamping
+
+Then transition state:
+- **Pass** → `scripts/spacecraft set-state ready`
+- **Fail** (any critical finding) → `scripts/spacecraft set-state blocked`
 
 ## Error handling
 

@@ -31,7 +31,7 @@ Use this exact sequence unless the user specifies otherwise:
 3. **Configure design** — Follow the default config order: product metaphor and mood, primary user journey, first screen layout, navigation, interaction, color palette, typography, art treatment, 3D depth, transition/animation, density/spacing, key states/accessibility. Ask one question at a time. Show 2–4 focused options per config. Record in `decisions.md`.
 4. **Create artifact (if needed)** — Create HTML under `.space/missions/<id>/design/` only when visual comparison materially helps. Use Thai-first, simple-English labels. Apply Feynman clarity gate.
 5. **Reference scout (if needed)** — Browse public sources. Separate by purpose: layout/template, mood/art, interaction/motion. Present 5–9 candidates in 2–3 directions.
-6. **Polish and review** — Before ship, use sc-design-review for read-only critique and sc-polish for final polish.
+6. **Polish and review** — Before ship, the polish phase of /sc-design handles small UI fixes and read-only design critique against DESIGN.md.
 
 ## Rules
 
@@ -61,7 +61,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Use reference scouting when the design feels weak, generic, hard to imagine, or the user asks for references.
 - **Must**: Reference scouting usually happens before deep design config so the team can calibrate taste early.
 - **Must**: Reference review happens after UI exists, using the chosen references to check quality and drift.
-- **Must not**: Create a separate command for reference scouting unless the user explicitly asks. Keep it inside sc-design and sc-design-review.
+- **Must not**: Create a separate command for reference scouting unless the user explicitly asks. Keep it inside sc-design.
 - **Must**: When scouting references, browse current public sources if needed and separate them by purpose: layout/template, mood/art, interaction/motion.
 - **Must**: Prefer 5 to 9 candidate references grouped into 2 or 3 directions.
 - **Must**: For each reference, record: source name and URL, what it is useful for (layout, mood, palette, typography, art, interaction, or motion), what to borrow as a pattern, what not to copy, why it fits or does not fit.
@@ -139,7 +139,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 This skill does NOT handle:
 
-- Product implementation — use sc-coder or sc-work
+- Product implementation — use sc-coder or /sc-build
 - Git operations or release — use sc-git
 - Mission planning — use sc-planning
 - Evidence capture — use sc-verification

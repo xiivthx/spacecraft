@@ -29,7 +29,7 @@ Use this exact sequence unless the user specifies otherwise:
 1. **Resolve mission** — Run `scripts/spacecraft resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
 2. **Read artifacts** — Read `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
 3. **Route ambiguity** — If intent, scope, or acceptance criteria is ambiguous, route to sc-clarify before proceeding.
-4. **Enforce lifecycle** — Follow: mission -> clarify -> spec -> visual design if needed -> plan -> work -> verify -> review -> ship. Use `/sc-flow` to repeat work -> verify -> checkpoint commit for successive tasks.
+4. **Enforce lifecycle** — Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Use `/sc-build` to repeat build -> verify -> checkpoint commit for successive tasks.
 5. **Release or handoff** — On ship intent, run release closeout. On session end, give handoff summary.
 
 ## Rules
@@ -41,7 +41,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.
 - **Must**: Read the resolved mission's `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
 - **Must**: sc-mission owns lifecycle but must route ambiguity to sc-clarify.
-- **Must**: Enforce order: mission -> clarify -> spec -> visual design if needed -> plan -> work -> verify -> review -> ship. `/sc-flow` may repeat work -> verify -> checkpoint commit for successive tasks until a gate blocks.
+- **Must**: Enforce order: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. `/sc-build` may repeat build -> verify -> checkpoint commit for successive tasks until a gate blocks.
 - **Must not**: Skip clarification when user intent, scope, acceptance criteria, or visual design direction is materially ambiguous.
 - **Must**: If clear mutating work is requested and no suitable mission or branch exists, create the mission and non-main branch without another blocking question when policy permits it.
 - **Must not**: Implement if spec or plan is missing.

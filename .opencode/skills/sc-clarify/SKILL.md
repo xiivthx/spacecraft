@@ -68,7 +68,7 @@ This skill does NOT handle:
 - Planning — use sc-planning
 - Visual design direction — use sc-design
 - Git operations — use sc-git
-- Implementation — use sc-coder or sc-work
+- Implementation — use sc-coder or /sc-build
 
 ## Output format
 

@@ -34,7 +34,7 @@ func taskIsOpen(task mission.Task) bool {
 // This is a pure function with no side effects.
 func NextCommand(m *mission.Mission) string {
 	if m == nil {
-		return "/sc-status"
+		return "/sc-resume"
 	}
 	status := "open"
 	if m.Clarification.Status != "" {
@@ -47,19 +47,17 @@ func NextCommand(m *mission.Mission) string {
 	case "draft":
 		return "/sc-plan"
 	case "planned":
-		return "/sc-work"
-	case "verifying":
-		return "/sc-verify"
-	case "reviewing":
+		return "/sc-build"
+	case "built":
 		return "/sc-review"
 	case "ready":
 		return "/sc-ship"
 	case "shipped":
 		return "(shipped)"
 	case "blocked":
-		return "/sc-status"
+		return "/sc-resume"
 	default:
-		return "/sc-status"
+		return "/sc-resume"
 	}
 }
 
@@ -110,7 +108,7 @@ func (s *Snapshot) Build(res mission.ResolveOutput, missionID string) (mission.W
 		next = "/sc-clarify"
 	}
 	if !specExists && !hasBlockingClarification {
-		next = "/sc-status"
+		next = "/sc-resume"
 	}
 	if !planExists && !hasBlockingClarification && specExists {
 		next = "/sc-plan"
@@ -127,27 +125,15 @@ func (s *Snapshot) Build(res mission.ResolveOutput, missionID string) (mission.W
 					idStr = *nextTask.ID
 				}
 				if idStr == "" {
-					next = "/sc-work"
+					next = "/sc-build"
 				} else {
-					next = "/sc-work " + idStr
+					next = "/sc-build " + idStr
 				}
 			} else {
 				next = "/sc-review"
 			}
-		case "verifying":
-			if nextTask != nil {
-				idStr := ""
-				if nextTask.ID != nil {
-					idStr = *nextTask.ID
-				}
-				if idStr == "" {
-					next = "/sc-verify"
-				} else {
-					next = "/sc-verify " + idStr
-				}
-			} else {
-				next = "/sc-review"
-			}
+		case "built":
+			next = "/sc-review"
 		}
 	}
 
@@ -212,7 +198,7 @@ func buildBlockers(m *mission.Mission, specExists, planExists bool, tasks []miss
 	}
 
 	state := m.State
-	onMainBlock := state == "planned" || state == "verifying"
+	onMainBlock := state == "planned"
 	if state == "implementing" {
 		onMainBlock = true
 	}
