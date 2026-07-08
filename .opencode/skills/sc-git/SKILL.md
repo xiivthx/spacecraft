@@ -89,13 +89,27 @@ Use this exact sequence unless the user specifies otherwise:
 
 ### Tagging
 
-- **Must**: After no-ff merge, create annotated tag: `git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"`. Do not tag before merge exists. Do not push unless asked.
+- **Must**: After EVERY no-ff merge to `main`, create an annotated tag: `git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"`. Tagging is mandatory after every merge regardless of bump policy.
+- **Must**: When bump policy says "no bump" (docs/chore), still tag as the next patch version (e.g., v0.6.0 → v0.6.1). The tag tracks changes to main; the bump policy only controls whether the version number reflects feature/breaking scope.
+- **Must**: Tag immediately after merge, before any other operation. Do not pause or defer.
+- **Must**: Do not tag before merge exists. Do not push unless asked.
+
+### Post-merge
+
+After the no-ff merge completes, immediately:
+
+- [ ] Create annotated tag (`git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"`)
+- [ ] Verify tag exists (`git tag -l 'v*' | tail -3`)
+- [ ] Delete merged local branch (`git branch -d <branch>`)
+- [ ] Run `scripts/spacecraft archive` to compact shipped mission artifacts
+
+**Important**: After post-merge cleanup, you are on `main`. Any further edits — even small fixes or documentation — MUST first create a new non-main branch. Creating a branch is automatic and non-optional whenever mutation is requested while on `main`. Do not edit, commit, or stage anything on `main` directly.
 
 ### Review Gate
 
 Before shipping or merging, check:
 
-- [ ] not on `main` while editing product files
+- [ ] not on `main` while editing product files (this applies post-merge too — always branch first)
 - [ ] branch based/rebased on latest `main`
 - [ ] ≤5 final commits (or exception in decisions.md)
 - [ ] final commits use Conventional Commits
