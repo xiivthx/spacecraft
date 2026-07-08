@@ -25,10 +25,21 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Read inputs** — Check the mission's `spec.md`, `questions.md`, and `decisions.md` before producing `plan.json`.
+1. **Read inputs** — Check the mission's `spec.md`, `questions.md`, `decisions.md`, and `outputs/map.json` (if present) before producing `plan.json`.
 2. **Identify tasks** — Break the spec into ≤7 small, verifiable tasks. Each task needs `id`, `title`, `status`, `files`, `acceptance`, `verify`, and `evidence`.
 3. **Write plan** — Produce or update `plan.json` with status values: `pending`, `in-progress`, `done`, `blocked`.
 4. **Verify** — Ensure the plan is complete before the mission moves to implementation.
+
+## Map integration (when `outputs/map.json` exists)
+
+If the mission has `outputs/map.json` (produced by `sc-map`), use it to inform task scoping:
+
+- **Touchpoints** — Scope task `files` to files identified as direct touchpoints. Cross-reference with spec intent.
+- **Dependencies.shared** — Flag shared dependencies (>3 consumers) as cross-cutting concerns that may need additional tasks or careful review.
+- **Risk zones** — Warn when a task touches red-zone files (shared utilities, core types). Add explicit acceptance checks for these files.
+- **Layers** — Use layer tags to ensure tasks don't miss side effects across layer boundaries (e.g., a skill change may need corresponding config or docs updates).
+
+If `map.json` is missing, proceed without it — `sc-map` is optional input, not a hard gate.
 
 ## Rules
 
@@ -77,7 +88,7 @@ This skill does NOT handle:
 
 Before claiming the plan is ready:
 
-- [ ] Read `spec.md`, `questions.md`, and `decisions.md`
+- [ ] Read `spec.md`, `questions.md`, `decisions.md`, and `outputs/map.json` (if present)
 - [ ] Plan has ≤7 tasks
 - [ ] Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`
 - [ ] No vague or unverifiable tasks

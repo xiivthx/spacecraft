@@ -179,7 +179,7 @@ Assign each touchpoint and its dependencies to an architectural layer:
 | `agents` | `AGENTS.md`, `PERSONA.md` |
 | `scripts` | `scripts/`, `scripts/src/` |
 | `config` | `opencode.json`, `Makefile`, `package.json` |
-| `docs` | `SPEC.md`, `DESIGN.md`, `CHANGELOG.md`, `docs/` |
+| `docs` | `DESIGN.md`, `CHANGELOG.md`, `PERSONA.md`, `docs/` |
 | `missions` | `.space/missions/`, `.space/archive/` |
 | `tests` | `tests/` |
 
@@ -251,7 +251,7 @@ Use directory structure + content signals (frontmatter, imports, purpose) to cla
     "agents": ["AGENTS.md", "PERSONA.md"],
     "scripts": ["scripts/spacecraft", "scripts/src/main.go"],
     "config": ["opencode.json", "Makefile"],
-    "docs": ["SPEC.md", "DESIGN.md", "CHANGELOG.md"],
+    "docs": ["DESIGN.md", "CHANGELOG.md", "PERSONA.md"],
     "missions": [".space/missions/M07H3CM5S/"],
     "tests": ["tests/"]
   },
