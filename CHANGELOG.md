@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.4 - 2026-07-08
+
+- Refactor: lean 13 → 12 command files — standardized frontmatter (`subtask: true` on sc-flow, sc-ship, sc-work), resolver preamble, and structured sections (Pre-flight/Workflow/Error handling) per `docs/templates/command.md`
+- Refactor: merge sc-design-review.md into sc-review.md (design-review checks now part of review workflow)
+- Refactor: de-duplicate git policy — sc-git.md sole source; sc-work, sc-ship, sc-review, sc-flow reference it
+
 ## 0.6.3 - 2026-07-08
 
 - Docs: move skill and command templates from `.space/` to `docs/templates/` and remove `-template` suffix

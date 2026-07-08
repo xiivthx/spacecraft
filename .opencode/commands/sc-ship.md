@@ -1,49 +1,50 @@
 ---
 description: Prepare final Spacecraft delivery summary
 agent: sc-commander
+subtask: true
 ---
 Use sc-mission, sc-verification, and sc-git.
 Resolve the mission. Block if unsafe.
+
+## Pre-flight checks
+
 Read the resolved mission's spec.md, plan.json, evidence.jsonl, review.md, review.json, questions.md, decisions.md, and git diff when git is available.
+
 Run:
+```
 scripts/spacecraft validate
-Run:
 scripts/spacecraft git-info
-Run:
 scripts/spacecraft closeout-check
-Treat "ship", "release", "merge", "finish mission", and "close branch" as release closeout requests.
-Do not treat ordinary session handoff or "continue in a new session" as release closeout.
+```
+
+## Workflow
+
+Treat "ship", "release", "merge", "finish mission", and "close branch" as release closeout requests. Do not treat ordinary session handoff or "continue in a new session" as release closeout.
+
+### 1. Check closeout gates
+
 Only close/ship/merge if:
 - blocking clarification questions are resolved
 - acceptance checks have evidence
 - important verification commands have passing evidence
 - review.json status is ready
 - there are no critical findings
-- mutating product work has a rollback story: git base sha, branch/worktree, or an explicit no-git risk acceptance recorded in decisions.md
-- product work was not committed or edited directly on main
-- work branch has been rebased on latest main or has a documented local-only exception
-- final branch history has 5 or fewer commits unless explicitly justified
-- final commit messages follow Conventional Commits
-- .gitignore is current and no unsafe files are staged/tracked accidentally
-- tests, verification, and validation pass after the latest rebase and before merge into main
-- merge plan uses `git merge --no-ff <branch>`
-- version bump is complete or explicitly deferred with rationale
-- changelog and short spec/release note are updated when product behavior changed
-- tag plan exists for the bumped version
+- sc-git gates pass: rollback story, branch hygiene, commit style, rebase status, merge plan, version/changelog/tag plan
 - if UI files changed, review.md or review.json includes a design review result
 - UI work has no unresolved critical design findings
 - if UI files changed, art direction decisions are recorded in decisions.md or explicitly deferred
+
 If any gate fails, block closeout. List exact missing actions and next command.
-If all gates pass, prepare merge to main with sc-git:
-- final commits are logical Conventional Commits
-- branch is rebased on latest main
-- verification is rerun after rebase
-- merge uses `git merge --no-ff <branch>`
-- version tag is created after merge when version was bumped
-- merged local branch is deleted unless user asks to keep it
-- shipped mission artifacts are compacted with `scripts/spacecraft archive` unless the user asks to keep the full live mission folder
+
+### 2. Prepare merge
+
+If all gates pass, use sc-git to prepare merge to main:
+- rebase, verify, merge with `--no-ff`, tag, branch cleanup
+- compact shipped mission artifacts with `scripts/spacecraft archive` unless the user asks to keep the full live mission folder
 - no push unless explicitly requested
-Produce concise final summary:
+
+### 3. Produce summary
+
 - Mission id
 - What changed
 - Evidence ids
@@ -54,9 +55,13 @@ Produce concise final summary:
 - Important confirmed decisions and assumptions when relevant
 - Known limitations
 - Suggested next step
-Then set state to shipped if appropriate.
-After state is shipped and release closeout is complete, run `scripts/spacecraft archive` to move the mission from `.space/missions/` to `.space/archive/` with compact durable artifacts, unless the user asks to keep the full live mission folder.
-Do not git push unless the user explicitly asks.
-Suggested commit messages must follow Conventional Commits:
-`<type>: <description>` — no scope by default; body uses `- ` bullet points with lowercase first character.
+
+Then set state to shipped if appropriate. After state is shipped and release closeout is complete, run `scripts/spacecraft archive` to move the mission from `.space/missions/` to `.space/archive/` with compact durable artifacts, unless the user asks to keep the full live mission folder.
+
+## Error handling
+
+- Do not git push unless the user explicitly asks.
+- Suggested commit messages must follow Conventional Commits: `<type>: <description>` — no scope by default; body uses `- ` bullet points with lowercase first character.
+- If gates fail, block closeout with exact missing actions listed.
+
 End with session advice. Usually recommend a new session after a shipped mission or major phase boundary, with `/sc-status` as pickup.
