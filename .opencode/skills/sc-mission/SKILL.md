@@ -1,6 +1,6 @@
 ---
 name: sc-mission
-description: Manage Spacecraft mission artifacts and lifecycle for local OpenCode development
+description: Manage mission artifacts and lifecycle for local OpenCode development
 license: MIT
 compatibility: opencode
 metadata:
@@ -10,7 +10,7 @@ metadata:
 
 # sc-mission
 
-Manage Spacecraft mission artifacts and lifecycle for local OpenCode development.
+Manage mission artifacts and lifecycle for local OpenCode development.
 
 ## When to use
 
@@ -53,7 +53,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: After successful release closeout, archive shipped mission artifacts under `.space/archive/` unless the user asks to keep the full live mission folder.
 - **Must**: Keep mission artifacts small and human-readable.
 - **Must**: Prefer explicit evidence over narrative claims.
-- **Must**: End each Spacecraft session with a recommended next action and session advice: continue this chat for small adjacent steps, or start a new session when the phase changed, the thread is context-heavy, or mission artifacts are sufficient for handoff.
+- **Must**: End each session with a recommended next action and session advice: continue this chat for small adjacent steps, or start a new session when the phase changed, the thread is context-heavy, or mission artifacts are sufficient for handoff.
 
 ## Out of scope
 
@@ -68,7 +68,7 @@ This skill does NOT handle:
 ## Output format
 
 ```
-Mission artifacts follow the Spacecraft standard layout:
+Mission artifacts follow the standard layout:
 .space/missions/<id>/
   mission.json     # core metadata
   spec.md          # spec

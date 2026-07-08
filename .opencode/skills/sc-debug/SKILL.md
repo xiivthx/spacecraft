@@ -10,7 +10,7 @@ metadata:
 
 # sc-debug
 
-Five-step debugging discipline for root-cause analysis. Engineer-level rigor, scientist-level falsification. Recite verbatim, apply in order, refuse to ship without evidence. Follows the Spacecraft skill format and cross-references existing sc-* skills without duplicating them.
+Five-step debugging discipline for root-cause analysis. Engineer-level rigor, scientist-level falsification. Recite verbatim, apply in order, refuse to ship without evidence. Follows the skill format and cross-references existing sc-* skills without duplicating them.
 
 ## When to use
 

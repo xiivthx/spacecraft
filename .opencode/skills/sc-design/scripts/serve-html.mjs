@@ -29,7 +29,7 @@ const MIME_TYPES = new Map([
 ]);
 
 function usage() {
-  return `Spacecraft design HTML server
+  return `Design HTML server
 
 Usage:
   node .opencode/skills/sc-design/scripts/serve-html.mjs [html-file-or-dir] [options]
@@ -123,7 +123,7 @@ async function currentMissionId() {
 async function currentDesignDir() {
   const id = await currentMissionId();
   if (!id) {
-    fail("No current Spacecraft mission. Pass an HTML file or run /sc-start first.");
+    fail("No current mission. Pass an HTML file or run /sc-start first.");
   }
   return path.join(ROOT, ".space", "missions", id, "design");
 }
@@ -217,7 +217,7 @@ async function directoryListing(dirPath, urlPath) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Spacecraft Design Preview</title>
+  <title>Design Preview</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -425,7 +425,7 @@ async function main() {
   const actualPort = typeof address === "object" && address ? address.port : options.port;
   const url = `http://${options.host}:${actualPort}${openPath}`;
 
-  console.log("Spacecraft design HTML server");
+  console.log("Design HTML server");
   console.log(`Root: ${path.relative(ROOT, rootDir) || "."}`);
   console.log(`URL: ${url}`);
   console.log("Press Ctrl+C to stop.");
@@ -436,13 +436,13 @@ async function main() {
 
   process.on("SIGINT", () => {
     server.close(() => {
-      console.log("\nStopped Spacecraft design HTML server.");
+      console.log("\nStopped design HTML server.");
       process.exit(0);
     });
   });
 }
 
 main().catch((error) => {
-  console.error(`Spacecraft design server error: ${error.message}`);
+  console.error(`Design server error: ${error.message}`);
   process.exit(error.exitCode ?? 1);
 });

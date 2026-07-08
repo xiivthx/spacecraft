@@ -40,14 +40,19 @@ Conventional Commits. Target 1–3 per branch, max 5. Squash WIP before merge. R
 - `map.json` — project survey before planning (in outputs/)
 
 ### Lifecycle
-`/sc-start → clarify → design(if UI) → /sc-map → /sc-plan → /sc-git → work → verify → review → /sc-ship`
+`/sc-start → /sc-design(if UI) → /sc-plan → /sc-git → /sc-build → /sc-review → /sc-ship`
 
-No implementation before `spec.md` + `plan.json`. `/sc-build` loops `build → verify → commit`.
+Commander auto-handles clarification, mapping, and verification within these steps.
+
+No implementation before `spec.md` + `plan.json`. `/sc-build` loops per task: implement → verify → checkpoint commit, then continues to the next task.
 
 ### Evidence
 ```sh
 scripts/spacecraft evidence "<label>" -- <command>
 ```
+
+### Shell output
+Prefer `rtk` for commands with native filters: `rtk grep`, `rtk find`, `rtk ls`, `rtk read`, `rtk git`. Use `rtk proxy` for commands without native filters: `rtk proxy rg`, `rtk proxy cat`, `rtk proxy head`, `rtk proxy tail`, `rtk proxy sort`, `rtk proxy uniq`, `rtk proxy sed`. Direct shell is fine for single-line commands (`echo`, `wc`, `mkdir`, `pwd`, `which`, `node -v`).
 
 ### Release
 Rebase → verify → `git merge --no-ff` → tag → delete branch → archive.

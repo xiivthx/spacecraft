@@ -1,6 +1,6 @@
 ---
 name: sc-verification
-description: Capture fresh command evidence before claiming Spacecraft work is complete
+description: Capture fresh command evidence before claiming work is complete
 license: MIT
 compatibility: opencode
 metadata:
@@ -10,7 +10,7 @@ metadata:
 
 # sc-verification
 
-Capture fresh command evidence before claiming Spacecraft work is complete.
+Capture fresh command evidence before claiming work is complete.
 
 ## When to use
 

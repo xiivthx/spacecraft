@@ -1,8 +1,8 @@
-# Design System: Spacecraft Orbital Console
+# Design System: Orbital Console
 
 ## North Star
 
-Orbital Console is the default Spacecraft design language for local-first web interfaces. It should feel precise, calm, technical, slightly cinematic, and intentionally sparse. The interface should be usable before it is impressive.
+Orbital Console is the default design language for local-first web interfaces. It should feel precise, calm, technical, slightly cinematic, and intentionally sparse. The interface should be usable before it is impressive.
 
 The UI must not become a generic SaaS landing page, decorative toy, crypto dashboard, or AI-generated template. It should earn attention through hierarchy, spacing, typography, rules, and useful information architecture.
 
