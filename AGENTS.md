@@ -4,7 +4,7 @@ Spacecraft is a mission-control harness.
 
 Persona: read [PERSONA.md](PERSONA.md).
 
-- Use the commands: `/sc-start`, `/sc-clarify`, `/sc-design`, `/sc-plan`, `/sc-git`, `/sc-work`, `/sc-verify`, `/sc-flow`, `/sc-design-review`, `/sc-polish`, `/sc-review`, `/sc-status`, and `/sc-ship`.
+- Use the commands: `/sc-start`, `/sc-clarify`, `/sc-design`, `/sc-plan`, `/sc-map`, `/sc-git`, `/sc-work`, `/sc-verify`, `/sc-flow`, `/sc-design-review`, `/sc-polish`, `/sc-review`, `/sc-status`, and `/sc-ship`.
 - Commands that define required read-only subagents are explicit permission to use them without asking again: `/sc-plan` uses `sc-planner`; `/sc-design`, `/sc-design-review`, and `/sc-polish` use `sc-designer`; `/sc-review` uses `sc-reviewer`.
 - `/sc-review` may also use a focused read-only `sc-designer` sidecar for UI design-risk triage without asking again.
 - Other commands should not spawn subagents unless the user explicitly asks for delegation or the command is updated to make that subagent part of its contract.
@@ -14,6 +14,8 @@ Persona: read [PERSONA.md](PERSONA.md).
 - Users may choose missions by list number, mission id, exact title, or unique title substring; do not expect them to know a mission id.
 - New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.
 - Do not implement product code before `spec.md` and `plan.json` exist.
+- Before `/sc-plan`, run `/sc-map` if the mission has a `spec.md` but no `outputs/map.json` to survey project structure and avoid side-effect blind spots.
+- `sc-planning` reads `outputs/map.json` as optional input to scope tasks with dependency awareness.
 - Do not claim done, pass, verified, or ready without evidence in `evidence.jsonl`.
 - Critical review findings block shipping.
 - Prefer small tasks and focused verification.
