@@ -307,6 +307,40 @@ func TestReleaseGateSatisfied_deferredWithRationale(t *testing.T) {
 	}
 }
 
+func TestChecker_Check_closedStatuses(t *testing.T) {
+	store := newMockStore()
+	checker := NewChecker(store, fakeGitRunner{
+		inRepo:   true,
+		branch:   "feat/test-branch",
+		rebaseOK: true,
+		commits:  []string{"feat: add feature"},
+	})
+
+	m := &mission.Mission{
+		ID:    "M07CL12",
+		Title: "Closed Status Test",
+		State: "ready",
+		Clarification: mission.ClarificationBlock{
+			Status: "clear",
+		},
+	}
+
+	// All tasks in closed statuses — none pending/in-progress
+	plan := &mission.Plan{
+		Tasks: []mission.Task{
+			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T02"), Status: strPtr("done")},
+			{ID: strPtr("T03"), Status: strPtr("cancelled")},
+		},
+	}
+	review := readyReview()
+
+	result := checker.Check("M07CL12", m, plan, review, 5)
+	if containsStr(result.Errors, "Complete plan tasks") {
+		t.Errorf("expected no incomplete-tasks error for closed statuses (completed/done/cancelled), got: %v", result.Errors)
+	}
+}
+
 // --- mock store ---
 
 type mockStore struct{}
