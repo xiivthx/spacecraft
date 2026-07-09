@@ -61,11 +61,16 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 
 | # | Command | Issue | Priority |
 |---|---------|-------|----------|
-| C7 | sc-quick | Missing Pre-flight Checks and Hard Stop Gates sections | Medium |
-| C8 | sc-resume | Uses inline Python script to read last evidence entry — fragile across environments | Medium |
-| C9 | sc-resume | Missing Pre-flight Checks and Error Handling sections | Medium |
 | C10 | All 9 | Only 3/9 have all 4 sections (Pre-flight, Hard Stop Gates, Error Handling, Resolver Gate) | Low |
 | C11 | All 9 | Research auto-trigger is only referenced in 3/9 commands | Low |
+
+### Fixed by M07IDBF29 (2026-07-09)
+
+| # | Command | Issue | Fix |
+|---|---------|-------|-----|
+| C7 | sc-quick | Missing Pre-flight Checks and Hard Stop Gates sections | Added both sections |
+| C8 | sc-resume | Uses inline Python script to read last evidence entry — fragile across environments | Replaced with Go/shell equivalent approach |
+| C9 | sc-resume | Missing Pre-flight Checks and Error Handling sections | Added both sections |
 
 ---
 
@@ -102,26 +107,21 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | G2 | resolver/resolver.go | Duplicate ID normalization — same regex as util/slug.go | Confirmed intentional (comment: "moved from util.go to avoid circular dep"). No fix needed. |
 | G3 | archive/archive.go | Third copy of ID normalization (`normalizeMissionIdSimple`) | Open — could unify with util but has slightly different behavior |
 
-### Open — critical
+### Fixed by M07IDBF29 (2026-07-09)
 
-| # | File | Issue | Priority |
-|---|------|-------|----------|
-| G4 | archive, mission, state, util | Duplicate helper functions across 3+ packages: `fileExists`/`exists`, `readJSON`, `writeJSON` each implemented independently. `util/fs.go` has shared versions but they're unused by any internal package. | 🔴 High |
-| G5 | archive, closeout | Duplicate `taskIsComplete` function — identical in `archive/archive.go:333` and `closeout/closeout.go:244` | 🔴 High |
-| G6 | archive, closeout | Duplicate `blockingFindings`/`blockingReviewFindings` — nearly identical in `archive/archive.go:354` and `closeout/closeout.go:228` | 🔴 High |
-
-### Open — medium
-
-| # | File | Issue | Priority |
-|---|------|-------|----------|
-| G7 | main.go:922 | `researchCmd` uses `goto` — control flow anti-pattern. If code before the goto changes, behavior may be surprising. | 🟡 Medium |
-| G8 | main.go | `checkDepsCmd` non-standard exit codes: 2 = updates available, 1 = error. Conflicts with Unix convention (1 = general error). Callers checking `$?` may misinterpret. | 🟡 Medium |
-| G9 | main.go | `resolveCmd` returns inconsistent exit codes: 0 when no mission resolved but resolver succeeds, 1 only when "No mission resolved." is printed. Other commands use `requireResolved` which calls `os.Exit(1)`. | 🟡 Medium |
-| G10 | main.go:1107 | `lookupPackage` silently returns `nil, ""` if no registry matches — caller checks `if pkg != nil` but there's no fallback error log for the nil case. | 🟡 Medium |
-| G11 | main.go:704 | `evidenceCmd` always propagates subprocess exit code — if the evidence command fails (intentionally for capturing failures), the CLI exits non-zero. Could break shell pipelines. | 🟡 Medium |
-| G12 | archive/archive.go:369 | `copyTextFile` silently fails — returns `bool` but callers ignore it. If spec.md or decisions.md fail to copy, archive is incomplete with no error. | 🟡 Medium |
-| G13 | main.go:843 | `deep` variable name collision — used both as the `--deep` flag value and throughout the function for different purposes. | 🟡 Medium |
-| G14 | workflow/workflow.go:249 | Dead code — empty if-block with comment "Check dirty state isn't from res". No TODO or issue reference. | 🟡 Medium |
+| # | File | Issue | Fix |
+|---|------|-------|-----|
+| G4 | archive, mission, state, util | Duplicate helper functions across 3+ packages: `fileExists`/`exists`, `readJSON`, `writeJSON` each implemented independently. `util/fs.go` has shared versions but they're unused by any internal package. | Consolidated all callers to `util.Exists()`, `util.ReadJson()`, `util.WriteJson()` |
+| G5 | archive, closeout | Duplicate `taskIsComplete` function — identical in `archive/archive.go:333` and `closeout/closeout.go:244` | Exported `TaskIsComplete` in mission package, both callers reference it |
+| G6 | archive, closeout | Duplicate `blockingFindings`/`blockingReviewFindings` — nearly identical in `archive/archive.go:354` and `closeout/closeout.go:228` | Exported `BlockingFindings` in mission package |
+| G7 | main.go:922 | `researchCmd` uses `goto` — control flow anti-pattern. If code before the goto changes, behavior may be surprising. | Replaced with structured control flow |
+| G8 | main.go | `checkDepsCmd` non-standard exit codes: 2 = updates available, 1 = error. Conflicts with Unix convention (1 = general error). Callers checking `$?` may misinterpret. | Normalized: 0=success, 1=error |
+| G9 | main.go | `resolveCmd` returns inconsistent exit codes: 0 when no mission resolved but resolver succeeds, 1 only when "No mission resolved." is printed. Other commands use `requireResolved` which calls `os.Exit(1)`. | Normalized: 0=resolved, 1=not resolved |
+| G10 | main.go:1107 | `lookupPackage` silently returns `nil, ""` if no registry matches — caller checks `if pkg != nil` but there's no fallback error log for the nil case. | Added `fmt.Fprintf(os.Stderr, ...)` warning |
+| G11 | main.go:704 | `evidenceCmd` always propagates subprocess exit code — if the evidence command fails (intentionally for capturing failures), the CLI exits non-zero. Could break shell pipelines. | Exit 0 always; prints subprocess exit code to stdout |
+| G12 | archive/archive.go:369 | `copyTextFile` silently fails — returns `bool` but callers ignore it. If spec.md or decisions.md fail to copy, archive is incomplete with no error. | Changed to return error, callers handle `if err != nil` |
+| G13 | main.go:843 | `deep` variable name collision — used both as the `--deep` flag value and throughout the function for different purposes. | Renamed local variable for clarity |
+| G14 | workflow/workflow.go:249 | Dead code — empty if-block with comment "Check dirty state isn't from res". No TODO or issue reference. | Removed dead code |
 
 ### Open — low
 
@@ -161,14 +161,12 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | Domain | Total | Fixed | Open |
 |--------|-------|-------|------|
 | Skills | 26 | 13 | 13 |
-| Commands | 11 | 6 | 5 |
+| Commands | 11 | 9 | 2 |
 | Agents | 9 | 6 | 3 |
-| Go CLI | 19 | 3 | 16 |
+| Go CLI | 19 | 14 | 5 |
 | Docs | 7 | 5 | 2 |
-| **Total** | **72** | **33** | **39** |
+| **Total** | **72** | **47** | **25** |
 
-### Open high-priority items
+### Fixed by M07IDBF29 (2026-07-09)
 
-1. **G4**: Duplicate helper functions across packages (fileExists, readJSON, writeJSON)
-2. **G5**: Duplicate `taskIsComplete` in archive and closeout
-3. **G6**: Duplicate `blockingFindings` in archive and closeout
+14 issues fixed: G4-G14 (Go CLI), C7-C9 (Commands). No high-priority items remain open.
