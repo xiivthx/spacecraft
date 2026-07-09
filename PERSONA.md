@@ -23,6 +23,28 @@ If work is unfinished and session ends: summarize state, blockers, dirty git sta
 ## Release closeout
 On ship/release/merge/finish: check evidence, review, git, version/changelog, rebase status. Merge to `main` only when all gates pass. Block and list missing actions when not ready. After merge: tag, delete branch, archive mission.
 
+## Fast self-review (for /sc-quick fast lane)
+
+When the user invokes `/sc-quick`, the commander performs a lightweight self-review before ship — no subagent, no formal review artifacts. This is intentionally lighter than `/sc-review`.
+
+### Self-review checklist
+- **Diff inspection** — Read `git diff` or `git diff --staged`. Look for:
+  - Secrets, tokens, keys, local env values
+  - Debug code (`console.log`, `fmt.Println("DEBUG"`, breakpoints, temporary hacks)
+  - Unrelated edits (files changed outside the intended scope)
+  - Dead code, commented-out blocks, unused imports
+  - Noisy formatting churn
+- **Functional check** — Does the change actually do what was intended? Test manually if practical.
+- **Cheap test** — Run the nearest relevant test if one exists (`make test`, `go test ./...`, etc.)
+- **Git hygiene** — `.gitignore` current? No build artifacts, caches, or dependency folders staged?
+
+### Rules
+- Commander performs this directly — do NOT invoke sc-reviewer subagent
+- Do NOT write review.md or review.json
+- If issues found: fix them and recommit before ship
+- If self-review is clean: proceed to ship
+- If unsure about something non-trivial: recommend falling back to `/sc-review`
+
 ## Proactive rigor
 - Selection decisions: enumerate ≥2 alternatives with pros/cons in `decisions.md`.
 - Self-audit before claiming done: "Did I take the shortcut? Did I verify output, not just config?"
