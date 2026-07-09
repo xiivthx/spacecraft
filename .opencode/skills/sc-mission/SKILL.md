@@ -26,10 +26,10 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** — Run `scripts/spacecraft resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.
+1. **Resolve mission** — Run `scripts/spacecraft resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority. Commander auto-detects development lane (Advisory, Mission, Debug, Quick) based on user intent.
 2. **Read artifacts** — Read `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
 3. **Route ambiguity** — If intent, scope, or acceptance criteria is ambiguous, route to sc-clarify before proceeding.
-4. **Enforce lifecycle** — Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Use `/sc-build` to repeat build -> verify -> checkpoint commit for successive tasks.
+4. **Enforce lifecycle** — Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Repeat build -> verify -> checkpoint commit for successive tasks.
 5. **Release or handoff** — On ship intent, run release closeout. On session end, give handoff summary.
 
 ### Edge cases
@@ -38,6 +38,26 @@ Use this exact sequence unless the user specifies otherwise:
 - **Multiple missions match selector** — Show candidates. Ask user to pick with `scripts/spacecraft use <number>`.
 - **Resolver safety ≠ safe** — Block all mutating work. Show conflicts. Require `scripts/spacecraft use <selector>`.
 - **Session ends mid-work** — Handoff: summarize current task, blockers, dirty git, next pickup command. Do not merge, tag, or delete branches.
+- **State transition conflict** — If the current state does not permit the requested transition (e.g., trying to build without a plan), block and explain the prerequisite.
+- **Artifact corruption** — If `plan.json` or `evidence.jsonl` is unparseable, flag it. Do not proceed. Ask the user whether to regenerate or restore from git.
+- **Missing spec when plan exists** — Inconsistent state. Treat as corrupted — spec.md is the source of truth. Regenerate plan from spec or restore spec from git.
+
+## Lifecycle states
+
+Mission states enforce the development lane gates:
+
+| State | Meaning | Permitted transitions |
+|-------|---------|----------------------|
+| `draft` | Spec written, awaiting plan | → `clarify`, `planned` |
+| `clarify` | Blocking question open | → `draft`, `planned` |
+| `planned` | Plan ready, awaiting build | → `building` |
+| `building` | Implementation in progress | → `built` (all tasks done), `blocked` |
+| `built` | Build complete, awaiting review | → `ready`, `blocked` |
+| `ready` | Review passed, ready to ship | → `shipped` |
+| `blocked` | Gated by critical finding | → `building`, `planned`, `draft` |
+| `shipped` | Merged and archived | Terminal |
+
+Set state with `scripts/spacecraft set-state <state>`. The CLI enforces valid transitions.
 
 ## Research auto-trigger
 
@@ -52,14 +72,14 @@ When mission context involves unfamiliar tools, frameworks, or APIs, run `spacec
 - **Must**: New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.
 - **Must**: Read the resolved mission's `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
 - **Must**: sc-mission owns lifecycle but must route ambiguity to sc-clarify.
-- **Must**: Enforce order: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. `/sc-build` may repeat build -> verify -> checkpoint commit for successive tasks until a gate blocks.
+- **Must**: Enforce order: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Build may repeat build -> verify -> checkpoint commit for successive tasks until a gate blocks.
 - **Must not**: Skip clarification when user intent, scope, acceptance criteria, or visual design direction is materially ambiguous.
 - **Must**: If clear mutating work is requested and no suitable mission or branch exists, create the mission and non-main branch without another blocking question when policy permits it.
 - **Must not**: Implement if spec or plan is missing.
 - **Must**: Use sc-git for git safety, release branching, commits, rebasing, merge, version bump, changelog/spec notes, and tagging.
 - **Must**: Mutating work must satisfy sc-git gates before implementation and before ship.
 - **Must**: Treat stop-chat/close-session/end-session/new-session requests as session handoff unless release intent is explicit.
-- **Must**: If "close session" is ambiguous and work appears ready, recommend `/sc-ship`; do not merge automatically.
+- **Must**: If "close session" is ambiguous and work appears ready, recommend ship; do not merge automatically.
 - **Must**: Treat ship/release/merge/finish-mission/close-branch requests as release closeout prep. Block closeout when gates are incomplete.
 - **Must**: After successful release closeout, archive shipped mission artifacts under `.space/archive/` unless the user asks to keep the full live mission folder.
 - **Must**: Keep mission artifacts small and human-readable.
@@ -75,6 +95,9 @@ This skill does NOT handle:
 - Design or UI direction — use sc-design
 - Evidence capture or verification — use sc-verification
 - Clarification questions — use sc-clarify (sc-mission routes to it)
+- Debugging or bug diagnosis — use sc-debug
+- Code review — handled by reviewer subagent
+- Knowledge capture and migration — use sc-learn
 
 ## Output format
 
@@ -97,6 +120,7 @@ Mission artifacts follow the standard layout:
 
 Before claiming the mission lifecycle is handled:
 
+- [ ] Development lane detected correctly from user intent
 - [ ] Mission resolved with `scripts/spacecraft resolve --json` (safety = `safe`)
 - [ ] All relevant artifacts read before any decision or mutation
 - [ ] Ambiguity routed to sc-clarify when blocking (not bypassed)

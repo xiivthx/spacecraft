@@ -32,7 +32,7 @@ For reference scouting, separate layout/template references from mood/art refere
 Use references as calibration. State what to borrow as a pattern and what not to copy.
 When reviewing implemented UI, compare it to the selected references for hierarchy, layout rhythm, visual density, art direction, and interaction feel without forcing exact imitation.
 Reject same-y design sets. Distinct options must differ in concept, information architecture, layout, interaction model, and art direction, not just color, labels, or copy.
-For Thai or multilingual missions, make user-facing design artifacts Thai-first with simple English labels, not long English-only design prose.
+For Thai or multilingual missions, make user-facing design artifacts Thai-first with simple English labels, not long English-only design prose. Thai-first rules are locale-dependent — adapt to the user's working language for non-Thai missions.
 Guide design as separate config decisions when possible. Let the user mix layout, palette, typography, art, 3D, motion, and density instead of forcing one bundled direction.
 Use a Feynman explanation pass for design artifacts: explain the option in plain language, use a familiar analogy if useful, show a labeled visual, state the gain/tradeoff, and remove jargon that the user does not need.
 Keep HTML artifact copy compact. One artifact should answer one config question. Each visible list should have no more than 3 bullets, and visuals must make the decision easier without long reading.

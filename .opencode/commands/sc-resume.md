@@ -64,6 +64,16 @@ Based on the live state above, present a concise handoff resume:
 - If git is dirty and the state is not `draft`, flag it prominently.
 - If no mission resolves, say: "No active mission. Start one with `/sc-start <title>`."
 
+## Research auto-trigger
+
+sc-resume is read-only — no research trigger needed during resume. Research decisions belong to the commands that follow (sc-plan, sc-build, etc.).
+
+## Hard stop gates
+
+- No mission resolves
+- Resolver conflict or ambiguity
+- Git dirty with non-draft state (warn prominently before proceeding with mutations)
+
 ## Error handling
 
 - No mission resolves → stop and tell user: "No active mission. Start one with `/sc-start <title>`."

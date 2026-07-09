@@ -23,9 +23,7 @@ Activate when the user asks to:
 
 ## Workflow
 
-Use this exact sequence unless the user specifies otherwise:
-
-### Recite the mantra — verbatim, as the first thing in your first response
+### Recite the mantra — verbatim, first thing in first response
 
 > **Mantra:**
 > 1. **First is reproducibility.** Can the issue be reproduced reliably?
@@ -41,8 +39,7 @@ Then begin work.
 ### 1. Reproduce reliably
 
 Build a runnable repro before anything else.
-
-- **Reliable repro** → capture the exact steps, inputs, and environment as a runnable artifact: failing test, curl script, CLI invocation, replay harness. Use `sc-verification` to capture repro evidence.
+- **Reliable repro** → capture exact steps, inputs, environment as a runnable artifact (failing test, curl, CLI). Use `sc-verification` for evidence.
 - **Flaky repro** → the bug is not yet debuggable. Raise the rate first: loop the trigger, parallelise, add stress, narrow timing windows, inject sleeps. 50% flake is debuggable; 1% is not.
 - **No repro at all** → stop. Say so explicitly. Ask the user for env access, captured artifacts (HAR, log dump, core), or permission to instrument. Do **not** proceed to hypothesise.
 
@@ -54,14 +51,10 @@ Target: a fast (1–5 s), deterministic pass/fail signal. Pin time, seed the RNG
 
 ### 2. Know the fail path
 
-Once reproducible, find *where* the code breaks and *what stops it from breaking*. The differential narrows the search. Try in this order — escalate only when the prior tactic fails.
+Once reproducible, find *where* the code breaks and *what stops it from breaking*. Try in this order — escalate only when the prior tactic fails.
 
 1. **Attach a debugger.** If the environment supports it, attach and step to the failure site. One breakpoint beats ten logs. Do this **before** turning any knobs.
-2. **Source trace + knob enumeration.** If no debugger (or it can't reach the bug), trace the code path end-to-end and list every knob that can influence the outcome:
-   - config flags, env vars, feature toggles
-   - branch conditions, input shape
-   - timing, concurrency, build options
-   Each knob is a candidate axis to flip in the differential. Flip one at a time.
+2. **Source trace + knob enumeration.** If no debugger, trace the code path end-to-end and list every knob that can influence the outcome: config flags, env vars, feature toggles, branch conditions, input shape, timing, concurrency. Flip one at a time.
 3. **In-code instrumentation.** If outside knobs can't move the failure, go inside: `printf` / log statements at the suspected fail site, dump the relevant internal state. Tag every probe with a unique prefix (e.g. `[DBG-a4f2]`) so cleanup is a single grep. Let the trace show where reality diverges from your model.
 
 ---
@@ -83,31 +76,29 @@ Maintain a running **ledger** of every experiment in this session. Each entry: w
 
 #### Breadcrumb ledger format
 
-Each entry must contain these fields:
-
 | Field | Description |
 |-------|-------------|
-| `timestamp` | ISO 8601 timestamp of the experiment |
-| `hypothesis` | What you believed before the run — one sentence |
+| `timestamp` | ISO 8601 of the experiment |
+| `hypothesis` | What was believed before the run |
 | `command` | Exact command or action taken |
-| `output_hash` | SHA-256 of the output (for reproducibility) or short summary |
-| `result` | What happened: PASS, FAIL, or specific observation |
-| `rules_in` | What this run confirms (list) |
-| `rules_out` | What this run eliminates (list) |
+| `output_hash` | SHA-256 of output or short summary |
+| `result` | PASS, FAIL, or specific observation |
+| `rules_in` | What this run confirms |
+| `rules_out` | What this run eliminates |
 
 **Operating rules for the ledger:**
 
 - When a new hypothesis surfaces, walk the ledger. Does it hold for **every** prior observation, not just the most recent?
 - If any past run contradicts it, the hypothesis is wrong or incomplete — refine or discard.
-- When in doubt, design the **single experiment** whose outcome makes it certain. Run that next, instead of churning on adjacent runs.
+- When in doubt, design the **single experiment** whose outcome makes it certain. Run that next.
 - Update the ledger after every run. It is your memory across the session.
-- The completed ledger is the raw material for the post-mortem in step 5.
+- The completed ledger is raw material for the post-mortem in step 5.
 
 ---
 
 ### 5. Post-mortem
 
-After the fix lands and is validated, draft the canonical engineering record. Written **for** other engineers (and future-you, who will have forgotten everything in 6 months). Code identifiers are first-class here.
+After the fix lands and is validated, draft the canonical engineering record. For other engineers and future-you who will have forgotten in 6 months.
 
 **Refuse to draft without ALL four mandatory inputs.** If any are missing, list what's missing and stop:
 
@@ -120,15 +111,15 @@ If you came in via steps 1–4, the breadcrumb ledger from step 4 is your raw ma
 
 #### Post-mortem structure
 
-1. **Summary** *(mandatory)* — What broke, what fixed it, in one sentence. PR number, owner.
-2. **Symptom** — What was actually observed. Error messages, test failures, log lines.
-3. **Root cause** *(mandatory)* — The actual bug mechanism. Code identifiers, file paths, function names, commit SHAs of the offending change. Walk the cause chain end-to-end.
-4. **Why it produced the symptom** — Link the root cause to the symptom. Often non-obvious.
-5. **Fix** *(mandatory)* — What changed and why it addresses the root cause. Link to PR / commit. Name prior fix attempts and what was wrong with them.
-6. **How it was found** — The debugging path: what repro worked, tools used, hypotheses rejected (from breadcrumb ledger), the single experiment that confirmed the cause.
-7. **Why it slipped through** — CI gap, latent code, workload gap, incomplete prior fix, review miss. Blameless — describe the gap, not the person.
-8. **Validation** *(mandatory)* — How we know the fix works. Original repro now passes, specific test names, concrete before/after numbers. State coverage honestly.
-9. **Action items / follow-ups** — Concrete next-steps with owners and tracking artifacts. If none, write "None — the fix is sufficient."
+1. **Summary** *(mandatory)* — What broke, what fixed it, one sentence.
+2. **Symptom** — What was observed (errors, logs, test failures).
+3. **Root cause** *(mandatory)* — Actual bug mechanism with code identifiers, file paths, commit SHAs.
+4. **Why it produced the symptom** — Link root cause to symptom.
+5. **Fix** *(mandatory)* — What changed, why it addresses root cause. Link to PR/commit.
+6. **How it was found** — Debugging path: repro, tools, rejected hypotheses, confirming experiment.
+7. **Why it slipped through** — CI gap, latent code, review miss. Blameless.
+8. **Validation** *(mandatory)* — Original repro passes, specific test names, before/after numbers.
+9. **Action items / follow-ups** — Concrete next-steps. If none: "None — the fix is sufficient."
 
 Use `sc-git` to reference commit/PR pointers in the post-mortem. Use `sc-verification` to capture validation evidence.
 
@@ -167,84 +158,32 @@ Agents often try to skip debug steps with plausible-sounding excuses. These excu
 | "The debugger isn't available, so I'll skip to hypothesis" | Knob enumeration (step 2.2) and in-code instrumentation (step 2.3) are available when debuggers aren't. | Follow the step 2 escalation order: debugger → source trace + knobs → instrumentation. |
 | "It's a post-mortem for myself — I don't need all four inputs" | A post-mortem without root cause is a symptom log. Without repro, the next person can't verify. Without validation, it's a guess. | All four inputs are mandatory. Refuse to draft. |
 
-## Operating rules
-
-- Recite the mantra block **once** per debug session, in your first response. Do not re-recite mid-session.
-- Recite **verbatim**. Never paraphrase, shorten, or skip lines of the recital.
-- If the user says "skip the mantra" → skip the recital but still apply the five steps silently.
-- Apply the five steps **in order**:
-  - Do not propose a fix before step 1 is satisfied (reliable repro exists).
-  - Do not start testing hypotheses before step 2 has narrowed the fail path.
-  - Do not commit to a hypothesis before step 3 has tried to disprove it.
-  - Do not declare a hypothesis correct until step 4 confirms it against every prior breadcrumb.
-  - Do not draft a post-mortem before step 5's four mandatory inputs are all satisfied.
-- If you catch yourself proposing a fix without a reliable repro, stop and return to step 1.
-- The mantra is a constraint **you** carry through the session — not advice to deliver back to the user.
-
 ## Out of scope
 
 This skill does NOT handle:
 
-- General-purpose issue tracking or bug databases
-- CI/test runner integration or automated test generation
-- Customer-visible incident management or outage timelines — those need a separate incident report
-- Tool-based debugging (dap CLI, debug adapters) — this is pure workflow discipline, not tool integration
+- Issue tracking, bug databases, CI/test runner integration
+- Incident management or outage timelines
+- Tool-based debugging (dap CLI, debug adapters) — this is pure workflow discipline
 - Evidence capture — use `sc-verification`
 - Git branch/commit hygiene — use `sc-git`
-- User ambiguity resolution — use `sc-clarify`
-- Code review — use `sc-reviewer`
+- Ambiguity resolution — use `sc-clarify`
+- Code review — use sc-review
 - Visual/UI design — use `sc-design`
 
 ## Output format
 
-Session start (first response only):
-```
-> **Mantra:**
-> 1. **First is reproducibility.** Can the issue be reproduced reliably?
-> 2. **Know the fail path.** Debugger first; then source trace + knob enumeration; then in-code instrumentation.
-> 3. **Question your hypothesis.** What would disprove it?
-> 4. **Every run is a breadcrumb.** Cross-reference all of them.
-> 5. **Document the post-mortem.** Repro, root cause, fix, validation — all four, or refuse to draft.
-```
-
-Breadcrumb ledger (maintained throughout session):
-```
-| timestamp | hypothesis | command | output_hash | result | rules_in | rules_out |
-|-----------|------------|---------|-------------|--------|----------|-----------|
-| ...       | ...        | ...     | ...         | ...    | ...      | ...       |
-```
-
-Post-mortem (after fix lands):
-```
-## Post-mortem: <issue title>
-
-### Summary
-...
-
-### Root cause
-...
-
-### Fix
-...
-
-### Validation
-...
-```
+Session start: recite the mantra block (see Workflow §Recite the mantra). Maintain breadcrumb ledger throughout session (format below). Draft post-mortem after fix validation (mandatory sections: Summary, Root cause, Fix, Validation).
 
 ## Checklist
 
-Before claiming the debug session is complete:
-
 - [ ] Reliable repro exists and is captured as evidence (step 1)
-- [ ] Fail path is traced through source code or instrumentation (step 2)
+- [ ] Fail path traced through source code or instrumentation (step 2)
 - [ ] Hypothesis attempted to be falsified before acceptance (step 3)
-- [ ] Breadcrumb ledger has entries for every experiment, cross-referenced (step 4)
-- [ ] Post-mortem has all four mandatory inputs before drafting (step 5)
-- [ ] No fix attempted before repro was built
-- [ ] No hypothesis formed before fail path was traced
-- [ ] No conclusion reached before falsification was attempted
+- [ ] Breadcrumb ledger has entries for every experiment (step 4)
+- [ ] Post-mortem has all four mandatory inputs (step 5)
+- [ ] No fix before repro; no hypothesis before trace; no conclusion before falsification
 - [ ] Cross-references to sc-verification, sc-git, sc-clarify used where appropriate
-- [ ] Git investigation branch created via sc-git
 - [ ] Fix validated with sc-verification evidence before post-mortem
 
 ## Research auto-trigger

@@ -4,7 +4,7 @@ agent: sc-commander
 subtask: true
 ---
 
-Use sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, and sc-verification.
+Use sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, sc-learn, and sc-verification.
 Resolve the mission. Block if unsafe.
 
 ## Pre-flight checks
@@ -20,10 +20,11 @@ scripts/spacecraft git-info
 
 ### Git safety
 
+sc-git hygiene checks auto-trigger silently during pre-flight: `git-info`, branch check, dirty-tree check, `.gitignore` check. These block only on violation — no separate git command needed. The sc-git skill handles all policy; the build command calls it silently.
+
 - If the workspace is not a git worktree, stop before editing product files unless the user has explicitly accepted no-git implementation risk for this mission in decisions.md.
 - If git exists, inspect dirty state before edits. Work with user changes; do not revert unrelated changes.
 - For large, risky, or multi-session slices, prefer a separate branch or git worktree.
-- Use sc-git for branch naming, branch creation, checkpoint commits, .gitignore hygiene, and staging safety checks.
 
 ### Dependency check
 
@@ -35,41 +36,49 @@ When versions or APIs are uncertain, run `spacecraft research "<package> latest 
 
 Start from `$ARGUMENTS` task if given, otherwise the first non-completed task in plan.json. For each task:
 
-### 1. Atomic TDD cycle
+### 1. TDD cycle (Plan → Red → Green → Verify)
 
 For each acceptance check (one at a time):
 
-a. **Red** — delegate to `sc-tester`: write exactly ONE failing test for the current acceptance check. sc-tester must verify the test fails before returning. If the test passes without implementation, it is not testing the right thing — reject and re-write.
+a. **Triage** — Is this test-worthy? If the test would be a trivial tautology (simple getter, config mapping, boilerplate), skip TDD — code directly. Record the skip. Otherwise proceed with the cycle.
 
-b. **Green** — delegate to `sc-coder`: write the minimum production code to make the single failing test pass. sc-coder must not change unrelated code, add features beyond the test, or modify other tests.
+b. **Plan** — What seam are we testing? What is the expected behavior and independent expected value? Confirm the plan before writing code. No test at an unplanned seam.
 
-c. **Verify** — delegate to `sc-tester`: after the test passes, sc-tester runs the full test suite for the affected package, captures evidence with `scripts/spacecraft evidence "<label>" -- <command>`, runs `scripts/spacecraft validate`, and confirms all task acceptance criteria.
+c. **Red** — delegate to `sc-tester`: write exactly ONE failing test for the planned acceptance check. sc-tester must verify the test fails before returning. If the test passes without implementation, it is not testing the right thing — reject and re-write.
 
-Repeat a–c for the next acceptance check until all checks for the task are covered.
+d. **Green** — delegate to `sc-coder`: write the minimum production code to make the single failing test pass. sc-coder must not change unrelated code, add features beyond the test, or modify other tests.
 
-### 2. Self-review / refactor
+e. **Verify** — delegate to `sc-tester`: after the test passes, sc-tester runs the full test suite for the affected package, captures evidence with `scripts/spacecraft evidence "<label>" -- <command>`, runs `scripts/spacecraft validate`, and confirms all task acceptance criteria.
 
-Commander inspects the touched diff:
+Repeat a–e for the next acceptance check until all checks for the task are covered.
+
+### 2. Refactor (post-feature)
+
+After ALL acceptance checks for the task pass, refactor with the full picture:
+
+- Extract helpers, improve names, remove duplication (Rule of Three), simplify logic.
+- Remove accidental debug code, dead code, noisy formatting churn.
+- The existing tests protect you — refactor with confidence.
+- If the refactor is broad (>20 lines touched beyond test-targeted code), defer to a separate task.
 - Make at most two short passes.
-- Check the change against the current task and acceptance checks.
-- Remove accidental debug code, unrelated edits, dead code, and noisy formatting churn.
-- Extract helpers, improve names, remove duplication, simplify logic.
-- Check obvious edge cases, error/loading states, accessibility labels, and mobile layout when relevant.
-- Run the nearest cheap focused self-test when practical.
-- If the pass finds small, low-risk issues, fix them and re-run the test.
-- If the refactor is broad (>20 lines touched beyond the test-targeted code), defer to a separate task.
 
-Keep this lightweight. Do not invoke sc-reviewer, do not write review.md or review.json.
+### 3. Functional test gate
 
-### 3. Update plan
+After refactor: run the FULL test suite (unit + integration + functional). All old tests must pass alongside new tests. If anything breaks, fix the refactor — not the old tests. Capture evidence:
+
+```
+scripts/spacecraft evidence "<task>-functional" -- <full-test-suite-command>
+```
+
+### 4. Update plan
 
 Update plan.json with evidence ids and mark the task `"done"` only when all acceptance checks are satisfied.
 
-### 4. Checkpoint commit
+### 5. Checkpoint commit
 
 Create a checkpoint Conventional Commit on the non-main work branch: inspect dirty/untracked files, ensure `.gitignore` is current, stage only task-related safe files and mission artifacts.
 
-### 5. Continue
+### 6. Continue
 
 Continue to the next task while the same mission remains resolved, the chat context is still useful, and no gate blocks.
 
@@ -82,6 +91,10 @@ If implementing UI:
 - Do not invent a new visual language when DESIGN.md exists
 - Prefer CSS custom properties and local component styles
 - Do not add broad styling frameworks unless explicitly requested
+
+## Research auto-trigger
+
+When versions or APIs are uncertain, run `spacecraft research "<package> latest version"` before installing. Do not guess dependency versions. This applies to direct dependencies, framework APIs, and breaking-change migrations.
 
 ## Hard stop gates
 
@@ -106,14 +119,18 @@ If implementing UI:
 - If self-review stops with known remaining risk, state that risk and recommend the next concrete command.
 - If a useful self-test is skipped, say why and recommend the next concrete verification command.
 - Do not push, rebase, merge, tag, delete branches, create worktrees, or run release closeout unless the user explicitly asks or invokes `/sc-ship`.
-- If a hard stop gate triggers, stop the loop and hand off with state summary.
+- If a hard stop gate triggers, stop the loop, record the issue via sc-learn in `.space/missions/<id>/issues.md`, and hand off with state summary.
 - Checkpoint commits are local rollback points. Before `/sc-ship`, squash/fixup them into logical final commits.
-- When all tasks are done, apply the **Kalama Sutta gate** before claiming `built`:
-  1. "Are all tasks actually done?" — every task in plan.json marked done
-  2. "Does evidence cover every acceptance check?" — cross-check evidence.jsonl against plan.json acceptance arrays
-  3. "Are tests passing or am I trusting cached results?" — re-run test suite fresh
-  4. "Did I skip any verification?" — no acceptance check without evidence
-  5. "Would an adversary agree this is complete?" — no undone tasks, no missing evidence
-- If all 5 pass: `scripts/spacecraft set-state built`
+- When all tasks are done, apply the **review gate**:
+  1. Invoke sc-reviewer as a read-only subagent to review the full diff, evidence, and code quality. The reviewer checks: all tasks done, evidence covers every acceptance check, tests pass fresh, no critical findings, cross-reference integrity.
+  2. Record findings in `review.md` and `review.json`.
+  3. Fix any issues the reviewer flags. Re-run verification after fixes.
+  4. Apply the **Kalama Sutta gate**:
+     - "Are all tasks actually done?" — every task in plan.json marked done
+     - "Does evidence cover every acceptance check?" — cross-check evidence.jsonl against plan.json
+     - "Are tests passing or am I trusting cached results?" — re-run test suite fresh
+     - "Did I skip any verification?" — no acceptance check without evidence
+     - "Would an adversary agree this is complete?" — no undone tasks, no missing evidence
+- If all gates pass: `scripts/spacecraft set-state ready`. If blocked: `scripts/spacecraft set-state blocked`.
 
-End with evidence ids, checkpoint commit hash when created, next command, and session advice.
+End with evidence ids, checkpoint commit hash when created, issues/lessons discovered (record in `.space/missions/<id>/issues.md` and `learned.md` via sc-learn), next command, and session advice.

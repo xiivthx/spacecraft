@@ -16,12 +16,12 @@ Survey project structure before planning modifications. Produces `map.json` iden
 
 Activate when the user asks to:
 
-- Survey a project before `/sc-plan`
+- Survey a project before planning
 - Understand which files a task touches and what depends on them
 - Identify risk zones before implementation
 - Map project structure for a new mission
 
-Commander auto-triggers: before `/sc-plan` when mission has `spec.md` but no `outputs/map.json`.
+Commander auto-triggers: before planning when mission has `spec.md` but no `outputs/map.json`.
 
 ## Workflow
 
@@ -134,7 +134,7 @@ Contents:
 - `dependentsGraph`: reverse dependency (who imports this file)
 - `entryPoints`: identified entry files
 
-### Phase 2 — ANALYZE (LLM)
+### Phase 2 — ANALYZE (Commander)
 
 **Goal:** Feed Phase 1 discovery data to the LLM for semantic analysis. The commander reads `map-discovery.json` and performs this analysis using its own reasoning — no subagent dispatch needed for a tactical survey.
 
@@ -191,73 +191,7 @@ Use directory structure + content signals (frontmatter, imports, purpose) to cla
 
 #### map.json Schema
 
-```json
-{
-  "version": "1.0.0",
-  "missionId": "M07H3CM5S",
-  "generatedAt": "<ISO 8601>",
-  "project": {
-    "root": "/path/to/repo",
-    "name": "spacecraft",
-    "languages": ["typescript", "markdown", "shell", "go"],
-    "totalFiles": 150,
-    "scannedFiles": 150
-  },
-  "spec": {
-    "keywords": ["git", "branch", "merge", "commit", "tag"],
-    "fileHints": [".opencode/skills/sc-git/", "scripts/spacecraft"],
-    "intent": "create sc-map skill for project structure survey"
-  },
-  "files": [
-    {
-      "path": ".opencode/skills/sc-git/SKILL.md",
-      "category": "skill",
-      "layer": "skills",
-      "lines": 180,
-      "relevance": "direct",
-      "riskZone": "green"
-    }
-  ],
-  "touchpoints": [
-    {
-      "path": ".opencode/skills/sc-map/SKILL.md",
-      "reason": "new skill being created — primary artifact",
-      "priority": 1,
-      "keywords": ["map", "survey", "structure"],
-      "dependencies": [],
-      "dependents": ["AGENTS.md", "opencode.json"],
-      "riskZone": "green"
-    }
-  ],
-  "dependencies": {
-    "graph": {
-      "fileA": ["fileB", "fileC"]
-    },
-    "shared": [
-      {
-        "path": "scripts/spacecraft",
-        "importedBy": 8,
-        "riskZone": "red"
-      }
-    ]
-  },
-  "riskZones": {
-    "red": ["scripts/spacecraft"],
-    "yellow": ["opencode.json", "AGENTS.md"],
-    "green": [".opencode/skills/sc-map/SKILL.md"]
-  },
-  "layers": {
-    "skills": [".opencode/skills/sc-git/SKILL.md", ".opencode/skills/sc-map/SKILL.md"],
-    "agents": ["AGENTS.md", "PERSONA.md"],
-    "scripts": ["scripts/spacecraft", "scripts/src/main.go"],
-    "config": ["opencode.json", "Makefile"],
-    "docs": ["DESIGN.md", "CHANGELOG.md", "PERSONA.md"],
-    "missions": [".space/missions/M07H3CM5S/"],
-    "tests": ["tests/"]
-  },
-  "coverageGap": []
-}
-```
+See `references/map-schema.md` for the full schema and field reference.
 
 #### Step 3.1 — Validate
 
@@ -303,7 +237,7 @@ Report summary to user:
 
 Commander auto-triggers sc-map when:
 - Mission has `spec.md` but `outputs/map.json` is missing
-- Before running `/sc-plan` for the first time on a mission
+- Before running the planning phase for the first time on a mission
 
 ### sc-planning
 
@@ -312,9 +246,9 @@ Commander auto-triggers sc-map when:
 - Uses `dependencies.shared` to flag cross-cutting concerns
 - Uses `riskZones` to warn about high-risk tasks
 
-### /sc-build
+### Integration with build
 
-`/sc-build` references `map.json` for:
+The build phase references `map.json` for:
 - Listing files to modify per task
 - Warning when touching red-zone files
 - Suggesting test files for changed code (from dependency graph)
@@ -323,10 +257,10 @@ Commander auto-triggers sc-map when:
 
 This skill does NOT handle:
 
-- Full knowledge graph construction — use Understand-Anything for interactive exploration
+- Full knowledge graph construction — beyond map scope; map is a tactical survey, not a persistent graph
 - Temporal/git-history analysis — use git log/blame directly
-- Test generation — use sc-tester
-- Implementation — use sc-coder or /sc-build
+- Test generation — use sc-tdd
+- Implementation — use sc-coder or the build command
 - UI design — use sc-design
 
 ## Output format
@@ -357,7 +291,5 @@ Before claiming sc-map is done:
 
 ## References
 
-- Understand-Anything: multi-agent codebase knowledge graph (scan → batch → analyze → review → save)
-- Graphiti: temporal context graphs with provenance tracking
-- `.space/skill-template.md` — skill template reference
+- `references/map-schema.md` — map.json schema with field descriptions
 - `scripts/spacecraft` — CLI for mission resolution

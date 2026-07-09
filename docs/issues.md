@@ -1,6 +1,6 @@
 # System Issues
 
-Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
+Audit date: 2026-07-09. Covers all 13 skills, 8 commands, Go CLI, and docs.
 
 ---
 
@@ -24,23 +24,27 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | S12 | All 12 skills | sc-tdd/sc-solid consolidation — content split across skills | Consolidated testing into sc-tdd (single source), removed tdd.md/testing.md from sc-solid |
 | S13 | sc-solid, sc-tdd | Mutual cross-references (loop) and agent names in skill content | Removed loops, removed agent names, rewrote Out of scope sections |
 
-### Open — minor polish
+### Fixed by M07IMLU48 (2026-07-09)
 
-| # | Skill | Issue | Priority |
-|---|-------|-------|----------|
-| S14 | sc-debug | Rules section partially duplicated (General rules and Operating rules overlap) | Low |
-| S15 | sc-debug | 260 lines — exceeds own length recommendation | Low (acceptable for its complexity) |
-| S16 | sc-design | Rules section is 56% of file (100 lines) — many rules are taste-based, not verifiable | Low |
-| S17 | sc-design | Thai-first rules are locale-specific — should be in a reference file | Low |
-| S18 | sc-map | 363 lines — 3-4x recommended. Inline plan.json schema is 65 lines — should be a reference file | Low |
-| S19 | sc-map | Phase 2 says "LLM analysis" but then says "commander performs this analysis" — slightly contradictory | Low |
-| S20 | sc-map | References section mentions "Understand-Anything" and "Graphiti" — external tools not in codebase | Low |
-| S21 | sc-mission | 103 lines — thin for a meta-skill that drives the entire lifecycle | Low |
-| S22 | sc-solid | "Classes < 50 lines, methods < 10 lines" is an arbitrary threshold with no justification | Low |
-| S23 | sc-git | Minor redundancy between rules sub-sections and post-merge/review-gate checklists | Low |
-| S24 | sc-git | Bump policy complexity lives only in rules, not in workflow step 8 | Low |
-| S25 | sc-tdd | "After all checks pass → Move to review" is abrupt — no connection to `/sc-review` trigger | Low |
-| S26 | sc-creator | 201 lines — exceeds own 80-150 line recommendation. References section is flat (no descriptions) | Low |
+| # | Skill | Issue | Fix |
+|---|-------|-------|-----|
+| S14 | sc-debug | Rules section partially duplicated (General rules and Operating rules overlap) | Merged into unified Rules section, removed duplicate Operating rules block |
+| S16 | sc-design | Rules section is 56% of file — many rules are taste-based, not verifiable | Added Reading guide preamble: Must/Must not = verifiable, Prefer = guideline |
+| S17 | sc-design | Thai-first rules are locale-specific — should be in a reference file | Added locale-dependent note above Thai-first section |
+| S18 | sc-map | 363 lines — inline plan.json schema is 65 lines — should be a reference file | Extracted schema to `references/map-schema.md` (101 lines); SKILL.md → 296 lines |
+| S19 | sc-map | Phase 2 says "LLM analysis" but says "commander performs" — contradictory | Renamed to ANALYZE (Commander) |
+| S20 | sc-map | References section mentions "Understand-Anything" and "Graphiti" — external tools | Removed external tool refs from Out of scope and References |
+| S21 | sc-mission | 103 lines — thin for a meta-skill | Expanded to 140 lines: +Lifecycle states table, +3 edge cases, +lane detection note |
+| S22 | sc-solid | "Classes < 50 lines, methods < 10 lines" arbitrary threshold | Added inline rationale (SRP, one-screen readability, at-a-glance comprehension) |
+| S23 | sc-git | Minor redundancy between rules sub-sections and checklists | Shortened Post-merge and Review Gate to reference Rules instead of duplicating |
+| S24 | sc-git | Bump policy complexity only in rules, not in workflow step 8 | Added bump policy reference in workflow step 8 (Tag) |
+| S25 | sc-tdd | "After all checks pass → Move to review" is abrupt | Added `/sc-review` trigger connection and gate description |
+| S26 | sc-creator | 201 lines exceeds 80-150 recommendation; references flat | Trimmed to 160 lines; condensed phases; added descriptions to all References entries |
+| S15 | sc-debug | 260 lines — exceeds own length recommendation | Trimmed to 199 lines: removed duplicate mantra in Output, condensed post-mortem structure, tightened ledger format, merged checklist items |
+
+### All skills resolved
+
+0 open skill issues remaining.
 
 ---
 
@@ -57,12 +61,13 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | C5 | sc-start | No hard stop gates, no edge cases | +Edge cases (duplicate mission, no-git warning, empty args) |
 | C6 | sc-build | No Research auto-trigger in dependency check | +Research auto-trigger reference |
 
-### Open
+### Fixed by M07IMLU48 (2026-07-09)
 
-| # | Command | Issue | Priority |
-|---|---------|-------|----------|
-| C10 | All 9 | Only 3/9 have all 4 sections (Pre-flight, Hard Stop Gates, Error Handling, Resolver Gate) | Low |
-| C11 | All 9 | Research auto-trigger is only referenced in 3/9 commands | Low |
+| # | Command | Issue | Fix |
+|---|---------|-------|-----|
+| C10 | All 9 | Only 3/9 have all 4 sections (Pre-flight, Hard Stop Gates, Error Handling, Resolver Gate) | Added Hard Stop Gates to sc-plan, sc-resume, sc-review, sc-ship, sc-start (now 9/9) |
+| C11 | All 9 | Research auto-trigger only referenced in 3/9 commands | Added Research auto-trigger sections to all 9 commands |
+| C12 | sc-git | `/sc-git` between `/sc-plan` and `/sc-build` is 90% boilerplate | sc-build auto-triggers sc-git checks silently; `/sc-git` command removed — git hygiene is fully automatic |
 
 ### Fixed by M07IDBF29 (2026-07-09)
 
@@ -87,13 +92,13 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | A5 | sc-reviewer | No SOLID/code quality checks, no Kalama Sutta gate, no edge cases | +sc-solid integration, +Kalama Sutta gate, +3 edge cases |
 | A6 | sc-designer | No structured sections (bare body text), no edge cases | +Role/Context/Constraints/Edge cases sections, +3 edge cases |
 
-### Open
+### Fixed by M07IMLU48 (2026-07-09)
 
-| # | Agent | Issue | Priority |
-|---|-------|-------|----------|
-| A7 | sc-commander | Auto-triggers section doesn't mention sc-tdd or sc-solid — though they load via sc-* wildcard | Low |
-| A8 | sc-coder | "caveman-style brevity" instruction could be more specific about expected format | Low |
-| A9 | sc-designer | Some rules are extremely locale-specific (Thai-first) — could be a reference, not agent body | Low |
+| # | Agent | Issue | Fix |
+|---|-------|-------|-----|
+| A7 | sc-commander | Auto-triggers section doesn't mention sc-tdd or sc-solid | Added note explaining they load via `sc-*` wildcard, not ambient detection |
+| A8 | sc-coder | "caveman-style brevity" could be more specific | Added concrete before/after example of brevity format |
+| A9 | sc-designer | Thai-first rules are locale-specific | Added locale-dependent note: adapt to user's working language for non-Thai missions |
 
 ---
 
@@ -151,11 +156,11 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | D4 | `sc-web-service` Used By column said only "sc-designer" but sc-coder also has it | Updated to "sc-coder, sc-designer" |
 | D5 | CLI command table missing `current`, `research`, `check-deps`, `help` | Added all 4, restored dropped `archive`/`bind-branch`, alphabetized |
 
-### Open
+### Fixed by M07IMLU48 (2026-07-09)
 
-| # | Issue | Priority |
-|---|-------|----------|
-| D6 | CLI command table still missing some commands from code (minor flags-only variants) | Low |
+| # | Issue | Fix |
+|---|-------|-----|
+| D6 | CLI command table missing `workflow` alias | Added `workflow` alias to `flow` command row; verified all 20 main.go commands are in table |
 
 ### Fixed by M07IG6R17 (2026-07-09)
 
@@ -169,12 +174,12 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 
 | Domain | Total | Fixed | Open |
 |--------|-------|-------|------|
-| Skills | 26 | 13 | 13 |
-| Commands | 11 | 9 | 2 |
-| Agents | 9 | 6 | 3 |
+| Skills | 26 | 26 | 0 |
+| Commands | 12 | 12 | 0 |
+| Agents | 9 | 9 | 0 |
 | Go CLI | 19 | 19 | 0 |
-| Docs | 7 | 6 | 1 |
-| **Total** | **72** | **53** | **19** |
+| Docs | 7 | 7 | 0 |
+| **Total** | **73** | **73** | **0** |
 
 ### Fixed by M07IG6R17 (2026-07-09)
 
@@ -183,3 +188,7 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 ### Fixed by M07IDBF29 (2026-07-09)
 
 14 issues fixed: G4-G14 (Go CLI), C7-C9 (Commands). No high-priority items remain open.
+
+### Fixed by M07IMLU48 (2026-07-09)
+
+20 issues fixed: S14-S26 (Skills), C10-C12 (Commands, /sc-git command removed), A7-A9 (Agents), D6 (Docs). All 73 issues now resolved. sc-learn skill exists (not audited — separate concern).

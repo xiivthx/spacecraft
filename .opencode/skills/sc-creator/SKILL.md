@@ -58,70 +58,29 @@ Six phases — execute in order unless the user specifies otherwise.
 
 ### Phase 3: Wire
 
-1. **Map to agents** — Determine which agents need this skill based on their role:
-   - `sc-coder` — for implementation and code quality skills
-   - `sc-tester` — for testing and verification skills
-   - `sc-planner` — for architecture and planning skills
-   - `sc-reviewer` — for review and quality gate skills
-   - `sc-designer` — for UI and design skills
-   - `sc-commander` — already has `sc-*` wildcard, never needs explicit wiring
-
-2. **Update agent files** — For each relevant agent, add `"sc-<name>": allow` to the `skill.permission` block in `.opencode/agents/<agent>.md`. Insert in alphabetical order among existing entries.
+1. **Map to agents** — Relevant agents by role: sc-coder (implementation/code quality), sc-tester (testing/verification), sc-planner (architecture/planning), sc-reviewer (review/gates), sc-designer (UI/design). sc-commander has `sc-*` wildcard — never needs explicit wiring.
+2. **Update agent files** — Add `"sc-<name>": allow` to `skill.permission` block, alphabetical order.
 
 ### Phase 4: Polish
 
-1. **Spacecraft-native rewrite** — Content must reference spacecraft concepts: missions, `plan.json` tasks, `evidence.jsonl`, `decisions.md`, `spec.md`. Remove generic textbook tone. Every sentence should be operational, not educational.
-
-2. **Remove agent names from skill content** — Skills are passive resources. They describe what to do, never which agent does it. Direction is strictly Commander → skills. Never mention Commander, sc-coder, sc-tester, sc-reviewer, sc-planner, or sc-designer in skill content.
-
-3. **Remove mutual cross-references** — If skill A points to skill B (e.g., Out of scope: "use sc-B"), then skill B must NOT point back to skill A. This creates a loop. Each skill is self-contained; the Commander decides which skills to load together. Concrete example: if sc-solid says "use sc-tdd" and sc-tdd says "use sc-solid", that's a loop — remove both.
-
-4. **Consolidate content** — Single source of truth per domain. If two skills overlap (e.g., both have testing strategy content), move all content into one skill and remove from the other. No duplicated knowledge.
-
-5. **Verify limits** — `description` under 200 chars. SKILL.md typically 80–150 lines (longer for meta-skills is acceptable). References 30–150 lines each. If a reference would exceed 150 lines, split into two reference files.
+1. **Spacecraft-native rewrite** — Reference spacecraft concepts (missions, `plan.json`, `evidence.jsonl`, `decisions.md`, `spec.md`). Operational tone, not educational.
+2. **Remove agent names** — Skills are passive resources. Never mention Commander, sc-coder, sc-tester, sc-reviewer, sc-planner, or sc-designer in skill content.
+3. **Remove mutual cross-references** — No loops between skills. Each skill is self-contained.
+4. **Consolidate content** — Single source of truth per domain. No duplicated knowledge across skills.
+5. **Verify limits** — `description` < 200 chars. SKILL.md 80–150 lines (meta-skills may exceed). References 30–150 lines each.
 
 ### Phase 5: Register
 
-1. **Update command files** — Add `sc-<name>` to the `Use:` line in `.opencode/commands/` for each relevant command:
-   - `/sc-build` — for implementation, testing, and code quality skills
-   - `/sc-review` — for review and quality gate skills
-   - `/sc-plan` — for planning and architecture skills
-   - `/sc-design` — for UI and design skills
-   - Other commands only if the skill is directly relevant to that command's phase
-
-2. **Update SPACECRAFT.md** — Four spots to check and update:
-   - **§Slash commands** (line ~19) — add command name if creating a new command
-   - **§Routing table** (lines ~97-107) — add skill to the command's skill and permission columns
-   - **§Subagent table** (lines ~112-119) — verify each subagent's skill list matches their agent file
-   - **§Skill references table** (lines ~138-152) — add new row: skill name, file path, used by
-
-3. **Go scripts** — No changes needed. Skills are an OpenCode agent-layer concept. The Go CLI handles missions and workflow states, not skill loading.
+1. **Update command files** — Add `sc-<name>` to `Use:` lines in relevant commands: build (impl/test/quality), review (review/gates), plan (planning/architecture), design (UI/design).
+2. **Update SPACECRAFT.md** — Four spots: §Slash commands, §Routing table, §Subagent table, §Skill references table. Add row with skill name, file path, used by.
+3. **Go scripts** — No changes needed. Skills are OpenCode agent-layer; Go CLI handles missions and workflow.
 
 ### Phase 6: Verify
 
-1. **Cross-check system consistency** — Audit these four sources against each other:
-   - Skills on disk (`.opencode/skills/sc-*/SKILL.md` frontmatter `name` fields)
-   - Agent `skill.permission` blocks (`.opencode/agents/*.md`)
-   - Command `Use:` lines (`.opencode/commands/*.md`)
-   - SPACECRAFT.md tables (§Routing, §Subagent, §Skill references)
-
-   Confirm: zero skills referenced that don't exist on disk. Zero skills on disk missing from docs.
-
-2. **Fix inconsistencies** — Common issues to check:
-   - Stale references to skills that don't exist on disk (phantoms)
-   - Skills on disk not listed in SPACECRAFT.md skill references table
-   - Agent files referencing skills not on disk
-   - Command `Use:` lines referencing skills not on disk
-   - `description` fields exceeding 200 chars
-   - Missing `/sc-quick` from slash commands or routing table
-
-3. **Self-review** — Run the new skill's own checklist against itself. Verify all 7 template sections present. Check for accidental agent names or cross-references.
-
-4. **Commit** — Stage only new and intentionally modified files (never bulk-add unrelated dirty files). Use Conventional Commits:
-   ```
-   feat: add sc-<name> skill
-   ```
-   Body: list what was created (SKILL.md lines, reference count), which agents were wired, which commands registered.
+1. **Cross-check system consistency** — Audit skills on disk, agent permissions, command `Use:` lines, and SPACECRAFT.md tables against each other. Confirm: zero phantom refs, zero skills missing from docs.
+2. **Fix common issues** — Stale references, missing SPACECRAFT.md entries, description overflow, missing quick command from command registry.
+3. **Self-review** — Run new skill's own checklist. Verify 7 template sections, no agent names, no cross-reference loops.
+4. **Commit** — Conventional Commits, non-main branch only. Body lists created files, agents wired, commands registered.
 
 ## Rules
 
@@ -137,8 +96,8 @@ Six phases — execute in order unless the user specifies otherwise.
 
 ## Out of scope
 
-- Mission creation — use sc-mission, /sc-start
-- Code implementation — use /sc-build
+- Mission creation — use sc-mission, the start command
+- Code implementation — use the build command
 - Testing — use sc-tdd
 - Git operations — use sc-git
 - UI design — use sc-design
@@ -193,9 +152,5 @@ Before claiming a skill is created:
 
 ## References
 
-- `references/template.md` — canonical skill template with field annotations
-- `.opencode/skills/sc-git/SKILL.md` — reference: complex rules, workflow, checklist
-- `.opencode/skills/sc-verification/SKILL.md` — reference: concise, evidence-driven
-- `.opencode/agents/` — agent config: `skill.permission` blocks
-- `.opencode/commands/` — command config: `Use:` frontmatter
-- `docs/SPACECRAFT.md` — master registry: routing, subagent, skill reference tables
+- `references/template.md` — canonical skill template with field annotations and section requirements
+- `docs/SPACECRAFT.md` — master registry: routing table, subagent table, skill references table

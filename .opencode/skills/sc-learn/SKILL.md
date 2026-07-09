@@ -1,8 +1,9 @@
 ---
 name: sc-learn
 description: >
-  Capture mission knowledge: issues, solutions, and lessons learned. Activate during /sc-ship migration,
+  Capture mission knowledge: issues, solutions, and lessons learned. Activate during ship migration,
   when recording findings during a mission, or on "lesson learned", "what did we learn", "capture knowledge".
+  Also activated during implementation to record issues as discovered.
 license: MIT
 compatibility: opencode
 metadata:
@@ -21,7 +22,8 @@ Activate when the user asks to:
 - **"Record this issue" / "track this bug" / "note this finding"** — during a mission
 - **"Mark as solved" / "this is fixed"** — after resolving an issue
 - **"What did we learn?" / "lesson learned" / "capture knowledge"** — reflection
-- During `/sc-ship` — migrate mission knowledge to global docs before version bump
+- During ship migration — migrate mission knowledge to global docs before version bump
+- During implementation — record issues and lessons as they are discovered
 
 ## Workflow
 
@@ -67,7 +69,7 @@ Activate when the user asks to:
     
     **Distinction**: Solved = specific bugs fixed in this project. Lessons = general truths reusable anywhere. A closeout checker quirk is solved; "verify pre-existing failures before blocking" is a lesson.
 
-### During /sc-ship (migration)
+### During ship (migration)
 
 Before the version bump and changelog commit, run this migration:
 
@@ -100,8 +102,8 @@ See `references/templates.md` for the full file templates. Copy them when creati
 - **Must**: Move issues from `issues.md` to `solved.md` when resolved during the mission.
 - **Must**: Distinguish Solved (specific issues fixed in this project) from Lessons (general principles, transferable to any codebase). If an insight only makes sense in the context of this specific tool, it's a solved issue, not a lesson.
 - **Must**: During migration, reword lesson entries from project-specific context into general principles before writing to `docs/learned.md`.
-- **Must**: During `/sc-ship`, migrate unresolved issues to `docs/issues.md` before the version bump commit.
-- **Must**: During `/sc-ship`, migrate solved and learned items to `docs/learned.md` before the version bump commit.
+- **Must**: During ship, migrate unresolved issues to global issue registry before the version bump commit.
+- **Must**: During ship, migrate solved and learned items to global lessons registry before the version bump commit.
 - **Must not**: Ship with unresolved issues still only in the mission folder — they must be promoted to global docs.
 - **Must not**: Delete mission tracking files after migration — archive them with the mission.
 

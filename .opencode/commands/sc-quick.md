@@ -109,6 +109,10 @@ When ready to ship, do release closeout with streamlined gates:
 
 Produce a summary: mission id, what changed, git branch/merge info, suggested commit message, known limitations, next step.
 
+## Research auto-trigger
+
+When quick-lane changes touch unfamiliar tooling, configuration, or dependency APIs, run `spacecraft research "<topic>"` before committing. Fast lane is not skip-research lane.
+
 ## Hard Stop Gates
 
 - Resolver conflict or ambiguity

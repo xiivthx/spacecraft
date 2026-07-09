@@ -35,7 +35,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Evidence command fails** — Capture the failure as evidence. Do not skip. Fix the issue and re-capture.
 - **Validation fails** — `scripts/spacecraft validate` returns non-zero. Check which acceptance criteria are unmet. Fix before claiming done.
 - **Check cannot be automated** — State why in the evidence label. Mark as `manual`. Document the manual verification steps.
-- **No plan.json exists** — Cannot map evidence to acceptance checks. Ask user to run `/sc-plan` first.
+- **No plan.json exists** — Cannot map evidence to acceptance checks. Ask user to create a plan first.
 - **Evidence already captured for this check** — Re-run to ensure freshness. Never reuse stale evidence.
 
 ## Research auto-trigger
@@ -63,8 +63,8 @@ When a verification command uses an unfamiliar tool or flag, run `spacecraft res
 This skill does NOT handle:
 
 - Automated test execution — use the project's test runner instead
-- Code review or design critique — use sc-reviewer or sc-designer
-- Release readiness verification — use sc-reviewer for full closeout checks
+- Code review or design critique — use sc-review or sc-design
+- Release readiness verification — use sc-review for full closeout checks
 
 ## Output format
 
