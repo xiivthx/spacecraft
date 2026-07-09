@@ -17,6 +17,7 @@ import (
 
 	"spacecraft/internal/archive"
 	"spacecraft/internal/closeout"
+	"spacecraft/internal/compact"
 	"spacecraft/internal/config"
 	"spacecraft/internal/gitutil"
 	"spacecraft/internal/id"
@@ -105,6 +106,8 @@ func main() {
 		exitCode = archiveCmd(args)
 	case "research":
 		exitCode = researchCmd(args)
+	case "compact":
+		exitCode = compactCmd(args)
 	case "check-deps":
 		exitCode = checkDepsCmd(args)
 	case "-h", "--help", "help":
@@ -837,6 +840,148 @@ func archiveCmd(args []string) int {
 	fmt.Printf("Archived mission %s\n", id)
 	fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
 	return 0
+}
+
+// ---------- compact command ----------
+
+func compactCmd(args []string) int {
+	tee := false
+	// Parse --tee flag manually (positional before the command).
+	var remaining []string
+	for _, a := range args {
+		if a == "--tee" {
+			tee = true
+		} else if a == "--help" || a == "-h" {
+			fmt.Print(compactUsage())
+			return 0
+		} else {
+			remaining = append(remaining, a)
+		}
+	}
+
+	if len(remaining) == 0 {
+		fmt.Print(compactUsage())
+		return 0
+	}
+
+	ci := compact.ParseCommand(remaining)
+	filter := autoDetectFilter(ci)
+	runner := compact.NewRunner(remaining, filter)
+	result, err := runner.Run()
+	if err != nil {
+		return fatalErr("compact:", err)
+	}
+
+	// Print compact output.
+	if result.Output != "" {
+		fmt.Print(result.Output)
+		if !strings.HasSuffix(result.Output, "\n") {
+			fmt.Println()
+		}
+	}
+
+	// Tee: save full output on non-zero exit.
+	if tee && result.ExitCode != 0 {
+		teeDir := filepath.Join(cfg.Root(), ".space", "compact")
+		os.MkdirAll(teeDir, 0755)
+		ts := time.Now().UTC().Format("20060102T150405")
+		safeName := safeCompactName(remaining)
+		teePath := filepath.Join(teeDir, ts+"_"+safeName+".log")
+		content := result.Stdout
+		if result.Stderr != "" {
+			content += "\n--- stderr ---\n" + result.Stderr
+		}
+		os.WriteFile(teePath, []byte(content), 0644)
+		fmt.Fprintf(os.Stderr, "\n[full output: %s]\n", rel(teePath))
+	}
+
+	return result.ExitCode
+}
+
+// autoDetectFilter selects the appropriate filter based on command info.
+func autoDetectFilter(ci *compact.CommandInfo) compact.Filter {
+	if ci == nil {
+		return nil
+	}
+	switch ci.Exe {
+	case "git":
+		switch ci.Arg1 {
+		case "status":
+			return &compact.FilterGitStatus{}
+		case "diff":
+			return &compact.FilterGitDiff{}
+		case "log":
+			return &compact.FilterGitLog{}
+		default:
+			return &compact.FilterGeneric{}
+		}
+	case "go":
+		switch ci.Arg1 {
+		case "test":
+			return &compact.FilterGoTest{}
+		case "build":
+			return &compact.FilterGoBuild{}
+		default:
+			return &compact.FilterGeneric{}
+		}
+	case "ls", "dir":
+		return &compact.FilterLs{}
+	case "cat", "type":
+		return &compact.FilterCat{}
+	default:
+		return &compact.FilterGeneric{}
+	}
+}
+
+// safeCompactName creates a filesystem-safe name from command parts.
+func safeCompactName(parts []string) string {
+	if len(parts) == 0 {
+		return "unknown"
+	}
+	name := strings.TrimSpace(parts[0])
+	// Use just the base executable name.
+	if idx := strings.LastIndex(name, "/"); idx >= 0 {
+		name = name[idx+1:]
+	}
+	// Append first arg if present and not a flag.
+	if len(parts) > 1 && len(parts[1]) > 0 && parts[1][0] != '-' {
+		name += "-" + parts[1]
+	}
+	// Sanitize: replace non-alphanumeric with underscore.
+	var sb strings.Builder
+	for _, r := range name {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			sb.WriteRune(r)
+		} else {
+			sb.WriteByte('_')
+		}
+	}
+	result := sb.String()
+	if len(result) > 60 {
+		result = result[:60]
+	}
+	if result == "" {
+		return "unknown"
+	}
+	return result
+}
+
+func compactUsage() string {
+	return `spacecraft compact [--tee] <command> [args...]
+
+Run a command and emit compact, token-optimized output.
+
+Flags:
+  --tee    Save full unfiltered output to .space/compact/ on non-zero exit.
+
+Auto-detected filters:
+  git status, git diff, git log
+  go test, go build
+  ls, cat
+
+All other commands use a generic dedup+truncation filter.
+Exit code is passed through from the child command.
+`
 }
 
 // ---------- research command ----------
