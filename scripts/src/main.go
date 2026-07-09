@@ -53,6 +53,7 @@ func main() {
 	r = resolver.New(store, gitutil.OSCommandRunner{}, nil)
 	ss = state.NewSetter(store)
 	ws = workflow.NewSnapshot(store)
+	ws.SetCommandsDir(filepath.Join(cfg.Root(), ".opencode", "commands"))
 	cc = closeout.NewChecker(store, gitutil.OSCommandRunner{})
 	arc = archive.NewReadinessChecker(store)
 	ar = archive.NewArchiver(store)

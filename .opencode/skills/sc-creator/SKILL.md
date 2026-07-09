@@ -30,7 +30,7 @@ Six phases — execute in order unless the user specifies otherwise.
 
 1. **Identify datasource** — User provides content (`.space/temp/` files, a URL, a description) or Commander researches internally. If domain knowledge is missing, run `spacecraft research "<topic>"` before proceeding.
 
-2. **Read template** — `docs/templates/skill.md`. This is the canonical structure. Always start here — never write a skill from memory.
+2. **Read template** — `references/template.md`. This is the canonical structure. Always start here — never write a skill from memory.
 
 3. **Survey conventions** — Read 1–2 existing skills (e.g., `sc-git/SKILL.md`, `sc-verification/SKILL.md`). Absorb: naming patterns, section tone, cross-reference style, how rules are phrased.
 
@@ -125,7 +125,7 @@ Six phases — execute in order unless the user specifies otherwise.
 
 ## Rules
 
-- **Must**: Start from `docs/templates/skill.md`. Survey 1–2 existing skills for conventions before writing.
+- **Must**: Start from `references/template.md`. Survey 1–2 existing skills for conventions before writing.
 - **Must**: All 7 template sections present. Description under 200 chars with trigger phrases.
 - **Must**: Rewrite datasource content for spacecraft context. Never copy-paste verbatim.
 - **Must**: Delegate detail to references. SKILL.md is operational; references are deep dives.
@@ -148,7 +148,7 @@ Six phases — execute in order unless the user specifies otherwise.
 ```
 Phase 1: Gather
   Datasource: [path / url / research topic]
-  Template: docs/templates/skill.md ✓
+  Template: references/template.md ✓
   Conventions surveyed: [skill names]
 
 Phase 2: Create
@@ -175,7 +175,7 @@ Phase 6: Verify
 
 Before claiming a skill is created:
 
-- [ ] Template (`docs/templates/skill.md`) consulted
+- [ ] Template (`references/template.md`) consulted
 - [ ] 1–2 existing skills surveyed for conventions
 - [ ] Directory created at `.opencode/skills/sc-<name>/`
 - [ ] SKILL.md has all 7 template sections
@@ -193,7 +193,7 @@ Before claiming a skill is created:
 
 ## References
 
-- `docs/templates/skill.md` — canonical skill template with field annotations
+- `references/template.md` — canonical skill template with field annotations
 - `.opencode/skills/sc-git/SKILL.md` — reference: complex rules, workflow, checklist
 - `.opencode/skills/sc-verification/SKILL.md` — reference: concise, evidence-driven
 - `.opencode/agents/` — agent config: `skill.permission` blocks

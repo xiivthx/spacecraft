@@ -108,7 +108,7 @@ Default to handoff. Only closeout on explicit ship/release/merge intent.
 | `/sc-resume` | sc-commander | — | sc-mission | — |
 | `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-verification → allow |
 | `/sc-quick` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
-| `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git | skill: sc-git → allow, sc-verification → allow |
+| `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git, sc-learn | skill: sc-git → allow, sc-verification → allow |
 
 Commander auto-triggers: sc-clarify (on ambiguity), sc-map (before /sc-plan), sc-debug (on error/stack trace), sc-verification (after task implementation).
 
@@ -151,6 +151,7 @@ sc-commander (primary)
 | sc-debug | `.opencode/skills/sc-debug/` | Commander auto-trigger (error/stack trace/debug request) |
 | sc-creator | `.opencode/skills/sc-creator/` | Commander (skill creation workflow) |
 | sc-map | `.opencode/skills/sc-map/` | Commander auto-trigger (before /sc-plan when map.json missing) |
+| sc-learn | `.opencode/skills/sc-learn/` | /sc-ship, Commander (knowledge capture and migration) |
 | sc-tdd | `.opencode/skills/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
 | sc-solid | `.opencode/skills/sc-solid/` | /sc-build, /sc-review, sc-coder, sc-tester, sc-planner, sc-reviewer (SOLID, clean code, architecture) |
 | sc-web-service | `.opencode/skills/sc-web-service/` | sc-coder, sc-designer |
