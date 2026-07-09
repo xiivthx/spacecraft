@@ -53,6 +53,28 @@ func TestNewConfigRelativeRoot(t *testing.T) {
 	}
 }
 
+func TestNewConfigWithOptions(t *testing.T) {
+	cfg, err := NewConfig("/root", WithSpaceDir("/custom/space"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.SpaceDir() != "/custom/space" {
+		t.Errorf("SpaceDir = %q, want %q", cfg.SpaceDir(), "/custom/space")
+	}
+	// Other paths should still be derived from root
+	wantMissions := filepath.Join("/root", ".space", "missions")
+	if cfg.MissionsDir() != wantMissions {
+		t.Errorf("MissionsDir = %q, want %q", cfg.MissionsDir(), wantMissions)
+	}
+	wantArchive := filepath.Join("/root", ".space", "archive")
+	if cfg.ArchiveDir() != wantArchive {
+		t.Errorf("ArchiveDir = %q, want %q", cfg.ArchiveDir(), wantArchive)
+	}
+	if cfg.Root() != "/root" {
+		t.Errorf("Root = %q, want %q", cfg.Root(), "/root")
+	}
+}
+
 func TestConfigMissionDir(t *testing.T) {
 	cfg, _ := NewConfig("/base")
 	md := cfg.MissionDir("M07ABCDEF")
