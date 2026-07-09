@@ -39,17 +39,43 @@ Conventional Commits. Target 1–3 per branch, max 5. Squash WIP before merge. R
 - `evidence.jsonl` — no evidence = not done
 - `map.json` — project survey before planning (in outputs/)
 
-### Lifecycle (normal flow)
+### Development lanes
+
+Commander auto-detects intent and routes to the appropriate lane. No user decision required.
+
+| Lane | Intent | Entry | Workflow |
+|------|--------|-------|----------|
+| 💬 **Advisory** | ask, talk, consult, research | default | direct response |
+| 🚀 **Mission** | add, build, implement, feature | `/sc-start` | full flow — below |
+| 🔧 **Debug** | fix, debug, diagnose, error | `/sc-debug` | 5-step discipline |
+| ⚡ **Quick** | human edits, config, small fix | `/sc-quick` | branch → self-review → ship |
+
+#### Advisory lane (default)
+- Questions, discussion, research, consultation — no mutating work
+- No mission created, no git operations
+- Research auto-trigger still active (`spacecraft research`)
+
+#### Mission lane
 `/sc-start → /sc-design(if UI) → /sc-plan → /sc-git → /sc-build → /sc-review → /sc-ship`
 
-Commander auto-handles clarification, mapping, and verification within these steps.
+- Full artifacts: `spec.md`, `plan.json`, `evidence.jsonl`, `review.md`, `review.json`
+- Commander auto-handles clarification, mapping, verification
+- No implementation before `spec.md` + `plan.json`
+- `/sc-build` loops per task: implement → verify → checkpoint commit
 
-No implementation before `spec.md` + `plan.json`. `/sc-build` loops per task: implement → verify → checkpoint commit, then continues to the next task.
+#### Debug lane
+`/sc-debug` — five-step discipline: reproduce → trace fail path → falsify hypothesis → cross-reference → post-mortem
 
-### Fast lane (`/sc-quick`)
+- Scoped to fix/diagnose. No feature scope creep
+- Evidence captured within debug workflow
+
+#### Quick lane
 `/sc-quick → branch → commit freely → fast self-review → ship`
 
-For small, straightforward changes (prompt tweaks, config, docs, small fixes). Skips spec.md, plan.json, TDD build, formal review, and evidence capture. Keeps git safety, Conventional Commits, changelog, versioning, and no-ff merge. Commander performs a lightweight self-review before ship — no subagent, no review artifacts.
+- For: prompt tweaks, config, docs, small fixes — where full flow is overhead
+- Skips: `spec.md`, `plan.json`, TDD build, formal review, evidence capture
+- Keeps: git safety, Conventional Commits, changelog, versioning, `--no-ff` merge
+- Commander self-review directly — no subagent, no review artifacts
 
 ### Evidence
 ```sh
