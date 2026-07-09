@@ -16,7 +16,7 @@ scripts/spacecraft status           # show resolved mission state
 
 ## Slash commands
 
-`/sc-start` · `/sc-design` · `/sc-plan` · `/sc-git` · `/sc-build` · `/sc-review` · `/sc-resume` · `/sc-ship`
+`/sc-start` · `/sc-design` · `/sc-plan` · `/sc-git` · `/sc-build` · `/sc-review` · `/sc-quick` · `/sc-resume` · `/sc-ship`
 
 ## CLI commands
 
@@ -100,9 +100,10 @@ Default to handoff. Only closeout on explicit ship/release/merge intent.
 | `/sc-design` | sc-commander | sc-designer (read-only) | sc-mission, sc-clarify, sc-design | task: sc-designer → allow; skill: sc-design → allow |
 | `/sc-plan` | sc-commander | sc-planner (read-only) | sc-mission, sc-clarify, sc-planning | task: sc-planner → allow; skill: sc-planning → allow |
 | `/sc-git` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
-| `/sc-build` | sc-commander | sc-coder (write), sc-tester (write) | sc-mission, sc-clarify, sc-git, sc-verification | task: sc-coder → allow, sc-tester → allow; skill: sc-git → allow, sc-verification → allow |
+| `/sc-build` | sc-commander | sc-coder (write), sc-tester (write) | sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, sc-verification | task: sc-coder → allow, sc-tester → allow; skill: sc-git → allow, sc-tdd → allow, sc-solid → allow, sc-verification → allow |
 | `/sc-resume` | sc-commander | — | sc-mission | — |
-| `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-verification → allow |
+| `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-verification → allow |
+| `/sc-quick` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
 | `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git | skill: sc-git → allow, sc-verification → allow |
 
 Commander auto-triggers: sc-clarify (on ambiguity), sc-map (before /sc-plan), sc-debug (on error/stack trace), sc-verification (after task implementation).
@@ -112,11 +113,11 @@ Commander auto-triggers: sc-clarify (on ambiguity), sc-map (before /sc-plan), sc
 | Subagent | mode | skill.permission (allows) | bash.permission (notable) |
 |----------|------|---------------------------|---------------------------|
 | sc-commander | primary | `sc-*` (all skills) | R/W |
-| sc-coder | write | sc-implementation | R/W |
-| sc-tester | write | sc-testing, sc-verification | R/W |
+| sc-coder | write | sc-solid, sc-tdd, sc-web-service | R/W |
+| sc-tester | write | sc-solid, sc-tdd, sc-verification | R/W |
 | sc-designer | read-only | sc-mission, sc-design, sc-web-service | RO |
-| sc-planner | read-only | sc-mission, sc-planning | RO |
-| sc-reviewer | read-only | sc-mission, sc-git, sc-verification | RO |
+| sc-planner | read-only | sc-mission, sc-planning, sc-solid | RO |
+| sc-reviewer | read-only | sc-mission, sc-git, sc-solid, sc-verification | RO |
 
 ### Agent Hierarchy
 
@@ -144,10 +145,11 @@ sc-commander (primary)
 | sc-git | `.opencode/skills/sc-git/` | /sc-git, /sc-build, /sc-review, /sc-ship |
 | sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
 | sc-debug | `.opencode/skills/sc-debug/` | Commander auto-trigger (error/stack trace/debug request) |
+| sc-creator | `.opencode/skills/sc-creator/` | Commander (skill creation workflow) |
 | sc-map | `.opencode/skills/sc-map/` | Commander auto-trigger (before /sc-plan when map.json missing) |
-| sc-implementation | `.opencode/skills/sc-implementation/` | sc-coder |
-| sc-testing | `.opencode/skills/sc-testing/` | sc-tester |
-| sc-web-service | `.opencode/skills/sc-web-service/` | sc-designer |
+| sc-tdd | `.opencode/skills/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
+| sc-solid | `.opencode/skills/sc-solid/` | /sc-build, /sc-review, sc-coder, sc-tester, sc-planner, sc-reviewer (SOLID, clean code, architecture) |
+| sc-web-service | `.opencode/skills/sc-web-service/` | sc-coder, sc-designer |
 
 ### Permission Flow
 

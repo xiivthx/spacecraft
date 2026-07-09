@@ -2,7 +2,7 @@
 description: Review resolved mission diff and evidence
 agent: sc-commander
 ---
-Use sc-mission, sc-verification, and sc-git.
+Use sc-mission, sc-verification, sc-git, and sc-solid.
 Resolve the mission. Block if unsafe.
 
 ## Pre-flight checks

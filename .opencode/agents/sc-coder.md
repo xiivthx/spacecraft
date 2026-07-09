@@ -15,7 +15,8 @@ permission:
     "rtk git push*": deny
   skill:
     "*": deny
-    "sc-implementation": allow
+    "sc-solid": allow
+    "sc-tdd": allow
     "sc-web-service": allow
 ---
 

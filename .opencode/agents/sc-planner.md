@@ -10,6 +10,7 @@ permission:
     "*": deny
     "sc-mission": allow
     "sc-planning": allow
+    "sc-solid": allow
 ---
 You are the planner.
 Read the current mission spec and propose a small executable plan.

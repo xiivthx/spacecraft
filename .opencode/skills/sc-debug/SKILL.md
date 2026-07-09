@@ -1,6 +1,6 @@
 ---
 name: sc-debug
-description: Five-step debugging discipline — reproduce, trace the fail path, falsify the hypothesis, cross-reference every breadcrumb, document the post-mortem. Recite the mantra block verbatim at the start of any debugging session, then apply the five steps in order before proposing any fix. Trigger on /sc-debug and proactively whenever debugging starts — user reports a bug, says something is broken/throwing/failing, asks to debug/diagnose/investigate an issue, or pastes a stack trace or error log.
+description: Five-step debugging discipline. Activate on /sc-debug, errors, stack traces, bugs, or "debug/diagnose/investigate" requests. Reproduce, trace, falsify, cross-reference, post-mortem.
 license: MIT
 compatibility: opencode
 metadata:

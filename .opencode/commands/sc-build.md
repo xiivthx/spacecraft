@@ -4,7 +4,7 @@ agent: sc-commander
 subtask: true
 ---
 
-Use sc-mission, sc-clarify, sc-git, and sc-verification.
+Use sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, and sc-verification.
 Resolve the mission. Block if unsafe.
 
 ## Pre-flight checks

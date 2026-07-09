@@ -10,6 +10,7 @@ permission:
     "*": deny
     "sc-mission": allow
     "sc-git": allow
+    "sc-solid": allow
     "sc-verification": allow
 ---
 
