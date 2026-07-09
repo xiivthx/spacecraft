@@ -29,6 +29,8 @@ scripts/spacecraft git-info
 
 Before code or dependency changes, check official current docs/registry/releases for direct dependencies and framework APIs. Use latest stable direct versions unless a deep dependency, ecosystem pin, or explicit user instruction says otherwise. Record source/version/date when it affects implementation.
 
+When versions or APIs are uncertain, run `spacecraft research "<package> latest version"` before installing. Do not guess dependency versions.
+
 ## Per-task loop
 
 Start from `$ARGUMENTS` task if given, otherwise the first non-completed task in plan.json. For each task:

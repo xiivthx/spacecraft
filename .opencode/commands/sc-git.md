@@ -58,5 +58,18 @@ Apply release branching:
 ## Error handling
 
 - Do not push unless the user explicitly asks.
+- Do not create worktrees, force-push, or run `git init` unless asked.
+- Detached HEAD state: refuse mutating work until a branch is created.
+- Dirty state blocking branch creation: warn user about unrelated changes before creating branch.
+- Branch name collision: if the suggested branch name exists, append a short suffix.
+
+## Hard stop gates
+
+- Write attempt on `main`
+- Detached HEAD during mutating work
+- Uncommitted changes that conflict with the operation
+- Secrets or local env files detected before staging
+- `.gitignore` stale — build outputs, caches, or dependency folders unstaged
+- Verification failure after rebase
 
 End with next action and session advice. If implementation gates are ready, recommend `/sc-build`.

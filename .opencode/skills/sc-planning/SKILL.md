@@ -1,6 +1,6 @@
 ---
 name: sc-planning
-description: Convert a mission spec into a small executable plan with verifiable tasks
+description: Convert a mission spec into a small executable plan with verifiable tasks. Activate on /sc-plan, task planning, or spec decomposition.
 license: MIT
 compatibility: opencode
 metadata:
@@ -10,75 +10,105 @@ metadata:
 
 # sc-planning
 
-Convert a mission spec into a small executable plan with verifiable tasks.
+Convert a mission spec into a small executable plan. Output is `plan.json` with ≤7 verifiable tasks, each with acceptance checks and evidence requirements.
 
 ## When to use
 
 Activate when the user asks to:
 
-- Plan next steps from a spec
-- Create or update a `plan.json`
-- Break a mission into tasks
-- Scope work before implementation
+- **Plan next steps / "create a plan" / "/sc-plan"** — explicit planning
+- **Break the spec into tasks** — task decomposition from `spec.md`
+- **Scope work before implementation** — pre-`/sc-build` task definition
 
 ## Workflow
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Read inputs** — Check the mission's `spec.md`, `questions.md`, `decisions.md`, and `outputs/map.json` (if present) before producing `plan.json`.
-2. **Identify tasks** — Break the spec into ≤7 small, verifiable tasks. Each task needs `id`, `title`, `status`, `files`, `acceptance`, `verify`, and `evidence`.
-3. **Write plan** — Produce or update `plan.json` with status values: `pending`, `in-progress`, `done`, `blocked`.
-4. **Verify** — Ensure the plan is complete before the mission moves to implementation.
+1. **Resolve mission** — `scripts/spacecraft resolve --json`. Block if safety ≠ `safe`.
 
-## Map integration (when `outputs/map.json` exists)
+2. **Read inputs** — Before producing `plan.json`, read:
+   - `spec.md` — what needs to be built
+   - `questions.md` — any open blocking questions
+   - `decisions.md` — recorded choices and assumptions
+   - `outputs/map.json` — project structure survey (if present, see Map integration below)
+   - If a blocking clarification question is open, stop — route to sc-clarify.
 
-If the mission has `outputs/map.json` (produced by `sc-map`), use it to inform task scoping:
+3. **Decompose into tasks** — Break the spec into ≤7 small, verifiable tasks. Each task:
+   - `id` — use the mission's compact sortable ID scheme (`T1`, `T2`, ... or match existing task numbering in the plan)
+   - `title` — imperative, specific (e.g., "Add health check endpoint" not "Implement health")
+   - `status` — start all as `pending`
+   - `files` — exact file paths when known. List only files directly touched. Use map.json touchpoints if available.
+   - `acceptance` — 1–3 concrete checks per task. Verifiable statements, not abstract goals.
+   - `verify` — exact command or description of verification step (e.g., `npm test`, `curl localhost:3000/healthz`)
+   - `evidence` — `scripts/spacecraft evidence "<label>" -- <command>`
 
-- **Touchpoints** — Scope task `files` to files identified as direct touchpoints. Cross-reference with spec intent.
-- **Dependencies.shared** — Flag shared dependencies (>3 consumers) as cross-cutting concerns that may need additional tasks or careful review.
-- **Risk zones** — Warn when a task touches red-zone files (shared utilities, core types). Add explicit acceptance checks for these files.
-- **Layers** — Use layer tags to ensure tasks don't miss side effects across layer boundaries (e.g., a skill change may need corresponding config or docs updates).
+4. **Write plan.json** — Produce `.space/missions/<mission-id>/plan.json`:
+   ```json
+   {
+     "planName": "<short-descriptive-name>",
+     "missionId": "<mission-id>",
+     "tasks": [ ... ]
+   }
+   ```
+   Use `scripts/spacecraft missions` to confirm the mission-id if uncertain.
 
-If `map.json` is missing, proceed without it — `sc-map` is optional input, not a hard gate.
+5. **Verify** — Before claiming done: no task is vague, every acceptance check is testable, every file path is real (check with `ls` or glob), ≤7 tasks.
+
+### Map integration
+
+When `outputs/map.json` exists, use it to scope accurately:
+- **Touchpoints** — Scope task `files` to files identified as direct touchpoints. Cross-reference with spec intent to avoid missing critical paths.
+- **Shared dependencies** — Files with >3 consumers are red-zone. Flag these in task acceptance checks (require extra review or broader test coverage).
+- **Layers** — A change in one layer (e.g., skill SKILL.md) may need corresponding updates in another (e.g., agent permission files, docs). Use layer tags from map.json to catch these side effects.
+
+If `map.json` is missing, proceed without it — it's optional input, not a hard gate.
+
+### Edge cases
+
+- **>7 tasks needed** — Split into sub-plans or defer lower-priority tasks. Record the split in `decisions.md`.
+- **Blocking question open** — Stop and route to sc-clarify. Do not produce `plan.json` with hidden assumptions.
+- **File paths uncertain** — Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
+- **Spec is incomplete** — Flag gaps in `decisions.md`. Plan only what's specified.
+- **Task depends on another task** — Document in task description. Process them in dependency order during `/sc-build`.
 
 ## Rules
 
-- **Must**: Create `plan.json`-ready output.
-- **Must**: Before producing `plan.json`, check `questions.md` and `decisions.md`.
-- **Must not**: Fill gray areas with hidden assumptions.
-- **Must**: Record low-risk assumptions explicitly.
-- **Must**: Blocking product/design decisions require sc-clarify.
-- **Must**: Keep tasks ≤ 7.
-- **Must**: Each task needs `id`, `title`, `status`, `files`, `acceptance`, `verify`, and `evidence`.
-- **Must**: Use status values: `pending`, `in-progress`, `done`, `blocked`.
-- **Must not**: Use vague tasks.
-- **Must**: Include exact files when known.
-- **Must**: Prefer focused tests and build checks.
-- **Must not**: Create broad architecture plans unless the mission explicitly requires it.
+- **Must**: Resolve mission before planning.
+- **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`.
+- **Must**: Stop if a blocking clarification is open — route to sc-clarify.
+- **Must**: ≤7 tasks per plan.
+- **Must**: Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`.
+- **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
+- **Must**: File paths are real — verify with `ls` or glob before writing.
+- **Must not**: Use vague tasks like "improve code" or "add features". Be specific.
+- **Must not**: Fill gray areas with hidden assumptions. Record assumptions explicitly.
+- **Must not**: Create broad architecture plans unless the spec requires it.
 
 ## Out of scope
 
-This skill does NOT handle:
-
-- Design or UI work — use sc-design instead
-- Implementation — use /sc-build or sc-coder
+- Design or UI work — use sc-design
+- Implementation — use /sc-build
 - Verification — use sc-verification
+- Clarification — use sc-clarify
 
 ## Output format
 
-```
+```json
 {
-  "planName": "<short-name>",
-  "missionId": "<mission-id>",
+  "planName": "add-health-endpoint",
+  "missionId": "M07FYB5W5",
   "tasks": [
     {
-      "id": "<task-id>",
-      "title": "<short description>",
-      "status": "pending|in-progress|done|blocked",
-      "files": ["<path1>", "<path2>"],
-      "acceptance": ["<check1>", "<check2>"],
-      "verify": "<verification-command-or-description>",
-      "evidence": "<evidence-capture-command>"
+      "id": "T1",
+      "title": "Add GET /healthz endpoint returning { ok: true }",
+      "status": "pending",
+      "files": ["src/server.ts", "src/server.test.ts"],
+      "acceptance": [
+        "Endpoint responds 200 with { ok: true }",
+        "Test verifies 200 response and body shape"
+      ],
+      "verify": "npm test -- --testPathPattern server.test.ts",
+      "evidence": "scripts/spacecraft evidence \"health-endpoint\" -- npm test -- --testPathPattern server.test.ts"
     }
   ]
 }
@@ -86,21 +116,24 @@ This skill does NOT handle:
 
 ## Checklist
 
-Before claiming the plan is ready:
-
-- [ ] Read `spec.md`, `questions.md`, `decisions.md`, and `outputs/map.json` (if present)
+- [ ] Mission resolved
+- [ ] `spec.md`, `questions.md`, `decisions.md`, `map.json` (if present) read
+- [ ] No blocking clarification open
 - [ ] Plan has ≤7 tasks
-- [ ] Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`
-- [ ] No vague or unverifiable tasks
-- [ ] Assumptions recorded if low-risk
+- [ ] Each task has all 7 required fields
+- [ ] Every acceptance check is verifiable
+- [ ] File paths verified real (not guessed)
+- [ ] Assumptions recorded in `decisions.md` if any
 
 ## Research auto-trigger
 
-When unsure about dependency versions, API compatibility, or best practices during planning, invoke `spacecraft research <query>` to retrieve up-to-date information before committing to a plan.
+When planning tasks that involve unfamiliar APIs, dependencies, or frameworks, run `spacecraft research "<query>"` to verify approach and version compatibility before committing to the plan.
 
 ---
 
 ## References
 
-- `.space/skill-template.md` — section template reference
-- `scripts/spacecraft plan --help` — plan subcommand reference (if available)
+- `spec.md` — mission specification (input)
+- `decisions.md` — recorded choices and assumptions
+- `outputs/map.json` — project structure survey (optional input)
+- `scripts/spacecraft missions` — list missions and confirm IDs

@@ -1,6 +1,6 @@
 ---
 name: sc-git
-description: Enforce git safety, branching, hygiene, Conventional Commits, verification before main, no-ff merge, version bump, changelog/spec update, and release tag policy.
+description: Enforce git safety, branching, Conventional Commits, no-ff merge, versioning, and release tags. Activate on /sc-git, commit, branch, merge, release, or ship.
 license: MIT
 compatibility: opencode
 metadata:
@@ -152,6 +152,10 @@ Before claiming git work is done:
 - [ ] Conventional Commits used
 - [ ] Verification passed after latest rebase
 - [ ] Closeout check passes before release claim
+
+## Research auto-trigger
+
+When git operations involve unfamiliar flags, rebase conflict resolution strategies, or tag/signing conventions, run `spacecraft research "git <topic>"` before executing. Git mistakes are hard to undo — verify the command before running it.
 
 ---
 

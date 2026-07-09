@@ -78,4 +78,12 @@ Then transition state:
 - Do not implement fixes in the same command unless the user explicitly asks.
 - Critical design findings block shipping the same way critical code findings do.
 
+## Edge cases
+
+- **review.json is corrupt or unparseable** — Delete it and regenerate from review.md. Record the corruption in decisions.md.
+- **evidence.jsonl references commands whose output files are missing** — Flag as a critical finding. Evidence without output is invalid.
+- **plan.json has tasks marked done but no matching evidence** — Flag as a critical finding. Every done task needs evidence.
+- **Subagent returns no findings** — This is suspicious. Self-review the diff directly. If clean, record "No findings" in review.md.
+- **UI files changed but no sc-designer subagent available** — Skip UI review. Note the skip in review.md with rationale.
+
 End with next action and session advice. Suggest /sc-ship only when ready.

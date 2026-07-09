@@ -104,10 +104,21 @@ Cycle 1/3: <acceptance check description>
 - [ ] Mocks only at system boundaries
 - [ ] Evidence captured for each passing test suite
 
+### Edge cases
+
+- **Test passes without implementation** — The test is not testing the right thing. Reject and re-write.
+- **Test framework unfamiliar** — Run `spacecraft research "<framework> assertion API"` before writing tests. Wrong assertions produce false confidence.
+- **No acceptance checks in plan.json** — Cannot verify against acceptance criteria. Ask for `/sc-plan` first.
+
+## Research auto-trigger
+
+When writing tests with an unfamiliar framework, assertion library, or mock setup, run `spacecraft research "<framework> test example"` before writing tests. Test code that uses wrong APIs produces misleading red/green signals.
+
 ---
 
 ## References
 
 - `references/examples.md` — good and bad test patterns with detection rules
 - `references/mocking.md` — when to mock, dependency injection, SDK-style interfaces
+- `references/testing-strategy.md` — testing pyramid, test types, AAA pattern, test doubles
 - `references/testing-strategy.md` — testing pyramid, test types, AAA, doubles, contracts

@@ -1,6 +1,6 @@
 ---
 name: sc-map
-description: Survey project structure before planning — map relevant files, dependencies, and risk zones to ensure comprehensive task coverage
+description: Survey project structure before planning — map files, dependencies, and risk zones. Activate on "map project", "survey codebase", or before /sc-plan.
 license: MIT
 compatibility: opencode
 metadata:

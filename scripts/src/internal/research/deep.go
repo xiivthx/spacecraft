@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 // Executor abstracts command lookups and execution so runners can be tested
@@ -192,7 +193,5 @@ func (r *NotebookLMRunner) Analyze(ctx context.Context, query string) (*DeepResu
 
 // nowISO returns the current UTC time in ISO 8601 format.
 func nowISO() string {
-	// Minimal implementation without importing time (to keep the package lean).
-	// The caller can override FetchedAt after receiving the result.
-	return ""
+	return time.Now().UTC().Format(time.RFC3339)
 }

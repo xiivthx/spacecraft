@@ -22,22 +22,26 @@ scripts/spacecraft status           # show resolved mission state
 
 | Command | What it does |
 |---|---|
-| `scripts/spacecraft init` | Create `.space/` structure |
-| `scripts/spacecraft new "<title>"` | Create and select a mission |
-| `scripts/spacecraft missions` | List all missions |
-| `scripts/spacecraft use <selector>` | Select mission by number/id/title |
-| `scripts/spacecraft resolve [--json]` | Resolve active mission |
-| `scripts/spacecraft status` | Print resolved mission state |
-| `scripts/spacecraft flow` | Print workflow readiness |
+| `scripts/spacecraft archive [selector]` | Compact shipped mission |
 | `scripts/spacecraft bind-branch` | Record current branch on mission |
+| `scripts/spacecraft check-deps [path]` | Check dependency freshness |
+| `scripts/spacecraft clarify-status <status>` | Set clarification status |
+| `scripts/spacecraft closeout-check` | Check release readiness |
+| `scripts/spacecraft current` | Print currently active mission |
+| `scripts/spacecraft evidence "<label>" -- <cmd>` | Capture verification evidence |
+| `scripts/spacecraft flow` | Print workflow readiness |
 | `scripts/spacecraft git-info` | Print git status |
 | `scripts/spacecraft git-suggest [type] [slug]` | Suggest branch/commit names |
-| `scripts/spacecraft evidence "<label>" -- <cmd>` | Capture verification evidence |
-| `scripts/spacecraft validate` | Validate mission artifacts |
-| `scripts/spacecraft closeout-check` | Check release readiness |
-| `scripts/spacecraft archive [selector]` | Compact shipped mission |
+| `scripts/spacecraft help` | Show CLI help |
+| `scripts/spacecraft init` | Create `.space/` structure |
+| `scripts/spacecraft missions` | List all missions |
+| `scripts/spacecraft new "<title>"` | Create and select a mission |
+| `scripts/spacecraft research "<query>"` | Search web, registries, and analyze |
+| `scripts/spacecraft resolve [--json]` | Resolve active mission |
 | `scripts/spacecraft set-state <state>` | Set mission state |
-| `scripts/spacecraft clarify-status <status>` | Set clarification status |
+| `scripts/spacecraft status` | Print resolved mission state |
+| `scripts/spacecraft use <selector>` | Select mission by number/id/title |
+| `scripts/spacecraft validate` | Validate mission artifacts |
 
 ## File layout
 

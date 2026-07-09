@@ -1,6 +1,6 @@
 ---
 name: sc-design
-description: Shape, critique, and polish visual/UI design using the project DESIGN.md
+description: Shape, critique, and polish visual/UI design using DESIGN.md. Activate on /sc-design, UI, layout, styling, or visual design requests.
 license: MIT
 compatibility: opencode
 metadata:
@@ -169,6 +169,10 @@ Before claiming design work is ready:
 - [ ] HTML artifacts pass clarity gate
 - [ ] Thai-first labels used when user works in Thai
 - [ ] Art direction not locked without user choice
+
+## Research auto-trigger
+
+When design decisions involve unfamiliar UI patterns, accessibility standards, or framework capabilities, run `spacecraft research "<topic>"` before committing to a design direction. For CSS/HTML-specific questions, prefer MDN or framework docs over general web search.
 
 ---
 
