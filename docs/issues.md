@@ -152,6 +152,7 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | # | Issue | Priority |
 |---|-------|----------|
 | D6 | CLI command table still missing some commands from code (minor flags-only variants) | Low |
+| D7 | Commander session handoff recommends skills as user-facing slash commands (e.g. `/sc-map`) — skills are auto-triggered, not user commands | Medium |
 
 ---
 
@@ -163,8 +164,8 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | Commands | 11 | 6 | 5 |
 | Agents | 9 | 6 | 3 |
 | Go CLI | 19 | 3 | 16 |
-| Docs | 6 | 5 | 1 |
-| **Total** | **71** | **33** | **38** |
+| Docs | 7 | 5 | 2 |
+| **Total** | **72** | **33** | **39** |
 
 ### Open high-priority items
 
