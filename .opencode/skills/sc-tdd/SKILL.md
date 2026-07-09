@@ -121,4 +121,3 @@ When writing tests with an unfamiliar framework, assertion library, or mock setu
 - `references/examples.md` — good and bad test patterns with detection rules
 - `references/mocking.md` — when to mock, dependency injection, SDK-style interfaces
 - `references/testing-strategy.md` — testing pyramid, test types, AAA pattern, test doubles
-- `references/testing-strategy.md` — testing pyramid, test types, AAA, doubles, contracts
