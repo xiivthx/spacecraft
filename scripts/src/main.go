@@ -263,7 +263,10 @@ func resolveCmd(args []string) int {
 		enc.SetEscapeHTML(false)
 		enc.SetIndent("", "  ")
 		enc.Encode(out)
-		return 0
+		if out.Selected != nil {
+			return 0
+		}
+		return 1
 	}
 	if out.Selected != nil {
 		fmt.Printf("Mission: %s\n", out.Selected.ID)
@@ -701,7 +704,7 @@ func evidenceCmd(args []string) int {
 	}
 	fmt.Printf("Evidence: %s\n", eid)
 	fmt.Printf("Exit code: %d\n", result.code)
-	return result.code
+	return 0
 }
 
 type execResult struct {
@@ -840,14 +843,15 @@ func archiveCmd(args []string) int {
 func researchCmd(args []string) int {
 	// Parse flags manually since Go's flag package doesn't support dashes in flag names.
 	var (
-		scope   string
-		deep    string
-		results int    = 5
+		scope    string
+		deepMode string
+		results  int = 5
 		timeout       = 10 * time.Second
-		jsonOut bool
-		noSave  bool
+		jsonOut  bool
+		noSave   bool
 	)
 	parsed := 0
+	argsConsumed := false
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		switch {
@@ -856,11 +860,11 @@ func researchCmd(args []string) int {
 		case strings.HasPrefix(a, "--scope="):
 			scope = a[len("--scope="):]; parsed++
 		case a == "--deep" && i+1 < len(args) && !strings.HasPrefix(args[i+1], "--"):
-			i++; deep = args[i]; parsed++
+			i++; deepMode = args[i]; parsed++
 		case strings.HasPrefix(a, "--deep="):
-			deep = a[len("--deep="):]; parsed++
+			deepMode = a[len("--deep="):]; parsed++
 		case a == "--deep":
-			deep = "true"; parsed++
+			deepMode = "true"; parsed++
 		case a == "--results" && i+1 < len(args):
 			i++; n, err := strconv.Atoi(args[i])
 			if err == nil && n > 0 { results = n }; parsed++
@@ -882,11 +886,15 @@ func researchCmd(args []string) int {
 			return 0
 		default:
 			args = args[i:]
-			goto parseDone
+			argsConsumed = true
+		}
+		if argsConsumed {
+			break
 		}
 	}
-	args = nil
-parseDone:
+	if !argsConsumed {
+		args = nil
+	}
 
 	if len(args) == 0 {
 		return printErr("Missing query.\n\n" + researchUsage())
@@ -899,8 +907,8 @@ parseDone:
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	if deep != "" && deep != "true" && deep != "nlm" {
-		return fatalErr("Invalid --deep value:", deep, "(expected 'true' or 'nlm')")
+	if deepMode != "" && deepMode != "true" && deepMode != "nlm" {
+		return fatalErr("Invalid --deep value:", deepMode, "(expected 'true' or 'nlm')")
 	}
 
 	var (
@@ -913,92 +921,94 @@ parseDone:
 
 	// Determine if the query looks like a package identifier.
 	// Simple heuristic: single token, no spaces, common package patterns.
+	pkgFound := false
 	if isPackageQuery(query) {
 		// Try registry lookup across all registries.
 		pkg, src := lookupPackage(ctx, query, timeout)
 		if pkg != nil {
 			outputResults = pkg
 			outputSource = src
-			goto output
+			pkgFound = true
 		}
 		// Registry lookup failed — fall through to Brave Search.
 	}
 
-	// Scope detection.
-	{
-		detectedScope := scope
-		if detectedScope == "" {
-			// Auto-detect from query + project manifests.
-			manifests := detectManifests()
-			detectedScope = research.SmartScope(query, manifests)
-		}
-		outputScope = detectedScope
-
-		// Load scope config once (built-in defaults + .space/scopes.json override).
-		scopeCfg, err := research.LoadScopes(filepath.Join(cfg.Root(), ".space", "scopes.json"))
-		if err != nil {
-			return fatalErr("Failed to load search scopes:", err)
-		}
-
-		// Validate custom scope against known scopes.
-		if scope != "" && detectedScope != "" {
-			if _, ok := scopeCfg.Scopes[detectedScope]; !ok {
-				return fatalErr(fmt.Sprintf("Unknown scope: %q", scope))
+	if !pkgFound {
+		// Scope detection.
+		{
+			detectedScope := scope
+			if detectedScope == "" {
+				// Auto-detect from query + project manifests.
+				manifests := detectManifests()
+				detectedScope = research.SmartScope(query, manifests)
 			}
-		}
+			outputScope = detectedScope
 
-		// Get Brave Search API key.
-		apiKey := os.Getenv("SPACECRAFT_BRAVE_API_KEY")
-		if apiKey == "" {
-			return fatalErr("SPACECRAFT_BRAVE_API_KEY environment variable is not set. Get a key at https://brave.com/search/api/")
-		}
-
-		// Build domain list from scope config.
-		var domains []string
-		if detectedScope != "" {
-			if s, ok := scopeCfg.Scopes[detectedScope]; ok {
-				domains = s.Domains
+			// Load scope config once (built-in defaults + .space/scopes.json override).
+			scopeCfg, err := research.LoadScopes(filepath.Join(cfg.Root(), ".space", "scopes.json"))
+			if err != nil {
+				return fatalErr("Failed to load search scopes:", err)
 			}
-		}
 
-		brave := research.NewBraveClient(apiKey, "https://api.search.brave.com")
-		searchResults, err := brave.Search(ctx, query, domains, results)
-		if err != nil {
-			return fatalErr("Brave Search error:", err)
-		}
-
-		// Truncate to --results limit.
-		if len(searchResults) > results {
-			searchResults = searchResults[:results]
-		}
-
-		outputResults = searchResults
-		outputSource = "brave-search"
-
-		// Deep analysis: if --deep is set, analyze the top result URL.
-		if deep != "" && len(searchResults) > 0 {
-			topURL := searchResults[0].URL
-			deepResult, deepErr := runDeepAnalysis(ctx, topURL, query, deep, timeout)
-			if deepErr != nil {
-				fmt.Fprintf(os.Stderr, "Deep analysis warning: %v\n", deepErr)
-			} else {
-				outputDeep = deepResult
+			// Validate custom scope against known scopes.
+			if scope != "" && detectedScope != "" {
+				if _, ok := scopeCfg.Scopes[detectedScope]; !ok {
+					return fatalErr(fmt.Sprintf("Unknown scope: %q", scope))
+				}
 			}
-			switch deep {
-			case "true":
-				outputMethod = "browser-use"
-			case "nlm":
-				outputMethod = "nlm"
-			}
-		}
 
-		if len(searchResults) == 0 {
-			fmt.Println("No results found.")
-			return 1
+			// Get Brave Search API key.
+			apiKey := os.Getenv("SPACECRAFT_BRAVE_API_KEY")
+			if apiKey == "" {
+				return fatalErr("SPACECRAFT_BRAVE_API_KEY environment variable is not set. Get a key at https://brave.com/search/api/")
+			}
+
+			// Build domain list from scope config.
+			var domains []string
+			if detectedScope != "" {
+				if s, ok := scopeCfg.Scopes[detectedScope]; ok {
+					domains = s.Domains
+				}
+			}
+
+			brave := research.NewBraveClient(apiKey, "https://api.search.brave.com")
+			searchResults, err := brave.Search(ctx, query, domains, results)
+			if err != nil {
+				return fatalErr("Brave Search error:", err)
+			}
+
+			// Truncate to --results limit.
+			if len(searchResults) > results {
+				searchResults = searchResults[:results]
+			}
+
+			outputResults = searchResults
+			outputSource = "brave-search"
+
+			// Deep analysis: if --deep is set, analyze the top result URL.
+			if deepMode != "" && len(searchResults) > 0 {
+				topURL := searchResults[0].URL
+				deepResult, deepErr := runDeepAnalysis(ctx, topURL, query, deepMode, timeout)
+				if deepErr != nil {
+					fmt.Fprintf(os.Stderr, "Deep analysis warning: %v\n", deepErr)
+				} else {
+					outputDeep = deepResult
+				}
+				switch deepMode {
+				case "true":
+					outputMethod = "browser-use"
+				case "nlm":
+					outputMethod = "nlm"
+				}
+			}
+
+			if len(searchResults) == 0 {
+				fmt.Println("No results found.")
+				return 1
+			}
 		}
 	}
 
-output:
 	// Determine persistence directory.
 	persistDir := ""
 	if !noSave {
@@ -1044,8 +1054,8 @@ output:
 
 // runDeepAnalysis invokes the deep-research backend for a single URL.
 // deep: "true" = browser-use, "nlm" = notebooklm-mcp-cli.
-func runDeepAnalysis(ctx context.Context, url, query, deep string, timeout time.Duration) (*research.DeepResult, error) {
-	switch deep {
+func runDeepAnalysis(ctx context.Context, url, query, deepMode string, timeout time.Duration) (*research.DeepResult, error) {
+	switch deepMode {
 	case "true":
 		runner := research.NewBrowserUseRunner(&research.OSExecutor{})
 		if !runner.IsAvailable() {
@@ -1064,7 +1074,7 @@ func runDeepAnalysis(ctx context.Context, url, query, deep string, timeout time.
 		defer cancel()
 		return runner.Analyze(deepCtx, query)
 	default:
-		return nil, fmt.Errorf("unknown deep mode: %s", deep)
+		return nil, fmt.Errorf("unknown deep mode: %s", deepMode)
 	}
 }
 
@@ -1120,6 +1130,7 @@ func lookupPackage(ctx context.Context, query string, timeout time.Duration) (*r
 			return pkg, c.name
 		}
 	}
+	fmt.Fprintf(os.Stderr, "No registry match for package query %q (tried: npm, go, pypi, crates)\n", query)
 	return nil, ""
 }
 
@@ -1257,15 +1268,12 @@ func checkDepsCmd(args []string) int {
 
 	// Collect results in original order.
 	ordered := make([]depWithSource, len(flatDeps))
-	hasUpdates := false
 	hasErrors := false
 	for range flatDeps {
 		r := <-resultCh
 		ordered[r.index] = r.depWithSource
 		if r.err {
 			hasErrors = true
-		} else if r.depWithSource.UpgradeType != "current" {
-			hasUpdates = true
 		}
 	}
 	allDeps := ordered
@@ -1311,9 +1319,6 @@ func checkDepsCmd(args []string) int {
 	}
 
 	if hasErrors {
-		return 2
-	}
-	if hasUpdates {
 		return 1
 	}
 	return 0
@@ -1564,12 +1569,12 @@ func printErr(v ...interface{}) int {
 	return 1
 }
 
-// fatalErr prints the error to stderr and returns exit code 2 per spec.
-// Use for: missing API key, Brave failure, unknown scope, --deep unavailable,
+// fatalErr prints the error to stderr and returns exit code 1.
+// Use for: missing API key, Brave failure, unknown scope, --deep mode unavailable,
 // check-deps errors, and other operational errors.
 func fatalErr(v ...interface{}) int {
 	fmt.Fprintln(os.Stderr, v...)
-	return 2
+	return 1
 }
 
 // ID normalization

@@ -49,20 +49,20 @@ func TestResearchCmdBlankQuery(t *testing.T) {
 	}
 }
 
-// TestResearchCmdMissingAPIKey verifies exit code 2 for missing API key.
+// TestResearchCmdMissingAPIKey verifies non-zero exit code for missing API key.
 func TestResearchCmdMissingAPIKey(t *testing.T) {
 	os.Unsetenv("SPACECRAFT_BRAVE_API_KEY")
 	exit := researchCmd([]string{"test query"})
-	if exit != 2 {
-		t.Errorf("researchCmd() without SPACECRAFT_BRAVE_API_KEY returned %d, want 2", exit)
+	if exit != 1 {
+		t.Errorf("researchCmd() without SPACECRAFT_BRAVE_API_KEY returned %d, want 1", exit)
 	}
 }
 
-// TestResearchCmdInvalidDeep verifies exit code 2 for invalid --deep value.
+// TestResearchCmdInvalidDeep verifies non-zero exit code for invalid --deep value.
 func TestResearchCmdInvalidDeep(t *testing.T) {
 	exit := researchCmd([]string{"--deep", "invalid", "test"})
-	if exit != 2 {
-		t.Errorf("researchCmd() with --deep=invalid returned %d, want 2", exit)
+	if exit != 1 {
+		t.Errorf("researchCmd() with --deep=invalid returned %d, want 1", exit)
 	}
 }
 
@@ -74,21 +74,21 @@ func TestResearchCmdHelpWithJSON(t *testing.T) {
 	}
 }
 
-// TestResearchCmdExitCodesMapping verifies the three exit code classes:
-// 0 = success/help, 1 = usage/no results, 2 = error.
+// TestResearchCmdExitCodesMapping verifies exit code classes:
+// 0 = success/help, 1 = error/usage.
 func TestResearchCmdExitCodesMapping(t *testing.T) {
 	// Exit 0: --help
 	if e := researchCmd([]string{"--help"}); e != 0 {
 		t.Errorf("--help: got %d, want 0", e)
 	}
-	// Exit 2: missing API key (operational error)
+	// Exit 1: missing API key (operational error)
 	os.Unsetenv("SPACECRAFT_BRAVE_API_KEY")
-	if e := researchCmd([]string{"query"}); e != 2 {
-		t.Errorf("missing API key: got %d, want 2", e)
+	if e := researchCmd([]string{"query"}); e != 1 {
+		t.Errorf("missing API key: got %d, want 1", e)
 	}
-	// Exit 2: invalid --deep value
-	if e := researchCmd([]string{"--deep", "bad", "query"}); e != 2 {
-		t.Errorf("invalid --deep: got %d, want 2", e)
+	// Exit 1: invalid --deep value
+	if e := researchCmd([]string{"--deep", "bad", "query"}); e != 1 {
+		t.Errorf("invalid --deep: got %d, want 1", e)
 	}
 }
 
@@ -100,11 +100,11 @@ func TestCheckDepsCmdHelp(t *testing.T) {
 	}
 }
 
-// TestCheckDepsCmdUnknownRegistry verifies exit code 2 for unknown --registry.
+// TestCheckDepsCmdUnknownRegistry verifies exit code 1 for unknown --registry.
 func TestCheckDepsCmdUnknownRegistry(t *testing.T) {
 	exit := checkDepsCmd([]string{"--registry", "nonexistent", "--timeout", "1s"})
-	if exit != 2 {
-		t.Errorf("checkDepsCmd() with unknown registry returned %d, want 2", exit)
+	if exit != 1 {
+		t.Errorf("checkDepsCmd() with unknown registry returned %d, want 1", exit)
 	}
 }
 
@@ -162,11 +162,11 @@ func TestCompareNumericVersions(t *testing.T) {
 	}
 }
 
-// TestFatalErr verifies fatalErr returns exit code 2.
+// TestFatalErr verifies fatalErr returns exit code 1.
 func TestFatalErr(t *testing.T) {
 	code := fatalErr("test error")
-	if code != 2 {
-		t.Errorf("fatalErr() = %d, want 2", code)
+	if code != 1 {
+		t.Errorf("fatalErr() = %d, want 1", code)
 	}
 }
 
