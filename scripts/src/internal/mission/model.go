@@ -127,13 +127,6 @@ type CandidateInfo struct {
 	Number *int `json:"number"`
 }
 
-// GitInfo stores git state at resolution time.
-type GitInfo struct {
-	Branch string `json:"branch"`
-	Sha    string `json:"sha"`
-	IsRepo bool   `json:"isRepo"`
-}
-
 // ResolveOutput is the complete result of mission resolution.
 type ResolveOutput struct {
 	Selected         *MissionInfo    `json:"selected"`
@@ -143,7 +136,7 @@ type ResolveOutput struct {
 	Conflicts        []ConflictInfo  `json:"conflicts"`
 	Candidates       []CandidateInfo `json:"candidates"`
 	CurrentMissionId *string         `json:"currentMissionId"`
-	Git              GitInfo         `json:"git"`
+	Git              GitInfoData     `json:"git"`
 }
 
 // TasksSummary summarizes plan task completion.

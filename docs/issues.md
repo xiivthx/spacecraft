@@ -105,7 +105,16 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 |---|------|-------|-----|
 | G1 | research/deep.go | `nowISO()` always returned empty string — all deep analysis results lost their timestamp | Added `time` import, returns `time.Now().UTC().Format(time.RFC3339)` |
 | G2 | resolver/resolver.go | Duplicate ID normalization — same regex as util/slug.go | Confirmed intentional (comment: "moved from util.go to avoid circular dep"). No fix needed. |
-| G3 | archive/archive.go | Third copy of ID normalization (`normalizeMissionIdSimple`) | Open — could unify with util but has slightly different behavior |
+### Fixed by M07IG6R17 (2026-07-09)
+
+| # | File | Issue | Fix |
+|---|------|-------|-----|
+| G3 | archive/archive.go | Third copy of ID normalization (`normalizeMissionIdSimple`) | Unified with `util.NormalizeMissionId` |
+| G15 | config/config.go | `NewConfig(root)` only — no ability to override individual paths | Added `ConfigOption` functional options |
+| G16 | types.go | 33 lines of backward-compat type aliases | Removed all 22 aliases |
+| G17 | mission/model.go | `GitInfoData` and `GitInfo` — similar but different structures | Consolidated into `GitInfoData` (additive superset) |
+| G18 | gitutil/git.go:70 | `NoopRunner` misleading name — actually runs OS commands | Renamed to `DefaultRunner` |
+| G19 | main.go | Manual flag parsing loop in `check-deps` and `research` | Replaced with `flag.NewFlagSet` |
 
 ### Fixed by M07IDBF29 (2026-07-09)
 
@@ -127,11 +136,6 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 
 | # | File | Issue | Priority |
 |---|------|-------|----------|
-| G15 | config/config.go | `NewConfig(root)` only — no ability to override individual paths. All paths derived from `root` alone. Testing forced to use temp directories. | 🟢 Low |
-| G16 | types.go | 33 lines of backward-compat type aliases — could be removed now that refactoring is complete. | 🟢 Low |
-| G17 | mission/model.go | `GitInfoData` and `GitInfo` — similar but different structures. `GitInfoData` has `Available`, `Dirty`, `DirtyFiles`; `GitInfo` only has `Branch`, `Sha`, `IsRepo`. | 🟢 Low |
-| G18 | gitutil/git.go:70 | `NoopRunner` is misleading — declared as `var NoopRunner CommandRunner = OSCommandRunner{}` but `OSCommandRunner` actually runs real OS commands. No actual noop implementation exists. | 🟢 Low |
-| G19 | main.go | `check-deps` and `research` flag parsing uses manual loop instead of `flag` package. Comment says "Go's flag package doesn't support dashes" — incorrect; `flag.String()` does support dashes. | 🟢 Low |
 
 ---
 
@@ -152,7 +156,12 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | # | Issue | Priority |
 |---|-------|----------|
 | D6 | CLI command table still missing some commands from code (minor flags-only variants) | Low |
-| D7 | Commander session handoff recommends skills as user-facing slash commands (e.g. `/sc-map`) — skills are auto-triggered, not user commands | Medium |
+
+### Fixed by M07IG6R17 (2026-07-09)
+
+| # | Issue | Fix |
+|---|-------|-----|
+| D7 | Commander session handoff recommends skills as user-facing slash commands (e.g. `/sc-map`) — skills are auto-triggered, not user commands | Clarified auto-trigger skills vs user slash commands in PERSONA.md handoff section |
 
 ---
 
@@ -163,9 +172,13 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 | Skills | 26 | 13 | 13 |
 | Commands | 11 | 9 | 2 |
 | Agents | 9 | 6 | 3 |
-| Go CLI | 19 | 14 | 5 |
-| Docs | 7 | 5 | 2 |
-| **Total** | **72** | **47** | **25** |
+| Go CLI | 19 | 19 | 0 |
+| Docs | 7 | 6 | 1 |
+| **Total** | **72** | **53** | **19** |
+
+### Fixed by M07IG6R17 (2026-07-09)
+
+7 issues fixed: G3, G15-G19 (Go CLI), D7 (Docs). No Go CLI issues remain open.
 
 ### Fixed by M07IDBF29 (2026-07-09)
 

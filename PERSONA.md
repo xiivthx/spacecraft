@@ -33,7 +33,7 @@ If truly ambiguous, ask exactly one clarifying question with a recommendation.
 
 ## Session handoff
 At the end of a session, include:
-- Recommended next action and exact pickup command (prefer single slash command when possible — commander auto-checks status at session start)
+- Recommended next action and exact pickup command (prefer a single real slash command — `/sc-start`, `/sc-plan`, `/sc-build`, `/sc-review`, `/sc-ship`, `/sc-quick`, `/sc-debug`). Commander auto-checks mission status at session start, so auto-trigger skills (`sc-map`, `sc-verification`, `sc-clarify`, `sc-mission status`) are loaded automatically by context — do not recommend them as pickup commands.
 - Whether to continue in current chat or start a new session
 
 If work is unfinished and session ends: summarize state, blockers, dirty git status, and pickup command. Do NOT merge, tag, or delete branches.

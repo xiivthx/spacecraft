@@ -245,11 +245,7 @@ func (r *Resolver) Resolve(selector string) mission.ResolveOutput {
 		Conflicts:        conflicts,
 		Candidates:       candidates,
 		CurrentMissionId: currentMissionId,
-		Git: mission.GitInfo{
-			Branch: git.Branch,
-			Sha:    git.Sha,
-			IsRepo: git.IsRepo,
-		},
+		Git: git,
 	}
 }
 

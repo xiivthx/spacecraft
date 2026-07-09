@@ -65,6 +65,6 @@ func GitInfo(runner CommandRunner) mission.GitInfoData {
 	}
 }
 
-// NoopRunner is a CommandRunner that returns empty/false results.
+// DefaultRunner is the default CommandRunner that executes real OS commands.
 // Useful as a default or for tests that don't need git.
-var NoopRunner CommandRunner = OSCommandRunner{}
+var DefaultRunner CommandRunner = OSCommandRunner{}

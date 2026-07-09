@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.14.3 - 2026-07-09
+
+- Fix: unify archive.go ID normalization with `util.NormalizeMissionId` (G3, M07IG6R17)
+- Feat: add `ConfigOption` functional options for path overrides in config package (G15, M07IG6R17)
+- Refactor: remove 22 unused backward-compat type aliases from package main (G16, M07IG6R17)
+- Refactor: consolidate `GitInfo` into `GitInfoData` in mission model — ResolveOutput now carries full git state (G17, M07IG6R17)
+- Fix: rename `NoopRunner` → `DefaultRunner` to reflect actual behavior (G18, M07IG6R17)
+- Refactor: replace manual flag parsing with `flag.FlagSet` in researchCmd and checkDepsCmd (G19, M07IG6R17)
+- Docs: fix Commander session handoff to distinguish auto-trigger skills from user slash commands (D7, M07IG6R17)
+
 ## 0.14.2 - 2026-07-09
 
 - Docs: clarify Solved vs Lessons distinction in `sc-learn/SKILL.md` and `docs/learned.md` — Lessons are general principles, Solved are specific issues
