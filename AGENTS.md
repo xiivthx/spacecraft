@@ -2,6 +2,8 @@
 
 Local-first mission-control harness for OpenCode-driven development.
 
+> **Read together with [`PERSONA.md`](./PERSONA.md)** — lane decisions, commander behavior, self-review, and release rules live there. Always check both files.
+
 ## Structure
 
 ```
@@ -90,7 +92,7 @@ Rebase → verify → `git merge --no-ff` → tag → delete branch → archive.
 |------|------|
 | `scripts/spacecraft` | CLI |
 | `AGENTS.md` | Project conventions (this file) |
-| `PERSONA.md` | Commander behavior, handoff, release rules |
+| `PERSONA.md` | Commander persona, lane detection, session handoff, release rules — **always read with AGENTS.md** |
 | `opencode.json` | Agent config, permissions, models |
 | `DESIGN.md` | UI/visual design discipline |
 
