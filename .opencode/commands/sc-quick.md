@@ -15,6 +15,21 @@ Use `/sc-quick` for small, straightforward changes that don't need detailed spec
 
 Do NOT use for: new features with unknown scope, multi-file refactors, UI changes, API integrations, or anything needing design review.
 
+## Pre-flight Checks
+
+Resolve the mission. Block if unsafe.
+
+Run:
+```
+scripts/spacecraft git-info
+```
+
+### Git safety
+
+- If the workspace is not a git worktree, stop before editing product files unless the user has explicitly accepted no-git implementation risk for this mission in decisions.md.
+- If git exists, inspect dirty state before edits. Work with user changes; do not revert unrelated changes.
+- Use sc-git for branch naming, branch creation, checkpoint commits, .gitignore hygiene, and staging safety checks.
+
 ## Workflow
 
 ### 1. Mission stub
@@ -93,6 +108,16 @@ When ready to ship, do release closeout with streamlined gates:
 - [ ] Mission archived
 
 Produce a summary: mission id, what changed, git branch/merge info, suggested commit message, known limitations, next step.
+
+## Hard Stop Gates
+
+- Resolver conflict or ambiguity
+- Write attempt on `main`
+- Dirty/untracked files that cannot be safely attributed to the current task
+- Unsafe files or secrets before staging
+- Self-review finding critical issues
+- Release actions requiring `/sc-ship`
+- Context is too heavy for safe continuation; give handoff instead
 
 ## Error handling
 
