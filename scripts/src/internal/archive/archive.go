@@ -380,7 +380,7 @@ func clearArchivedMissionSelection(id string, store mission.MissionStore) {
 		}
 		path := filepath.Join(sessionsDir, entry.Name())
 		content, _ := os.ReadFile(path)
-		sessId := normalizeMissionIdSimple(strings.TrimSpace(string(content)))
+		sessId := util.NormalizeMissionId(string(content))
 		if sessId != nil && *sessId == id {
 			os.WriteFile(path, []byte(""), 0644)
 		}
@@ -395,14 +395,6 @@ func jsonMarshal(v interface{}) ([]byte, error) {
 		return nil, err
 	}
 	return buf.Bytes(), nil
-}
-
-func normalizeMissionIdSimple(value string) *string {
-	text := strings.TrimSpace(value)
-	if text == "" {
-		return nil
-	}
-	return &text
 }
 
 func isoNow() string {
