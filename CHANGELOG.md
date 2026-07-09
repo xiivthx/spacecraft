@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.1 - 2026-07-09
+
+- Chore: expand Commander shell command permissions via rtk proxy allow rules — git fetch, git merge-base, git rev-list, git rev-parse, git cat-file, git show, go test, nlm, python3 (M07HN2B5J)
+
 ## 0.12.0 - 2026-07-08
 
 - Feat: add `spacecraft research <query>` subcommand — internet research via Brave Search API with config-driven search scopes and package registry lookups (Go, npm, PyPI, crates.io)
