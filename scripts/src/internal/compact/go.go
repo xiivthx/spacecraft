@@ -1,6 +1,7 @@
 package compact
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -13,10 +14,8 @@ func (FilterGoTest) Apply(stdout string) string {
 	lines := strings.Split(stdout, "\n")
 
 	type failure struct {
-		name    string
-		pkg     string
-		elapsed string
-		output  []string
+		name   string
+		output []string
 	}
 
 	var failures []failure
@@ -129,10 +128,10 @@ func (FilterGoTest) Apply(stdout string) string {
 		if finalStatus != "" {
 			result.WriteString(finalStatus)
 		} else if failCount > 0 {
-			result.WriteString("FAIL: ")
-			result.WriteString(intToStr(failCount))
-			result.WriteString("/")
-			result.WriteString(intToStr(passCount + failCount))
+		result.WriteString("FAIL: ")
+		result.WriteString(strconv.Itoa(failCount))
+		result.WriteString("/")
+		result.WriteString(strconv.Itoa(passCount + failCount))
 			result.WriteString(" tests")
 		} else {
 			result.WriteString("ok")
@@ -204,20 +203,3 @@ func extractTestName(line, prefix string) string {
 	return name
 }
 
-func intToStr(n int) string {
-	if n < 0 {
-		return "0"
-	}
-	const digits = "0123456789"
-	if n == 0 {
-		return "0"
-	}
-	var buf [20]byte
-	i := len(buf)
-	for n > 0 {
-		i--
-		buf[i] = digits[n%10]
-		n /= 10
-	}
-	return string(buf[i:])
-}

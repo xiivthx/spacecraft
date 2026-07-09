@@ -7,6 +7,7 @@ package compact
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -67,6 +68,7 @@ func (r *Runner) Run() (*Result, error) {
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	cmd.Stdin = os.Stdin
 
 	err := cmd.Run()
 

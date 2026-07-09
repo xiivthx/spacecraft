@@ -142,6 +142,7 @@ Usage:
   spacecraft archive [selector]
   spacecraft research <query> [flags]
   spacecraft check-deps [flags]
+  spacecraft compact [--tee] <command> [args...]
 `
 }
 
