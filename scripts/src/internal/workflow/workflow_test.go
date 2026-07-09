@@ -138,7 +138,7 @@ func TestSnapshot_Build_basic(t *testing.T) {
 	res := mission.ResolveOutput{
 		Safety: "safe",
 		Source: strPtr(".space/current"),
-		Git: mission.GitInfo{
+		Git: mission.GitInfoData{
 			Branch: "main",
 			IsRepo: true,
 		},
@@ -251,7 +251,7 @@ func TestSnapshot_Build_mainBranchBlock(t *testing.T) {
 	snapper := NewSnapshot(store)
 	res := mission.ResolveOutput{
 		Safety: "safe",
-		Git: mission.GitInfo{
+		Git: mission.GitInfoData{
 			Branch: "main",
 			IsRepo: true,
 		},
