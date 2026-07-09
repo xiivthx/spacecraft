@@ -111,12 +111,12 @@ Commander auto-triggers: sc-clarify (on ambiguity), sc-map (before /sc-plan), sc
 
 | Subagent | mode | skill.permission (allows) | bash.permission (notable) |
 |----------|------|---------------------------|---------------------------|
-| sc-commander | primary | `sc-*` (all skills) | `scripts/spacecraft *`, git read, rtk |
-| sc-coder | write | sc-implementation | git status/diff, ls, rg |
-| sc-tester | write | sc-testing, sc-verification | git status/diff, ls, rg, go/npm/pytest, rtk |
-| sc-designer | read-only | sc-mission, sc-design, sc-web-service | git status/diff/log, rg, ls, find |
-| sc-planner | read-only | sc-mission, sc-planning | git status/diff/log, rg, ls |
-| sc-reviewer | read-only | sc-mission, sc-git, sc-verification | git status/diff/log |
+| sc-commander | primary | `sc-*` (all skills) | R/W |
+| sc-coder | write | sc-implementation | R/W |
+| sc-tester | write | sc-testing, sc-verification | R/W |
+| sc-designer | read-only | sc-mission, sc-design, sc-web-service | RO |
+| sc-planner | read-only | sc-mission, sc-planning | RO |
+| sc-reviewer | read-only | sc-mission, sc-git, sc-verification | RO |
 
 ### Agent Hierarchy
 

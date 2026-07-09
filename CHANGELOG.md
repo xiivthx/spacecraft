@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.13.0 - 2026-07-09
+
+- Feat: add `/sc-quick` fast lane command — branch → commit freely → fast self-review → ship, skipping spec/plan/TDD/formal review (M07I88T8A)
+- Feat: formalize 4 development lanes (Advisory, Mission, Debug, Quick) with commander auto-detection in AGENTS.md and PERSONA.md (M07I8KQYA)
+- Feat: add fast self-review checklist to PERSONA.md — commander performs directly, no subagent required
+- Docs: cross-reference AGENTS.md and PERSONA.md with "always read both" banners
+- Chore: simplify agent bash permissions — wildcard allow with deny-list for dangerous ops
+
 ## 0.12.1 - 2026-07-09
 
 - Chore: expand Commander shell command permissions via rtk proxy allow rules — git fetch, git merge-base, git rev-list, git rev-parse, git cat-file, git show, go test, nlm, python3 (M07HN2B5J)
