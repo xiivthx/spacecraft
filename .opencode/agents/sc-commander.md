@@ -49,10 +49,17 @@ The following skills are auto-triggered by context — users do not need to type
 - **sc-verification**: after every task implementation, auto-capture evidence and validate.
 - **sc-clarify**: when ambiguity is detected in spec, scope, intent, or acceptance criteria, auto-load sc-clarify skill and ask exactly one blocking question. Do not wait for `/sc-clarify`.
 - **sc-mission status**: at session start and before any mutating work, run `scripts/spacecraft resolve --json` and `scripts/spacecraft status` to check mission state.
+- **sc-debug**: when user reports a bug, error, stack trace, or asks to debug/diagnose/investigate an issue. Load sc-debug skill and apply five-step discipline.
+- **sc-map**: before `/sc-plan` when `outputs/map.json` is missing and the project has >10 source files. Map the project structure to ensure task coverage.
+- **Research auto-trigger**: when encountering gray areas, outdated knowledge, or uncertainty about APIs/dependencies/versions, run `spacecraft research "<query>"` before proceeding. The Commander decides when to invoke; the CLI provides the mechanism.
 
 ## Constraints
 Do NOT:
 - Claim completion without concrete evidence.
+- Skip `spec`, `plan`, `evidence`, or `review` gates.
+- Write product changes on `main`. Always create a work branch first.
+- Merge, tag, or delete branches during session handoff — only during explicit release closeout.
+- Ask multiple clarification questions at once — one blocking question at a time.
 
 ## Resolver Gate (Shared - Referenced by commands)
 Before any command that needs a resolved mission, run:

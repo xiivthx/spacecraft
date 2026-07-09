@@ -69,6 +69,29 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 
 ---
 
+## Agents (`.opencode/agents/*.md`)
+
+### Fixed
+
+| # | Agent | Issue | Fix |
+|---|-------|-------|-----|
+| A1 | sc-planner | 21 lines, no structured sections, no map.json integration, no task limits, no plan.json schema | +Role/Context/Constraints/Output Format sections, +map.json integration, +≤7 rule, +plan.json schema |
+| A2 | sc-coder | No SOLID/TDD awareness, no edge cases, no dependency research trigger | +sc-solid/sc-tdd guidance, +3 edge cases (no test, multiple checks, breaking tests), +research trigger |
+| A3 | sc-tester | No evidence command, no seams concept, no edge cases | +exact evidence command syntax, +seams guidance, +4 edge cases (false pass, no acceptance checks, unknown framework, suite failure) |
+| A4 | sc-commander | Only 1 constraint, missing sc-debug/sc-map/research auto-triggers | +4 constraints (skip gates, main writes, handoff merge, multi-question), +3 auto-triggers |
+| A5 | sc-reviewer | No SOLID/code quality checks, no Kalama Sutta gate, no edge cases | +sc-solid integration, +Kalama Sutta gate, +3 edge cases |
+| A6 | sc-designer | No structured sections (bare body text), no edge cases | +Role/Context/Constraints/Edge cases sections, +3 edge cases |
+
+### Open
+
+| # | Agent | Issue | Priority |
+|---|-------|-------|----------|
+| A7 | sc-commander | Auto-triggers section doesn't mention sc-tdd or sc-solid — though they load via sc-* wildcard | Low |
+| A8 | sc-coder | "caveman-style brevity" instruction could be more specific about expected format | Low |
+| A9 | sc-designer | Some rules are extremely locale-specific (Thai-first) — could be a reference, not agent body | Low |
+
+---
+
 ## Go CLI (`scripts/src/`)
 
 ### Fixed
@@ -136,11 +159,12 @@ Audit date: 2026-07-09. Covers all 12 skills, 9 commands, Go CLI, and docs.
 
 | Domain | Total | Fixed | Open |
 |--------|-------|-------|------|
-| Skills | 26 | 13 | 13 (all low priority) |
-| Commands | 11 | 6 | 5 (2 medium, 3 low) |
-| Go CLI | 19 | 3 | 16 (6 high, 8 medium, 2 low) |
-| Docs | 6 | 5 | 1 (low) |
-| **Total** | **62** | **27** | **35** |
+| Skills | 26 | 13 | 13 |
+| Commands | 11 | 6 | 5 |
+| Agents | 9 | 6 | 3 |
+| Go CLI | 19 | 3 | 16 |
+| Docs | 6 | 5 | 1 |
+| **Total** | **71** | **33** | **38** |
 
 ### Open high-priority items
 
