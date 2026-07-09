@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.14.4 - 2026-07-09
+
+- Docs: fix 13 skill issues (sc-debug dedup, sc-design reading guide, sc-map schema extract, sc-mission expansion, sc-solid justification, sc-git redundancy, sc-tdd trigger, sc-creator trim) (S14–S26, M07IMLU48)
+- Docs: add Hard Stop Gates and Research auto-trigger to all 9 command files (C10–C11, M07IMLU48)
+- Docs: auto-trigger sc-git checks silently from sc-build; remove `/sc-git` command (C12, M07IMLU48)
+- Docs: polish 3 agent files — brevity examples, locale notes, auto-trigger clarity (A7–A9, M07IMLU48)
+- Docs: sync SPACECRAFT.md CLI table with main.go — add workflow alias (D6, M07IMLU48)
+- Refactor: process improvements — Plan→Red→Green→Verify→Refactor→Review TDD cycle; triage gate for trivial tests; phase splitting for >7 tasks; struct-constructor test defense (T9, M07IMLU48)
+
 ## 0.14.3 - 2026-07-09
 
 - Fix: unify archive.go ID normalization with `util.NormalizeMissionId` (G3, M07IG6R17)

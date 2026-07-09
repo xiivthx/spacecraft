@@ -11,6 +11,10 @@ Specific issues that were identified, fixed, and verified during missions.
 
 | Mission | Date | Problem | Solution | Evidence |
 |---------|------|---------|----------|----------|
+| M07IMLU48 | 2026-07-09 | 20 documented issues across skills, commands, agents, docs — all pre-existing from audit | All 20 resolved via 9 tasks; S15 (sc-debug length) initially deferred, then trimmed to 199 lines | E07IMTO4G–E07IP8RUW |
+| M07IMLU48 | 2026-07-09 | TDD cycle missing Plan and Refactor steps; no triage gate; no phase splitting for >7 tasks | Added Plan→Red→Green→Verify→Refactor→Review; Skip TDD when rules; Phase 1/2/N with separate plan files | E07INHF6H |
+| M07IMLU48 | 2026-07-09 | Stale evidence for 5 tasks after pipeline changes; 14 commits exceeded branch limit | Recaptured fresh evidence; squashed to 1 commit | E07IP81C5, E07IP86UT, E07IP86W7 |
+|---------|------|---------|----------|----------|
 | M07IDBF29 | 2026-07-09 | Duplicate helper functions across Go packages (fileExists, readJSON, writeJSON, taskIsComplete, blockingFindings) | Consolidated into util/fs.go and mission package | E07IEJDSL, E07IEMBWU |
 | M07IDBF29 | 2026-07-09 | copyTextFile silently fails (returns bool, callers ignore) | Changed to return error, handle at call sites | E07IEJDSL |
 | M07IDBF29 | 2026-07-09 | researchCmd goto anti-pattern and deep variable collision | Replaced with structured control flow, renamed variable | E07IERLO6 |
@@ -34,6 +38,10 @@ Specific issues that were identified, fixed, and verified during missions.
 General principles and transferable insights — applicable beyond this codebase. Emerged from mission work but framed as world-wide solutions.
 
 | Mission | Date | Lesson | Why it matters |
+|---------|------|--------|----------------|
+| M07IMLU48 | 2026-07-09 | Machine-validated JSON schemas with enum-like keyword constraints silently reject natural-language status values — always check the source code's allowed statuses before populating `ReleaseGate.status` | "ready" and "approved" feel natural to humans but don't match the machine's allowlist. Check `defaultReleaseGateStatuses` in the source before populating any gate's status field |
+| M07IMLU48 | 2026-07-09 | A resolved critical finding still blocks release if the severity field is not downgraded — the finding struct checks severity, not resolution status | When a review finding is resolved, either downgrade its severity from "critical" to "info" or set `blocksShip: false`. The finding documents what was found; the severity determines whether the gate passes |
+| M07IMLU48 | 2026-07-09 | Version bump baseline must come from the authoritative version record (CHANGELOG), not from the most recent git tag — tags can drift from the human-facing version history | Before planning a version bump, always read CHANGELOG.md to find the latest version entry. Git tags may be stale or from a different tag sequence |
 |---------|------|--------|----------------|
 | M07IDBF29 | 2026-07-09 | Always verify pre-existing test failures against the base commit before treating them as blocking regressions | CI failures are not always introduced by the current change. A failing test that also fails on the base commit is pre-existing noise — document it, don't block the release on it |
 | M07IDBF29 | 2026-07-09 | Resolved findings should not block release — severity downgrade prevents false blocking | A finding marked "critical" still blocks even after resolution. When a finding is resolved, either downgrade severity or mark `blocksShip: false` so the release gate reflects reality, not history |
