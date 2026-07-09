@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.14.2 - 2026-07-09
+
+- Docs: clarify Solved vs Lessons distinction in `sc-learn/SKILL.md` and `docs/learned.md` — Lessons are general principles, Solved are specific issues
+
 ## 0.14.1 - 2026-07-09
 
 - Fix: consolidate duplicated Go helper functions — `fileExists`, `readJSON`, `writeJSON` across archive/mission/state now use `util/fs.go` (G4, M07IDBF29)
