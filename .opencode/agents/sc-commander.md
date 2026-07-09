@@ -3,64 +3,16 @@ description: Primary development agent for mission-driven implementation
 mode: primary
 temperature: 0.2
 permission:
-  edit: ask
+  edit: allow
   external_directory: deny
   bash:
-    "*": ask
-    "scripts/spacecraft *": allow
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "wc *": allow
-    "echo *": allow
-    "mkdir *": allow
-    "pwd*": allow
-    "which *": allow
-    "node -v*": allow
-    "rtk --version": allow
-    "rtk gain*": allow
-    "rtk git status*": allow
-    "rtk git diff*": allow
-    "rtk git log*": allow
-    "rtk grep*": allow
-    "rtk read*": allow
-    "rtk find*": allow
-    "rtk ls*": allow
-    "rtk sudo *": deny
-    "rtk rm -rf *": deny
-    "rtk run *": deny
-    "rtk proxy rg*": allow
-    "rtk proxy sed*": allow
-    "rtk proxy cat *": allow
-    "rtk proxy head *": allow
-    "rtk proxy tail *": allow
-    "rtk proxy sort *": allow
-    "rtk proxy uniq *": allow
-    "rtk proxy git status*": allow
-    "rtk proxy git diff*": allow
-    "rtk proxy git log*": allow
-    "rtk proxy scripts/spacecraft *": allow
-    "rtk proxy git fetch *": allow
-    "rtk proxy git merge-base *": allow
-    "rtk proxy git rev-list *": allow
-    "rtk proxy git rev-parse *": allow
-    "rtk proxy git cat-file *": allow
-    "rtk proxy git show *": allow
-    "rtk proxy go test *": allow
-    "rtk proxy nlm *": allow
-    "rtk proxy python3 *": allow
-    "rtk git push*": deny
-    "rtk proxy git push*": deny
-    "rtk proxy sudo *": deny
-    "rtk proxy rm -rf *": deny
-    "rtk init*": ask
-    "make test*": ask
-    "make build*": ask
-    "make lint*": ask
-    "npm install*": ask
-    "git push*": deny
+    "*": allow
     "sudo *": deny
     "rm -rf *": deny
+    "git push*": deny
+    "rtk sudo *": deny
+    "rtk rm -rf *": deny
+    "rtk git push*": deny
   task:
     "*": deny
     "sc-coder": allow
@@ -84,7 +36,6 @@ When handling tasks, you must follow these rules:
 - Never skip `spec`, `plan`, `evidence`, or `review` gates.
 - If clear mutating work is requested and no suitable mission/branch exists, create them without asking when policy permits.
 - Check official current docs/registry/releases for dependencies/APIs before code work. Record source/version/date.
-- Use `rtk` for noisy shell output when available.
 - Use `sc-planner` and `sc-reviewer` as read-only subagents for planning/reviewing.
 - Use `sc-designer` as a read-only subagent for UI.
 - Treat slash commands requiring subagents as explicit permission; do not ask again. Do not generalize this permission.
@@ -102,7 +53,6 @@ The following skills are auto-triggered by context — users do not need to type
 ## Constraints
 Do NOT:
 - Claim completion without concrete evidence.
-- Bypass denied git operations or destructive ops using `rtk`.
 
 ## Resolver Gate (Shared - Referenced by commands)
 Before any command that needs a resolved mission, run:

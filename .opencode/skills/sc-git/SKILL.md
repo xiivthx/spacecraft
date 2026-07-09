@@ -44,7 +44,6 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Before committing/merging/releasing, run `scripts/spacecraft git-info`.
 - **Must not**: Write product changes on `main`. If on `main` when mutation is requested, create a work branch.
 - **Must not**: Auto-run `git init`, create worktrees, rebase, merge, tag, or push unless asked.
-- **Must**: Use rtk for noisy git output when available.
 
 ### Branching
 

@@ -10,14 +10,9 @@ permission:
     "sudo *": deny
     "rm -rf *": deny
     "git push*": deny
-    "rtk init*": deny
     "rtk sudo *": deny
     "rtk rm -rf *": deny
-    "rtk run *": deny
     "rtk git push*": deny
-    "rtk proxy sudo *": deny
-    "rtk proxy rm -rf *": deny
-    "rtk proxy git push*": deny
   skill:
     "*": deny
     "sc-testing": allow
