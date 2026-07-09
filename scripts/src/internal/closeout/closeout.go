@@ -60,7 +60,7 @@ func (c *Checker) Check(id string, m *mission.Mission, plan *mission.Plan, revie
 	var incomplete []mission.Task
 	if plan != nil {
 		for _, t := range plan.Tasks {
-			if !taskIsComplete(t.Status) {
+			if !mission.TaskIsComplete(t.Status) {
 				incomplete = append(incomplete, t)
 			}
 		}
@@ -92,7 +92,7 @@ func (c *Checker) Check(id string, m *mission.Mission, plan *mission.Plan, revie
 			errors = append(errors, fmt.Sprintf("Review status must be ready; current status is %s.", stat))
 		}
 
-		blocking := blockingReviewFindings(review)
+		blocking := mission.BlockingFindings(review)
 		if len(blocking) > 0 {
 			names := []string{}
 			for _, f := range blocking {
@@ -223,33 +223,6 @@ func releaseReadinessErrors(rr mission.ReleaseReadiness) []string {
 		errors = append(errors, "Record verification after latest rebase in review.json releaseReadiness.postRebaseVerification.")
 	}
 	return errors
-}
-
-func blockingReviewFindings(review *mission.Review) []mission.Finding {
-	if review == nil {
-		return nil
-	}
-	var blocking []mission.Finding
-	for _, f := range review.Findings {
-		blocks := f.BlocksShip != nil && *f.BlocksShip
-		critical := f.Severity != nil && *f.Severity == "critical"
-		if blocks || critical {
-			blocking = append(blocking, f)
-		}
-	}
-	return blocking
-}
-
-// taskIsComplete returns true if the task status is a terminal/closed state.
-func taskIsComplete(status *string) bool {
-	if status == nil {
-		return false
-	}
-	switch *status {
-	case "completed", "done", "cancelled":
-		return true
-	}
-	return false
 }
 
 func conventionalCommitSubject(subject string) bool {

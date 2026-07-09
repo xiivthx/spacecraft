@@ -232,3 +232,31 @@ type CompactPlan struct {
 	MissionID string        `json:"missionId"`
 	Tasks     []CompactTask `json:"tasks"`
 }
+
+// TaskIsComplete returns true if the task status is a terminal/closed state.
+func TaskIsComplete(status *string) bool {
+	if status == nil {
+		return false
+	}
+	switch *status {
+	case "completed", "done", "cancelled":
+		return true
+	}
+	return false
+}
+
+// BlockingFindings returns review findings that block shipping.
+func BlockingFindings(review *Review) []Finding {
+	if review == nil {
+		return nil
+	}
+	var blocking []Finding
+	for _, f := range review.Findings {
+		blocks := f.BlocksShip != nil && *f.BlocksShip
+		critical := f.Severity != nil && *f.Severity == "critical"
+		if blocks || critical {
+			blocking = append(blocking, f)
+		}
+	}
+	return blocking
+}
