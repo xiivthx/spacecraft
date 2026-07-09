@@ -40,6 +40,15 @@ permission:
     "rtk proxy git diff*": allow
     "rtk proxy git log*": allow
     "rtk proxy scripts/spacecraft *": allow
+    "rtk proxy git fetch *": allow
+    "rtk proxy git merge-base *": allow
+    "rtk proxy git rev-list *": allow
+    "rtk proxy git rev-parse *": allow
+    "rtk proxy git cat-file *": allow
+    "rtk proxy git show *": allow
+    "rtk proxy go test *": allow
+    "rtk proxy nlm *": allow
+    "rtk proxy python3 *": allow
     "rtk git push*": deny
     "rtk proxy git push*": deny
     "rtk proxy sudo *": deny
