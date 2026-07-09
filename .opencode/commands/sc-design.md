@@ -34,7 +34,8 @@ Goal: clear the main design image before planning or implementation.
 3. Update spec.md and/or plan.json with a concise UI section: target screen/component, user goal, chosen mood/tone, visual metaphor, info hierarchy, layout structure, design primitives, visual constraints, palette/typography/art/3D/transition/animation constraints when relevant, accessibility checks, verification method.
 4. Record chosen direction, rejected directions, assumptions, and open design risks in decisions.md.
 5. When enough configs are chosen, synthesize into one design brief instead of keeping earlier options as packages.
-6. Set mission state to draft/planned depending on progress.
+6. **Review gate** — Invoke sc-reviewer as a read-only subagent to review the design decisions against DESIGN.md. The reviewer checks: anti-slop, option diversity (not same-y), Feynman clarity, Thai-first where applicable, art direction consistency. If the reviewer flags issues, fix them.
+7. Set mission state to draft/planned depending on progress.
 
 ### Constraints
 
@@ -73,6 +74,10 @@ Read DESIGN.md, the resolved mission's spec.md, plan.json, review.md, review.jso
 - Do not claim the UI is ready without verification and design review.
 
 End with session advice. Prefer continuing this chat for immediate verification, unless the thread is context-heavy.
+
+## Research auto-trigger
+
+When design decisions involve unfamiliar UI patterns, accessibility standards, or CSS framework capabilities, run `spacecraft research "<topic>"` before committing to a design direction.
 
 ## Hard stop gates
 

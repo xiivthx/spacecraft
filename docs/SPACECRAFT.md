@@ -16,7 +16,7 @@ scripts/spacecraft status           # show resolved mission state
 
 ## Slash commands
 
-`/sc-start` · `/sc-design` · `/sc-plan` · `/sc-git` · `/sc-build` · `/sc-review` · `/sc-quick` · `/sc-resume` · `/sc-ship`
+`/sc-start` · `/sc-design` · `/sc-plan` · `/sc-build` · `/sc-review` · `/sc-quick` · `/sc-resume` · `/sc-ship`
 
 ## CLI commands
 
@@ -29,7 +29,7 @@ scripts/spacecraft status           # show resolved mission state
 | `scripts/spacecraft closeout-check` | Check release readiness |
 | `scripts/spacecraft current` | Print currently active mission |
 | `scripts/spacecraft evidence "<label>" -- <cmd>` | Capture verification evidence |
-| `scripts/spacecraft flow` | Print workflow readiness |
+| `scripts/spacecraft flow` | Print workflow readiness (alias: `workflow`) |
 | `scripts/spacecraft git-info` | Print git status |
 | `scripts/spacecraft git-suggest [type] [slug]` | Suggest branch/commit names |
 | `scripts/spacecraft help` | Show CLI help |
@@ -62,9 +62,9 @@ scripts/spacecraft             Go binary helper
 
 ## Mission lifecycle (summary)
 
-`/sc-start → /sc-design(if UI) → /sc-plan → /sc-git → /sc-build → /sc-review → /sc-ship`
+`/sc-start → /sc-design(if UI) → /sc-plan → /sc-build → /sc-ship`
 
-Commander auto-handles clarification, mapping, and verification within these steps. `/sc-build` loops per task: implement → verify → checkpoint commit, then continues to the next task.
+Commander auto-handles clarification, mapping, git hygiene, review, and verification within these steps. sc-reviewer reviews plans and diffs. `/sc-review` is a standalone manual command — not in the pipeline.
 
 See `SPEC.md` §Workflow and §Verification for full gate rules.
 
@@ -103,14 +103,13 @@ Default to handoff. Only closeout on explicit ship/release/merge intent.
 | `/sc-start` | sc-commander | — | sc-mission, sc-clarify | — |
 | `/sc-design` | sc-commander | sc-designer (read-only) | sc-mission, sc-clarify, sc-design | task: sc-designer → allow; skill: sc-design → allow |
 | `/sc-plan` | sc-commander | sc-planner (read-only) | sc-mission, sc-clarify, sc-planning | task: sc-planner → allow; skill: sc-planning → allow |
-| `/sc-git` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
 | `/sc-build` | sc-commander | sc-coder (write), sc-tester (write) | sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, sc-verification | task: sc-coder → allow, sc-tester → allow; skill: sc-git → allow, sc-tdd → allow, sc-solid → allow, sc-verification → allow |
 | `/sc-resume` | sc-commander | — | sc-mission | — |
 | `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-verification → allow |
 | `/sc-quick` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
-| `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git, sc-learn | skill: sc-git → allow, sc-verification → allow |
+| `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git, sc-learn | skill: sc-git → allow, sc-verification → allow, sc-learn → allow |
 
-Commander auto-triggers: sc-clarify (on ambiguity), sc-map (before /sc-plan), sc-debug (on error/stack trace), sc-verification (after task implementation).
+Commander auto-triggers: sc-clarify (on ambiguity), sc-mission (session start), sc-map (before planning), sc-debug (on error/stack trace), sc-verification (after task implementation), Research (gray areas).
 
 ### Subagent → Skill → Permission
 
@@ -146,7 +145,7 @@ sc-commander (primary)
 | sc-clarify | `.opencode/skills/sc-clarify/` | /sc-start, /sc-design, /sc-plan, /sc-build (auto-triggered on ambiguity) |
 | sc-design | `.opencode/skills/sc-design/` | /sc-design |
 | sc-planning | `.opencode/skills/sc-planning/` | /sc-plan |
-| sc-git | `.opencode/skills/sc-git/` | /sc-git, /sc-build, /sc-review, /sc-ship |
+| sc-git | `.opencode/skills/sc-git/` | sc-build, sc-quick, sc-review, sc-ship (auto-triggered silently within sc-build) |
 | sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
 | sc-debug | `.opencode/skills/sc-debug/` | Commander auto-trigger (error/stack trace/debug request) |
 | sc-creator | `.opencode/skills/sc-creator/` | Commander (skill creation workflow) |

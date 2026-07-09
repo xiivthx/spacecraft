@@ -31,9 +31,11 @@ Use this exact sequence unless the user specifies otherwise:
 3. **Configure design** — Follow the default config order: product metaphor and mood, primary user journey, first screen layout, navigation, interaction, color palette, typography, art treatment, 3D depth, transition/animation, density/spacing, key states/accessibility. Ask one question at a time. Show 2–4 focused options per config. Record in `decisions.md`.
 4. **Create artifact (if needed)** — Create HTML under `.space/missions/<id>/design/` only when visual comparison materially helps. Use Thai-first, simple-English labels. Apply Feynman clarity gate.
 5. **Reference scout (if needed)** — Browse public sources. Separate by purpose: layout/template, mood/art, interaction/motion. Present 5–9 candidates in 2–3 directions.
-6. **Polish and review** — Before ship, the polish phase of /sc-design handles small UI fixes and read-only design critique against DESIGN.md.
+6. **Polish and review** — Before ship, the polish phase handles small UI fixes and read-only design critique against DESIGN.md.
 
 ## Rules
+
+> **Reading guide**: Rules marked **Must** / **Must not** are verifiable constraints. Rules marked **Prefer** are taste-based guidelines — sound defaults, not gates.
 
 ### General
 
@@ -101,6 +103,8 @@ Use this exact sequence unless the user specifies otherwise:
 
 ### Thai-first artifacts
 
+> **Locale-dependent**: These rules apply only when the user works in Thai or the mission context is Thai/multilingual. For other locales, adapt labels and language to the user's working language.
+
 - **Must**: Use Thai-first, simple-English support in HTML artifacts when the user uses Thai or the mission context is Thai/multilingual: main headings and explanations in Thai, short simple-English labels in parentheses where helpful, plain Thai explanations for design theory terms, option names that are easy to say back in chat, no long English-only paragraphs.
 - **Must**: In Thai-first artifacts, prefer simple labels such as: "เลือกอะไร (Decision)", "ดูตรงนี้ (Look here)", "เหมาะเมื่อ (Best when)", "แลกกับอะไร (Tradeoff)", "คำแนะนำ (Pick)".
 
@@ -139,7 +143,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 This skill does NOT handle:
 
-- Product implementation — use sc-coder or /sc-build
+- Product implementation — use sc-coder or the build command
 - Git operations or release — use sc-git
 - Mission planning — use sc-planning
 - Evidence capture — use sc-verification
@@ -179,5 +183,4 @@ When design decisions involve unfamiliar UI patterns, accessibility standards, o
 ## References
 
 - `DESIGN.md` — project design direction
-- `.space/skill-template.md` — section template reference
-- Preview server: `node .opencode/skills/sc-design/scripts/serve-html.mjs [artifact-or-dir] --open`
+- Preview server: `node ./scripts/serve-html.mjs [artifact-or-dir] --open`

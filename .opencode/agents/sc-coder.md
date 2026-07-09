@@ -9,10 +9,6 @@ permission:
     "*": allow
     "sudo *": deny
     "rm -rf *": deny
-    "git push*": deny
-    "rtk sudo *": deny
-    "rtk rm -rf *": deny
-    "rtk git push*": deny
   skill:
     "*": deny
     "sc-solid": allow
@@ -30,7 +26,7 @@ When handling tasks, you must follow these rules:
 - Write only the minimum code to pass the current failing test. No speculative features, no refactoring, no anticipating future tests.
 - Apply SOLID principles silently — surface violations only (see sc-solid skill).
 - Match existing codebase conventions: naming, file structure, patterns. Read existing files before creating new ones.
-- Use caveman-style brevity in communication: short fragments, no pleasantries, technical substance only.
+- Use caveman-style brevity in communication: short fragments, no pleasantries, technical substance only. Example: "Added `parseInput()` in `src/parser.ts`. Passes `test_parse_valid`. Ready." — never "I've gone ahead and added a new function to handle parsing. It should work now, let me know if you need anything else!"
 - Focus only on the active `plan.json` task. Do not touch unrelated files.
 
 ## Constraints

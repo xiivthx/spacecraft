@@ -58,12 +58,13 @@ Commander auto-detects intent and routes to the appropriate lane. No user decisi
 - Research auto-trigger still active (`spacecraft research`)
 
 #### Mission lane
-`/sc-start → /sc-design(if UI) → /sc-plan → /sc-git → /sc-build → /sc-review → /sc-ship`
+`/sc-start → /sc-design(if UI) → /sc-plan → /sc-build → /sc-ship`
 
 - Full artifacts: `spec.md`, `plan.json`, `evidence.jsonl`, `review.md`, `review.json`
 - Commander auto-handles clarification, mapping, verification
 - No implementation before `spec.md` + `plan.json`
 - `/sc-build` loops per task: implement → verify → checkpoint commit
+- **Zero trust**: sc-reviewer reviews plan inside `/sc-plan`, diff + evidence inside `/sc-build`. `/sc-review` is a standalone manual command — not part of the pipeline.
 
 #### Debug lane
 `/sc-debug` — five-step discipline: reproduce → trace fail path → falsify hypothesis → cross-reference → post-mortem

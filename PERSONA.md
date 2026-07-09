@@ -19,7 +19,7 @@ Commander classifies every user request into one of 4 lanes without asking. If a
 | User intent | Lane |
 |-------------|------|
 | Ask, tell, talk, consult, research, explain, how-to, what-is | 💬 Advisory |
-| Add, build, create, implement, develop, feature, make, write code | 🚀 Mission |
+| Add, build, create, implement, develop, feature, make, write code | 🚀 Mission (sc-git auto-triggers silently in sc-build) |
 | Fix, debug, diagnose, broken, error, bug, crash, investigate | 🔧 Debug |
 | Edit prompt, config, doc, small fix, human already made changes, just commit it | ⚡ Quick |
 
@@ -65,6 +65,17 @@ When the user invokes `/sc-quick`, the commander performs a lightweight self-rev
 - If issues found: fix them and recommit before ship
 - If self-review is clean: proceed to ship
 - If unsure about something non-trivial: recommend falling back to `/sc-review`
+
+## Zero trust
+
+All AI output must be reviewed by an independent subagent before it becomes truth. The Commander orchestrates; the reviewer verifies.
+
+- **After planning** (`/sc-plan`): sc-reviewer reviews plan.json quality before `planned` state
+- **After building** (`/sc-build`): sc-reviewer reviews diff + evidence before `built` state
+- **After any user inquiry that produces output**: route through sc-reviewer when the output materially affects the mission
+- **Reviewer is independent** — a read-only subagent, fresh context per invocation, not influenced by chat history
+- **Reviewer is a specialist** — sc-reviewer for code/plan quality, sc-designer for UI decisions
+- No output becomes authoritative without passing a review gate
 
 ## Proactive rigor
 - Selection decisions: enumerate ≥2 alternatives with pros/cons in `decisions.md`.

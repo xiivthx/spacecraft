@@ -72,6 +72,22 @@ If all gates pass, use sc-git to prepare merge to main:
 
 Then set state to shipped if appropriate. After state is shipped and release closeout is complete, run `scripts/spacecraft archive` to move the mission from `.space/missions/` to `.space/archive/` with compact durable artifacts, unless the user asks to keep the full live mission folder.
 
+## Research auto-trigger
+
+sc-ship gates are verification gates — research should have happened during sc-plan and sc-build. If a gate check reveals unexpected behavior or version conflicts, run `spacecraft research "<topic>"` before blocking.
+
+## Hard stop gates
+
+- Resolver conflict or ambiguity
+- Blocking clarification unresolved
+- Missing evidence for any acceptance check
+- review.json status not `ready`
+- Critical findings unresolved
+- sc-git gates fail (branch hygiene, commit style, rebase, merge plan)
+- Changelog not updated
+- Version bump missing without explicit deferral
+- UI changes without design review recorded
+
 ## Error handling
 
 - Do not git push unless the user explicitly asks.

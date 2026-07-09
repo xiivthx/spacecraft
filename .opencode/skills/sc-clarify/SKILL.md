@@ -17,7 +17,7 @@ Resolve mission ambiguity through focused user clarification. Ask exactly one bl
 Activate when the user asks to:
 
 - **Clarify scope, behavior, or direction** — ambiguous requirements
-- **Resolve a decision before planning** — blocking questions for `/sc-plan`
+- **Resolve a decision before planning** — blocking questions for planning phase
 - **Record decisions from a discussion** — capture choices in `decisions.md`
 
 ## Workflow
@@ -78,7 +78,7 @@ Use this exact sequence unless the user specifies otherwise:
 - Planning — use sc-planning
 - Visual design — use sc-design
 - Git operations — use sc-git
-- Implementation — use /sc-build
+- Implementation — use the build command
 
 ## Output format
 

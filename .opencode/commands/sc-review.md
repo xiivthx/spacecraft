@@ -73,6 +73,18 @@ Then transition state:
 - **Pass** → `scripts/spacecraft set-state ready`
 - **Fail** (any critical finding) → `scripts/spacecraft set-state blocked`
 
+## Research auto-trigger
+
+When review findings involve unfamiliar code patterns, security concerns, or framework-specific anti-patterns, run `spacecraft research "<topic>"` before flagging as critical. Informed review beats pattern-matching.
+
+## Hard stop gates
+
+- Resolver conflict or ambiguity
+- Missing plan.json or evidence.jsonl
+- No git diff to review (no changes made)
+- Critical design or code finding blocking ship
+- Corrupt review.json that cannot be regenerated
+
 ## Error handling
 
 - Do not implement fixes in the same command unless the user explicitly asks.

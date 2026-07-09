@@ -1,6 +1,6 @@
 ---
 name: sc-git
-description: Enforce git safety, branching, Conventional Commits, no-ff merge, versioning, and release tags. Activate on /sc-git, commit, branch, merge, release, or ship.
+description: Enforce git safety, branching, Conventional Commits, no-ff merge, versioning, and release tags. Activate on commit, branch, merge, release, or ship.
 license: MIT
 compatibility: opencode
 metadata:
@@ -32,7 +32,7 @@ Use this exact sequence unless the user specifies otherwise:
 5. **Commit (release notes)** — Add version bump + changelog update as a **separate commit** in the work branch before merge (type `chore:` or `docs:`). Never defer after merge.
 6. **Verify** — After latest rebase, reverify. Run `scripts/spacecraft closeout-check` before claiming release readiness.
 7. **Rebase & Merge** — Before merge, rebase on latest `main`. Merge with `--no-ff` only.
-8. **Tag** — After no-ff merge, create annotated tag. Do not tag before merge exists.
+8. **Tag** — After no-ff merge, create annotated tag. Follow bump policy from Rules §Release Prep: breaking=major, feature=minor, fix=patch, docs/chore=still tag as next patch. Do not tag before merge exists.
 
 ## Rules
 
@@ -56,7 +56,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: Target 1–3 final commits per branch, max 5 unless justified in decisions.md.
 - **Must**: Separate version bump + changelog update into its own `chore:` or `docs:` commit — do not bundle with implementation commit.
-- **May**: Frequent WIP/checkpoint commits OK on work branch only. After a passing `/sc-build` task, may create a checkpoint commit.
+- **May**: Frequent WIP/checkpoint commits OK on work branch only. After a passing build task, may create a checkpoint commit.
 - **Must**: Before merge, squash/fixup into logical Conventional Commits. Do not squash unrelated changes.
 - **Must not**: Stage unrelated user changes. Prefer `git add <specific-files>`.
 - **Must**: Subject: `<type>: <description>` — imperative, lowercase, ~72 chars.
@@ -82,7 +82,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: User "ship/release/merge/finish/close branch" → release closeout.
 - **Must**: "stop/close/end session" → session handoff (no merge/tag/branch delete).
-- **Must**: If ambiguous, recommend `/sc-ship`; don't auto-merge.
+- **Must**: If ambiguous, recommend ship; don't auto-merge.
 - **Must**: Run `scripts/spacecraft closeout-check` before claiming readiness. It requires `review.json.releaseReadiness` object entries (string/boolean gates invalid).
 - **Must**: If any gate is incomplete, block and list missing actions.
 - **Must**: Bump version by impact: breaking=major, feature=minor, fix/patch=patch, docs/chore=no bump unless part of a release (record in decisions.md).
@@ -97,27 +97,13 @@ Use this exact sequence unless the user specifies otherwise:
 
 ### Post-merge
 
-After the no-ff merge completes, immediately:
-
-- [ ] Create annotated tag (`git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"`)
-- [ ] Verify tag exists (`git tag -l 'v*' | tail -3`)
-- [ ] Delete merged local branch (`git branch -d <branch>`)
-- [ ] Run `scripts/spacecraft archive` to compact shipped mission artifacts
-
-**Important**: After post-merge cleanup, you are on `main`. Any further edits — even small fixes or documentation — MUST first create a new non-main branch. Creating a branch is automatic and non-optional whenever mutation is requested while on `main`. Do not edit, commit, or stage anything on `main` directly.
+After the no-ff merge completes, immediately execute the mandatory steps from Rules §Tagging and §Release Prep:
+- Tag, verify tag, delete branch, archive.
+- After cleanup you are on `main` — any further mutation requires a new non-main branch.
 
 ### Review Gate
 
-Before shipping or merging, check:
-
-- [ ] not on `main` while editing product files (this applies post-merge too — always branch first)
-- [ ] branch based/rebased on latest `main`
-- [ ] ≤5 final commits (or exception in decisions.md)
-- [ ] final commits use Conventional Commits
-- [ ] `.gitignore` current; no secrets/deps/builds staged
-- [ ] tests/verification pass after latest rebase
-- [ ] version bump + changelog/spec update in a **separate commit** (`chore:`/`docs:`) in work branch (not deferred after merge)
-- [ ] merge plan uses `--no-ff`; tag plan exists
+Before shipping or merging: verify all Rules §Rebase & Merge, §Release Prep, §Tagging gates pass. Key checks: rebased on `main`, ≤5 commits, Conventional Commits, `.gitignore` current, version bump + changelog in separate commit, `--no-ff` merge plan.
 
 ### Dependency Freshness
 

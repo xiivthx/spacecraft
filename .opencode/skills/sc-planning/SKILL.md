@@ -10,7 +10,7 @@ metadata:
 
 # sc-planning
 
-Convert a mission spec into a small executable plan. Output is `plan.json` with ≤7 verifiable tasks, each with acceptance checks and evidence requirements.
+Convert a mission spec into a small executable plan. Output is `plan.json` with ≤7 verifiable tasks per phase. When scope exceeds 7 tasks, split into Phase 1, Phase 2, ... each with its own plan.json.
 
 ## When to use
 
@@ -18,7 +18,7 @@ Activate when the user asks to:
 
 - **Plan next steps / "create a plan" / "/sc-plan"** — explicit planning
 - **Break the spec into tasks** — task decomposition from `spec.md`
-- **Scope work before implementation** — pre-`/sc-build` task definition
+- **Scope work before implementation** — pre-build task definition
 
 ## Workflow
 
@@ -33,7 +33,13 @@ Use this exact sequence unless the user specifies otherwise:
    - `outputs/map.json` — project structure survey (if present, see Map integration below)
    - If a blocking clarification question is open, stop — route to sc-clarify.
 
-3. **Decompose into tasks** — Break the spec into ≤7 small, verifiable tasks. Each task:
+3. **Decompose into tasks** — Break the spec into tasks, ≤7 per phase. When scope demands more:
+   - Split into Phase 1, Phase 2, ... each with its own `plan.json` (`plan-phase1.json`, `plan-phase2.json`, ...)
+   - Phase 1 covers the highest-priority, blocking, or foundational work
+   - Each phase is independently buildable and verifiable
+   - Record the split rationale in `decisions.md`
+
+   Each task:
    - `id` — use the mission's compact sortable ID scheme (`T1`, `T2`, ... or match existing task numbering in the plan)
    - `title` — imperative, specific (e.g., "Add health check endpoint" not "Implement health")
    - `status` — start all as `pending`
@@ -52,7 +58,7 @@ Use this exact sequence unless the user specifies otherwise:
    ```
    Use `scripts/spacecraft missions` to confirm the mission-id if uncertain.
 
-5. **Verify** — Before claiming done: no task is vague, every acceptance check is testable, every file path is real (check with `ls` or glob), ≤7 tasks.
+5. **Verify** — Before claiming done: no task is vague, every acceptance check is testable, every file path is real (check with `ls` or glob), ≤7 tasks per phase.
 
 ### Map integration
 
@@ -65,18 +71,18 @@ If `map.json` is missing, proceed without it — it's optional input, not a hard
 
 ### Edge cases
 
-- **>7 tasks needed** — Split into sub-plans or defer lower-priority tasks. Record the split in `decisions.md`.
+- **>7 tasks needed** — Split into phases (Phase 1, Phase 2, ...). Record the split with rationale in `decisions.md`. Each phase gets its own `plan-phase<N>.json`.
 - **Blocking question open** — Stop and route to sc-clarify. Do not produce `plan.json` with hidden assumptions.
 - **File paths uncertain** — Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
 - **Spec is incomplete** — Flag gaps in `decisions.md`. Plan only what's specified.
-- **Task depends on another task** — Document in task description. Process them in dependency order during `/sc-build`.
+- **Task depends on another task** — Document in task description. Process them in dependency order during build.
 
 ## Rules
 
 - **Must**: Resolve mission before planning.
 - **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`.
 - **Must**: Stop if a blocking clarification is open — route to sc-clarify.
-- **Must**: ≤7 tasks per plan.
+- **Must**: ≤7 tasks per phase. Split into Phase 1, Phase 2, ... if scope exceeds this.
 - **Must**: Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`.
 - **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
 - **Must**: File paths are real — verify with `ls` or glob before writing.
@@ -87,7 +93,7 @@ If `map.json` is missing, proceed without it — it's optional input, not a hard
 ## Out of scope
 
 - Design or UI work — use sc-design
-- Implementation — use /sc-build
+- Implementation — use the build command
 - Verification — use sc-verification
 - Clarification — use sc-clarify
 
@@ -119,7 +125,7 @@ If `map.json` is missing, proceed without it — it's optional input, not a hard
 - [ ] Mission resolved
 - [ ] `spec.md`, `questions.md`, `decisions.md`, `map.json` (if present) read
 - [ ] No blocking clarification open
-- [ ] Plan has ≤7 tasks
+- [ ] Plan has ≤7 tasks per phase (split if needed)
 - [ ] Each task has all 7 required fields
 - [ ] Every acceptance check is verifiable
 - [ ] File paths verified real (not guessed)

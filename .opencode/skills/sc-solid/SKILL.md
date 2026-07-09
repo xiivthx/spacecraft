@@ -63,7 +63,7 @@ Activate on these triggers:
 - **Must**: Wrap domain primitives in value objects (Email, Money, UserId — never raw strings/numbers).
 - **Must**: No `else` when early return works.
 - **Must**: One dot per line (Law of Demeter).
-- **Must**: Classes < 50 lines, methods < 10 lines.
+- **Must**: Classes < 50 lines, methods < 10 lines. (Rationale: beyond these thresholds, a class likely violates SRP. These are empirically-derived limits from clean code practice — a 50-line class can be read in one screen; a 10-line method can be understood at a glance without scrolling or mental stack.)
 - **Must not**: Create abstractions before the third duplication (Rule of Three).
 - **Must not**: Use `in` operator on objects with untrusted keys — use `Object.hasOwn()`.
 
