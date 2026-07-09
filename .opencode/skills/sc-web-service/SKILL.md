@@ -1,6 +1,6 @@
 ---
 name: sc-web-service
-description: Build a lean local web service from scratch under mission control
+description: Build a lean local web service from scratch under mission control. Activate on "build web service", "create API", "scaffold server", or new web project.
 license: MIT
 compatibility: opencode
 metadata:
@@ -10,86 +10,101 @@ metadata:
 
 # sc-web-service
 
-Build a lean local web service from scratch under mission control.
+Build a lean local web service from scratch under mission control. Default stack: Node.js + TypeScript + Fastify + Vitest. Alternative stacks require user approval.
 
 ## When to use
 
 Activate when the user asks to:
 
-- Create a new web service or API
-- Scaffold a local backend project
-- Add a health check or version endpoint
+- **"Build a web service" / "create an API" / "scaffold a server"** — new web project
+- **"Add a health endpoint" / "add version endpoint"** — minimal milestone additions
+- When a mission task requires a local backend service
 
 ## Workflow
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Choose stack** — If no stack is specified, default to Node.js + TypeScript + Fastify + Vitest. Get user approval before installing product dependencies.
-2. **Scaffold minimal milestone** — Create package scripts: `dev`, `test`, `build`. Include `GET /healthz` returning `{ "ok": true }` and `GET /version` returning service metadata.
-3. **Verify** — Ensure tests pass and build passes before moving on.
-4. **Iterate** — Prefer small vertical slices. Keep the web service separate from harness logic.
+1. **Resolve mission** — `scripts/spacecraft resolve --json`. Block if safety ≠ `safe`.
+
+2. **Choose stack** — Default: Node.js + TypeScript + Fastify + Vitest. If the user specifies a different stack, adapt accordingly. Run `spacecraft research "fastify v5 typescript setup"` before scaffolding if versions are uncertain. Ask before installing any `npm` dependencies — list the packages and wait for approval.
+
+3. **Scaffold** — Create the project with these exact files:
+   - `package.json` — scripts: `dev`, `test`, `build`, `start`
+   - `tsconfig.json` — strict mode, ESNext target
+   - `src/server.ts` — Fastify instance with `GET /healthz` and `GET /version`
+   - `src/server.test.ts` — tests for both endpoints
+   - `.gitignore` — `node_modules/`, `dist/`, `.env`
+
+   ```bash
+   npm install    # after user approves dependencies
+   npm test       # verify tests pass
+   npm run build  # verify build passes
+   ```
+
+4. **Verify** — `scripts/spacecraft evidence "web:endpoints" -- npm test`. Both endpoints must return 200. Build must succeed.
+
+5. **Iterate** — Prefer small vertical slices. Keep the web service separate from harness logic. Each new endpoint gets a test first (see sc-tdd).
+
+### Edge cases
+
+- **User specifies a stack** — Use that stack. Still require minimal milestone with health/version endpoints.
+- **Project already exists** — Don't re-scaffold. Add endpoints to existing structure.
+- **Tests fail** — Fix before proceeding. Never skip verification.
+- **User wants database/auth/Docker** — These are out of scope. Remind the user this skill is for lean services only.
 
 ## Rules
 
-- **Must**: Use only when developing a web service.
-- **Must**: If no stack is specified, default to Node.js + TypeScript + Fastify + Vitest.
-- **Must**: The first milestone should be minimal:
-  - package scripts: `dev`, `test`, `build`
-  - `GET /healthz` returns `{ "ok": true }`
-  - `GET /version` returns service metadata
-  - tests pass
-  - build passes
-- **Ask before**: Installing product dependencies is allowed only after user approval.
-- **Must not**: Add database, auth, Docker, deployment, queue, frontend, or observability stack unless explicitly requested.
-- **Must**: Prefer small vertical slices.
-- **Must**: Keep the web service separate from harness logic.
-- **Must**: If a web service includes pages or UI, use sc-design before planning UI tasks.
-- **Must**: If mood, theme, or art direction is unclear for a web UI, use sc-design before planning UI tasks.
-- **Must**: Default first UI surface, when requested, should be minimal:
-  - one home/status page
-  - one health/status section
-  - one version/build metadata section
-  - no fake metrics
-  - no marketing fluff
-  - no generic AI landing-page hero
-- **Must**: Keep backend service logic separate from visual components.
-- **Must not**: Add frontend complexity unless explicitly requested.
+- **Must**: Resolve mission before mutating work.
+- **Must**: Default to Node.js + TypeScript + Fastify + Vitest when no stack is specified.
+- **Must**: First milestone is always: `dev`/`test`/`build` scripts, `GET /healthz`, `GET /version`, passing tests, passing build.
+- **Must**: Verify with `scripts/spacecraft evidence` after each milestone.
+- **Must**: Prefer small vertical slices over broad horizontal scaffolding.
+- **Ask before**: Installing any npm dependencies. List packages first, get approval.
+- **Must not**: Add database, auth, Docker, deployment, queues, frontend, or observability unless explicitly requested.
+- **Must not**: Add fake metrics, marketing copy, or AI-generated landing pages to status endpoints.
 
 ## Out of scope
 
-This skill does NOT handle:
-
 - UI design or frontend architecture — use sc-design
-- Database, auth, deployment, or observability — ask the user before adding these
-- General mission work — use sc-mission
+- Database, auth, deployment, observability — separate concerns, ask before adding
+- General mission workflow — use sc-mission
+- TDD workflow — use sc-tdd
 
 ## Output format
 
 ```
-package.json scripts:
-  dev — development server
-  test — test runner
-  build — production build
-
-API endpoints:
-  GET /healthz -> { "ok": true }
-  GET /version -> { "version": "...", "build": "..." }
+Stack: Node.js + TypeScript + Fastify + Vitest
+Scaffold:
+  package.json ✓ (dev, test, build, start)
+  tsconfig.json ✓ (strict, ESNext)
+  src/server.ts ✓ (GET /healthz, GET /version)
+  src/server.test.ts ✓ (2 endpoint tests)
+Verify:
+  npm test → PASS
+  npm run build → PASS
+Evidence: web:endpoints
 ```
 
 ## Checklist
 
-Before claiming the web service is ready:
+- [ ] Mission resolved, branch created
+- [ ] Stack chosen, dependencies approved by user
+- [ ] `package.json` has `dev`, `test`, `build`, `start` scripts
+- [ ] `GET /healthz` returns `{ "ok": true }` with 200
+- [ ] `GET /version` returns `{ "version": "...", "build": "..." }` with 200
+- [ ] Tests pass (`npm test`)
+- [ ] Build passes (`npm run build`)
+- [ ] Evidence captured with `scripts/spacecraft evidence`
+- [ ] No unapproved dependencies
 
-- [ ] Stack chosen (default: Node.js + TypeScript + Fastify + Vitest)
-- [ ] Minimal milestone: `dev`, `test`, `build` scripts work
-- [ ] `GET /healthz` and `GET /version` endpoints respond
-- [ ] Tests pass
-- [ ] Build passes
-- [ ] No unapproved dependencies added
+## Research auto-trigger
+
+When the default stack version is uncertain or the user specifies an unfamiliar framework, run `spacecraft research "<framework> setup guide"` before scaffolding.
 
 ---
 
 ## References
 
-- `scripts/spacecraft --help` — spacecraft CLI reference
-- Fastify documentation (when using default stack)
+- `scripts/spacecraft --help` — mission resolver and evidence capture
+- Fastify v5 docs: `https://fastify.dev/docs/latest/` (check before scaffolding for API changes)
+- Vitest docs: `https://vitest.dev/` (check for config syntax)

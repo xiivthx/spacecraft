@@ -73,3 +73,18 @@ Read DESIGN.md, the resolved mission's spec.md, plan.json, review.md, review.jso
 - Do not claim the UI is ready without verification and design review.
 
 End with session advice. Prefer continuing this chat for immediate verification, unless the thread is context-heavy.
+
+## Hard stop gates
+
+- Resolver conflict or ambiguity
+- DESIGN.md missing and cannot be created from defaults
+- Ambiguous phase (planned state but no design decisions)
+- Blocking clarification open
+- UI art direction not chosen when UI tasks are present
+
+## Error handling
+
+- Do not implement product code, UI code, or add dependencies.
+- If sc-designer subagent returns critical design blockers, stop and report — do not proceed to polish.
+- If DESIGN.md was modified externally during the session, re-read it before making design decisions.
+- Do not assume product or design direction silently. Ask if ambiguous.

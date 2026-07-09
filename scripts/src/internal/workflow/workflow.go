@@ -3,6 +3,9 @@ package workflow
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"spacecraft/internal/mission"
 )
@@ -41,7 +44,7 @@ func NextCommand(m *mission.Mission) string {
 		status = m.Clarification.Status
 	}
 	if status == "open" || m.Clarification.BlockingQuestions > 0 {
-		return "/sc-clarify"
+		return "(clarify)"
 	}
 	switch m.State {
 	case "draft":
@@ -63,12 +66,21 @@ func NextCommand(m *mission.Mission) string {
 
 // Snapshot holds the computed workflow state.
 type Snapshot struct {
-	store mission.MissionStore
+	store       mission.MissionStore
+	commandsDir string
 }
 
 // NewSnapshot creates a workflow snapshot from mission data.
 func NewSnapshot(store mission.MissionStore) *Snapshot {
 	return &Snapshot{store: store}
+}
+
+// SetCommandsDir sets the path to the OpenCode commands directory.
+// When set, Build() validates that the Next command exists as a .md file
+// in this directory. If the command is missing, a blocker is added and
+// Next falls back to /sc-resume.
+func (s *Snapshot) SetCommandsDir(dir string) {
+	s.commandsDir = dir
 }
 
 // Build constructs a WorkflowSnapshot from the given parameters.
@@ -105,7 +117,7 @@ func (s *Snapshot) Build(res mission.ResolveOutput, missionID string) (mission.W
 	next := NextCommand(m)
 
 	if hasBlockingClarification {
-		next = "/sc-clarify"
+		next = "(clarify)"
 	}
 	if !specExists && !hasBlockingClarification {
 		next = "/sc-resume"
@@ -161,6 +173,11 @@ func (s *Snapshot) Build(res mission.ResolveOutput, missionID string) (mission.W
 		}
 	}
 
+	// Validate that the next command actually exists as a registered command file.
+	if s.commandsDir != "" {
+		next, blockers = s.validateNextCommand(next, blockers)
+	}
+
 	return mission.WorkflowSnapshot{
 		MissionID:     missionID,
 		Title:         m.Title,
@@ -177,6 +194,28 @@ func (s *Snapshot) Build(res mission.ResolveOutput, missionID string) (mission.W
 		Blockers:         blockers,
 		CheckpointPolicy: "After passing verification, checkpoint commit on a clean non-main work branch before the next task.",
 	}, nil
+}
+
+// validateNextCommand checks that the next command exists as a .md file in the
+// commands directory. If not, adds a blocker and falls back to /sc-resume.
+// Parenthesized strings like "(shipped)" and "(clarify)" are status markers,
+// not commands — they pass through unvalidated.
+func (s *Snapshot) validateNextCommand(next string, blockers []string) (string, []string) {
+	if next == "" || strings.HasPrefix(next, "(") {
+		return next, blockers
+	}
+	// Extract command name from "/sc-build T02" -> "sc-build"
+	cmdName := strings.TrimPrefix(next, "/")
+	// Strip arguments (space after command name)
+	if idx := strings.Index(cmdName, " "); idx != -1 {
+		cmdName = cmdName[:idx]
+	}
+	cmdPath := filepath.Join(s.commandsDir, cmdName+".md")
+	if _, err := os.Stat(cmdPath); os.IsNotExist(err) {
+		blockers = append(blockers, fmt.Sprintf("next command %s is not registered in .opencode/commands/ (missing %s)", next, cmdName+".md"))
+		return "/sc-resume", blockers
+	}
+	return next, blockers
 }
 
 // buildBlockers checks for blockers that would prevent workflow progression.

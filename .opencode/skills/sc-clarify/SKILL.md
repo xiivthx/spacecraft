@@ -1,6 +1,6 @@
 ---
 name: sc-clarify
-description: Resolve mission ambiguity through focused user clarification before planning, visual design, or implementation
+description: Resolve mission ambiguity through focused user clarification. Activate on unclear requirements, ambiguous spec, or when clarification is needed before planning or design.
 license: MIT
 compatibility: opencode
 metadata:
@@ -10,96 +10,107 @@ metadata:
 
 # sc-clarify
 
-Resolve mission ambiguity through focused user clarification before planning, visual design, or implementation.
+Resolve mission ambiguity through focused user clarification. Ask exactly one blocking question at a time. Record answers. Never proceed with hidden assumptions.
 
 ## When to use
 
 Activate when the user asks to:
 
-- Clarify mission scope, product behavior, or visual design direction
-- Resolve ambiguity before planning or implementation
-- Record decisions and assumptions from a discussion
+- **Clarify scope, behavior, or direction** — ambiguous requirements
+- **Resolve a decision before planning** — blocking questions for `/sc-plan`
+- **Record decisions from a discussion** — capture choices in `decisions.md`
 
 ## Workflow
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Inspect available context** — Check resolved mission `spec.md`, `plan.json` if present, package/project files, and existing source files. If a question can be answered by inspecting the repo, inspect the repo instead of asking the user.
-2. **Classify ambiguity** — Determine if the ambiguity is:
-   - **blocking**: cannot safely plan/design/implement without user input
-   - **non-blocking**: can proceed with an explicit assumption
-   - **researchable**: answer by reading files/code
-3. **Ask one question** — Ask exactly one blocking question at a time. Each question must include: the question, why it matters, your recommended answer, and what will happen if the user accepts the recommendation.
-4. **Record answers** — Record answered questions in `questions.md`. Record confirmed choices and assumptions in `decisions.md`. If the user says to proceed with your recommendation, record that as a confirmed decision.
+1. **Resolve mission** — `scripts/spacecraft resolve --json`. Block if safety ≠ `safe`.
+
+2. **Inspect context** — Before asking the user ANY question, exhaust these sources:
+   - Mission `spec.md` — is the answer already stated?
+   - `questions.md` — was this already asked?
+   - `decisions.md` — was a decision already recorded?
+   - Repo files — can the answer be found by reading code?
+   - If the question is about ecosystem conventions or API usage, run `spacecraft research "<query>"` first.
+   - **If the answer exists in any of these sources, do not ask the user.**
+
+3. **Classify** — Categorize the ambiguity:
+   - **blocking** — cannot safely plan, design, or implement without user input
+   - **non-blocking** — can proceed with an explicit assumption written to `decisions.md`
+   - **researchable** — answer by reading files, code, or running `spacecraft research`
+
+4. **Ask one question** — If blocking: ask exactly one question. Format:
+   ```
+   **Question:** <one clear sentence>
+   **Why it matters:** <one sentence on impact>
+   **Recommendation:** <your suggested answer with brief rationale>
+   **If accepted:** <what happens next — one sentence>
+   ```
+   Use `scripts/spacecraft ask` if available, otherwise present directly.
+
+5. **Record** — After the user answers:
+   - Record the question and answer in `questions.md` under `### Answered`
+   - Record confirmed choices in `decisions.md`
+   - If the user accepted your recommendation, note: "Recommendation accepted: <outcome>"
+   - If non-blocking: write the assumption directly to `decisions.md`, no need to ask
+
+### Edge cases
+
+- **User doesn't respond** — Do not proceed with implementation. Keep the question open. If session ends, hand off with the open question.
+- **Answer raises new questions** — Classify the new question. Ask one at a time. Record each answer before the next.
+- **Multiple ambiguities found** — Classify all of them. Ask only the most blocking one first. Note the others so they aren't forgotten.
+- **Answer contradicts spec** — Update `spec.md` to reflect the decision. The user's answer is authoritative.
+- **User defers decision** — Record the deferral in `decisions.md` with: "Deferred: <question>. Proceeding without." Only proceed if the ambiguity is non-blocking.
 
 ## Rules
 
-- **Must**: Use sc-clarify when a mission, product behavior, or visual design direction has meaningful ambiguity.
-- **Must not**: Use sc-clarify to create bureaucracy for obvious small tasks.
-- **Must**: First inspect available context before asking:
-  - resolved mission `spec.md`
-  - `plan.json` if present
-  - package/project files when relevant
-  - existing source files when relevant
-- **Must**: If a question can be answered by inspecting the repo, inspect the repo instead of asking the user.
-- **Must**: Classify ambiguity:
-  - blocking: cannot safely plan/design/implement without user input
-  - non-blocking: can proceed with an explicit assumption
-  - researchable: answer by reading files/code
+- **Must**: Exhaust all context sources before asking the user. Never ask a question answerable from files or research.
+- **Must**: Classify every ambiguity as blocking, non-blocking, or researchable.
 - **Must**: Ask exactly one blocking question at a time.
-- **Must**: Every question must include:
-  - the question
-  - why it matters
-  - your recommended answer
-  - what will happen if the user accepts the recommendation
+- **Must**: Every question includes: the question, why it matters, a recommendation, and what happens if accepted.
 - **Must not**: Ask multiple questions in one message.
-- **Must not**: Implement while a blocking clarification question is open.
-- **Must not**: Finalize plan or visual design direction while blocking clarification remains open.
-- **Must**: Record answered questions in `questions.md`.
-- **Must**: Record confirmed choices and assumptions in `decisions.md`.
-- **Must**: If the user says to proceed with your recommendation, record that as a confirmed decision.
-- **Must**: If ambiguity is low-risk, write it as an assumption and continue.
-- **Must**: Prefer user clarity over agent cleverness.
+- **Must not**: Implement, plan, or finalize design while a blocking question is open.
+- **Must**: Record answered questions in `questions.md`. Record decisions in `decisions.md`.
+- **Must**: Prefer user clarity over agent cleverness. If the user's answer seems suboptimal, state your concern once and accept their decision.
 
 ## Out of scope
 
-This skill does NOT handle:
-
 - Planning — use sc-planning
-- Visual design direction — use sc-design
+- Visual design — use sc-design
 - Git operations — use sc-git
-- Implementation — use sc-coder or /sc-build
+- Implementation — use /sc-build
 
 ## Output format
 
 ```
 ### Open
-- **question** — status (blocking/non-blocking)
+- **Q: <question>** — blocking | awaiting response
 
 ### Answered
-- **date** — **Q: <question>**
-  Recommendation accepted: <outcome>
-  Source: <source>
+- **2026-07-09** — **Q: Should we use Fastify or Express?**
+  Recommendation accepted: Fastify (better TS support, faster startup)
+  Source: user accepted recommendation
 ```
 
 ## Checklist
 
-Before claiming clarification is resolved:
-
-- [ ] Available context inspected before asking
-- [ ] Ambiguity classified as blocking, non-blocking, or researchable
+- [ ] Mission resolved, context inspected
+- [ ] Research auto-trigger checked (if applicable)
+- [ ] Ambiguity classified (blocking / non-blocking / researchable)
 - [ ] One blocking question asked at a time (if needed)
-- [ ] Answered questions recorded in `questions.md`
-- [ ] Confirmed choices and assumptions recorded in `decisions.md`
-- [ ] No blocking question remains open before implementation
+- [ ] Question includes: question + why + recommendation + what-if-accepted
+- [ ] Answer recorded in `questions.md`
+- [ ] Decision recorded in `decisions.md`
+- [ ] No blocking question remains open before planning or implementation
 
 ## Research auto-trigger
 
-Before asking the user about ecosystem conventions, API usage, or framework-specific practices, invoke `spacecraft research <query>` to check current documentation. Only escalate to the user when research doesn't resolve the ambiguity.
+Before asking the user about ecosystem conventions, API usage, or framework practices, run `spacecraft research "<query>"`. Only escalate to the user when research doesn't resolve the ambiguity.
 
 ---
 
 ## References
 
-- `questions.md` — open and answered questions
-- `decisions.md` — confirmed choices and assumptions
+- `questions.md` — open and answered questions per mission
+- `decisions.md` — confirmed choices, assumptions, and deferrals
+- `scripts/spacecraft research --help` — research subcommand

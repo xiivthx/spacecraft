@@ -3,7 +3,7 @@ description: Prepare final delivery summary
 agent: sc-commander
 subtask: true
 ---
-Use sc-mission, sc-verification, and sc-git.
+Use sc-mission, sc-verification, sc-git, and sc-learn.
 Resolve the mission. Block if unsafe.
 
 ## Pre-flight checks
@@ -39,14 +39,25 @@ Only close/ship/merge if:
 
 If any gate fails, block closeout. List exact missing actions and next command.
 
-### 2. Prepare merge
+### 2. Migrate mission knowledge
+
+Before version bump and changelog, use sc-learn to preserve what was learned:
+
+1. Read `.space/missions/<id>/issues.md`, `solved.md`, `learned.md`.
+2. Migrate unresolved issues to `docs/issues.md` with mission context.
+3. Migrate solved items and lessons to `docs/learned.md` with mission context.
+4. Mark mission files as migrated. Do not delete them — they archive with the mission.
+
+This ensures internal research (`spacecraft research`) can draw on accumulated mission knowledge.
+
+### 3. Prepare merge
 
 If all gates pass, use sc-git to prepare merge to main:
 - rebase, verify, merge with `--no-ff`, tag, branch cleanup
 - compact shipped mission artifacts with `scripts/spacecraft archive` unless the user asks to keep the full live mission folder
 - no push unless explicitly requested
 
-### 3. Produce summary
+### 4. Produce summary
 
 - Mission id
 - What changed

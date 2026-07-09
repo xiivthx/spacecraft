@@ -1,6 +1,6 @@
 ---
 name: sc-verification
-description: Capture fresh command evidence before claiming work is complete
+description: Capture fresh command evidence before claiming work is complete. Activate after task implementation, verify step, or when evidence is needed.
 license: MIT
 compatibility: opencode
 metadata:
@@ -28,7 +28,19 @@ Use this exact sequence unless the user specifies otherwise:
 1. **Resolve the mission** — Run `scripts/spacecraft resolve --json`. Ensure safety is `safe` before proceeding.
 2. **Capture evidence** — Run `scripts/spacecraft evidence "<label>" -- <command>` for each acceptance check.
 3. **Validate** — Run `scripts/spacecraft validate` after evidence capture.
-4. **Map to acceptance** — Record evidence ids in final summaries, referencing each acceptance check.
+4. **Map to acceptance** — Record evidence ids in final summaries, referencing each acceptance check from `plan.json`.
+
+### Edge cases
+
+- **Evidence command fails** — Capture the failure as evidence. Do not skip. Fix the issue and re-capture.
+- **Validation fails** — `scripts/spacecraft validate` returns non-zero. Check which acceptance criteria are unmet. Fix before claiming done.
+- **Check cannot be automated** — State why in the evidence label. Mark as `manual`. Document the manual verification steps.
+- **No plan.json exists** — Cannot map evidence to acceptance checks. Ask user to run `/sc-plan` first.
+- **Evidence already captured for this check** — Re-run to ensure freshness. Never reuse stale evidence.
+
+## Research auto-trigger
+
+When a verification command uses an unfamiliar tool or flag, run `spacecraft research "<tool> <flag> usage"` before capturing evidence. Incorrect verification commands produce misleading evidence.
 
 ## Rules
 

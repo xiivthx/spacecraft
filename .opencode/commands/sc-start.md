@@ -33,4 +33,11 @@ If the user wants an existing mission instead of a new one, run `scripts/spacecr
 - Do not run /sc-design implicitly.
 - Do not assume product or design direction silently.
 
-End with next action and session advice.
+## Edge cases
+
+- **Mission already exists for this request** — Use `scripts/spacecraft missions` to list. Offer to select existing rather than create duplicate.
+- **Not in a git worktree** — The mission is created but warn: "No-git implementation risk." Record the warning in decisions.md if user accepts.
+- **$ARGUMENTS is empty or vague** — Ask for a one-line mission description. Do not create a mission from an empty title.
+- **Multiple sessions active** — The new mission binds to the current session. Warn if another session has an active mission.
+
+End with next action and session advice. Recommend `/sc-design` if the mission has UI, otherwise `/sc-plan`.

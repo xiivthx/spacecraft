@@ -113,8 +113,8 @@ func TestNextCommand_clarificationPriority(t *testing.T) {
 		},
 	}
 	got := NextCommand(m)
-	if got != "/sc-clarify" {
-		t.Errorf("expected /sc-clarify, got %q", got)
+	if got != "(clarify)" {
+		t.Errorf("expected (clarify), got %q", got)
 	}
 }
 
@@ -198,8 +198,8 @@ func TestSnapshot_Build_clarificationBlock(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if snap.Next != "/sc-clarify" {
-		t.Errorf("expected /sc-clarify, got %q", snap.Next)
+	if snap.Next != "(clarify)" {
+		t.Errorf("expected (clarify), got %q", snap.Next)
 	}
 	if !containsStr(snap.Blockers, "blocking clarification") {
 		t.Errorf("expected blocker about clarification, got %v", snap.Blockers)

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.14.0 - 2026-07-09
+
+- Feat: add sc-tdd skill — test-driven development discipline with seam identification, anti-pattern detection, mocking guidelines (M07I7FY1P)
+- Feat: add sc-solid skill — SOLID principles, clean code, complexity management, architecture (7 references) (M07I7FY1P)
+- Feat: add sc-creator skill — 6-phase skill creation workflow (gather, create, wire, polish, register, verify) (M07I7FY1P)
+- Feat: add sc-learn skill — mission knowledge capture and migration to global docs (issues, solved, learned) (M07I7FY1P)
+- Feat: enhance all 6 agent files — Role/Context/Constraints sections, edge cases, skill awareness
+- Feat: enhance 9 command files — Hard Stop Gates, Error Handling, edge cases, Research auto-triggers
+- Feat: workflow command validation — verify Next command exists in .opencode/commands/ before proceeding
+- Feat: system-wide quality review — 71 findings tracked (33 fixed) across skills, commands, agents, Go CLI
+- Fix: nowISO() in research/deep.go returns real UTC timestamp instead of empty string
+- Refactor: remove mutual cross-references and agent names from skill content
+- Refactor: consolidate testing content into sc-tdd as single source of truth
+- Docs: add SPACECRAFT.md CLI commands table, docs/issues.md, docs/learned.md
+- Docs: add trigger phrases to all 12 skill descriptions, Research auto-triggers to 10/12 skills
+
 ## 0.13.0 - 2026-07-09
 
 - Feat: add `/sc-quick` fast lane command — branch → commit freely → fast self-review → ship, skipping spec/plan/TDD/formal review (M07I88T8A)

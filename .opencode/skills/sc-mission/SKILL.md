@@ -1,6 +1,6 @@
 ---
 name: sc-mission
-description: Manage mission artifacts and lifecycle for local OpenCode development
+description: Manage mission artifacts and lifecycle. Activate on /sc-start, mission creation, status check, or lifecycle management.
 license: MIT
 compatibility: opencode
 metadata:
@@ -31,6 +31,17 @@ Use this exact sequence unless the user specifies otherwise:
 3. **Route ambiguity** — If intent, scope, or acceptance criteria is ambiguous, route to sc-clarify before proceeding.
 4. **Enforce lifecycle** — Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Use `/sc-build` to repeat build -> verify -> checkpoint commit for successive tasks.
 5. **Release or handoff** — On ship intent, run release closeout. On session end, give handoff summary.
+
+### Edge cases
+
+- **No mission exists and user wants mutating work** — Create mission with `scripts/spacecraft new "<title>"` and a work branch. Record in `decisions.md`: "Auto-created mission for: <reason>."
+- **Multiple missions match selector** — Show candidates. Ask user to pick with `scripts/spacecraft use <number>`.
+- **Resolver safety ≠ safe** — Block all mutating work. Show conflicts. Require `scripts/spacecraft use <selector>`.
+- **Session ends mid-work** — Handoff: summarize current task, blockers, dirty git, next pickup command. Do not merge, tag, or delete branches.
+
+## Research auto-trigger
+
+When mission context involves unfamiliar tools, frameworks, or APIs, run `spacecraft research "<query>"` before making lifecycle decisions that depend on that knowledge.
 
 ## Rules
 
@@ -86,11 +97,13 @@ Mission artifacts follow the standard layout:
 
 Before claiming the mission lifecycle is handled:
 
-- [ ] Mission resolved and confirmed safe before writes
-- [ ] All relevant artifacts read before decisions
-- [ ] Ambiguity routed to sc-clarify when blocking
-- [ ] Lifecycle enforced: clarify -> spec -> visual design -> plan -> work -> verify -> review -> ship
-- [ ] Session handoff or release closeout handled correctly per user intent
+- [ ] Mission resolved with `scripts/spacecraft resolve --json` (safety = `safe`)
+- [ ] All relevant artifacts read before any decision or mutation
+- [ ] Ambiguity routed to sc-clarify when blocking (not bypassed)
+- [ ] Lifecycle order enforced: clarify → spec → design → plan → build → verify → review → ship
+- [ ] Session handoff: state summary, blockers, dirty git, pickup command provided
+- [ ] Release closeout: evidence checked, review gates passed, no-ff merge, tag, archive
+- [ ] Never wrote product changes on `main`; always used a work branch
 
 ---
 

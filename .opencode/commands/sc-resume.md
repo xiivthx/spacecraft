@@ -53,7 +53,7 @@ Based on the live state above, present a concise handoff resume:
 5. **Evidence**: count, last entry (label + date + exit code)
 6. **Review**: status + unresolved finding count
 7. **Blockers**: list if any
-8. **Next action**: exact slash command to pick up work (e.g. `/sc-build T03`, `/sc-review`, `/sc-plan`)
+8. **Next action**: if the workflow `Next:` field is a slash command (starts with `/sc-`), quote it exactly as the pickup command. If it is a parenthesized status like `(clarify)` or `(shipped)`, explain what the Commander should do: for `(clarify)` — sc-clarify skill will auto-trigger, just tell the user to continue the session; for `(shipped)` — mission is complete, nothing to do.
 9. **Session advice**: continue this chat or start new session, with brief reason
 
 ## Constraints

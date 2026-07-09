@@ -4,7 +4,7 @@ agent: sc-commander
 subtask: true
 ---
 
-Use sc-mission, sc-clarify, sc-git, and sc-verification.
+Use sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, and sc-verification.
 Resolve the mission. Block if unsafe.
 
 ## Pre-flight checks
@@ -28,6 +28,8 @@ scripts/spacecraft git-info
 ### Dependency check
 
 Before code or dependency changes, check official current docs/registry/releases for direct dependencies and framework APIs. Use latest stable direct versions unless a deep dependency, ecosystem pin, or explicit user instruction says otherwise. Record source/version/date when it affects implementation.
+
+When versions or APIs are uncertain, run `spacecraft research "<package> latest version"` before installing. Do not guess dependency versions.
 
 ## Per-task loop
 
