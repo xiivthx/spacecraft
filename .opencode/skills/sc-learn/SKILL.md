@@ -56,14 +56,16 @@ Activate when the user asks to:
    - **Commit**: <hash or reference>
    ```
 
-4. **Record lessons** — When a principle or insight emerges during the mission:
-   ```
-   ### <lesson title>
-   - **Date**: YYYY-MM-DD
-   - **Context**: <what triggered this insight>
-   - **Lesson**: <the principle or pattern learned>
-   - **Application**: <how to apply this in future missions>
-   ```
+4. **Record lessons** — When a general principle or transferable insight emerges (NOT a specific issue — those go to solved.md):
+    ```
+    ### <lesson title>
+    - **Date**: YYYY-MM-DD
+    - **Context**: <what triggered this insight>
+    - **Lesson**: <the general principle — framed as world-wide solution, not project-specific>
+    - **Application**: <how this applies beyond the current mission>
+    ```
+    
+    **Distinction**: Solved = specific bugs fixed in this project. Lessons = general truths reusable anywhere. A closeout checker quirk is solved; "verify pre-existing failures before blocking" is a lesson.
 
 ### During /sc-ship (migration)
 
@@ -76,13 +78,14 @@ Before the version bump and changelog commit, run this migration:
    - Include: date, severity, description, impact
    - Update the mission `issues.md` to mark each as `status: migrated`
 
-3. **Migrate solved items** — For each entry in `solved.md`:
-   - Append to `docs/learned.md` under the `## Solved` table with mission context
-   - Format: `| <mission-id> | <date> | <problem summary> | <solution summary> | <evidence> |`
+3. **Migrate solved items** — For each entry in `solved.md` (specific issues fixed):
+    - Append to `docs/learned.md` under the `## Solved` table with mission context
+    - Format: `| <mission-id> | <date> | <problem summary> | <solution summary> | <evidence> |`
 
-4. **Migrate lessons** — For each entry in `learned.md`:
-   - Append to `docs/learned.md` under the `## Lessons` table with mission context
-   - Format: `| <mission-id> | <date> | <lesson title> | <context> | <application> |`
+4. **Migrate lessons** — For each entry in `learned.md` (general principles, not project-specific):
+    - Reword from mission context to general principle before migrating — strip project-specific details, keep the transferable insight
+    - Append to `docs/learned.md` under the `## Lessons` table
+    - Format: `| <mission-id> | <date> | <lesson — general principle> | <why it matters — world-wide relevance> |`
 
 5. **Proceed with ship** — After migration, continue with version bump and changelog as normal.
 
@@ -95,6 +98,8 @@ See `references/templates.md` for the full file templates. Copy them when creati
 - **Must**: Create tracking files when mission moves to `planned` state (or earlier if issues arise).
 - **Must**: Record issues as they are found — don't batch at the end.
 - **Must**: Move issues from `issues.md` to `solved.md` when resolved during the mission.
+- **Must**: Distinguish Solved (specific issues fixed in this project) from Lessons (general principles, transferable to any codebase). If an insight only makes sense in the context of this specific tool, it's a solved issue, not a lesson.
+- **Must**: During migration, reword lesson entries from project-specific context into general principles before writing to `docs/learned.md`.
 - **Must**: During `/sc-ship`, migrate unresolved issues to `docs/issues.md` before the version bump commit.
 - **Must**: During `/sc-ship`, migrate solved and learned items to `docs/learned.md` before the version bump commit.
 - **Must not**: Ship with unresolved issues still only in the mission folder — they must be promoted to global docs.
