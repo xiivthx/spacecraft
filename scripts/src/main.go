@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -840,61 +841,49 @@ func archiveCmd(args []string) int {
 
 // ---------- research command ----------
 
+// normalizeDeepArgs converts bare "--deep" occurrences to "--deep=true" so
+// that flag.FlagSet can treat --deep as an optional string flag.
+func normalizeDeepArgs(args []string) []string {
+	out := make([]string, 0, len(args))
+	for i, a := range args {
+		if a == "--deep" && (i == len(args)-1 || strings.HasPrefix(args[i+1], "-")) {
+			out = append(out, "--deep=true")
+			continue
+		}
+		out = append(out, a)
+	}
+	return out
+}
+
 func researchCmd(args []string) int {
-	// Parse flags manually since Go's flag package doesn't support dashes in flag names.
+	args = normalizeDeepArgs(args)
+
+	fs := flag.NewFlagSet("research", flag.ContinueOnError)
+	fs.SetOutput(os.Stderr)
+	fs.Usage = func() { fmt.Print(researchUsage()) }
+
 	var (
 		scope    string
 		deepMode string
-		results  int = 5
-		timeout       = 10 * time.Second
+		results  int
+		timeout  time.Duration
 		jsonOut  bool
 		noSave   bool
 	)
-	parsed := 0
-	argsConsumed := false
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		switch {
-		case a == "--scope" && i+1 < len(args):
-			i++; scope = args[i]; parsed++
-		case strings.HasPrefix(a, "--scope="):
-			scope = a[len("--scope="):]; parsed++
-		case a == "--deep" && i+1 < len(args) && !strings.HasPrefix(args[i+1], "--"):
-			i++; deepMode = args[i]; parsed++
-		case strings.HasPrefix(a, "--deep="):
-			deepMode = a[len("--deep="):]; parsed++
-		case a == "--deep":
-			deepMode = "true"; parsed++
-		case a == "--results" && i+1 < len(args):
-			i++; n, err := strconv.Atoi(args[i])
-			if err == nil && n > 0 { results = n }; parsed++
-		case strings.HasPrefix(a, "--results="):
-			n, err := strconv.Atoi(a[len("--results="):])
-			if err == nil && n > 0 { results = n }; parsed++
-		case a == "--timeout" && i+1 < len(args):
-			i++; d, err := time.ParseDuration(args[i])
-			if err == nil { timeout = d }; parsed++
-		case strings.HasPrefix(a, "--timeout="):
-			d, err := time.ParseDuration(a[len("--timeout="):])
-			if err == nil { timeout = d }; parsed++
-		case a == "--json":
-			jsonOut = true; parsed++
-		case a == "--no-save":
-			noSave = true; parsed++
-		case a == "-h" || a == "--help":
-			fmt.Print(researchUsage())
+	fs.StringVar(&scope, "scope", "", "Force a scope")
+	fs.StringVar(&deepMode, "deep", "", "Deep research (true=browser-use, nlm=notebooklm)")
+	fs.IntVar(&results, "results", 5, "Number of results")
+	fs.DurationVar(&timeout, "timeout", 10*time.Second, "Request timeout")
+	fs.BoolVar(&jsonOut, "json", false, "JSON output")
+	fs.BoolVar(&noSave, "no-save", false, "Skip persistence")
+
+	if err := fs.Parse(args); err != nil {
+		if err == flag.ErrHelp {
 			return 0
-		default:
-			args = args[i:]
-			argsConsumed = true
 		}
-		if argsConsumed {
-			break
-		}
+		return 1
 	}
-	if !argsConsumed {
-		args = nil
-	}
+	args = fs.Args()
 
 	if len(args) == 0 {
 		return printErr("Missing query.\n\n" + researchUsage())
@@ -1149,37 +1138,26 @@ func detectManifests() []string {
 // ---------- check-deps command ----------
 
 func checkDepsCmd(args []string) int {
+	fs := flag.NewFlagSet("check-deps", flag.ContinueOnError)
+	fs.SetOutput(os.Stderr)
+	fs.Usage = func() { fmt.Print(checkDepsUsage()) }
+
 	var (
-		timeout     = 10 * time.Second
-		concurrency = 4
+		timeout     time.Duration
+		concurrency int
 		jsonOut     bool
 		registry    string
 	)
-	for i := 0; i < len(args); i++ {
-		a := args[i]
-		switch {
-		case a == "--timeout" && i+1 < len(args):
-			i++; d, err := time.ParseDuration(args[i])
-			if err == nil { timeout = d }
-		case strings.HasPrefix(a, "--timeout="):
-			d, err := time.ParseDuration(a[len("--timeout="):])
-			if err == nil { timeout = d }
-		case a == "--concurrency" && i+1 < len(args):
-			i++; n, err := strconv.Atoi(args[i])
-			if err == nil && n > 0 { concurrency = n }
-		case strings.HasPrefix(a, "--concurrency="):
-			n, err := strconv.Atoi(a[len("--concurrency="):])
-			if err == nil && n > 0 { concurrency = n }
-		case a == "--registry" && i+1 < len(args):
-			i++; registry = args[i]
-		case strings.HasPrefix(a, "--registry="):
-			registry = a[len("--registry="):]
-		case a == "--json":
-			jsonOut = true
-		case a == "-h" || a == "--help":
-			fmt.Print(checkDepsUsage())
+	fs.DurationVar(&timeout, "timeout", 10*time.Second, "Request timeout")
+	fs.IntVar(&concurrency, "concurrency", 4, "Concurrent registry lookups")
+	fs.StringVar(&registry, "registry", "", "Limit to one ecosystem")
+	fs.BoolVar(&jsonOut, "json", false, "JSON output")
+
+	if err := fs.Parse(args); err != nil {
+		if err == flag.ErrHelp {
 			return 0
 		}
+		return 1
 	}
 
 	root := cfg.Root()
