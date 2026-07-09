@@ -19,6 +19,13 @@ Specific issues that were identified, fixed, and verified during missions.
 | M07IDBF29 | 2026-07-09 | Dead empty if-block in workflow.go; missing sections in sc-quick.md/sc-resume.md; fragile inline Python in sc-resume.md | Removed dead code; added Pre-flight/Error Handling/Hard Stop Gates sections; replaced Python with Go/shell approach | E07IEXXYT, E07IEOJKN |
 | M07IDBF29 | 2026-07-09 | Closeout checker gate statuses are keyword-enforced — specNote rejected "not-applicable"; only specific keywords allowed | Used "deferred" instead; check `defaultReleaseGateStatuses` before populating review.json releaseReadiness | E07IFL9C2 |
 | M07IDBF29 | 2026-07-09 | review.json findings missing `id`/`summary` fields cause "unnamed" blocking findings | Populated `id` and `summary` per Finding struct schema for proper blocking-findings identification | E07IFL9C2 |
+| M07IG6R17 | 2026-07-09 | Duplicate ID normalization in archive.go (normalizeMissionIdSimple) — third copy of slug logic | Unified with util.NormalizeMissionId (G3) | E07IGRR4U |
+| M07IG6R17 | 2026-07-09 | Config package only supports root-derived paths — no way to override individual paths for testing | Added ConfigOption functional options: WithSpaceDir, WithMissionsDir, WithArchiveDir, WithCurrentFile (G15) | E07IGUZF7 |
+| M07IG6R17 | 2026-07-09 | 22 unused backward-compat type aliases in types.go | Removed all aliases (G16) | E07IGWVI1 |
+| M07IG6R17 | 2026-07-09 | GitInfo and GitInfoData — overlapping structs with different fields, JSON consumers see different shapes | Consolidated into GitInfoData (additive superset — preserves all old JSON fields) (G17) | E07IH12NO |
+| M07IG6R17 | 2026-07-09 | NoopRunner variable named as noop but runs real OS commands (gitutil/git.go) | Renamed to DefaultRunner to reflect actual behavior (G18) | E07IH2MZG |
+| M07IG6R17 | 2026-07-09 | Manual flag parsing loop in researchCmd and checkDepsCmd — flag package supports dashes | Replaced with flag.NewFlagSet (G19) | E07IHF9J4 |
+| M07IG6R17 | 2026-07-09 | Commander session handoff recommends auto-trigger skills as user slash commands | Clarified auto-trigger vs user commands in PERSONA.md (D7) | E07IHJBKL |
 
 ---
 
@@ -30,6 +37,8 @@ General principles and transferable insights — applicable beyond this codebase
 |---------|------|--------|----------------|
 | M07IDBF29 | 2026-07-09 | Always verify pre-existing test failures against the base commit before treating them as blocking regressions | CI failures are not always introduced by the current change. A failing test that also fails on the base commit is pre-existing noise — document it, don't block the release on it |
 | M07IDBF29 | 2026-07-09 | Resolved findings should not block release — severity downgrade prevents false blocking | A finding marked "critical" still blocks even after resolution. When a finding is resolved, either downgrade severity or mark `blocksShip: false` so the release gate reflects reality, not history |
+| M07IG6R17 | 2026-07-09 | Configuration-as-code schemas with machine-enforced enums must document allowed values — `ReleaseGate.status` silently rejects descriptive words like "satisfied", "approved", "pending" because only specific keywords in the allowlist pass | Always check the source code's status keyword allowlist before populating machine-validated JSON fields. Descriptive language that feels natural to humans often doesn't match the machine's enum |
+| M07IG6R17 | 2026-07-09 | Version bump and changelog commits must be separate from implementation commits — git history should distinguish "what changed" from "what was released" | Keep release note commits (`chore:` or `docs:`) as a dedicated final commit in the work branch, never bundled with feature or fix implementation. This makes rollback and audit easier |
 
 ---
 
