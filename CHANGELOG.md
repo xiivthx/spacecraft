@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.5 - 2026-07-09
+
+- Feat: add `spacecraft compact` command — token-optimized output filtering for LLM context (M07IYSMYA)
+- Feat: compact supports git status/diff/log, go test/build, ls, cat filters, plus generic dedup+truncation
+- Feat: `--tee` flag saves full unfiltered output on non-zero exit for LLM fallback
+
 ## 0.14.4 - 2026-07-09
 
 - Docs: fix 13 skill issues (sc-debug dedup, sc-design reading guide, sc-map schema extract, sc-mission expansion, sc-solid justification, sc-git redundancy, sc-tdd trigger, sc-creator trim) (S14–S26, M07IMLU48)
