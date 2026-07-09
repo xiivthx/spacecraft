@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"spacecraft/internal/config"
+	"spacecraft/internal/util"
 )
 
 func newTestConfig(t *testing.T) (*config.Config, *FSStore, func()) {
@@ -445,7 +446,7 @@ func TestFSStore_ReserveEvidencePath(t *testing.T) {
 		t.Error("paths should not be empty")
 	}
 	// Files should have been created (empty)
-	if !fileExists(stdoutPath) {
+	if !util.Exists(stdoutPath) {
 		t.Errorf("stdout file should exist: %s", stdoutPath)
 	}
 }

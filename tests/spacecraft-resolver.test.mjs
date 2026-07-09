@@ -91,7 +91,7 @@ function runSpacecraft(cwd, args, options = {}) {
 }
 
 function resolveJson(cwd, args = [], options = {}) {
-  const result = runSpacecraft(cwd, ["resolve", ...args, "--json"], options);
+  const result = runSpacecraft(cwd, ["resolve", ...args, "--json"], { ...options, check: false });
   return JSON.parse(result.stdout);
 }
 

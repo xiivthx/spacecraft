@@ -246,9 +246,7 @@ func buildBlockers(m *mission.Mission, specExists, planExists bool, tasks []miss
 	if onMainBlock && gitInfo.IsRepo && gitInfo.Branch == "main" {
 		blockers = append(blockers, "implementation workflow requires a non-main work branch")
 	}
-	if onMainBlock && gitInfo.IsRepo && res.Git.Branch != "" {
-		// Check dirty state isn't from res (no direct access to dirty in GitInfo)
-	}
+	// TODO: add dirty state check for non-main branches when GitInfo exposes dirty flag
 
 	return blockers
 }

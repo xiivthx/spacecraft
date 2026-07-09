@@ -6,6 +6,22 @@ agent: sc-commander
 Use sc-mission.
 Resolve the mission. If no mission resolves, say so and stop — do not create a new mission.
 
+## Pre-flight Checks
+
+Run:
+```
+scripts/spacecraft resolve --json
+```
+
+If resolver safety is not `safe` or no mission is selected, state the issue and stop. Run `scripts/spacecraft missions` and `scripts/spacecraft use <number|id|title>` to resolve.
+
+Run:
+```
+scripts/spacecraft git-info
+```
+
+If git is dirty and the mission state is not `draft`, flag it prominently in the resume output.
+
 ## Live state
 
 Mission status:
@@ -24,23 +40,7 @@ Dirty files (if any):
 !`git diff --stat 2>/dev/null; git diff --cached --stat 2>/dev/null || echo "(clean or not a repo)"`
 
 Last evidence entry:
-!`scripts/spacecraft resolve --json 2>/dev/null | python3 -c "
-import json,sys,os
-d=json.load(sys.stdin)
-mid=d.get('selected',{}).get('id') or d.get('currentMissionId')
-if mid:
-    p=os.path.join('.space','missions',mid,'evidence.jsonl')
-    if os.path.exists(p):
-        lines=[l.strip() for l in open(p) if l.strip()]
-        if lines:
-            print(lines[-1])
-        else:
-            print('(no evidence)')
-    else:
-        print('(no evidence file)')
-else:
-    print('(no mission)')
-" 2>/dev/null || echo "(could not read evidence)"`
+!`mid=$(scripts/spacecraft resolve --json 2>/dev/null | sed -n 's/.*"currentMissionId":"\([^"]*\)".*/\1/p'); [ -n "$mid" ] && [ -f ".space/missions/$mid/evidence.jsonl" ] && tail -1 ".space/missions/$mid/evidence.jsonl" || echo "(no evidence)"`
 
 ## Handoff resume
 
@@ -63,5 +63,13 @@ Based on the live state above, present a concise handoff resume:
 - This command is strictly read-only.
 - If git is dirty and the state is not `draft`, flag it prominently.
 - If no mission resolves, say: "No active mission. Start one with `/sc-start <title>`."
+
+## Error handling
+
+- No mission resolves → stop and tell user: "No active mission. Start one with `/sc-start <title>`."
+- Resolver conflict or ambiguity → display candidates and tell user to run `scripts/spacecraft missions` then `scripts/spacecraft use <number|id|title>`
+- Git not available → still display mission state but flag git as unavailable
+- Dirty workspace with non-draft mission → warn prominently in resume output
+- Cannot read evidence → display "(no evidence)" and continue
 
 End with the **next action** line only — no pleasantries, no filler.

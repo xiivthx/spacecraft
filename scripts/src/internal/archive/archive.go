@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"spacecraft/internal/mission"
+	"spacecraft/internal/util"
 )
 
 // readinessStatuses are the gate statuses used by defaultReleaseGateStatuses.
@@ -63,7 +64,7 @@ func (r *ReadinessChecker) CheckReadiness(id string, plan *mission.Plan, review 
 
 	var incomplete []string
 	for _, t := range tasks {
-		if !taskIsComplete(t.Status) {
+		if !mission.TaskIsComplete(t.Status) {
 			name := "unnamed"
 			if t.ID != nil {
 				name = *t.ID
@@ -82,7 +83,7 @@ func (r *ReadinessChecker) CheckReadiness(id string, plan *mission.Plan, review 
 	}
 
 	if review != nil {
-		blocking := blockingFindings(review)
+		blocking := mission.BlockingFindings(review)
 		if len(blocking) > 0 {
 			var names []string
 			for _, f := range blocking {
@@ -151,7 +152,7 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 	}
 	completedCount := 0
 	for _, t := range tasks {
-		if taskIsComplete(t.Status) {
+		if mission.TaskIsComplete(t.Status) {
 			completedCount++
 		}
 	}
@@ -219,7 +220,7 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 	// Create archive dir under store's configured archive directory
 	archiveRoot := filepath.Join(filepath.Dir(filepath.Dir(sourceDir)), "archive")
 	archiveDir := filepath.Join(archiveRoot, id)
-	if exists(archiveDir) {
+	if util.Exists(archiveDir) {
 		return nil, fmt.Errorf("archive already exists: %s", archiveDir)
 	}
 	if err := os.MkdirAll(archiveDir, 0755); err != nil {
@@ -280,12 +281,12 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 	}
 
 	// Write compact mission.json
-	if err := writeJSON(filepath.Join(archiveDir, "mission.json"), compactM); err != nil {
+	if err := util.WriteJson(filepath.Join(archiveDir, "mission.json"), compactM); err != nil {
 		return nil, err
 	}
 
 	// Write compact plan.json
-	if err := writeJSON(filepath.Join(archiveDir, "plan.json"), compactP); err != nil {
+	if err := util.WriteJson(filepath.Join(archiveDir, "plan.json"), compactP); err != nil {
 		return nil, err
 	}
 
@@ -305,16 +306,24 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 
 	// Write compact review
 	if params.Review != nil {
-		if err := writeJSON(filepath.Join(archiveDir, "review.json"), params.Review); err != nil {
+		if err := util.WriteJson(filepath.Join(archiveDir, "review.json"), params.Review); err != nil {
 			return nil, err
 		}
 	}
 
 	// Copy optional extras
-	copyTextFile(filepath.Join(sourceDir, "review.md"), filepath.Join(archiveDir, "review.md"))
-	copyTextFile(filepath.Join(sourceDir, "spec.md"), filepath.Join(archiveDir, "spec.md"))
-	copyTextFile(filepath.Join(sourceDir, "decisions.md"), filepath.Join(archiveDir, "decisions.md"))
-	copyTextFile(filepath.Join(sourceDir, "questions.md"), filepath.Join(archiveDir, "questions.md"))
+	if err := copyTextFile(filepath.Join(sourceDir, "review.md"), filepath.Join(archiveDir, "review.md")); err != nil {
+		return nil, err
+	}
+	if err := copyTextFile(filepath.Join(sourceDir, "spec.md"), filepath.Join(archiveDir, "spec.md")); err != nil {
+		return nil, err
+	}
+	if err := copyTextFile(filepath.Join(sourceDir, "decisions.md"), filepath.Join(archiveDir, "decisions.md")); err != nil {
+		return nil, err
+	}
+	if err := copyTextFile(filepath.Join(sourceDir, "questions.md"), filepath.Join(archiveDir, "questions.md")); err != nil {
+		return nil, err
+	}
 
 	// Remove source
 	if err := os.RemoveAll(sourceDir); err != nil {
@@ -327,20 +336,6 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 	return &ArchiveResult{ArchiveDir: archiveDir}, nil
 }
 
-// --- helpers ---
-
-// taskIsComplete returns true if the task status is a terminal/closed state.
-func taskIsComplete(status *string) bool {
-	if status == nil {
-		return false
-	}
-	switch *status {
-	case "completed", "done", "cancelled":
-		return true
-	}
-	return false
-}
-
 func compactEvidenceEntry(entry mission.EvidenceEntry) mission.CompactEvidenceEntry {
 	return mission.CompactEvidenceEntry{
 		ID:        entry.ID,
@@ -351,33 +346,18 @@ func compactEvidenceEntry(entry mission.EvidenceEntry) mission.CompactEvidenceEn
 	}
 }
 
-func blockingFindings(review *mission.Review) []mission.Finding {
-	if review == nil {
+func copyTextFile(src, dst string) error {
+	if !util.Exists(src) {
 		return nil
-	}
-	var blocking []mission.Finding
-	for _, f := range review.Findings {
-		blocks := f.BlocksShip != nil && *f.BlocksShip
-		critical := f.Severity != nil && *f.Severity == "critical"
-		if blocks || critical {
-			blocking = append(blocking, f)
-		}
-	}
-	return blocking
-}
-
-func copyTextFile(src, dst string) bool {
-	if !exists(src) {
-		return false
 	}
 	content, err := os.ReadFile(src)
 	if err != nil {
-		return false
+		return fmt.Errorf("copyTextFile read %s: %w", src, err)
 	}
 	if err := os.WriteFile(dst, content, 0644); err != nil {
-		return false
+		return fmt.Errorf("copyTextFile write %s: %w", dst, err)
 	}
-	return true
+	return nil
 }
 
 func clearArchivedMissionSelection(id string, store mission.MissionStore) {
@@ -390,7 +370,7 @@ func clearArchivedMissionSelection(id string, store mission.MissionStore) {
 	// Use a simpler approach: clear sessions for known patterns.
 	// In practice, the store.ClearCurrent is sufficient for most cases.
 	sessionsDir := filepath.Join(filepath.Dir(filepath.Dir(store.MissionDir(id))), "sessions")
-	if !exists(sessionsDir) {
+	if !util.Exists(sessionsDir) {
 		return
 	}
 	entries, _ := os.ReadDir(sessionsDir)
@@ -407,17 +387,6 @@ func clearArchivedMissionSelection(id string, store mission.MissionStore) {
 	}
 }
 
-func writeJSON(path string, data interface{}) error {
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	enc.SetEscapeHTML(false)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(data); err != nil {
-		return err
-	}
-	return os.WriteFile(path, buf.Bytes(), 0644)
-}
-
 func jsonMarshal(v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
@@ -426,11 +395,6 @@ func jsonMarshal(v interface{}) ([]byte, error) {
 		return nil, err
 	}
 	return buf.Bytes(), nil
-}
-
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }
 
 func normalizeMissionIdSimple(value string) *string {

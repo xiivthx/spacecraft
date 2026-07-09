@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"spacecraft/internal/mission"
+	"spacecraft/internal/util"
 )
 
 // AllowedStates lists valid mission states.
@@ -104,11 +105,11 @@ func (s *StateSetter) ValidateMission(id string) *ValidationError {
 
 	// Check mission.json
 	mPath := filepath.Join(dir, "mission.json")
-	if !fileExists(mPath) {
+	if !util.Exists(mPath) {
 		errors = append(errors, "missing mission.json")
 	} else {
 		var m mission.Mission
-		if err := readJSON(mPath, &m); err != nil {
+		if err := util.ReadJson(mPath, &m); err != nil {
 			errors = append(errors, "invalid JSON in mission.json: "+err.Error())
 		} else {
 			status := m.Clarification.Status
@@ -119,17 +120,17 @@ func (s *StateSetter) ValidateMission(id string) *ValidationError {
 	}
 
 	// Check spec.md
-	if !fileExists(filepath.Join(dir, "spec.md")) {
+	if !util.Exists(filepath.Join(dir, "spec.md")) {
 		errors = append(errors, "missing spec.md")
 	}
 
 	// Check plan.json
 	pPath := filepath.Join(dir, "plan.json")
-	if !fileExists(pPath) {
+	if !util.Exists(pPath) {
 		errors = append(errors, "missing plan.json")
 	} else {
 		var p mission.Plan
-		if err := readJSON(pPath, &p); err != nil {
+		if err := util.ReadJson(pPath, &p); err != nil {
 			errors = append(errors, "invalid JSON in plan.json: "+err.Error())
 		} else if p.Tasks == nil {
 			errors = append(errors, "plan.json must contain a tasks array")
@@ -138,7 +139,7 @@ func (s *StateSetter) ValidateMission(id string) *ValidationError {
 
 	// Check evidence.jsonl
 	evPath := filepath.Join(dir, "evidence.jsonl")
-	if !fileExists(evPath) {
+	if !util.Exists(evPath) {
 		errors = append(errors, "missing evidence.jsonl")
 	} else {
 		content, err := os.ReadFile(evPath)
@@ -168,9 +169,9 @@ func (s *StateSetter) ValidateMission(id string) *ValidationError {
 
 	// Check review.json (optional but validate if present)
 	revPath := filepath.Join(dir, "review.json")
-	if fileExists(revPath) {
+	if util.Exists(revPath) {
 		var r interface{}
-		if err := readJSON(revPath, &r); err != nil {
+		if err := util.ReadJson(revPath, &r); err != nil {
 			errors = append(errors, "invalid JSON in review.json: "+err.Error())
 		}
 	}
@@ -179,19 +180,4 @@ func (s *StateSetter) ValidateMission(id string) *ValidationError {
 		return &ValidationError{Errors: errors}
 	}
 	return nil
-}
-
-// --- helpers ---
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
-}
-
-func readJSON(path string, target interface{}) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(data, target)
 }

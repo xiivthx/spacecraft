@@ -8,6 +8,7 @@ import (
 
 	"spacecraft/internal/config"
 	"spacecraft/internal/mission"
+	"spacecraft/internal/util"
 )
 
 func TestReadinessChecker_ready(t *testing.T) {
@@ -210,19 +211,19 @@ func TestMissionArchiver_archiveHappyPath(t *testing.T) {
 	}
 
 	// Check archive artifacts
-	if !fileExists(filepath.Join(archiveDir, "SUMMARY.md")) {
+	if !util.Exists(filepath.Join(archiveDir, "SUMMARY.md")) {
 		t.Error("SUMMARY.md should exist in archive")
 	}
-	if !fileExists(filepath.Join(archiveDir, "mission.json")) {
+	if !util.Exists(filepath.Join(archiveDir, "mission.json")) {
 		t.Error("mission.json should exist in archive")
 	}
-	if !fileExists(filepath.Join(archiveDir, "plan.json")) {
+	if !util.Exists(filepath.Join(archiveDir, "plan.json")) {
 		t.Error("plan.json should exist in archive")
 	}
-	if !fileExists(filepath.Join(archiveDir, "evidence.jsonl")) {
+	if !util.Exists(filepath.Join(archiveDir, "evidence.jsonl")) {
 		t.Error("evidence.jsonl should exist in archive")
 	}
-	if !fileExists(filepath.Join(archiveDir, "spec.md")) {
+	if !util.Exists(filepath.Join(archiveDir, "spec.md")) {
 		t.Error("spec.md should exist in archive")
 	}
 
@@ -407,11 +408,6 @@ func readyReview() *mission.Review {
 }
 
 func strPtr(s string) *string { return &s }
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
-}
 
 func dirExists(path string) bool {
 	info, err := os.Stat(path)

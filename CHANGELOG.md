@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.14.1 - 2026-07-09
+
+- Fix: consolidate duplicated Go helper functions — `fileExists`, `readJSON`, `writeJSON` across archive/mission/state now use `util/fs.go` (G4, M07IDBF29)
+- Fix: deduplicate `taskIsComplete` and `blockingFindings` between archive and closeout into mission package (G5, G6, M07IDBF29)
+- Fix: correct `copyTextFile` to return error instead of silently failing with bool (G12, M07IDBF29)
+- Fix: normalize `checkDepsCmd` and `resolveCmd` exit codes to Unix conventions (G8, G9, M07IDBF29)
+- Fix: add fallback error log for `lookupPackage` nil return and stop `evidenceCmd` exit code propagation (G10, G11, M07IDBF29)
+- Refactor: remove `goto` statements from `researchCmd` and rename `deep` variable collision (G7, G13, M07IDBF29)
+- Fix: remove dead empty if-block in `workflow.go` (G14, M07IDBF29)
+- Docs: add Pre-flight Checks and Hard Stop Gates to `sc-quick.md` (C7, M07IDBF29)
+- Docs: replace fragile inline Python script in `sc-resume.md` and add missing sections (C8, C9, M07IDBF29)
+- Docs: add D7 commander skill-as-command recommendation issue to `docs/issues.md`
+
 ## 0.14.0 - 2026-07-09
 
 - Feat: add sc-tdd skill — test-driven development discipline with seam identification, anti-pattern detection, mocking guidelines (M07I7FY1P)

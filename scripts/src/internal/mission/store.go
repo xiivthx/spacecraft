@@ -13,6 +13,7 @@ import (
 
 	"spacecraft/internal/config"
 	"spacecraft/internal/id"
+	"spacecraft/internal/util"
 )
 
 // MissionStore defines the data-access interface for mission artifacts.
@@ -102,7 +103,7 @@ func NewFSStore(cfg *config.Config) *FSStore {
 
 func (s *FSStore) ReadCurrent() (*string, error) {
 	path := s.cfg.CurrentFile()
-	if !fileExists(path) {
+	if !util.Exists(path) {
 		return nil, nil
 	}
 	data, err := os.ReadFile(path)
@@ -149,7 +150,7 @@ func (s *FSStore) SessionFilePath(key string) string {
 
 func (s *FSStore) ReadSession(sessionKey string) (*string, error) {
 	path := s.SessionFilePath(sessionKey)
-	if path == "" || !fileExists(path) {
+	if path == "" || !util.Exists(path) {
 		return nil, nil
 	}
 	data, err := os.ReadFile(path)
@@ -186,7 +187,7 @@ func (s *FSStore) ClearSession(sessionKey string) error {
 
 func (s *FSStore) List() ([]MissionRecord, error) {
 	dir := s.cfg.MissionsDir()
-	if !fileExists(dir) {
+	if !util.Exists(dir) {
 		return nil, nil
 	}
 	entries, err := os.ReadDir(dir)
@@ -201,11 +202,11 @@ func (s *FSStore) List() ([]MissionRecord, error) {
 		id := entry.Name()
 		mDir := filepath.Join(dir, id)
 		mPath := filepath.Join(mDir, "mission.json")
-		if !fileExists(mPath) {
+		if !util.Exists(mPath) {
 			continue
 		}
 		var m Mission
-		if err := readJSON(mPath, &m); err != nil {
+		if err := util.ReadJson(mPath, &m); err != nil {
 			continue
 		}
 		records = append(records, MissionRecord{
@@ -227,7 +228,7 @@ func (s *FSStore) List() ([]MissionRecord, error) {
 func (s *FSStore) Load(id string) (*Mission, error) {
 	path := filepath.Join(s.MissionDir(id), "mission.json")
 	var m Mission
-	if err := readJSON(path, &m); err != nil {
+	if err := util.ReadJson(path, &m); err != nil {
 		return nil, err
 	}
 	return &m, nil
@@ -235,7 +236,7 @@ func (s *FSStore) Load(id string) (*Mission, error) {
 
 func (s *FSStore) Save(m *Mission) error {
 	path := filepath.Join(s.MissionDir(m.ID), "mission.json")
-	return writeJSON(path, m)
+	return util.WriteJson(path, m)
 }
 
 func (s *FSStore) Create(m *Mission) error {
@@ -257,7 +258,7 @@ func (s *FSStore) Create(m *Mission) error {
 func (s *FSStore) LoadPlan(id string) (*Plan, error) {
 	path := filepath.Join(s.MissionDir(id), "plan.json")
 	var p Plan
-	if err := readJSON(path, &p); err != nil {
+	if err := util.ReadJson(path, &p); err != nil {
 		return nil, err
 	}
 	return &p, nil
@@ -265,7 +266,7 @@ func (s *FSStore) LoadPlan(id string) (*Plan, error) {
 
 func (s *FSStore) SavePlan(id string, p *Plan) error {
 	path := filepath.Join(s.MissionDir(id), "plan.json")
-	return writeJSON(path, p)
+	return util.WriteJson(path, p)
 }
 
 // --- review ---
@@ -273,7 +274,7 @@ func (s *FSStore) SavePlan(id string, p *Plan) error {
 func (s *FSStore) LoadReview(id string) (*Review, error) {
 	path := filepath.Join(s.MissionDir(id), "review.json")
 	var r Review
-	if err := readJSON(path, &r); err != nil {
+	if err := util.ReadJson(path, &r); err != nil {
 		return nil, err
 	}
 	return &r, nil
@@ -281,14 +282,14 @@ func (s *FSStore) LoadReview(id string) (*Review, error) {
 
 func (s *FSStore) SaveReview(id string, r *Review) error {
 	path := filepath.Join(s.MissionDir(id), "review.json")
-	return writeJSON(path, r)
+	return util.WriteJson(path, r)
 }
 
 // --- evidence ---
 
 func (s *FSStore) CountEvidence(id string) (int, error) {
 	path := filepath.Join(s.MissionDir(id), "evidence.jsonl")
-	if !fileExists(path) {
+	if !util.Exists(path) {
 		return 0, nil
 	}
 	data, err := os.ReadFile(path)
@@ -357,7 +358,7 @@ func (s *FSStore) AppendEvidence(id string, entry *EvidenceEntry) error {
 
 func (s *FSStore) ReadEvidenceEntries(id string) ([]EvidenceEntry, error) {
 	path := filepath.Join(s.MissionDir(id), "evidence.jsonl")
-	if !fileExists(path) {
+	if !util.Exists(path) {
 		return nil, nil
 	}
 	data, err := os.ReadFile(path)
@@ -383,31 +384,31 @@ func (s *FSStore) ReadEvidenceEntries(id string) ([]EvidenceEntry, error) {
 // --- artifact checks ---
 
 func (s *FSStore) SpecExists(id string) bool {
-	return fileExists(filepath.Join(s.MissionDir(id), "spec.md"))
+	return util.Exists(filepath.Join(s.MissionDir(id), "spec.md"))
 }
 
 func (s *FSStore) PlanExists(id string) bool {
-	return fileExists(filepath.Join(s.MissionDir(id), "plan.json"))
+	return util.Exists(filepath.Join(s.MissionDir(id), "plan.json"))
 }
 
 func (s *FSStore) QuestionsExists(id string) bool {
-	return fileExists(filepath.Join(s.MissionDir(id), "questions.md"))
+	return util.Exists(filepath.Join(s.MissionDir(id), "questions.md"))
 }
 
 func (s *FSStore) DecisionsExists(id string) bool {
-	return fileExists(filepath.Join(s.MissionDir(id), "decisions.md"))
+	return util.Exists(filepath.Join(s.MissionDir(id), "decisions.md"))
 }
 
 func (s *FSStore) DesignExists(id string) bool {
-	return fileExists(filepath.Join(s.MissionDir(id), "design"))
+	return util.Exists(filepath.Join(s.MissionDir(id), "design"))
 }
 
 func (s *FSStore) ReviewJSONExists(id string) bool {
-	return fileExists(filepath.Join(s.MissionDir(id), "review.json"))
+	return util.Exists(filepath.Join(s.MissionDir(id), "review.json"))
 }
 
 func (s *FSStore) ReviewMDExists(id string) bool {
-	return fileExists(filepath.Join(s.MissionDir(id), "review.md"))
+	return util.Exists(filepath.Join(s.MissionDir(id), "review.md"))
 }
 
 // --- file operations ---
@@ -433,7 +434,7 @@ func (s *FSStore) ArchiveMission(id, archiveDir string, compactM CompactMission,
 		return err
 	}
 	dest := filepath.Join(archiveDir, id)
-	if fileExists(dest) {
+	if util.Exists(dest) {
 		return fmt.Errorf("archive already exists: %s", dest)
 	}
 	if err := os.MkdirAll(dest, 0755); err != nil {
@@ -441,10 +442,10 @@ func (s *FSStore) ArchiveMission(id, archiveDir string, compactM CompactMission,
 	}
 
 	// Write summary
-	if err := writeJSON(filepath.Join(dest, "mission.json"), compactM); err != nil {
+	if err := util.WriteJson(filepath.Join(dest, "mission.json"), compactM); err != nil {
 		return err
 	}
-	if err := writeJSON(filepath.Join(dest, "plan.json"), compactP); err != nil {
+	if err := util.WriteJson(filepath.Join(dest, "plan.json"), compactP); err != nil {
 		return err
 	}
 
@@ -463,37 +464,11 @@ func (s *FSStore) ArchiveMission(id, archiveDir string, compactM CompactMission,
 	}
 
 	if review != nil {
-		if err := writeJSON(filepath.Join(dest, "review.json"), review); err != nil {
+		if err := util.WriteJson(filepath.Join(dest, "review.json"), review); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// --- internal helpers ---
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
-}
-
-func readJSON(path string, target interface{}) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(data, target)
-}
-
-func writeJSON(path string, data interface{}) error {
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	enc.SetEscapeHTML(false)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(data); err != nil {
-		return err
-	}
-	return os.WriteFile(path, buf.Bytes(), 0644)
 }
 
 func missionActive(m *Mission) bool {
