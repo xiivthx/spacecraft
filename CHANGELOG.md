@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.16.2 - 2026-07-10
+
+- Feat: add 4 web developer skills — sc-web-frontend (React/TypeScript/Vite/Tailwind), sc-web-backend (Node.js/Fastify), sc-architect (ADR/C4), sc-database (PostgreSQL/migrations) (M07JSKJRB)
+- Feat: register new skills in AGENTS.md skill table, agent permissions, command Use: lines, and SPACECRAFT.md routing tables
+- Remove: sc-web-service skill — patterns absorbed by sc-web-backend
+- Fix: stale Node test expectations for workflow recommendations
+
 ## 0.16.1 - 2026-07-10
 
 - Fix: `make install` detects local `.opencode/` and warns about double-load collision (FORCE=1 to override)
