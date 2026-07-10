@@ -3,7 +3,7 @@ description: Shape UI direction or polish changes against DESIGN.md
 agent: sc-commander
 ---
 
-Use sc-mission, sc-clarify, and sc-design.
+Use sc-mission, sc-clarify, sc-design, and sc-web-frontend.
 Resolve the mission. Block if unsafe.
 
 ## Pre-flight checks

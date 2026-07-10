@@ -8,6 +8,7 @@ permission:
   bash: deny
   skill:
     "*": deny
+    "sc-architect": allow
     "sc-mission": allow
     "sc-planning": allow
     "sc-solid": allow

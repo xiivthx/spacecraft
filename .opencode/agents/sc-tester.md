@@ -14,6 +14,7 @@ permission:
     "sc-solid": allow
     "sc-tdd": allow
     "sc-verification": allow
+    "sc-web-backend": allow
 ---
 
 ## Role & Identity

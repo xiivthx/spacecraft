@@ -2,7 +2,7 @@
 description: Create or update resolved mission flight plan
 agent: sc-commander
 ---
-Use sc-mission, sc-clarify, and sc-planning.
+Use sc-mission, sc-clarify, sc-planning, and sc-architect.
 Resolve the mission. Block if unsafe.
 
 ## Pre-flight checks

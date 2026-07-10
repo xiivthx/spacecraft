@@ -43,8 +43,10 @@ Commander auto-detects intent and routes to the appropriate lane.
 
 | Skill | Purpose |
 |-------|---------|
+| `sc-architect` | Design system architecture, write ADRs, C4 diagrams, and tradeoff analysis. |
 | `sc-clarify` | Resolve ambiguity through focused user clarification. |
 | `sc-creator` | Create new Spacecraft skills from datasources. |
+| `sc-database` | Design schemas, write migrations, optimize queries, and manage indexes (PostgreSQL default). |
 | `sc-debug` | Five-step debugging discipline (reproduce → trace → falsify → cross-reference → post-mortem). |
 | `sc-design` | Shape, critique, and polish UI/visual design. |
 | `sc-git` | Git safety, branching, Conventional Commits, no-ff merge, versioning. |
@@ -55,6 +57,8 @@ Commander auto-detects intent and routes to the appropriate lane.
 | `sc-solid` | SOLID principles and code quality discipline. |
 | `sc-tdd` | Test-driven development discipline (Plan-Red-Green-Verify-Refactor-Review). |
 | `sc-verification` | Capture fresh command evidence before claiming work complete. |
+| `sc-web-backend` | Build server APIs with Node.js, TypeScript, Fastify, and Vitest. |
+| `sc-web-frontend` | Build browser UI with React, TypeScript, Vite, Tailwind CSS, and Vitest. |
 | `sc-web-service` | Build lean local web service from scratch under mission control. |
 
 ## Per-project setup
