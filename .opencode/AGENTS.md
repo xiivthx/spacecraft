@@ -56,6 +56,7 @@ Commander auto-detects intent and routes to the appropriate lane.
 | `sc-planning` | Convert spec into small executable plan with verifiable tasks. |
 | `sc-solid` | SOLID principles and code quality discipline. |
 | `sc-tdd` | Test-driven development discipline (Plan-Red-Green-Verify-Refactor-Review). |
+| `sc-ux-design` | UI quality control: anti-slop enforcement, draft previews, animation quality, visual verification. |
 | `sc-verification` | Capture fresh command evidence before claiming work complete. |
 | `sc-web-backend` | Build server APIs with Node.js, TypeScript, Fastify, and Vitest. |
 | `sc-web-frontend` | Build browser UI with React, TypeScript, Vite, Tailwind CSS, and Vitest. |

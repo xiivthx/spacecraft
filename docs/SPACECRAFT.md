@@ -101,11 +101,11 @@ Default to handoff. Only closeout on explicit ship/release/merge intent.
 | Command | agent | subagent (task) | skill (Use:) | permission |
 |---------|-------|-----------------|--------------|------------|
 | `/sc-start` | sc-commander | — | sc-mission, sc-clarify | — |
-| `/sc-design` | sc-commander | sc-designer (read-only) | sc-mission, sc-clarify, sc-design, sc-web-frontend | task: sc-designer → allow; skill: sc-design → allow, sc-web-frontend → allow |
+| `/sc-design` | sc-commander | sc-designer (read-only) | sc-mission, sc-clarify, sc-design, sc-ux-design, sc-web-frontend | task: sc-designer → allow; skill: sc-design → allow, sc-ux-design → allow, sc-web-frontend → allow |
 | `/sc-plan` | sc-commander | sc-planner (read-only) | sc-mission, sc-clarify, sc-planning, sc-architect | task: sc-planner → allow; skill: sc-planning → allow, sc-architect → allow |
-| `/sc-build` | sc-commander | sc-coder (write), sc-tester (write) | sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, sc-verification, sc-web-frontend, sc-web-backend, sc-database | task: sc-coder → allow, sc-tester → allow; skill: sc-git → allow, sc-tdd → allow, sc-solid → allow, sc-verification → allow, sc-web-frontend → allow, sc-web-backend → allow, sc-database → allow |
+| `/sc-build` | sc-commander | sc-coder (write), sc-tester (write) | sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, sc-ux-design, sc-verification, sc-web-frontend, sc-web-backend, sc-database | task: sc-coder → allow, sc-tester → allow; skill: sc-git → allow, sc-tdd → allow, sc-solid → allow, sc-ux-design → allow, sc-verification → allow, sc-web-frontend → allow, sc-web-backend → allow, sc-database → allow |
 | `/sc-resume` | sc-commander | — | sc-mission | — |
-| `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid, sc-architect | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-verification → allow, sc-architect → allow |
+| `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid, sc-ux-design, sc-architect | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-ux-design → allow, sc-verification → allow, sc-architect → allow |
 | `/sc-quick` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
 | `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git, sc-learn | skill: sc-git → allow, sc-verification → allow, sc-learn → allow |
 
@@ -116,11 +116,11 @@ Commander auto-triggers: sc-clarify (on ambiguity), sc-mission (session start), 
 | Subagent | mode | skill.permission (allows) | bash.permission (notable) |
 |----------|------|---------------------------|---------------------------|
 | sc-commander | primary | `sc-*` (all skills) | R/W |
-| sc-coder | write | sc-database, sc-solid, sc-tdd, sc-web-backend, sc-web-frontend | R/W |
+| sc-coder | write | sc-database, sc-solid, sc-tdd, sc-ux-design, sc-web-backend, sc-web-frontend | R/W |
 | sc-tester | write | sc-solid, sc-tdd, sc-verification, sc-web-backend | R/W |
-| sc-designer | read-only | sc-design, sc-mission, sc-web-frontend | RO |
+| sc-designer | read-only | sc-design, sc-mission, sc-ux-design, sc-web-frontend | RO |
 | sc-planner | read-only | sc-architect, sc-mission, sc-planning, sc-solid | RO |
-| sc-reviewer | read-only | sc-architect, sc-mission, sc-git, sc-solid, sc-verification | RO |
+| sc-reviewer | read-only | sc-architect, sc-mission, sc-git, sc-solid, sc-ux-design, sc-verification | RO |
 
 ### Agent Hierarchy
 
@@ -154,6 +154,7 @@ sc-commander (primary)
 | sc-planning | `.opencode/skills/sc-planning/` | /sc-plan |
 | sc-solid | `.opencode/skills/sc-solid/` | /sc-build, /sc-review, sc-coder, sc-tester, sc-planner, sc-reviewer (SOLID, clean code, architecture) |
 | sc-tdd | `.opencode/skills/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
+| sc-ux-design | `.opencode/skills/sc-ux-design/` | /sc-build, /sc-design, /sc-review, sc-coder, sc-reviewer, sc-designer (UI quality, anti-slop, draft previews, visual verification) |
 | sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
 | sc-web-backend | `.opencode/skills/sc-web-backend/` | sc-coder, sc-tester, /sc-build |
 | sc-web-frontend | `.opencode/skills/sc-web-frontend/` | sc-coder, sc-designer, /sc-build, /sc-design |
