@@ -42,7 +42,14 @@ If work is unfinished and session ends: summarize state, blockers, dirty git sta
 **New session** when: phase changed, chat is long/context-heavy, or artifacts are sufficient for handoff.
 
 ## Release closeout
-On ship/release/merge/finish: check evidence, review, git, version/changelog, rebase status. Merge to `main` only when all gates pass. Block and list missing actions when not ready. After merge: tag, delete branch, archive mission.
+
+Merge to `main` is a **blocked operation** unless explicitly triggered by:
+- User runs `/sc-ship`
+- User says "ship it", "merge it", "release it", "close it out", or equivalent explicit command
+
+**Never auto-detect** a user message as a ship/release intent. "fix issues", "make this change", "add feature" are implementation requests — not release requests. Complete the work on the branch, report ready, then **stop and wait**.
+
+When the gate is triggered: check evidence, review, git, version/changelog, rebase status. Merge to `main` only when all gates pass. Block and list missing actions when not ready. After merge: tag, delete branch, archive mission.
 
 ## Fast self-review (for /sc-quick fast lane)
 
@@ -63,7 +70,7 @@ When the user invokes `/sc-quick`, the commander performs a lightweight self-rev
 - Commander performs this directly — do NOT invoke sc-reviewer subagent
 - Do NOT write review.md or review.json
 - If issues found: fix them and recommit before ship
-- If self-review is clean: proceed to ship
+- If self-review is clean: report ready and wait for explicit `/sc-ship` or user release command. Do NOT auto-merge.
 - If unsure about something non-trivial: recommend falling back to `/sc-review`
 
 ## Zero trust
