@@ -156,6 +156,7 @@ sc-commander (primary)
 | sc-tdd | `.opencode/skills/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
 | sc-ux-design | `.opencode/skills/sc-ux-design/` | /sc-build, /sc-design, /sc-review, sc-coder, sc-reviewer, sc-designer (UI quality, anti-slop, draft previews, visual verification) |
 | sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
+| sc-pathfinder | `.opencode/skills/sc-pathfinder/` | Commander (explicit invocation only — multi-session scoping) |
 | sc-web-backend | `.opencode/skills/sc-web-backend/` | sc-coder, sc-tester, /sc-build |
 | sc-web-frontend | `.opencode/skills/sc-web-frontend/` | sc-coder, sc-designer, /sc-build, /sc-design |
 
