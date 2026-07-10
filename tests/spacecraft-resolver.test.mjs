@@ -605,7 +605,7 @@ test("archive compacts shipped missions and removes the active mission copy", as
   await writeFile(path.join(missionDir, "plan.json"), `${JSON.stringify({
     missionId: id,
     tasks: [
-      { id: "T01", title: "Done task", status: "completed", evidence: ["E0000000A"] }
+      { id: "T01", title: "Done task", status: "done", evidence: ["E0000000A"] }
     ]
   }, null, 2)}\n`);
   await writeFile(path.join(missionDir, "evidence.jsonl"), `${JSON.stringify({
@@ -656,7 +656,7 @@ test("archive blocks shipped missions without ready review", async () => {
   await writeFile(path.join(missionDir, "plan.json"), `${JSON.stringify({
     missionId: id,
     tasks: [
-      { id: "T01", title: "Done task", status: "completed", evidence: ["E0000000B"] }
+      { id: "T01", title: "Done task", status: "done", evidence: ["E0000000B"] }
     ]
   }, null, 2)}\n`);
   await writeFile(path.join(missionDir, "evidence.jsonl"), `${JSON.stringify({
@@ -694,7 +694,7 @@ test("closeout rejects planned release gates except tag plan", async () => {
   await writeFile(path.join(missionDir, "plan.json"), `${JSON.stringify({
     missionId: id,
     tasks: [
-      { id: "T01", title: "Done task", status: "completed", evidence: ["E0000000C"] }
+      { id: "T01", title: "Done task", status: "done", evidence: ["E0000000C"] }
     ]
   }, null, 2)}\n`);
   await writeFile(path.join(missionDir, "evidence.jsonl"), `${JSON.stringify({

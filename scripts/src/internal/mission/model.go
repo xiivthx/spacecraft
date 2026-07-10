@@ -233,7 +233,7 @@ func TaskIsComplete(status *string) bool {
 		return false
 	}
 	switch *status {
-	case "completed", "done", "cancelled":
+	case "done", "cancelled":
 		return true
 	}
 	return false

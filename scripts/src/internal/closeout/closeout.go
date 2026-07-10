@@ -13,14 +13,14 @@ import (
 
 // defaultReleaseGateStatuses lists statuses that satisfy a release gate requirement.
 var defaultReleaseGateStatuses = map[string]bool{
-	"bumped": true, "checked": true, "complete": true, "completed": true,
-	"deferred": true, "done": true, "passed": true, "present": true, "updated": true,
+	"bumped": true, "checked": true, "deferred": true,
+	"done": true, "passed": true, "present": true, "updated": true,
 }
 
 // tagPlanReleaseGateStatuses extends default statuses with "planned".
 var tagPlanReleaseGateStatuses = map[string]bool{
-	"bumped": true, "checked": true, "complete": true, "completed": true,
-	"deferred": true, "done": true, "passed": true, "present": true, "updated": true,
+	"bumped": true, "checked": true, "deferred": true,
+	"done": true, "passed": true, "present": true, "updated": true,
 	"planned": true,
 }
 

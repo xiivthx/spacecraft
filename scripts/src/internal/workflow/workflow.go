@@ -27,7 +27,7 @@ func taskIsOpen(task mission.Task) bool {
 		return true
 	}
 	switch *task.Status {
-	case "completed", "done", "cancelled":
+	case "done", "cancelled":
 		return false
 	}
 	return true
@@ -159,7 +159,7 @@ func (s *Snapshot) Build(res mission.ResolveOutput, missionID string) (mission.W
 
 	completedCount := 0
 	for _, t := range tasks {
-		if t.Status != nil && (*t.Status == "completed" || *t.Status == "done") {
+		if t.Status != nil && *t.Status == "done" {
 			completedCount++
 		}
 	}

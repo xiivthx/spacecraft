@@ -84,7 +84,7 @@ func TestChecker_Check_ready(t *testing.T) {
 	}
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 		},
 	}
 	review := readyReview()
@@ -119,7 +119,7 @@ func TestChecker_Check_incompleteTasks(t *testing.T) {
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
 			{ID: strPtr("T01"), Status: strPtr("pending")},
-			{ID: strPtr("T02"), Status: strPtr("completed")},
+			{ID: strPtr("T02"), Status: strPtr("done")},
 		},
 	}
 	result := checker.Check("M07CL03", m, plan, nil, 1)
@@ -135,7 +135,7 @@ func TestChecker_Check_noEvidence(t *testing.T) {
 	m := &mission.Mission{Clarification: mission.ClarificationBlock{Status: "clear"}}
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 		},
 	}
 	result := checker.Check("M07CL04", m, plan, nil, 0)
@@ -151,7 +151,7 @@ func TestChecker_Check_reviewNotReady(t *testing.T) {
 	m := &mission.Mission{Clarification: mission.ClarificationBlock{Status: "clear"}}
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 		},
 	}
 	review := &mission.Review{
@@ -177,7 +177,7 @@ func TestChecker_Check_blockingFindings(t *testing.T) {
 	m := &mission.Mission{Clarification: mission.ClarificationBlock{Status: "clear"}}
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 		},
 	}
 	review := &mission.Review{
@@ -263,7 +263,7 @@ func TestChecker_Check_tooManyCommits(t *testing.T) {
 	m := &mission.Mission{Clarification: mission.ClarificationBlock{Status: "clear"}}
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 		},
 	}
 
@@ -328,7 +328,7 @@ func TestChecker_Check_closedStatuses(t *testing.T) {
 	// All tasks in closed statuses — none pending/in-progress
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 			{ID: strPtr("T02"), Status: strPtr("done")},
 			{ID: strPtr("T03"), Status: strPtr("cancelled")},
 		},
@@ -337,7 +337,7 @@ func TestChecker_Check_closedStatuses(t *testing.T) {
 
 	result := checker.Check("M07CL12", m, plan, review, 5)
 	if containsStr(result.Errors, "Complete plan tasks") {
-		t.Errorf("expected no incomplete-tasks error for closed statuses (completed/done/cancelled), got: %v", result.Errors)
+		t.Errorf("expected no incomplete-tasks error for closed statuses (done/cancelled), got: %v", result.Errors)
 	}
 }
 

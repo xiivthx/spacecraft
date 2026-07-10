@@ -19,7 +19,7 @@ func TestReadinessChecker_ready(t *testing.T) {
 
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 		},
 	}
 	review := readyReview()
@@ -52,7 +52,7 @@ func TestReadinessChecker_noReview(t *testing.T) {
 	defer cleanup()
 
 	checker := NewReadinessChecker(store)
-	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("completed")}}}
+	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("done")}}}
 	errs := checker.CheckReadiness("M07AR03", plan, nil, []mission.EvidenceEntry{{ID: "E001"}})
 	if errs == nil {
 		t.Fatal("expected errors")
@@ -67,7 +67,7 @@ func TestReadinessChecker_reviewNotReady(t *testing.T) {
 	defer cleanup()
 
 	checker := NewReadinessChecker(store)
-	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("completed")}}}
+	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("done")}}}
 	review := &mission.Review{Status: strPtr("blocked")}
 	errs := checker.CheckReadiness("M07AR04", plan, review, []mission.EvidenceEntry{{ID: "E001"}})
 	if errs == nil {
@@ -119,7 +119,7 @@ func TestReadinessChecker_noEvidence(t *testing.T) {
 	defer cleanup()
 
 	checker := NewReadinessChecker(store)
-	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("completed")}}}
+	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("done")}}}
 	review := readyReview()
 	errs := checker.CheckReadiness("M07AR07", plan, review, nil)
 	if errs == nil {
@@ -135,7 +135,7 @@ func TestReadinessChecker_blockingFindings(t *testing.T) {
 	defer cleanup()
 
 	checker := NewReadinessChecker(store)
-	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("completed")}}}
+	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("done")}}}
 	review := &mission.Review{
 		Status: strPtr("ready"),
 		Findings: []mission.Finding{
@@ -168,12 +168,12 @@ func TestMissionArchiver_archiveHappyPath(t *testing.T) {
 
 	dir := cfg.MissionDir("M07AR10")
 	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
-	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07AR10","tasks":[{"id":"T01","status":"completed"}]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07AR10","tasks":[{"id":"T01","status":"done"}]}`), 0644)
 
 	plan := &mission.Plan{
 		MissionId: "M07AR10",
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 		},
 	}
 	review := readyReview()
@@ -270,11 +270,11 @@ func TestMissionArchiver_clearSelection(t *testing.T) {
 	store.Create(m)
 
 	dir := cfg.MissionDir("M07AR12")
-	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"tasks":[{"id":"T01","status":"completed"}]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"tasks":[{"id":"T01","status":"done"}]}`), 0644)
 
 	plan := &mission.Plan{
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Status: strPtr("done")},
 		},
 	}
 	review := readyReview()
@@ -310,7 +310,7 @@ func TestReadinessChecker_closedStatuses(t *testing.T) {
 		// All tasks in closed statuses — none pending/in-progress
 		plan := &mission.Plan{
 			Tasks: []mission.Task{
-				{ID: strPtr("T01"), Status: strPtr("completed")},
+				{ID: strPtr("T01"), Status: strPtr("done")},
 				{ID: strPtr("T02"), Status: strPtr("done")},
 				{ID: strPtr("T03"), Status: strPtr("cancelled")},
 			},
@@ -347,7 +347,7 @@ func TestReadinessChecker_closedStatuses(t *testing.T) {
 		plan := &mission.Plan{
 			MissionId: "M07AR14",
 			Tasks: []mission.Task{
-				{ID: strPtr("T01"), Status: strPtr("completed")},
+				{ID: strPtr("T01"), Status: strPtr("done")},
 				{ID: strPtr("T02"), Status: strPtr("done")},
 				{ID: strPtr("T03"), Status: strPtr("cancelled")},
 			},

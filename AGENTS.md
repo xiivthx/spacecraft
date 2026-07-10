@@ -73,7 +73,7 @@ Commander auto-detects intent and routes to the appropriate lane. No user decisi
 - Evidence captured within debug workflow
 
 #### Quick lane
-`/sc-quick → branch → commit freely → fast self-review → ship`
+`/sc-quick → branch → commit freely → fast self-review → report ready → wait for explicit /sc-ship`
 
 - For: prompt tweaks, config, docs, small fixes — where full flow is overhead
 - Skips: `spec.md`, `plan.json`, TDD build, formal review, evidence capture
@@ -86,6 +86,7 @@ scripts/spacecraft evidence "<label>" -- <command>
 ```
 
 ### Release
+Merge to main only on explicit `/sc-ship` or user release command. Never auto-detect.
 Rebase → verify → `git merge --no-ff` → tag → delete branch → archive.
 
 ## Entry points

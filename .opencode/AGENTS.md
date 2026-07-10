@@ -24,7 +24,7 @@ Commander auto-detects intent and routes to the appropriate lane.
 | Advisory | ask, talk, consult, research | default | direct response |
 | Mission | add, build, implement, feature | `/sc-start` | full flow |
 | Debug | fix, debug, diagnose, error | `/sc-debug` | 5-step discipline |
-| Quick | human edits, config, small fix | `/sc-quick` | branch → self-review → ship |
+| Quick | human edits, config, small fix | `/sc-quick` | branch → self-review → report ready → wait for /sc-ship |
 
 ## Available commands
 
@@ -36,7 +36,7 @@ Commander auto-detects intent and routes to the appropriate lane.
 | `/sc-build` | Implement tasks one-by-one with verification and checkpoint commits. |
 | `/sc-review` | Formal review of diff, evidence, and release readiness. |
 | `/sc-ship` | Merge to main, tag, archive mission. |
-| `/sc-quick` | Fast lane for small changes: branch, commit, self-review, ship. |
+| `/sc-quick` | Fast lane for small changes: branch, commit, self-review, report ready. Ship only on explicit `/sc-ship`. |
 | `/sc-resume` | Resume an active mission with full context handoff. |
 
 ## Available skills
