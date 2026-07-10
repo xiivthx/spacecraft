@@ -665,16 +665,30 @@ func clarifyStatusCmd(args []string) int {
 
 func evidenceCmd(args []string) int {
 	sep := -1
+	useCompact := false
+	preSep := args
+	// Parse --compact flag before the -- separator.
 	for i, a := range args {
 		if a == "--" {
 			sep = i
+			preSep = args[:i]
 			break
+		}
+	}
+	for _, a := range preSep {
+		if a == "--compact" {
+			useCompact = true
 		}
 	}
 	if sep == -1 {
 		return printErr("Missing -- before evidence command.\n\n" + usage())
 	}
 	label := strings.TrimSpace(strings.Join(args[:sep], " "))
+	// Filter --compact out of the label.
+	if useCompact {
+		label = strings.TrimSpace(strings.ReplaceAll(label, "--compact", ""))
+		label = strings.Join(strings.Fields(label), " ")
+	}
 	cmdParts := args[sep+1:]
 	if label == "" {
 		return printErr("Missing evidence label.\n\n" + usage())
@@ -704,11 +718,37 @@ func evidenceCmd(args []string) int {
 		Stderr:    rel(stderrP),
 		CreatedAt: isoNow(),
 	}
+
+	if useCompact {
+		compactP := filepath.Join(store.MissionDir(id), "outputs", eid+".compact.txt")
+		ci := compact.ParseCommand(cmdParts)
+		dslPath := filepath.Join(cfg.Root(), ".space", "compact", "filters.json")
+		filter, dslErr := compact.LoadDSLFilter(dslPath, ci)
+		if dslErr != nil {
+			fmt.Fprintf(os.Stderr, "spacecraft evidence: DSL config error: %v\n", dslErr)
+			fmt.Fprintf(os.Stderr, "(falling back to auto-detected filter)\n")
+		}
+		if filter == nil {
+			filter = autoDetectFilter(ci)
+		}
+		compacted := result.stdout
+		if filter != nil {
+			compacted = filter.Apply(result.stdout)
+		}
+		os.WriteFile(compactP, []byte(compacted), 0644)
+		compactRel := rel(compactP)
+		entry.Compact = &compactRel
+		fmt.Printf("Evidence: %s\n", eid)
+		fmt.Printf("Exit code: %d\n", result.code)
+		fmt.Printf("Raw: %d bytes  Compact: %d bytes\n", len(result.stdout), len(compacted))
+	} else {
+		fmt.Printf("Evidence: %s\n", eid)
+		fmt.Printf("Exit code: %d\n", result.code)
+	}
+
 	if err := store.AppendEvidence(id, &entry); err != nil {
 		return printErr("Failed to append evidence:", err)
 	}
-	fmt.Printf("Evidence: %s\n", eid)
-	fmt.Printf("Exit code: %d\n", result.code)
 	return 0
 }
 
@@ -866,7 +906,18 @@ func compactCmd(args []string) int {
 	}
 
 	ci := compact.ParseCommand(remaining)
-	filter := autoDetectFilter(ci)
+
+	// DSL override: load user config from .space/compact/filters.json.
+	dslPath := filepath.Join(cfg.Root(), ".space", "compact", "filters.json")
+	filter, err := compact.LoadDSLFilter(dslPath, ci)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "spacecraft compact: DSL config error: %v\n", err)
+		return 1
+	}
+	if filter == nil {
+		filter = autoDetectFilter(ci)
+	}
+
 	runner := compact.NewRunner(remaining, filter)
 	result, err := runner.Run()
 	if err != nil {
@@ -922,9 +973,27 @@ func autoDetectFilter(ci *compact.CommandInfo) compact.Filter {
 			return &compact.FilterGoTest{}
 		case "build":
 			return &compact.FilterGoBuild{}
+		case "vet":
+			return &compact.FilterGoVet{}
 		default:
 			return &compact.FilterGeneric{}
 		}
+	case "npm":
+		switch ci.Arg1 {
+		case "test":
+			return &compact.FilterNpmTest{}
+		default:
+			return &compact.FilterGeneric{}
+		}
+	case "docker":
+		switch ci.Arg1 {
+		case "ps":
+			return &compact.FilterDockerPs{}
+		default:
+			return &compact.FilterGeneric{}
+		}
+	case "curl":
+		return &compact.FilterCurl{}
 	case "ls", "dir":
 		return &compact.FilterLs{}
 	case "cat", "type":
@@ -975,9 +1044,16 @@ Run a command and emit compact, token-optimized output.
 Flags:
   --tee    Save full unfiltered output to .space/compact/ on non-zero exit.
 
+DSL overrides:
+  User rules in .space/compact/filters.json take priority over auto-detection.
+  See AGENTS.md for the DSL schema reference.
+
 Auto-detected filters:
   git status, git diff, git log
-  go test, go build
+  go test, go build, go vet
+  npm test
+  docker ps
+  curl
   ls, cat
 
 All other commands use a generic dedup+truncation filter.

@@ -72,13 +72,14 @@ type Plan struct {
 
 // EvidenceEntry records the result of running a verification command.
 type EvidenceEntry struct {
-	ID        string `json:"id"`
-	Label     string `json:"label"`
-	Command   string `json:"command"`
-	ExitCode  int    `json:"exitCode"`
-	Stdout    string `json:"stdout"`
-	Stderr    string `json:"stderr"`
-	CreatedAt string `json:"createdAt"`
+	ID        string  `json:"id"`
+	Label     string  `json:"label"`
+	Command   string  `json:"command"`
+	ExitCode  int     `json:"exitCode"`
+	Stdout    string  `json:"stdout"`
+	Stderr    string  `json:"stderr"`
+	Compact   *string `json:"compact,omitempty"`
+	CreatedAt string  `json:"createdAt"`
 }
 
 // GitInfoData summarizes git state for the current directory.
