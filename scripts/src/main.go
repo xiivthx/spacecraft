@@ -933,9 +933,27 @@ func autoDetectFilter(ci *compact.CommandInfo) compact.Filter {
 			return &compact.FilterGoTest{}
 		case "build":
 			return &compact.FilterGoBuild{}
+		case "vet":
+			return &compact.FilterGoVet{}
 		default:
 			return &compact.FilterGeneric{}
 		}
+	case "npm":
+		switch ci.Arg1 {
+		case "test":
+			return &compact.FilterNpmTest{}
+		default:
+			return &compact.FilterGeneric{}
+		}
+	case "docker":
+		switch ci.Arg1 {
+		case "ps":
+			return &compact.FilterDockerPs{}
+		default:
+			return &compact.FilterGeneric{}
+		}
+	case "curl":
+		return &compact.FilterCurl{}
 	case "ls", "dir":
 		return &compact.FilterLs{}
 	case "cat", "type":
@@ -992,7 +1010,10 @@ DSL overrides:
 
 Auto-detected filters:
   git status, git diff, git log
-  go test, go build
+  go test, go build, go vet
+  npm test
+  docker ps
+  curl
   ls, cat
 
 All other commands use a generic dedup+truncation filter.

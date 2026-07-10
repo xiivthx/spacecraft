@@ -672,12 +672,18 @@ func TestAutoDetectFilter(t *testing.T) {
 		{"git", "push", "*compact.FilterGeneric"},
 		{"go", "test", "*compact.FilterGoTest"},
 		{"go", "build", "*compact.FilterGoBuild"},
+		{"go", "vet", "*compact.FilterGoVet"},
 		{"go", "run", "*compact.FilterGeneric"},
+		{"npm", "test", "*compact.FilterNpmTest"},
+		{"npm", "install", "*compact.FilterGeneric"},
+		{"docker", "ps", "*compact.FilterDockerPs"},
+		{"docker", "run", "*compact.FilterGeneric"},
+		{"curl", "", "*compact.FilterCurl"},
+		{"curl", "-v", "*compact.FilterCurl"},
 		{"ls", "", "*compact.FilterLs"},
 		{"ls", "-la", "*compact.FilterLs"},
 		{"cat", "file.go", "*compact.FilterCat"},
 		{"unknown", "", "*compact.FilterGeneric"},
-		{"docker", "ps", "*compact.FilterGeneric"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.exe+" "+tt.arg1, func(t *testing.T) {
@@ -714,9 +720,27 @@ func autoDetectLocal(ci *CommandInfo) Filter {
 			return &FilterGoTest{}
 		case "build":
 			return &FilterGoBuild{}
+		case "vet":
+			return &FilterGoVet{}
 		default:
 			return &FilterGeneric{}
 		}
+	case "npm":
+		switch ci.Arg1 {
+		case "test":
+			return &FilterNpmTest{}
+		default:
+			return &FilterGeneric{}
+		}
+	case "docker":
+		switch ci.Arg1 {
+		case "ps":
+			return &FilterDockerPs{}
+		default:
+			return &FilterGeneric{}
+		}
+	case "curl":
+		return &FilterCurl{}
 	case "ls", "dir":
 		return &FilterLs{}
 	case "cat", "type":
@@ -741,6 +765,14 @@ func filterTypeName(f Filter) string {
 		return "*compact.FilterGoTest"
 	case *FilterGoBuild:
 		return "*compact.FilterGoBuild"
+	case *FilterGoVet:
+		return "*compact.FilterGoVet"
+	case *FilterNpmTest:
+		return "*compact.FilterNpmTest"
+	case *FilterDockerPs:
+		return "*compact.FilterDockerPs"
+	case *FilterCurl:
+		return "*compact.FilterCurl"
 	case *FilterLs:
 		return "*compact.FilterLs"
 	case *FilterCat:
@@ -978,4 +1010,228 @@ Auto-detected filters:
   go test, go build
   ls, cat
 `
+}
+
+// ============================================================
+// Go vet filter tests
+// ============================================================
+
+func TestFilterGoVet(t *testing.T) {
+	f := &FilterGoVet{}
+	input := `# spacecraft/internal/compact
+vet: scripts/src/internal/compact/generic.go:85:2: unreachable code
+# spacecraft/internal/resolver
+# spacecraft/internal/mission
+`
+	out := f.Apply(input)
+	if strings.Contains(out, "# ") {
+		t.Error("package context lines (#) should be stripped")
+	}
+	if !strings.Contains(out, "unreachable code") {
+		t.Errorf("expected vet error in output, got: %q", out)
+	}
+	if strings.Contains(out, "resolver") || strings.Contains(out, "mission") {
+		t.Error("standalone # package lines should be stripped")
+	}
+}
+
+func TestFilterGoVetClean(t *testing.T) {
+	f := &FilterGoVet{}
+	input := "# spacecraft/internal/compact\n# spacecraft/internal/resolver\n"
+	out := f.Apply(input)
+	if out != "ok" {
+		t.Errorf("expected 'ok' for clean vet, got %q", out)
+	}
+}
+
+func TestFilterGoVetEmpty(t *testing.T) {
+	f := &FilterGoVet{}
+	out := f.Apply("")
+	if out != "ok" {
+		t.Errorf("expected 'ok' for empty input, got %q", out)
+	}
+}
+
+// ============================================================
+// npm test filter tests
+// ============================================================
+
+func TestFilterNpmTestFailure(t *testing.T) {
+	f := &FilterNpmTest{}
+	input := `PASS src/auth.test.js
+  ✓ should login (45ms)
+  ✓ should logout (12ms)
+
+FAIL src/api.test.js
+  ✕ should return 200 (23ms)
+
+    Expected: 200
+    Received: 500
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 3 passed, 4 total
+`
+	out := f.Apply(input)
+	if strings.Contains(out, "PASS") {
+		t.Error("PASS suite lines should be stripped")
+	}
+	if strings.Contains(out, "✓") || strings.Contains(out, "should login") {
+		t.Error("passing test lines should be stripped")
+	}
+	if !strings.Contains(out, "FAIL: should return 200") {
+		t.Errorf("expected FAIL prefix on failing test, got: %q", out)
+	}
+	if !strings.Contains(out, "Expected: 200") {
+		t.Errorf("expected failure detail preserved, got: %q", out)
+	}
+	if !strings.Contains(out, "Test Suites:") || !strings.Contains(out, "Tests:") {
+		t.Error("summary lines should be preserved")
+	}
+}
+
+func TestFilterNpmTestAllPass(t *testing.T) {
+	f := &FilterNpmTest{}
+	input := `PASS src/auth.test.js
+  ✓ should login (45ms)
+  ✓ should logout (12ms)
+
+PASS src/api.test.js
+  ✓ should return 200 (23ms)
+
+Test Suites: 2 passed, 2 total
+Tests:       3 passed, 3 total
+`
+	out := f.Apply(input)
+	if out != "ok" {
+		t.Errorf("expected 'ok' for all-pass npm test, got %q", out)
+	}
+}
+
+func TestFilterNpmTestEmpty(t *testing.T) {
+	f := &FilterNpmTest{}
+	out := f.Apply("")
+	if out != "ok" {
+		t.Errorf("expected 'ok' for empty npm test, got %q", out)
+	}
+}
+
+// ============================================================
+// Docker ps filter tests
+// ============================================================
+
+func TestFilterDockerPs(t *testing.T) {
+	f := &FilterDockerPs{}
+	input := `CONTAINER ID   IMAGE                    COMMAND                  CREATED        STATUS        PORTS                    NAMES
+abc123def456   nginx:1.25.3-alpine      "/docker-entrypoint.…"   2 hours ago    Up 2 hours    0.0.0.0:8080->80/tcp    webserver
+def456abc789   postgres:15.4-bookworm   "docker-entrypoint.s…"   3 days ago     Up 3 days     5432/tcp                 postgres_db
+`
+	out := f.Apply(input)
+	if strings.Contains(out, "CONTAINER ID") {
+		t.Error("header line should be stripped")
+	}
+	if !strings.Contains(out, "abc123def456") {
+		t.Errorf("expected container ID in output, got: %q", out)
+	}
+	if !strings.Contains(out, "nginx:1.25.3-alpine") {
+		t.Errorf("expected image name in output, got: %q", out)
+	}
+	// postgres:15.4-bookworm is 23 chars (>20) — should be truncated
+	if strings.Contains(out, "postgres:15.4-bookworm") {
+		t.Error("long image tag should be truncated to 20 chars + ...")
+	}
+	if !strings.Contains(out, "postgres:15.4-book...") {
+		t.Errorf("expected abbreviated image tag 'postgres:15.4-book...', got: %q", out)
+	}
+}
+
+func TestFilterDockerPsEmpty(t *testing.T) {
+	f := &FilterDockerPs{}
+	out := f.Apply("")
+	if out != "no containers" {
+		t.Errorf("expected 'no containers' for empty input, got %q", out)
+	}
+}
+
+func TestFilterDockerPsHeaderOnly(t *testing.T) {
+	f := &FilterDockerPs{}
+	input := "CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS   PORTS   NAMES\n"
+	out := f.Apply(input)
+	if out != "no containers" {
+		t.Errorf("expected 'no containers' for header-only input, got %q", out)
+	}
+}
+
+// ============================================================
+// curl filter tests
+// ============================================================
+
+func TestFilterCurl(t *testing.T) {
+	f := &FilterCurl{}
+	input := `*   Trying 93.184.216.34:443...
+* Connected to example.com (93.184.216.34) port 443
+* ALPN: curl offers h2,http/1.1
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN: server accepted h2
+> GET / HTTP/1.1
+> Host: example.com
+> User-Agent: curl/8.4.0
+> Accept: */*
+> 
+< HTTP/2 200 
+< content-type: text/html
+< content-length: 1256
+< 
+<!doctype html>
+<html>
+<head><title>Example</title></head>
+<body>Hello World</body>
+</html>
+`
+	out := f.Apply(input)
+	if strings.Contains(out, "*   Trying") || strings.Contains(out, "* Connected") {
+		t.Error("verbose * lines should be stripped")
+	}
+	if strings.Contains(out, "TLSv1.3") || strings.Contains(out, "ALPN:") {
+		t.Error("TLS/ALPN verbose lines should be stripped")
+	}
+	if !strings.Contains(out, "> GET / HTTP/1.1") {
+		t.Errorf("expected request line in output, got: %q", out)
+	}
+	if !strings.Contains(out, "> Host: example.com") {
+		t.Errorf("expected request header in output, got: %q", out)
+	}
+	if !strings.Contains(out, "< HTTP/2 200") {
+		t.Errorf("expected response status in output, got: %q", out)
+	}
+	if !strings.Contains(out, "< content-type: text/html") {
+		t.Errorf("expected response header in output, got: %q", out)
+	}
+	if !strings.Contains(out, "<!doctype html") {
+		t.Errorf("expected body in output, got: %q", out)
+	}
+	if !strings.Contains(out, "Hello World") {
+		t.Errorf("expected body content in output, got: %q", out)
+	}
+}
+
+func TestFilterCurlConnectOnly(t *testing.T) {
+	f := &FilterCurl{}
+	input := `*   Trying 10.0.0.1:80...
+* Connected to example.local (10.0.0.1) port 80
+* Connection failed: Connection refused
+`
+	out := f.Apply(input)
+	if out != "connection failed" {
+		t.Errorf("expected 'connection failed' for no response, got %q", out)
+	}
+}
+
+func TestFilterCurlEmpty(t *testing.T) {
+	f := &FilterCurl{}
+	out := f.Apply("")
+	if out != "" {
+		t.Errorf("expected empty output, got %q", out)
+	}
 }
