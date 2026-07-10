@@ -11,7 +11,6 @@ permission:
     "sc-design": allow
     "sc-mission": allow
     "sc-web-frontend": allow
-    "sc-web-service": allow
 ---
 
 ## Role & Identity

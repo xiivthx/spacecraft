@@ -16,7 +16,6 @@ permission:
     "sc-tdd": allow
     "sc-web-backend": allow
     "sc-web-frontend": allow
-    "sc-web-service": allow
 ---
 
 ## Role & Identity

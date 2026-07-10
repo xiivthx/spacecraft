@@ -59,7 +59,6 @@ Commander auto-detects intent and routes to the appropriate lane.
 | `sc-verification` | Capture fresh command evidence before claiming work complete. |
 | `sc-web-backend` | Build server APIs with Node.js, TypeScript, Fastify, and Vitest. |
 | `sc-web-frontend` | Build browser UI with React, TypeScript, Vite, Tailwind CSS, and Vitest. |
-| `sc-web-service` | Build lean local web service from scratch under mission control. |
 
 ## Per-project setup
 

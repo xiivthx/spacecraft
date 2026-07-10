@@ -116,9 +116,9 @@ Commander auto-triggers: sc-clarify (on ambiguity), sc-mission (session start), 
 | Subagent | mode | skill.permission (allows) | bash.permission (notable) |
 |----------|------|---------------------------|---------------------------|
 | sc-commander | primary | `sc-*` (all skills) | R/W |
-| sc-coder | write | sc-database, sc-solid, sc-tdd, sc-web-backend, sc-web-frontend, sc-web-service | R/W |
+| sc-coder | write | sc-database, sc-solid, sc-tdd, sc-web-backend, sc-web-frontend | R/W |
 | sc-tester | write | sc-solid, sc-tdd, sc-verification, sc-web-backend | R/W |
-| sc-designer | read-only | sc-design, sc-mission, sc-web-frontend, sc-web-service | RO |
+| sc-designer | read-only | sc-design, sc-mission, sc-web-frontend | RO |
 | sc-planner | read-only | sc-architect, sc-mission, sc-planning, sc-solid | RO |
 | sc-reviewer | read-only | sc-architect, sc-mission, sc-git, sc-solid, sc-verification | RO |
 
@@ -157,7 +157,6 @@ sc-commander (primary)
 | sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
 | sc-web-backend | `.opencode/skills/sc-web-backend/` | sc-coder, sc-tester, /sc-build |
 | sc-web-frontend | `.opencode/skills/sc-web-frontend/` | sc-coder, sc-designer, /sc-build, /sc-design |
-| sc-web-service | `.opencode/skills/sc-web-service/` | sc-coder, sc-designer |
 
 ### Permission Flow
 

@@ -13,6 +13,16 @@ async function createWorkspace() {
   return mkdtemp(path.join(tmpdir(), "spacecraft-resolver-"));
 }
 
+async function ensureCommandsDir(cwd) {
+  const dir = path.join(cwd, ".opencode", "commands");
+  await mkdir(dir, { recursive: true });
+  // Create minimal command files so validateNextCommand does not fall back to /sc-resume.
+  const commands = ["sc-build", "sc-plan", "sc-review", "sc-ship", "sc-resume"];
+  for (const cmd of commands) {
+    await writeFile(path.join(dir, `${cmd}.md`), `# ${cmd}\n`);
+  }
+}
+
 async function writeMission(cwd, {
   id,
   title,
@@ -498,6 +508,7 @@ test("workflow reports next task without bypassing gates", async () => {
   }, null, 2)}\n`);
   await writeFile(path.join(cwd, ".space", "missions", id, "evidence.jsonl"), "");
   await writeCurrent(cwd, id);
+  await ensureCommandsDir(cwd);
 
   const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
@@ -528,7 +539,7 @@ test("workflow prioritizes blocking clarification over work", async () => {
 
   const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
-  assert.equal(flow.next, "/sc-clarify");
+  assert.equal(flow.next, "(clarify)");
   assert.ok(flow.blockers.includes("blocking clarification remains open"));
 });
 
@@ -570,6 +581,7 @@ test("workflow blocks missing plan before recommending work", async () => {
   await writeFile(path.join(missionDir, "spec.md"), "# Mission Spec\n");
   await writeFile(path.join(missionDir, "evidence.jsonl"), "");
   await writeCurrent(cwd, id);
+  await ensureCommandsDir(cwd);
 
   const result = runSpacecraft(cwd, ["workflow", "--json"]);
   const flow = JSON.parse(result.stdout);
