@@ -665,16 +665,30 @@ func clarifyStatusCmd(args []string) int {
 
 func evidenceCmd(args []string) int {
 	sep := -1
+	useCompact := false
+	preSep := args
+	// Parse --compact flag before the -- separator.
 	for i, a := range args {
 		if a == "--" {
 			sep = i
+			preSep = args[:i]
 			break
+		}
+	}
+	for _, a := range preSep {
+		if a == "--compact" {
+			useCompact = true
 		}
 	}
 	if sep == -1 {
 		return printErr("Missing -- before evidence command.\n\n" + usage())
 	}
 	label := strings.TrimSpace(strings.Join(args[:sep], " "))
+	// Filter --compact out of the label.
+	if useCompact {
+		label = strings.TrimSpace(strings.ReplaceAll(label, "--compact", ""))
+		label = strings.Join(strings.Fields(label), " ")
+	}
 	cmdParts := args[sep+1:]
 	if label == "" {
 		return printErr("Missing evidence label.\n\n" + usage())
@@ -704,11 +718,37 @@ func evidenceCmd(args []string) int {
 		Stderr:    rel(stderrP),
 		CreatedAt: isoNow(),
 	}
+
+	if useCompact {
+		compactP := filepath.Join(store.MissionDir(id), "outputs", eid+".compact.txt")
+		ci := compact.ParseCommand(cmdParts)
+		dslPath := filepath.Join(cfg.Root(), ".space", "compact", "filters.json")
+		filter, dslErr := compact.LoadDSLFilter(dslPath, ci)
+		if dslErr != nil {
+			fmt.Fprintf(os.Stderr, "spacecraft evidence: DSL config error: %v\n", dslErr)
+			fmt.Fprintf(os.Stderr, "(falling back to auto-detected filter)\n")
+		}
+		if filter == nil {
+			filter = autoDetectFilter(ci)
+		}
+		compacted := result.stdout
+		if filter != nil {
+			compacted = filter.Apply(result.stdout)
+		}
+		os.WriteFile(compactP, []byte(compacted), 0644)
+		compactRel := rel(compactP)
+		entry.Compact = &compactRel
+		fmt.Printf("Evidence: %s\n", eid)
+		fmt.Printf("Exit code: %d\n", result.code)
+		fmt.Printf("Raw: %d bytes  Compact: %d bytes\n", len(result.stdout), len(compacted))
+	} else {
+		fmt.Printf("Evidence: %s\n", eid)
+		fmt.Printf("Exit code: %d\n", result.code)
+	}
+
 	if err := store.AppendEvidence(id, &entry); err != nil {
 		return printErr("Failed to append evidence:", err)
 	}
-	fmt.Printf("Evidence: %s\n", eid)
-	fmt.Printf("Exit code: %d\n", result.code)
 	return 0
 }
 

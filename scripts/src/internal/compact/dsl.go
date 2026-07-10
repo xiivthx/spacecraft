@@ -205,6 +205,9 @@ func buildPipeline(rule *Rule) (Filter, error) {
 		if err != nil {
 			return nil, err
 		}
+		if f == nil {
+			continue // skip empty stages
+		}
 		stages = append(stages, f)
 	}
 	if len(stages) == 0 {
@@ -226,11 +229,18 @@ func (p *pipelineFilter) Apply(stdout string) string {
 }
 
 // stageToFilter converts a Stage to a Filter based on which field is set.
+// Returns an error for empty stages or invalid regex patterns.
 func stageToFilter(s Stage) (Filter, error) {
 	switch {
 	case s.Include != nil:
+		if _, err := regexp.Compile(s.Include.Pattern); err != nil {
+			return nil, fmt.Errorf("invalid include pattern %q: %w", s.Include.Pattern, err)
+		}
 		return s.Include, nil
 	case s.Exclude != nil:
+		if _, err := regexp.Compile(s.Exclude.Pattern); err != nil {
+			return nil, fmt.Errorf("invalid exclude pattern %q: %w", s.Exclude.Pattern, err)
+		}
 		return s.Exclude, nil
 	case s.Dedup != nil:
 		return s.Dedup, nil
@@ -241,6 +251,6 @@ func stageToFilter(s Stage) (Filter, error) {
 	case s.Passthrough != nil:
 		return s.Passthrough, nil
 	default:
-		return nil, nil
+		return nil, fmt.Errorf("stage has no action defined")
 	}
 }

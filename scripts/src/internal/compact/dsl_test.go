@@ -222,6 +222,52 @@ func TestLoadDSLFilter_FirstMatchWins(t *testing.T) {
 	}
 }
 
+func TestLoadDSLFilter_EmptyStage(t *testing.T) {
+	configJSON := `{"rules":[{"exe":"echo","stages":[{}]}]}`
+
+	f, err := os.CreateTemp(t.TempDir(), "emptystage*.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	if _, err := f.WriteString(configJSON); err != nil {
+		t.Fatal(err)
+	}
+
+	ci := &CommandInfo{Exe: "echo"}
+	filter, err := LoadDSLFilter(f.Name(), ci)
+	if err == nil {
+		t.Error("expected non-nil error for empty stage, got nil")
+	}
+	if filter != nil {
+		t.Errorf("expected nil filter for empty stage, got %v", filter)
+	}
+}
+
+func TestLoadDSLFilter_InvalidRegex(t *testing.T) {
+	configJSON := `{"rules":[{"exe":"echo","stages":[{"include":{"pattern":"[invalid"}}]}]}`
+
+	f, err := os.CreateTemp(t.TempDir(), "invalidregex*.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	if _, err := f.WriteString(configJSON); err != nil {
+		t.Fatal(err)
+	}
+
+	ci := &CommandInfo{Exe: "echo"}
+	filter, err := LoadDSLFilter(f.Name(), ci)
+	if err == nil {
+		t.Error("expected non-nil error for invalid regex, got nil")
+	}
+	if filter != nil {
+		t.Errorf("expected nil filter for invalid regex, got %v", filter)
+	}
+}
+
 func TestLoadDSLFilter_ValidConfig(t *testing.T) {
 	configJSON := `{"rules":[{"exe":"echo","arg1":"hello","stages":[{"passthrough":{}}]}]}`
 
