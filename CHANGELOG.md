@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.19.0 - 2026-07-10
+
+- Feat: add sc-localize skill — culturally-aware bilingual copy review; catches literal translations that break in the target culture (M07K689IV)
+- Docs: th-TH locale reference (collocations, register, UI conventions, anti-patterns), universal localization rules
+- Docs: register sc-localize in SPACECRAFT.md auto-triggers and skill references table
+
 ## 0.18.0 - 2026-07-10
 
 - Feat: add sc-pathfinder skill — chart a shared map of investigation tickets for work too large for one session; resolve tickets one at a time until the destination is clear (M07K4S68B)
