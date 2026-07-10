@@ -37,6 +37,7 @@ Commander auto-detects intent and routes to the appropriate lane.
 | `/sc-review` | Formal review of diff, evidence, and release readiness. |
 | `/sc-ship` | Merge to main, tag, archive mission. |
 | `/sc-quick` | Fast lane for small changes: branch, commit, self-review, report ready. Ship only on explicit `/sc-ship`. |
+| `/sc-research` | Run systematic research via spacecraft research CLI (Brave Search, scoped docs, deep analysis). |
 | `/sc-resume` | Resume an active mission with full context handoff. |
 
 ## Available skills
@@ -57,6 +58,7 @@ Commander auto-detects intent and routes to the appropriate lane.
 | `sc-solid` | SOLID principles and code quality discipline. |
 | `sc-tdd` | Test-driven development discipline (Plan-Red-Green-Verify-Refactor-Review). |
 | `sc-ux-design` | UI quality control: anti-slop enforcement, draft previews, animation quality, visual verification. |
+| `sc-search` | Quick internet search with 3-tier escalation for stuck issues, gray areas, and stale knowledge. |
 | `sc-verification` | Capture fresh command evidence before claiming work complete. |
 | `sc-web-backend` | Build server APIs with Node.js, TypeScript, Fastify, and Vitest. |
 | `sc-web-frontend` | Build browser UI with React, TypeScript, Vite, Tailwind CSS, and Vitest. |
