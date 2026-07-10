@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.15.0 - 2026-07-10
+
+- Feat: add 4 new built-in compact filters — go vet, npm test, docker ps, curl (M07J009BS)
+- Feat: export filter config DSL (.space/compact/filters.json) — composable pipeline stages (include, exclude, dedup, truncate, stripPrefix) for user-defined compact rules without Go code (M07J009BS)
+- Feat: integrate compact with evidence — `spacecraft evidence --compact` saves compacted output alongside raw (M07J009BS)
+- Feat: compact EvidenceEntry model gains optional `compact` field for evidence JSONL entries
+
 ## 0.14.5 - 2026-07-09
 
 - Feat: add `spacecraft compact` command — token-optimized output filtering for LLM context (M07IYSMYA)
