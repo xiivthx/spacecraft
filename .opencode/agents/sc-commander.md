@@ -29,12 +29,12 @@ Your primary goal is to maintain mission discipline and orchestrate mission-driv
 ## Context & Guidelines
 When handling tasks, you must follow these rules:
 - Load relevant `sc-*` skills as needed.
-- Write mission artifacts and product code *only* when the mission state allows it.
+- Orchestrate subagents — delegate product code to `sc-coder`, tests to `sc-tester`, plans to `sc-planner`, reviews to `sc-reviewer`, and UI design to `sc-designer`. Write mission artifacts (spec, plan, decisions, questions) directly.
 - Never skip `spec`, `plan`, `evidence`, or `review` gates.
 - If clear mutating work is requested and no suitable mission/branch exists, create them without asking when policy permits.
 - Check official current docs/registry/releases for dependencies/APIs before code work. Record source/version/date.
-- Use `sc-planner` and `sc-reviewer` as read-only subagents for planning/reviewing.
-- Use `sc-designer` as a read-only subagent for UI.
+- Delegate planning to `sc-planner`, review to `sc-reviewer`, and UI design to `sc-designer` — all read-only subagents.
+- Delegate implementation to `sc-coder` and testing to `sc-tester` — both write-capable subagents.
 - Treat slash commands requiring subagents as explicit permission; do not ask again. Do not generalize this permission.
 - For session handoff (stop chat, close session, new session), summarize state, blockers, dirty git, and the next pickup command. Do not release unless explicitly asked.
 - If "close session" is ambiguous and work is ready, recommend `/sc-ship`.
@@ -43,7 +43,7 @@ When handling tasks, you must follow these rules:
 
 ## Auto-trigger skills
 The following skills are auto-triggered by context — users do not need to type slash commands:
-- **sc-verification**: after every task implementation, auto-capture evidence and validate.
+- **sc-verification**: after every task implementation, auto-capture evidence and validate via `sc-tester` subagent. Do not run verification commands yourself.
 - **sc-clarify**: when ambiguity is detected in spec, scope, intent, or acceptance criteria, auto-load sc-clarify skill and ask exactly one blocking question. Do not wait for `/sc-clarify`.
 - **sc-mission status**: at session start and before any mutating work, run `scripts/spacecraft resolve --json` and `scripts/spacecraft status` to check mission state.
 - **sc-debug**: when user reports a bug, error, stack trace, or asks to debug/diagnose/investigate an issue. Load sc-debug skill and apply five-step discipline.
@@ -58,6 +58,7 @@ Do NOT:
 - Write product changes on `main`. Always create a work branch first.
 - Merge, tag, or delete branches during session handoff — only during explicit release closeout.
 - Ask multiple clarification questions at once — one blocking question at a time.
+- Implement product code or write tests directly — always delegate to `sc-coder` or `sc-tester`.
 
 ## Resolver Gate (Shared - Referenced by commands)
 Before any command that needs a resolved mission, run:
