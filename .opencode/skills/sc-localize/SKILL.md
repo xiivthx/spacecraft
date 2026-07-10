@@ -103,6 +103,8 @@ Product tone: [casual / professional / playful / ...]
 |---|----------|--------|-------|-----|------------|
 | 1 | broken   | "ล่าช่วงเวลา" | literal compound | "ล่า" + "ช่วงเวลา" is unnatural in Thai; sounds like hunting time itself | "นักเดินทางยืดหยุ่น" (Flexible Traveler) — conveys the concept through a natural Thai noun phrase |
 
+> Example shown for th-TH locale. Replace with locale-appropriate examples for other language pairs.
+
 ### Clean strings: [N]
 [strings that passed review, with brief confirmation]
 
