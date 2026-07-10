@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.20.0 - 2026-07-11
+
+- Feat: add sc-search skill — auto-triggered 3-tier search escalation (google_search → webfetch → spacecraft research → ask user) for stuck issues, gray areas, and stale knowledge (M07KGTNR0)
+- Feat: add /sc-research command — user-invoked systematic research via spacecraft research CLI (Brave Search, scoped docs, deep analysis)
+- Docs: register sc-search in sc-commander.md auto-trigger skills and AGENTS.md skill table
+- Docs: register /sc-research in AGENTS.md commands table
+- Docs: update PERSONA.md Research auto-trigger section to reference sc-search skill
+
 ## 0.19.3 - 2026-07-10
 
 - Fix: standardize task status on `done` — remove `completed` synonym from `TaskIsComplete()`, `taskIsOpen()`, and all test fixtures. Release gates drop `complete`/`completed` (keep `done`).
