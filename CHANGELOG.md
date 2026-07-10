@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.18.0 - 2026-07-10
+
+- Feat: add sc-pathfinder skill — chart a shared map of investigation tickets for work too large for one session; resolve tickets one at a time until the destination is clear (M07K4S68B)
+- Feat: register sc-pathfinder in SPACECRAFT.md skill references table (explicit invocation only, not auto-triggered)
+
 ## 0.17.0 - 2026-07-10
 
 - Feat: add sc-ux-design skill — anti-slop UI control (46 impeccable.style patterns), HTML draft preview with design briefs, animation/transition guidelines, and Playwright-based visual verification (M07JZ2OPD)
