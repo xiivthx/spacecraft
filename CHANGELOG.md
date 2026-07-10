@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.19.1 - 2026-07-10
+
+- Feat: `make install` now symlinks `scripts/spacecraft` binary to `~/.local/bin/spacecraft` — callable from any workspace. Symlink auto-updates on rebuild. `make uninstall` and `clean-global` also remove the binary symlink.
+
 ## 0.19.0 - 2026-07-10
 
 - Feat: add sc-localize skill — culturally-aware bilingual copy review; catches literal translations that break in the target culture (M07K689IV)
