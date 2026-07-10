@@ -109,7 +109,7 @@ Default to handoff. Only closeout on explicit ship/release/merge intent.
 | `/sc-quick` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
 | `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git, sc-learn | skill: sc-git → allow, sc-verification → allow, sc-learn → allow |
 
-Commander auto-triggers: sc-clarify (on ambiguity), sc-mission (session start), sc-map (before planning), sc-debug (on error/stack trace), sc-verification (after task implementation), Research (gray areas).
+Commander auto-triggers: sc-clarify (on ambiguity), sc-mission (session start), sc-map (before planning), sc-debug (on error/stack trace), sc-verification (after task implementation), sc-localize (on bilingual/multilingual content), Research (gray areas).
 
 ### Subagent → Skill → Permission
 
@@ -149,6 +149,7 @@ sc-commander (primary)
 | sc-design | `.opencode/skills/sc-design/` | /sc-design |
 | sc-git | `.opencode/skills/sc-git/` | sc-build, sc-quick, sc-review, sc-ship (auto-triggered silently within sc-build) |
 | sc-learn | `.opencode/skills/sc-learn/` | /sc-ship, Commander (knowledge capture and migration) |
+| sc-localize | `.opencode/skills/sc-localize/` | Commander auto-trigger (bilingual/multilingual copy review) |
 | sc-map | `.opencode/skills/sc-map/` | Commander auto-trigger (before /sc-plan when map.json missing) |
 | sc-mission | `.opencode/skills/sc-mission/` | All commands |
 | sc-planning | `.opencode/skills/sc-planning/` | /sc-plan |
