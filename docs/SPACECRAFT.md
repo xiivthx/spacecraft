@@ -101,11 +101,11 @@ Default to handoff. Only closeout on explicit ship/release/merge intent.
 | Command | agent | subagent (task) | skill (Use:) | permission |
 |---------|-------|-----------------|--------------|------------|
 | `/sc-start` | sc-commander | — | sc-mission, sc-clarify | — |
-| `/sc-design` | sc-commander | sc-designer (read-only) | sc-mission, sc-clarify, sc-design | task: sc-designer → allow; skill: sc-design → allow |
-| `/sc-plan` | sc-commander | sc-planner (read-only) | sc-mission, sc-clarify, sc-planning | task: sc-planner → allow; skill: sc-planning → allow |
-| `/sc-build` | sc-commander | sc-coder (write), sc-tester (write) | sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, sc-verification | task: sc-coder → allow, sc-tester → allow; skill: sc-git → allow, sc-tdd → allow, sc-solid → allow, sc-verification → allow |
+| `/sc-design` | sc-commander | sc-designer (read-only) | sc-mission, sc-clarify, sc-design, sc-web-frontend | task: sc-designer → allow; skill: sc-design → allow, sc-web-frontend → allow |
+| `/sc-plan` | sc-commander | sc-planner (read-only) | sc-mission, sc-clarify, sc-planning, sc-architect | task: sc-planner → allow; skill: sc-planning → allow, sc-architect → allow |
+| `/sc-build` | sc-commander | sc-coder (write), sc-tester (write) | sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, sc-verification, sc-web-frontend, sc-web-backend, sc-database | task: sc-coder → allow, sc-tester → allow; skill: sc-git → allow, sc-tdd → allow, sc-solid → allow, sc-verification → allow, sc-web-frontend → allow, sc-web-backend → allow, sc-database → allow |
 | `/sc-resume` | sc-commander | — | sc-mission | — |
-| `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-verification → allow |
+| `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid, sc-architect | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-verification → allow, sc-architect → allow |
 | `/sc-quick` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
 | `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git, sc-learn | skill: sc-git → allow, sc-verification → allow, sc-learn → allow |
 
@@ -116,11 +116,11 @@ Commander auto-triggers: sc-clarify (on ambiguity), sc-mission (session start), 
 | Subagent | mode | skill.permission (allows) | bash.permission (notable) |
 |----------|------|---------------------------|---------------------------|
 | sc-commander | primary | `sc-*` (all skills) | R/W |
-| sc-coder | write | sc-solid, sc-tdd, sc-web-service | R/W |
-| sc-tester | write | sc-solid, sc-tdd, sc-verification | R/W |
-| sc-designer | read-only | sc-mission, sc-design, sc-web-service | RO |
-| sc-planner | read-only | sc-mission, sc-planning, sc-solid | RO |
-| sc-reviewer | read-only | sc-mission, sc-git, sc-solid, sc-verification | RO |
+| sc-coder | write | sc-database, sc-solid, sc-tdd, sc-web-backend, sc-web-frontend | R/W |
+| sc-tester | write | sc-solid, sc-tdd, sc-verification, sc-web-backend | R/W |
+| sc-designer | read-only | sc-design, sc-mission, sc-web-frontend | RO |
+| sc-planner | read-only | sc-architect, sc-mission, sc-planning, sc-solid | RO |
+| sc-reviewer | read-only | sc-architect, sc-mission, sc-git, sc-solid, sc-verification | RO |
 
 ### Agent Hierarchy
 
@@ -141,19 +141,22 @@ sc-commander (primary)
 
 | Skill | File | Used By |
 |-------|------|---------|
-| sc-mission | `.opencode/skills/sc-mission/` | All commands |
+| sc-architect | `.opencode/skills/sc-architect/` | sc-reviewer, sc-planner, /sc-plan, /sc-review |
 | sc-clarify | `.opencode/skills/sc-clarify/` | /sc-start, /sc-design, /sc-plan, /sc-build (auto-triggered on ambiguity) |
-| sc-design | `.opencode/skills/sc-design/` | /sc-design |
-| sc-planning | `.opencode/skills/sc-planning/` | /sc-plan |
-| sc-git | `.opencode/skills/sc-git/` | sc-build, sc-quick, sc-review, sc-ship (auto-triggered silently within sc-build) |
-| sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
-| sc-debug | `.opencode/skills/sc-debug/` | Commander auto-trigger (error/stack trace/debug request) |
 | sc-creator | `.opencode/skills/sc-creator/` | Commander (skill creation workflow) |
-| sc-map | `.opencode/skills/sc-map/` | Commander auto-trigger (before /sc-plan when map.json missing) |
+| sc-database | `.opencode/skills/sc-database/` | sc-coder, /sc-build |
+| sc-debug | `.opencode/skills/sc-debug/` | Commander auto-trigger (error/stack trace/debug request) |
+| sc-design | `.opencode/skills/sc-design/` | /sc-design |
+| sc-git | `.opencode/skills/sc-git/` | sc-build, sc-quick, sc-review, sc-ship (auto-triggered silently within sc-build) |
 | sc-learn | `.opencode/skills/sc-learn/` | /sc-ship, Commander (knowledge capture and migration) |
-| sc-tdd | `.opencode/skills/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
+| sc-map | `.opencode/skills/sc-map/` | Commander auto-trigger (before /sc-plan when map.json missing) |
+| sc-mission | `.opencode/skills/sc-mission/` | All commands |
+| sc-planning | `.opencode/skills/sc-planning/` | /sc-plan |
 | sc-solid | `.opencode/skills/sc-solid/` | /sc-build, /sc-review, sc-coder, sc-tester, sc-planner, sc-reviewer (SOLID, clean code, architecture) |
-| sc-web-service | `.opencode/skills/sc-web-service/` | sc-coder, sc-designer |
+| sc-tdd | `.opencode/skills/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
+| sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
+| sc-web-backend | `.opencode/skills/sc-web-backend/` | sc-coder, sc-tester, /sc-build |
+| sc-web-frontend | `.opencode/skills/sc-web-frontend/` | sc-coder, sc-designer, /sc-build, /sc-design |
 
 ### Permission Flow
 

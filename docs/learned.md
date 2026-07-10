@@ -30,6 +30,7 @@ Specific issues that were identified, fixed, and verified during missions.
 | M07IG6R17 | 2026-07-09 | NoopRunner variable named as noop but runs real OS commands (gitutil/git.go) | Renamed to DefaultRunner to reflect actual behavior (G18) | E07IH2MZG |
 | M07IG6R17 | 2026-07-09 | Manual flag parsing loop in researchCmd and checkDepsCmd — flag package supports dashes | Replaced with flag.NewFlagSet (G19) | E07IHF9J4 |
 | M07IG6R17 | 2026-07-09 | Commander session handoff recommends auto-trigger skills as user slash commands | Clarified auto-trigger vs user commands in PERSONA.md (D7) | E07IHJBKL |
+| M07JSKJRB | 2026-07-10 | 3 Node integration tests in resolver suite failed because test workspaces lacked the `.opencode/commands/` directory required by `validateNextCommand` — CLI initialization set the path but test harness never created it | Added `ensureCommandsDir` helper to populate `.opencode/commands/` in test workspaces; updated expected clarification format from `/sc-clarify` to `(clarify)` | E07JWWW0N |
 
 ---
 
@@ -47,6 +48,7 @@ General principles and transferable insights — applicable beyond this codebase
 | M07IDBF29 | 2026-07-09 | Resolved findings should not block release — severity downgrade prevents false blocking | A finding marked "critical" still blocks even after resolution. When a finding is resolved, either downgrade severity or mark `blocksShip: false` so the release gate reflects reality, not history |
 | M07IG6R17 | 2026-07-09 | Configuration-as-code schemas with machine-enforced enums must document allowed values — `ReleaseGate.status` silently rejects descriptive words like "satisfied", "approved", "pending" because only specific keywords in the allowlist pass | Always check the source code's status keyword allowlist before populating machine-validated JSON fields. Descriptive language that feels natural to humans often doesn't match the machine's enum |
 | M07IG6R17 | 2026-07-09 | Version bump and changelog commits must be separate from implementation commits — git history should distinguish "what changed" from "what was released" | Keep release note commits (`chore:` or `docs:`) as a dedicated final commit in the work branch, never bundled with feature or fix implementation. This makes rollback and audit easier |
+| M07JSKJRB | 2026-07-10 | When adding filesystem-based validation to a CLI, update integration test harnesses to populate the required directory structure — otherwise integration tests silently exercise fallback code paths instead of the validation path | `validateNextCommand` checks if `.opencode/commands/<cmd>.md` exists; if the test workspace doesn't create that directory, every command falls back to `/sc-resume`. Unit tests bypass this with mocks, creating a false sense of coverage. Always verify that integration test fixtures mirror the CLI's initialization assumptions |
 
 ---
 

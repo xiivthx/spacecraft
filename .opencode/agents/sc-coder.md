@@ -11,9 +11,11 @@ permission:
     "rm -rf *": deny
   skill:
     "*": deny
+    "sc-database": allow
     "sc-solid": allow
     "sc-tdd": allow
-    "sc-web-service": allow
+    "sc-web-backend": allow
+    "sc-web-frontend": allow
 ---
 
 ## Role & Identity

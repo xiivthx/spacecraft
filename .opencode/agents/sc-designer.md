@@ -8,9 +8,9 @@ permission:
   bash: deny
   skill:
     "*": deny
-    "sc-mission": allow
     "sc-design": allow
-    "sc-web-service": allow
+    "sc-mission": allow
+    "sc-web-frontend": allow
 ---
 
 ## Role & Identity
