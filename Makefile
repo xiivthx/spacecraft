@@ -1,6 +1,8 @@
 .PHONY: help test build sc-design-serve sc-design-open install uninstall reinstall
 
 OPENACODE_GLOBAL ?= $(HOME)/.config/opencode
+BINDIR           ?= $(HOME)/.local/bin
+SPACECRAFT_BIN   := $(CURDIR)/scripts/spacecraft
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -45,7 +47,18 @@ install: ## Symlink spacecraft skills/agents/commands + docs to ~/.config/openco
 		echo "  No global opencode.json found — copying project config"; \
 		cp "$(CURDIR)/opencode.json" "$(OPENACODE_GLOBAL)/opencode.json"; \
 	fi
+	@echo ""
+	@echo "=== Linking spacecraft binary to $(BINDIR) ==="
+	@mkdir -p "$(BINDIR)"
+	@if [ ! -f "$(SPACECRAFT_BIN)" ]; then \
+		echo "  Binary not found at $(SPACECRAFT_BIN). Run 'make build' first."; \
+		exit 1; \
+	fi
+	@ln -sf "$(SPACECRAFT_BIN)" "$(BINDIR)/spacecraft"
+	@echo "  spacecraft -> $(SPACECRAFT_BIN) (auto-updates on rebuild)"
+	@echo ""
 	@echo "=== Done. Restart OpenCode for changes to take effect. ==="
+	@echo "Tip: ensure $(BINDIR) is on your PATH to call 'spacecraft' from any directory."
 
 uninstall: ## Remove spacecraft symlinks from ~/.config/opencode
 	@echo "=== Uninstalling spacecraft from $(OPENACODE_GLOBAL) ==="
@@ -69,6 +82,10 @@ uninstall: ## Remove spacecraft symlinks from ~/.config/opencode
 	fi
 	@if [ -f "$(OPENACODE_GLOBAL)/opencode.json.bak" ]; then \
 		echo "  opencode.json.bak exists (original backup) — restore manually: mv ~/.config/opencode/opencode.json.bak ~/.config/opencode/opencode.json"; \
+	fi
+	@if [ -L "$(BINDIR)/spacecraft" ]; then \
+		rm "$(BINDIR)/spacecraft"; \
+		echo "  Removed spacecraft binary symlink"; \
 	fi
 	@echo "=== Done. ==="
 
@@ -100,6 +117,10 @@ clean-global: ## Remove all spacecraft symlinks + restore opencode.json.bak (for
 	@if [ -f "$(OPENACODE_GLOBAL)/opencode.json.bak" ]; then \
 		mv "$(OPENACODE_GLOBAL)/opencode.json.bak" "$(OPENACODE_GLOBAL)/opencode.json"; \
 		echo "  Restored opencode.json from backup"; \
+	fi
+	@if [ -L "$(BINDIR)/spacecraft" ]; then \
+		rm "$(BINDIR)/spacecraft"; \
+		echo "  Removed spacecraft binary symlink"; \
 	fi
 	@echo "=== Clean. Run 'make install' to re-symlink. ==="
 
