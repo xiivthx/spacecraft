@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.3 - 2026-07-10
+
+- Fix: standardize task status on `done` — remove `completed` synonym from `TaskIsComplete()`, `taskIsOpen()`, and all test fixtures. Release gates drop `complete`/`completed` (keep `done`).
+- Fix: add explicit `/sc-ship` merge gate — PERSONA.md, AGENTS.md, .opencode/AGENTS.md now block auto-merge. Quick lane ends with "report ready, wait for /sc-ship."
+
 ## 0.19.2 - 2026-07-10
 
 - Fix: commander persona now delegates product code to sc-coder and tests to sc-tester — aligns persona with command-file delegation model. Added constraint preventing direct implementation.
