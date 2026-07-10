@@ -866,7 +866,18 @@ func compactCmd(args []string) int {
 	}
 
 	ci := compact.ParseCommand(remaining)
-	filter := autoDetectFilter(ci)
+
+	// DSL override: load user config from .space/compact/filters.json.
+	dslPath := filepath.Join(cfg.Root(), ".space", "compact", "filters.json")
+	filter, err := compact.LoadDSLFilter(dslPath, ci)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "spacecraft compact: DSL config error: %v\n", err)
+		return 1
+	}
+	if filter == nil {
+		filter = autoDetectFilter(ci)
+	}
+
 	runner := compact.NewRunner(remaining, filter)
 	result, err := runner.Run()
 	if err != nil {
@@ -974,6 +985,10 @@ Run a command and emit compact, token-optimized output.
 
 Flags:
   --tee    Save full unfiltered output to .space/compact/ on non-zero exit.
+
+DSL overrides:
+  User rules in .space/compact/filters.json take priority over auto-detection.
+  See AGENTS.md for the DSL schema reference.
 
 Auto-detected filters:
   git status, git diff, git log
