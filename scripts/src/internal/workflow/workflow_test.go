@@ -36,7 +36,7 @@ func TestNextTask_empty(t *testing.T) {
 
 func TestNextTask_returnsFirstOpen(t *testing.T) {
 	tasks := []mission.Task{
-		{ID: strPtr("T01"), Status: strPtr("completed")},
+		{ID: strPtr("T01"), Status: strPtr("done")},
 		{ID: strPtr("T02"), Status: strPtr("pending")},
 		{ID: strPtr("T03"), Status: strPtr("pending")},
 	}
@@ -48,7 +48,7 @@ func TestNextTask_returnsFirstOpen(t *testing.T) {
 
 func TestNextTask_allDone(t *testing.T) {
 	tasks := []mission.Task{
-		{ID: strPtr("T01"), Status: strPtr("completed")},
+		{ID: strPtr("T01"), Status: strPtr("done")},
 		{ID: strPtr("T02"), Status: strPtr("done")},
 		{ID: strPtr("T03"), Status: strPtr("cancelled")},
 	}
@@ -164,7 +164,7 @@ func TestSnapshot_Build_nextTask(t *testing.T) {
 	store.writePlan("M07WF02", &mission.Plan{
 		MissionId: "M07WF02",
 		Tasks: []mission.Task{
-			{ID: strPtr("T01"), Title: strPtr("First"), Status: strPtr("completed")},
+			{ID: strPtr("T01"), Title: strPtr("First"), Status: strPtr("done")},
 			{ID: strPtr("T02"), Title: strPtr("Second"), Status: strPtr("pending")},
 		},
 	})
@@ -272,7 +272,7 @@ func TestSnapshot_Build_allDone(t *testing.T) {
 	store.writeSpec("M07WF07")
 	store.writePlan("M07WF07", &mission.Plan{
 		MissionId: "M07WF07",
-		Tasks:     []mission.Task{{ID: strPtr("T01"), Status: strPtr("completed")}},
+		Tasks:     []mission.Task{{ID: strPtr("T01"), Status: strPtr("done")}},
 	})
 
 	snapper := NewSnapshot(store)
