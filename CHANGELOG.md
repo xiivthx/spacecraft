@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.16.0 - 2026-07-10
+
+- Feat: `make install/uninstall` — symlink spacecraft skills/agents/commands to global OpenCode config
+- Feat: generic `.opencode/AGENTS.md` for global consumption (no project-specific references)
+- Feat: merge only agent definitions into global `opencode.json` (preserves plugins/providers)
+- Feat: `make clean-global` — full reset target for removing all spacecraft symlinks
+- Feat: `make fix-opencode` — strip project-specific keys from previously merged global config
+- Chore: update agent model configs (sc-commander variant medium, sc-planner/sc-tester flash-free)
+
 ## 0.15.0 - 2026-07-10
 
 - Feat: add 4 new built-in compact filters — go vet, npm test, docker ps, curl (M07J009BS)
