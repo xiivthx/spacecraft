@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.19.2 - 2026-07-10
+
+- Fix: commander persona now delegates product code to sc-coder and tests to sc-tester — aligns persona with command-file delegation model. Added constraint preventing direct implementation.
+
 ## 0.19.1 - 2026-07-10
 
 - Feat: `make install` now symlinks `scripts/spacecraft` binary to `~/.local/bin/spacecraft` — callable from any workspace. Symlink auto-updates on rebuild. `make uninstall` and `clean-global` also remove the binary symlink.
