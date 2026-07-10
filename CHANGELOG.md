@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.1 - 2026-07-10
+
+- Fix: `make install` detects local `.opencode/` and warns about double-load collision (FORCE=1 to override)
+
 ## 0.16.0 - 2026-07-10
 
 - Feat: `make install/uninstall` — symlink spacecraft skills/agents/commands to global OpenCode config

@@ -9,6 +9,12 @@ help: ## Show this help
 # ── global config symlink targets ─────────────────────────────────────────
 
 install: ## Symlink spacecraft skills/agents/commands + docs to ~/.config/opencode (merges agents into opencode.json)
+	@if [ -d "$(CURDIR)/.opencode/skills" ] && [ "$$FORCE" != "1" ]; then \
+		echo "WARNING: this project already has .opencode/ locally."; \
+		echo "  Global install may cause double-loading in this project."; \
+		echo "  Use FORCE=1 to override, or run from another project."; \
+		exit 1; \
+	fi
 	@echo "=== Installing spacecraft to $(OPENACODE_GLOBAL) ==="
 	@test -f opencode.json || (echo "ERROR: run from spacecraft repo root" && exit 1)
 	@for dir in skills agents commands; do \
