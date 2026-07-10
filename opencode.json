@@ -10,12 +10,13 @@
       "description": "Spacecraft mission commander — orchestrates mission-driven implementation using lean prompts",
       "model": "opencode-go/deepseek-v4-pro",
       "temperature": 0.2,
+      "variant": "medium",
       "color": "#4fc3f7"
     },
     "sc-planner": {
       "mode": "subagent",
       "description": "Read-only Spacecraft planner that turns a mission spec into a small executable plan",
-      "model": "opencode-go/deepseek-v4-flash",
+      "model": "opencode/deepseek-v4-flash-free",
       "temperature": 0.1,
       "color": "#80cbc4"
     },
@@ -43,7 +44,7 @@
     "sc-tester": {
       "mode": "subagent",
       "description": "Write-capable tester that writes tests and captures verification evidence (TDD)",
-      "model": "opencode-go/deepseek-v4-flash",
+      "model": "opencode/deepseek-v4-flash-free",
       "temperature": 0.1,
       "color": "#ffcc80"
     }
