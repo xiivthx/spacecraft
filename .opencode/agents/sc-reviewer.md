@@ -12,6 +12,7 @@ permission:
     "sc-mission": allow
     "sc-git": allow
     "sc-solid": allow
+    "sc-ux-design": allow
     "sc-verification": allow
 ---
 

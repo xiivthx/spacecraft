@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.17.0 - 2026-07-10
+
+- Feat: add sc-ux-design skill — anti-slop UI control (46 impeccable.style patterns), HTML draft preview with design briefs, animation/transition guidelines, and Playwright-based visual verification (M07JZ2OPD)
+- Feat: register sc-ux-design in AGENTS.md skill table, agent permissions (sc-coder, sc-designer, sc-reviewer), and SPACECRAFT.md references
+- Chore: add negation patterns to `.opencode/.gitignore` for skill-local package.json files (sc-ux-design Playwright dependency)
+
 ## 0.16.2 - 2026-07-10
 
 - Feat: add 4 web developer skills — sc-web-frontend (React/TypeScript/Vite/Tailwind), sc-web-backend (Node.js/Fastify), sc-architect (ADR/C4), sc-database (PostgreSQL/migrations) (M07JSKJRB)

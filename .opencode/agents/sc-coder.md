@@ -14,6 +14,7 @@ permission:
     "sc-database": allow
     "sc-solid": allow
     "sc-tdd": allow
+    "sc-ux-design": allow
     "sc-web-backend": allow
     "sc-web-frontend": allow
 ---

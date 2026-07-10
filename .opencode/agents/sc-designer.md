@@ -10,6 +10,7 @@ permission:
     "*": deny
     "sc-design": allow
     "sc-mission": allow
+    "sc-ux-design": allow
     "sc-web-frontend": allow
 ---
 
