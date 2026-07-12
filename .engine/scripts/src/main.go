@@ -221,8 +221,12 @@ func newCmd(args []string) int {
 	}
 
 	ctx := context.Background()
-	hooks.Fire(ctx, hooksCfg, "mission.created")
-	hooks.Fire(ctx, hooksCfg, "mission.state.changed")
+	if hooks.Fire(ctx, hooksCfg, "mission.created") != nil {
+		return 1
+	}
+	if hooks.Fire(ctx, hooksCfg, "mission.state.changed") != nil {
+		return 1
+	}
 
 	// Write stubs
 	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Mission Spec\n\n## Goal\n\n## User-visible behavior\n\n## Non-goals\n\n## Constraints\n\n## Acceptance checks\n"), 0644)
@@ -658,7 +662,9 @@ func setStateCmd(args []string) int {
 	if err := ss.SetState(res.Selected.ID, state); err != nil {
 		return printErr(err)
 	}
-	hooks.Fire(context.Background(), hooksCfg, "mission.state.changed")
+	if hooks.Fire(context.Background(), hooksCfg, "mission.state.changed") != nil {
+		return 1
+	}
 	fmt.Printf("Spacecraft mission %s state: %s\n", res.Selected.ID, stateDisplay(state))
 	return 0
 }
@@ -771,7 +777,7 @@ func evidenceCmd(args []string) int {
 	if err := store.AppendEvidence(id, &entry); err != nil {
 		return printErr("Failed to append evidence:", err)
 	}
-	hooks.Fire(context.Background(), hooksCfg, "mission.evidence.appended")
+	_ = hooks.Fire(context.Background(), hooksCfg, "mission.evidence.appended")
 	return 0
 }
 
