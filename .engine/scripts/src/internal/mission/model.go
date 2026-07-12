@@ -73,6 +73,7 @@ type Plan struct {
 // EvidenceEntry records the result of running a verification command.
 type EvidenceEntry struct {
 	ID        string  `json:"id"`
+	Type      *string `json:"type,omitempty"`
 	Label     string  `json:"label"`
 	Command   string  `json:"command"`
 	ExitCode  int     `json:"exitCode"`
@@ -174,6 +175,7 @@ type ReleaseReadiness struct {
 	SpecNote                 *ReleaseGate `json:"specNote"`
 	TagPlan                  *ReleaseGate `json:"tagPlan"`
 	PostRebaseVerification   *ReleaseGate `json:"postRebaseVerification"`
+	EvalCoverage             *ReleaseGate `json:"evalCoverage"`
 }
 
 // Finding is a code review finding.
