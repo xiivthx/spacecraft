@@ -89,6 +89,13 @@ scripts/spacecraft evidence "<label>" -- <command>
 Merge to main only on explicit `/sc-ship` or user release command. Never auto-detect.
 Rebase → verify → `git merge --no-ff` → tag → delete branch → archive.
 
+## Additional skills
+
+| Skill | Purpose |
+|-------|---------|
+| `sc-performance` | Performance review — N+1 detection, memory leaks, bundle size, render optimization |
+| `sc-security` | Static security review — OWASP detection, secrets, injection patterns, manifest scanning |
+
 ## Entry points
 | File | Role |
 |------|------|

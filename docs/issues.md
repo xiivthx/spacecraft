@@ -192,3 +192,14 @@ Audit date: 2026-07-09. Covers all 13 skills, 8 commands, Go CLI, and docs.
 ### Fixed by M07IMLU48 (2026-07-09)
 
 20 issues fixed: S14-S26 (Skills), C10-C12 (Commands, /sc-git command removed), A7-A9 (Agents), D6 (Docs). All 73 issues now resolved. sc-learn skill exists (not audited — separate concern).
+
+### From M07MTPHTR: improve review method — model upgrade, skills, edge cases
+
+**Status**: migrated (2026-07-12). 4 minor deferred items from review.
+
+| # | Issue | Severity | Impact |
+|---|-------|----------|--------|
+| I1 | AC12 skill resolution requires new session (session cache limitation) — `skill("sc-security")` and `skill("sc-performance")` cannot resolve until new session | minor | AC12 not verifiable in current session; defer to post-merge |
+| I2 | sc-security SKILL.md is 156 lines (6 over sc-creator 150-line recommendation) | minor | Convention violation, non-blocking |
+| I3 | sc-review command Use: line missing sc-security and sc-performance | minor | Documentation gap; functional impact minimal |
+| I4 | SPACECRAFT.md /sc-review permission column missing sc-security/sc-performance | minor | Documentation inconsistency; functional impact minimal |

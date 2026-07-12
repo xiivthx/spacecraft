@@ -61,6 +61,34 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must not**: Add router unless the feature requires multiple views or URL state.
 - **Must not**: Install UI libraries or component frameworks without user approval.
 
+## Reviewer checklist
+
+Use this checklist when reviewing frontend code:
+
+- [ ] **React hooks rule violations**
+  - Hooks called conditionally (inside `if` or loops)
+  - Hooks called after early return
+  - `useState` or `useEffect` inside callbacks or conditions
+  - Custom hooks not prefixed with `use`
+  - Hooks called from regular functions instead of components/hooks
+- [ ] **useEffect overuse**
+  - `useEffect` used for derived state that could be computed during render
+  - Chained effects triggering cascading re-renders
+  - Missing cleanup functions for subscriptions, timers, or event listeners
+  - Effects with missing or incorrect dependency arrays
+  - `useEffect` used where `useSyncExternalStore` or an event handler would be simpler
+- [ ] **Tailwind class conflicts**
+  - Conflicting utility classes on the same element (e.g., `p-4 p-6`, `text-red-500 text-blue-500`)
+  - Unnecessary `!important` modifiers
+  - Missing responsive variants
+  - Using inline styles instead of Tailwind equivalents
+  - Long unbroken class strings without grouping
+- [ ] **Missing key props**
+  - Mapped elements without a `key` prop
+  - Using `index` as key with dynamic or reorderable lists
+  - Non-stable keys (random, `Date.now()`)
+  - Duplicate keys across siblings
+
 ## Out of scope
 
 - API design, server logic, or backend architecture — separate concern
