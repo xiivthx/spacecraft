@@ -83,3 +83,23 @@ func TestConfigMissionDir(t *testing.T) {
 		t.Errorf("MissionDir = %q, want %q", md, want)
 	}
 }
+
+func TestConfigTraceStoreDir(t *testing.T) {
+	cfg, _ := NewConfig("/repo")
+	want := "/repo/.space/traces"
+	if cfg.TraceStoreDir() != want {
+		t.Errorf("TraceStoreDir = %q, want %q", cfg.TraceStoreDir(), want)
+	}
+}
+
+func TestConfigTraceStoreDirOverride(t *testing.T) {
+	cfg, _ := NewConfig("/repo", WithTraceStoreDir("/custom/traces"))
+	want := "/custom/traces"
+	if cfg.TraceStoreDir() != want {
+		t.Errorf("TraceStoreDir = %q, want %q", cfg.TraceStoreDir(), want)
+	}
+	// Other paths still derived from root
+	if cfg.Root() != "/repo" {
+		t.Errorf("Root = %q, want %q", cfg.Root(), "/repo")
+	}
+}
