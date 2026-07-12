@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.26.0 - 2026-07-12
+
+- Feat: add lifecycle hook system (M07N95XAN) — user-defined shell commands in `.space/hooks.json` that fire on mission events (created, state.changed, evidence.appended, validated, shipped, archived, wildcard `*`); supports blocking/non-blocking modes, configurable timeouts, stdout/stderr streaming with `[label]` prefix, and SIGINT forwarding
+
 ## 0.25.0 - 2026-07-12
 
 - Feat: add traces and cost CLI subcommands for observability tracking — `spacecraft traces <id>` prints execution trace table with timestamp, latency, and tokens; `spacecraft cost --all` shows aggregate token usage and estimated cost per mission (M07N6P7I4)
