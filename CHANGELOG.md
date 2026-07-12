@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.22.0 - 2026-07-12
+
+- Feat: make .engine an opencode plugin — add `.opencode/plugins/engine.js` for auto-loading skills, commands, and persona context (M07N1L422)
+- Feat: add `docs/INSTALL.md` with setup, troubleshooting, and git-backed install examples
+- Refactor: consolidate engine structure under `.engine/` — move scripts, docs, config; remove 21 skill symlinks
+- Refactor: simplify Makefile to 4 targets (build, test, clean, lint)
+- Chore: clean `opencode.json` (remove commented-out models), remove old resolver tests
+
 ## 0.21.1 - 2026-07-12
 
 - Chore: reorganize skills into category folders (core/quality/design/web/data/meta) with flat symlinks for OpenCode discovery
