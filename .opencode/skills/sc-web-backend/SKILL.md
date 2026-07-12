@@ -68,6 +68,32 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must not**: Add database schema, migrations, or query optimization — separate concern.
 - **Must not**: Add deployment config, Docker, CI/CD, or observability unless explicitly requested.
 
+## Reviewer checklist
+
+Use this checklist when reviewing backend code:
+
+- [ ] **Fastify plugin lifecycle violations**
+  - Plugins registered after `server.listen()`
+  - Async plugin registered without `await register()`
+  - Plugin options not typed
+  - Duplicate route registrations across plugins
+- [ ] **Missing input validation**
+  - Route handler without Fastify schema validation (`schema: { body: ..., params: ..., querystring: ... }`)
+  - Trusting raw `request.body` without validation
+  - Missing response schema for typed output
+  - Using `any` or `as` casts to bypass type checking
+- [ ] **Unhandled promise rejections**
+  - `async` route handlers without try/catch
+  - Promise chains without `.catch()`
+  - `void` used to suppress unhandled rejection warnings
+  - Error handler not registered on Fastify instance
+- [ ] **Route handler anti-patterns**
+  - Business logic in route handler instead of service layer
+  - Direct database access from handler
+  - Synchronous blocking calls in async handlers
+  - Response sent before async operation completes
+  - Mixing REST and RPC patterns inconsistently
+
 ## Out of scope
 
 - UI design or frontend architecture — separate concern

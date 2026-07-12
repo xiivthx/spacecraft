@@ -116,6 +116,28 @@ Record skipped-TDD decisions for a task in the task output or plan.json notes.
 - **Must not**: Mock your own classes, internal collaborators, or anything under your control.
 - **Prefer**: Dependency injection and SDK-style interfaces over generic fetchers. See `references/mocking.md`.
 
+## Assessing test quality during review
+
+> These are review-time heuristics — distinct from the authoring-time rules above.
+
+Use these during code review to spot tests that pass green but don't actually verify behavior.
+
+1. **Assertions on implementation detail**
+   - Red flag: `expect(component.state.field).toBe(...)`, `expect(service.internalCounter).toBe(1)`, or any assertion on private fields, internal state, or non-public seams.
+   - Fix: Rewrite assertions against public behavior or user-observable outcomes.
+
+2. **Tautological assertions**
+   - Red flag: `expect(result).toBe(a + b)` where `result = add(a, b)`; expected value computed the same way as the implementation.
+   - Fix: Use an independent expected value — literal, worked example, or spec — so the test can disagree with the code.
+
+3. **Missed edge paths**
+   - Red flag: Code contains `if`, `try/catch`, guards, or null/undefined handling, but tests only exercise the happy path.
+   - Fix: Add tests for `else`, `catch`, empty input, null/undefined, and boundary values.
+
+4. **Mock over-verification**
+   - Red flag: Test mocks internal collaborators and verifies only mock interactions (`expect(mock.fn).toHaveBeenCalledWith(...)`); no assertion on actual output.
+   - Fix: Assert on real behavior through public interfaces; mock only external system boundaries.
+
 ### Anti-patterns
 
 | Type | Tell | Fix |
