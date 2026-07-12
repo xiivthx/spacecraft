@@ -10,7 +10,7 @@ Spacecraft is a local-first mission-control harness for OpenCode-driven developm
 
 ## Installation
 
-### 1. Build the CLI
+### Local (per-workspace)
 
 ```sh
 make build
@@ -18,15 +18,24 @@ make build
 
 This compiles the Go helper binary (`scripts/spacecraft`) used for mission state, evidence capture, git branching, research, and resolver operations.
 
-### 2. Configure OpenCode
-
-Spacecraft loads as a local OpenCode plugin — no npm publish needed. The plugin auto-registers skills, commands, and persona context from `.engine/`.
-
-No manual configuration required beyond having this repo as your workspace. On startup, OpenCode will:
+Spacecraft loads as a local OpenCode plugin. On startup, OpenCode will:
 
 1. Load `.opencode/plugins/engine.js` — registers skills paths, commands, and injects commander persona
 2. Read `opencode.json` — registers agent definitions (sc-commander, sc-coder, sc-tester, etc.)
 3. Inject PERSONA.md + AGENTS.md + DESIGN.md context on session start
+
+### Global (all workspaces)
+
+```sh
+make install
+```
+
+This:
+- Builds the CLI
+- Symlinks `spacecraft` to `~/.local/bin/`
+- Writes global config to `~/.config/opencode/opencode.jsonc` with absolute paths
+
+Restart OpenCode after install.
 
 ## Verify
 

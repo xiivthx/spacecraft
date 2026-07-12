@@ -8,6 +8,7 @@ Spacecraft is a lean, local-first OpenCode harness for mission-driven software d
 
 ```sh
 make build                          # build the Go helper binary
+make install                        # or: global install (symlink + config)
 scripts/spacecraft new "My mission" # create a mission
 scripts/spacecraft missions         # list missions
 scripts/spacecraft use 1            # select a mission
@@ -16,7 +17,7 @@ scripts/spacecraft status           # show resolved mission state
 
 ## Slash commands
 
-`/sc-start` · `/sc-design` · `/sc-plan` · `/sc-build` · `/sc-review` · `/sc-quick` · `/sc-resume` · `/sc-ship`
+`/sc-start` · `/sc-design` · `/sc-plan` · `/sc-build` · `/sc-review` · `/sc-quick` · `/sc-research` · `/sc-resume` · `/sc-ship`
 
 ## CLI commands
 
@@ -54,9 +55,13 @@ scripts/spacecraft status           # show resolved mission state
     questions.md, decisions.md, review.md, review.json
     design/, outputs/
   archive/<id>/                compact shipped missions
-.opencode/agents/              agent configs (sc-commander, etc.)
-.opencode/commands/            slash command prompts
-.opencode/skills/              reusable skills
+.engine/
+  agents/                      agent configs (sc-commander, etc.)
+  commands/                    slash command prompts (.md)
+  skills/                      reusable skills by category
+    core/, data/, design/, meta/, quality/, web/
+  scripts/                     Go source and binary
+.opencode/plugins/engine.js    plugin loader
 scripts/spacecraft             Go binary helper
 ```
 
@@ -141,27 +146,28 @@ sc-commander (primary)
 
 | Skill | File | Used By |
 |-------|------|---------|
-| sc-architect | `.opencode/skills/sc-architect/` | sc-reviewer, sc-planner, /sc-plan, /sc-review |
-| sc-clarify | `.opencode/skills/sc-clarify/` | /sc-start, /sc-design, /sc-plan, /sc-build (auto-triggered on ambiguity) |
-| sc-creator | `.opencode/skills/sc-creator/` | Commander (skill creation workflow) |
-| sc-database | `.opencode/skills/sc-database/` | sc-coder, /sc-build |
-| sc-debug | `.opencode/skills/sc-debug/` | Commander auto-trigger (error/stack trace/debug request) |
-| sc-design | `.opencode/skills/sc-design/` | /sc-design |
-| sc-git | `.opencode/skills/sc-git/` | sc-build, sc-quick, sc-review, sc-ship (auto-triggered silently within sc-build) |
-| sc-learn | `.opencode/skills/sc-learn/` | /sc-ship, Commander (knowledge capture and migration) |
-| sc-localize | `.opencode/skills/sc-localize/` | Commander auto-trigger (bilingual/multilingual copy review) |
-| sc-map | `.opencode/skills/sc-map/` | Commander auto-trigger (before /sc-plan when map.json missing) |
-| sc-mission | `.opencode/skills/sc-mission/` | All commands |
-| sc-pathfinder | `.opencode/skills/sc-pathfinder/` | Commander (explicit invocation only — multi-session scoping) |
-| sc-performance | `.opencode/skills/sc-performance/` | sc-reviewer, /sc-review |
-| sc-planning | `.opencode/skills/sc-planning/` | /sc-plan |
-| sc-security | `.opencode/skills/sc-security/` | sc-reviewer, /sc-review |
-| sc-solid | `.opencode/skills/sc-solid/` | /sc-build, /sc-review, sc-coder, sc-tester, sc-planner, sc-reviewer (SOLID, clean code, architecture) |
-| sc-tdd | `.opencode/skills/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
-| sc-ux-design | `.opencode/skills/sc-ux-design/` | /sc-build, /sc-design, /sc-review, sc-coder, sc-reviewer, sc-designer (UI quality, anti-slop, draft previews, visual verification) |
-| sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
-| sc-web-backend | `.opencode/skills/sc-web-backend/` | sc-coder, sc-tester, /sc-build |
-| sc-web-frontend | `.opencode/skills/sc-web-frontend/` | sc-coder, sc-designer, /sc-build, /sc-design |
+| sc-architect | `.engine/skills/data/sc-architect/` | sc-reviewer, sc-planner, /sc-plan, /sc-review |
+| sc-clarify | `.engine/skills/core/sc-clarify/` | /sc-start, /sc-design, /sc-plan, /sc-build (auto-triggered on ambiguity) |
+| sc-creator | `.engine/skills/meta/sc-creator/` | Commander (skill creation workflow) |
+| sc-database | `.engine/skills/data/sc-database/` | sc-coder, /sc-build |
+| sc-debug | `.engine/skills/core/sc-debug/` | Commander auto-trigger (error/stack trace/debug request) |
+| sc-design | `.engine/skills/design/sc-design/` | /sc-design |
+| sc-git | `.engine/skills/core/sc-git/` | sc-build, sc-quick, sc-review, sc-ship (auto-triggered silently within sc-build) |
+| sc-learn | `.engine/skills/core/sc-learn/` | /sc-ship, Commander (knowledge capture and migration) |
+| sc-localize | `.engine/skills/design/sc-localize/` | Commander auto-trigger (bilingual/multilingual copy review) |
+| sc-map | `.engine/skills/core/sc-map/` | Commander auto-trigger (before /sc-plan when map.json missing) |
+| sc-mission | `.engine/skills/core/sc-mission/` | All commands |
+| sc-pathfinder | `.engine/skills/meta/sc-pathfinder/` | Commander (explicit invocation only — multi-session scoping) |
+| sc-performance | `.engine/skills/quality/sc-performance/` | sc-reviewer, /sc-review |
+| sc-planning | `.engine/skills/core/sc-planning/` | /sc-plan |
+| sc-research | `.engine/skills/core/sc-research/` | /sc-research |
+| sc-security | `.engine/skills/quality/sc-security/` | sc-reviewer, /sc-review |
+| sc-solid | `.engine/skills/quality/sc-solid/` | /sc-build, /sc-review, sc-coder, sc-tester, sc-planner, sc-reviewer (SOLID, clean code, architecture) |
+| sc-tdd | `.engine/skills/quality/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
+| sc-ux-design | `.engine/skills/design/sc-ux-design/` | /sc-build, /sc-design, /sc-review, sc-coder, sc-reviewer, sc-designer (UI quality, anti-slop, draft previews, visual verification) |
+| sc-verification | `.engine/skills/core/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
+| sc-web-backend | `.engine/skills/web/sc-web-backend/` | sc-coder, sc-tester, /sc-build |
+| sc-web-frontend | `.engine/skills/web/sc-web-frontend/` | sc-coder, sc-designer, /sc-build, /sc-design |
 
 ### Permission Flow
 
