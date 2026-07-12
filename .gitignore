@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-.opencode/node_modules/
+.engine/node_modules/
 
 # Local environment and secrets
 .env
@@ -55,10 +55,10 @@ Thumbs.db
 *.swp
 *.swo
 
-# OpenCode local dependency install metadata
-.opencode/package.json
-.opencode/package-lock.json
-.opencode/bun.lock
+# Engine: dependency install metadata
+.engine/package.json
+.engine/package-lock.json
+.engine/bun.lock
 
 # Spacecraft local mission state
 .space/
