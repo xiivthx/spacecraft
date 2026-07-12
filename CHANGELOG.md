@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.25.0 - 2026-07-12
+
+- Feat: add traces and cost CLI subcommands for observability tracking — `spacecraft traces <id>` prints execution trace table with timestamp, latency, and tokens; `spacecraft cost --all` shows aggregate token usage and estimated cost per mission (M07N6P7I4)
+
 ## 0.24.0 - 2026-07-12
 
 - Feat: add eval framework — `spacecraft eval <id>` runs structured evaluation (deterministic checks, rubric scoring, LM judge) against mission evidence, `eval init <id>` scaffolds eval directory (M07N361SC)

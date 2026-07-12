@@ -9,11 +9,12 @@ import (
 
 // Config holds all path configuration for the Spacecraft mission system.
 type Config struct {
-	root        string
-	spaceDir    string
-	missionsDir string
-	archiveDir  string
-	currentFile string
+	root          string
+	spaceDir      string
+	missionsDir   string
+	archiveDir    string
+	currentFile   string
+	traceStoreDir string
 }
 
 // ConfigOption customizes a Config after creation.
@@ -39,6 +40,11 @@ func WithCurrentFile(file string) ConfigOption {
 	return func(c *Config) { c.currentFile = file }
 }
 
+// WithTraceStoreDir overrides the default trace store directory path.
+func WithTraceStoreDir(dir string) ConfigOption {
+	return func(c *Config) { c.traceStoreDir = dir }
+}
+
 // NewConfig creates a Config with paths derived from root.
 // root must be an absolute directory path.
 func NewConfig(root string, opts ...ConfigOption) (*Config, error) {
@@ -49,11 +55,12 @@ func NewConfig(root string, opts ...ConfigOption) (*Config, error) {
 		return nil, fmt.Errorf("config: root must be absolute: %s", root)
 	}
 	c := &Config{
-		root:        root,
-		spaceDir:    filepath.Join(root, ".space"),
-		missionsDir: filepath.Join(root, ".space", "missions"),
-		archiveDir:  filepath.Join(root, ".space", "archive"),
-		currentFile: filepath.Join(root, ".space", "current"),
+		root:          root,
+		spaceDir:      filepath.Join(root, ".space"),
+		missionsDir:   filepath.Join(root, ".space", "missions"),
+		archiveDir:    filepath.Join(root, ".space", "archive"),
+		currentFile:   filepath.Join(root, ".space", "current"),
+		traceStoreDir: filepath.Join(root, ".space", "traces"),
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -75,6 +82,9 @@ func (c *Config) ArchiveDir() string { return c.archiveDir }
 
 // CurrentFile returns the .space/current file path.
 func (c *Config) CurrentFile() string { return c.currentFile }
+
+// TraceStoreDir returns the trace store directory path (.space/traces/).
+func (c *Config) TraceStoreDir() string { return c.traceStoreDir }
 
 // MissionDir returns the mission directory for the given mission id.
 func (c *Config) MissionDir(id string) string {

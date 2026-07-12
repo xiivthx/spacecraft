@@ -37,6 +37,7 @@ Specific issues that were identified, fixed, and verified during missions.
 | M07MTPHTR | 2026-07-12 | AGENTS.md skill table ordering — sc-security before sc-performance (should be alphabetical) | Swapped rows to correct alphabetical order | E07MUVRW3 |
 | M07MTPHTR | 2026-07-12 | SPACECRAFT.md table had duplicate rows and incorrect alphabetical ordering for sc-performance/sc-security | Moved to correct positions, removed duplicates | E07MUVRW3 |
 | M07MTPHTR | 2026-07-12 | AC11 evidence was echo claim instead of actual review output | Replaced with reference to actual review.json (E07MWA5YH) | E07MWA5YH |
+| M07N6P7I4 | 2026-07-12 | tracesCmd flag parsing broken — Go flag.Parse stops at first non-flag argument; positional mission-id before --verbose/--json/--flat prevented flag parsing | Added splitFlags(args) helper to separate --* prefixed args from positionals before calling flag.Parse | E07N7OERZ |
 
 ---
 
@@ -62,6 +63,8 @@ General principles and transferable insights — applicable beyond this codebase
 | M07MTPHTR | 2026-07-12 | When a planned change touches a shared config file affecting multiple components, expanding scope to cover the whole file in one mission can reduce total churn vs. repeated incremental changes across missions | For configuration-as-code systems, evaluate coherence before scoping narrowly. A single-file change touching multiple agents may be cleaner as one mission than fragmented across several |
 | M07N361SC | 2026-07-12 | Self-referential gating — coverage gates for evaluation tooling must skip meta-missions where the framework is under construction; labelled examples can only exist after the tool ships | Bootstrap problem: evaluator cannot evaluate itself. Ship gates must explicitly defer when the mission builds the evaluation tooling itself |
 | M07N361SC | 2026-07-12 | Stored output references (file paths, blob keys) in structured logs must be resolved to content before feeding into analyzers — the resolution layer is part of the eval pipeline, not optional | When evidence stores stdout/stderr as file paths for efficiency, scoring functions operating on raw entry data will score paths instead of content, producing unreliable results |
+| M07N6P7I4 | 2026-07-12 | Go's flag.Parse stops at the first non-flag argument — when a CLI subcommand accepts positional args before flags, pre-process args to separate flag-like arguments (--*) from positionals before calling flag.Parse | Any CLI accepting mixed positional+flag arguments in any order needs a splitFlags helper. Without it, flags after positionals are silently ignored |
+| M07N6P7I4 | 2026-07-12 | Machine-enforced gates that depend on artefacts from a prior release create a bootstrap problem — the gate blocks all work until bootstrap artefacts are hand-crafted | When deploying a new mandatory gate (coverage, conformance, etc.), provide a documented deferral path for the first N missions while the ecosystem catches up |
 
 ---
 

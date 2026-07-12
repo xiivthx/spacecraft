@@ -214,3 +214,12 @@ Audit date: 2026-07-09. Covers all 13 skills, 8 commands, Go CLI, and docs.
 | ~~I2~~ | ~~sc-security SKILL.md is 156 lines (6 over sc-creator 150-line recommendation)~~ | minor | ~~Convention violation, non-blocking~~ | Trimmed to 149 lines |
 | ~~I3~~ | ~~sc-review command Use: line missing sc-security and sc-performance~~ | minor | ~~Documentation gap; functional impact minimal~~ | Added to `sc-review.md` Use: line |
 | ~~I4~~ | ~~SPACECRAFT.md /sc-review permission column missing sc-security/sc-performance~~ | minor | ~~Documentation inconsistency; functional impact minimal~~ | Added to README.md routing table |
+
+### From M07N6P7I4: Observability — token tracking, latency, execution traces
+
+**Status**: migrated (2026-07-12). 2 open (deferred).
+
+| # | Issue | Severity | Impact | Fix |
+|---|-------|----------|--------|-----|
+| I9 | No CLI integration tests for traces/cost subcommands — unit tests cover functional correctness but no automated CLI-level regression tests | minor | Manual smoke testing only; pattern-consistent with existing conventions | Deferred — add CLI integration tests for new subcommands |
+| I10 | Eval coverage below threshold — no labelled examples exist for any mission type; eval framework (v0.24.0) shipped immediately prior | minor | Blocks eval coverage gate for all missions until bootstrap examples created | Deferred — create labelled examples in dedicated follow-up mission |
