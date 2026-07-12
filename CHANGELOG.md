@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.23.0 - 2026-07-12
+
+- Feat: add `make install` for global Spacecraft setup — symlinks CLI to `~/.local/bin/`, writes `~/.config/opencode/opencode.jsonc` with absolute paths
+- Feat: add `make uninstall` to remove global symlink
+- Refactor: move `opencode.json.example` to `docs/opencode.md` as config template with field reference
+- Refactor: rename `SPACECRAFT.md` to `README.md` for repo discoverability
+- Refactor: rename `INSTALL.md` to `docs/how-to-install.md`
+- Docs: update file layout, skill paths, and slash command list to match actual `.engine/` structure
+
 ## 0.22.0 - 2026-07-12
 
 - Feat: make .engine an opencode plugin — add `.opencode/plugins/engine.js` for auto-loading skills, commands, and persona context (M07N1L422)
