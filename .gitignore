@@ -55,11 +55,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Engine: dependency install metadata
-.engine/package.json
-.engine/package-lock.json
-.engine/bun.lock
-
 # Spacecraft local mission state
 .space/
 
@@ -69,9 +64,3 @@ scripts/spacecraft
 scripts/sc
 scripts/src/spacecraft
 scripts/src/sc
-*.json
-
-# sc-ux-design needs its own package.json + lockfile for Playwright dependency
-!.engine/skills/design/sc-ux-design/package.json
-!.engine/skills/design/sc-ux-design/package-lock.json
-!.engine/skills/design/sc-ux-design/.gitignore

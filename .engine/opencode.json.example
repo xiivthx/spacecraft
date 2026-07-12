@@ -3,11 +3,13 @@
   "default_agent": "sc-commander",
   "share": "disabled",
   "lsp": true,
+  "instructions": ["PERSONA.md"],
   "agent": {
     "sc-commander": {
       "mode": "primary",
       "description": "Mission commander — orchestrates mission-driven implementation using lean prompts",
       "model": "opencode-go/deepseek-v4-pro",
+      // "model": "opencode-go/qwen3.7-max",
       "temperature": 0.2,
       "variant": "high",
       "color": "#4fc3f7"
@@ -16,6 +18,7 @@
       "mode": "subagent",
       "description": "Read-only planner that turns a mission spec into a small executable plan",
       "model": "opencode-go/qwen3.7-plus",
+      // "model": "opencode/deepseek-v4-flash-free",
       "temperature": 0.1,
       "variant": "low",
       "color": "#80cbc4"
@@ -24,6 +27,7 @@
       "mode": "subagent",
       "description": "Read-only design agent for UI direction, critique, and anti-slop review",
       "model": "opencode-go/glm-5.2",
+      // "model": "opencode-go/qwen3.7-plus",
       "temperature": 0.3,
       "variant": "medium",
       "color": "#ce93d8"
@@ -32,6 +36,7 @@
       "mode": "subagent",
       "description": "Read-only reviewer for diff, evidence, and release readiness",
       "model": "opencode-go/deepseek-v4-pro",
+      // "model": "opencode-go/kimi-k2.7-code",
       "temperature": 0.1,
       "variant": "medium",
       "color": "#ef9a9a"
@@ -40,6 +45,7 @@
       "mode": "subagent",
       "description": "Write-capable coder that implements production code to satisfy tasks and tests",
       "model": "opencode-go/kimi-k2.7-code",
+      // "model": "opencode-go/deepseek-v4-pro",
       "temperature": 0.2,
       "variant": "low",
       "color": "#a5d6a7"
@@ -48,6 +54,7 @@
       "mode": "subagent",
       "description": "Write-capable tester that writes tests and captures verification evidence (TDD)",
       "model": "opencode-go/deepseek-v4-flash",
+      // "model": "opencode/deepseek-v4-flash-free",
       "temperature": 0.1,
       "color": "#ffcc80"
     }
