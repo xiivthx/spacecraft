@@ -107,8 +107,8 @@ Before claiming performance work done:
 
 ## References
 
-- `references/performance-patterns.md` — N+1 fixes, batching, eager loading, data loaders
-- `references/memory-leak-patterns.md` — cleanup patterns for timers, listeners, subscriptions, closures
-- `references/bundle-analysis.md` — tree-shaking, dynamic imports, dependency duplication
-- `references/react-render-patterns.md` — memoization, context splitting, stable keys, state colocation
-- `references/hot-path-patterns.md` — avoiding blocking work, allocations, and serialization in tight loops
+- React performance optimization — https://react.dev/reference/react/useMemo, https://react.dev/reference/react/memo
+- Eager loading patterns (ActiveRecord) — https://guides.rubyonrails.org/active_record_querying.html#eager-loading-associations
+- Bundle analysis — https://github.com/webpack/webpack-bundle-analyzer, https://github.com/nicedoc/vite-bundle-analyzer
+- Memory leak patterns — https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management
+- Mission artifacts: `spec.md`, `plan.json`, `evidence.jsonl`

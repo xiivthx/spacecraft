@@ -120,7 +120,7 @@ Commander auto-triggers: sc-clarify (on ambiguity), sc-mission (session start), 
 | sc-tester | write | sc-solid, sc-tdd, sc-verification, sc-web-backend | R/W |
 | sc-designer | read-only | sc-design, sc-mission, sc-ux-design, sc-web-frontend | RO |
 | sc-planner | read-only | sc-architect, sc-mission, sc-planning, sc-solid | RO |
-| sc-reviewer | read-only | sc-architect, sc-mission, sc-git, sc-solid, sc-ux-design, sc-verification | RO |
+| sc-reviewer | read-only | sc-architect, sc-mission, sc-git, sc-performance, sc-security, sc-solid, sc-ux-design, sc-verification | RO |
 
 ### Agent Hierarchy
 
@@ -152,12 +152,14 @@ sc-commander (primary)
 | sc-localize | `.opencode/skills/sc-localize/` | Commander auto-trigger (bilingual/multilingual copy review) |
 | sc-map | `.opencode/skills/sc-map/` | Commander auto-trigger (before /sc-plan when map.json missing) |
 | sc-mission | `.opencode/skills/sc-mission/` | All commands |
+| sc-pathfinder | `.opencode/skills/sc-pathfinder/` | Commander (explicit invocation only — multi-session scoping) |
+| sc-performance | `.opencode/skills/sc-performance/` | sc-reviewer, /sc-review |
 | sc-planning | `.opencode/skills/sc-planning/` | /sc-plan |
+| sc-security | `.opencode/skills/sc-security/` | sc-reviewer, /sc-review |
 | sc-solid | `.opencode/skills/sc-solid/` | /sc-build, /sc-review, sc-coder, sc-tester, sc-planner, sc-reviewer (SOLID, clean code, architecture) |
 | sc-tdd | `.opencode/skills/sc-tdd/` | /sc-build, sc-tester, sc-coder (TDD red-green-refactor) |
 | sc-ux-design | `.opencode/skills/sc-ux-design/` | /sc-build, /sc-design, /sc-review, sc-coder, sc-reviewer, sc-designer (UI quality, anti-slop, draft previews, visual verification) |
 | sc-verification | `.opencode/skills/sc-verification/` | /sc-build, /sc-review, /sc-ship (auto-triggered after task implementation) |
-| sc-pathfinder | `.opencode/skills/sc-pathfinder/` | Commander (explicit invocation only — multi-session scoping) |
 | sc-web-backend | `.opencode/skills/sc-web-backend/` | sc-coder, sc-tester, /sc-build |
 | sc-web-frontend | `.opencode/skills/sc-web-frontend/` | sc-coder, sc-designer, /sc-build, /sc-design |
 
