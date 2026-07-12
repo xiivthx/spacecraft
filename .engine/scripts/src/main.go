@@ -21,6 +21,7 @@ import (
 	"spacecraft/internal/config"
 	"spacecraft/internal/eval"
 	"spacecraft/internal/gitutil"
+	"spacecraft/internal/hooks"
 	"spacecraft/internal/id"
 	"spacecraft/internal/mission"
 	"spacecraft/internal/research"
@@ -41,6 +42,7 @@ var (
 	cc          *closeout.Checker
 	arc         *archive.ReadinessChecker
 	ar          *archive.MissionArchiver
+	hooksCfg    *hooks.Config
 )
 
 func main() {
@@ -63,6 +65,7 @@ func main() {
 	cc = closeout.NewChecker(store, gitutil.OSCommandRunner{})
 	arc = archive.NewReadinessChecker(store)
 	ar = archive.NewArchiver(store)
+	hooksCfg, _ = hooks.LoadConfig(filepath.Join(cfg.SpaceDir(), "hooks.json"))
 
 	if len(os.Args) < 2 {
 		fmt.Print(usage())
@@ -216,6 +219,10 @@ func newCmd(args []string) int {
 	}); err != nil {
 		return printErr(err)
 	}
+
+	ctx := context.Background()
+	hooks.Fire(ctx, hooksCfg, "mission.created")
+	hooks.Fire(ctx, hooksCfg, "mission.state.changed")
 
 	// Write stubs
 	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Mission Spec\n\n## Goal\n\n## User-visible behavior\n\n## Non-goals\n\n## Constraints\n\n## Acceptance checks\n"), 0644)
@@ -651,6 +658,7 @@ func setStateCmd(args []string) int {
 	if err := ss.SetState(res.Selected.ID, state); err != nil {
 		return printErr(err)
 	}
+	hooks.Fire(context.Background(), hooksCfg, "mission.state.changed")
 	fmt.Printf("Spacecraft mission %s state: %s\n", res.Selected.ID, stateDisplay(state))
 	return 0
 }
@@ -763,6 +771,7 @@ func evidenceCmd(args []string) int {
 	if err := store.AppendEvidence(id, &entry); err != nil {
 		return printErr("Failed to append evidence:", err)
 	}
+	hooks.Fire(context.Background(), hooksCfg, "mission.evidence.appended")
 	return 0
 }
 
@@ -799,6 +808,7 @@ func execCmd(parts []string) execResult {
 func validateCmd() int {
 	res := requireResolved("validate")
 	errs := ss.ValidateMission(res.Selected.ID)
+	hooks.Fire(context.Background(), hooksCfg, "mission.validated")
 	if errs != nil {
 		fmt.Fprintf(os.Stderr, "Spacecraft mission %s is invalid:\n", res.Selected.ID)
 		for _, e := range errs.Errors {
@@ -892,6 +902,7 @@ func archiveCmd(args []string) int {
 	if err != nil {
 		return printErr(err)
 	}
+	hooks.Fire(context.Background(), hooksCfg, "mission.archived")
 	fmt.Printf("Archived mission %s\n", id)
 	fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
 	return 0
