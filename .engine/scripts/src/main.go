@@ -814,7 +814,7 @@ func execCmd(parts []string) execResult {
 func validateCmd() int {
 	res := requireResolved("validate")
 	errs := ss.ValidateMission(res.Selected.ID)
-	hooks.Fire(context.Background(), hooksCfg, "mission.validated")
+	_ = hooks.Fire(context.Background(), hooksCfg, "mission.validated")
 	if errs != nil {
 		fmt.Fprintf(os.Stderr, "Spacecraft mission %s is invalid:\n", res.Selected.ID)
 		for _, e := range errs.Errors {
@@ -908,7 +908,7 @@ func archiveCmd(args []string) int {
 	if err != nil {
 		return printErr(err)
 	}
-	hooks.Fire(context.Background(), hooksCfg, "mission.archived")
+	_ = hooks.Fire(context.Background(), hooksCfg, "mission.archived")
 	fmt.Printf("Archived mission %s\n", id)
 	fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
 	return 0

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var KnownEvents = map[string]bool{
+var knownEvents = map[string]bool{
 	"mission.created":           true,
 	"mission.state.changed":     true,
 	"mission.evidence.appended": true,
@@ -84,7 +84,7 @@ func LoadConfig(configPath string) (*Config, error) {
 			timeout = int(t)
 		}
 
-		if event != "*" && !KnownEvents[event] {
+		if event != "*" && !knownEvents[event] {
 			fmt.Fprintf(os.Stderr, "hooks: hook \"%s\" has unknown event \"%s\"\n", label, event)
 			continue
 		}
