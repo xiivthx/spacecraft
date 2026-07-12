@@ -195,11 +195,11 @@ Audit date: 2026-07-09. Covers all 13 skills, 8 commands, Go CLI, and docs.
 
 ### From M07MTPHTR: improve review method — model upgrade, skills, edge cases
 
-**Status**: migrated (2026-07-12). 4 minor deferred items from review.
+**Status**: migrated (2026-07-12). 3 fixed, 1 deferred.
 
-| # | Issue | Severity | Impact |
-|---|-------|----------|--------|
-| I1 | AC12 skill resolution requires new session (session cache limitation) — `skill("sc-security")` and `skill("sc-performance")` cannot resolve until new session | minor | AC12 not verifiable in current session; defer to post-merge |
-| I2 | sc-security SKILL.md is 156 lines (6 over sc-creator 150-line recommendation) | minor | Convention violation, non-blocking |
-| I3 | sc-review command Use: line missing sc-security and sc-performance | minor | Documentation gap; functional impact minimal |
-| I4 | SPACECRAFT.md /sc-review permission column missing sc-security/sc-performance | minor | Documentation inconsistency; functional impact minimal |
+| # | Issue | Severity | Impact | Fix |
+|---|-------|----------|--------|-----|
+| I1 | AC12 skill resolution requires new session (session cache limitation) — `skill("sc-security")` and `skill("sc-performance")` cannot resolve until new session | minor | AC12 not verifiable in current session; defer to post-merge | Deferred (runtime-bound) |
+| ~~I2~~ | ~~sc-security SKILL.md is 156 lines (6 over sc-creator 150-line recommendation)~~ | minor | ~~Convention violation, non-blocking~~ | Trimmed to 149 lines |
+| ~~I3~~ | ~~sc-review command Use: line missing sc-security and sc-performance~~ | minor | ~~Documentation gap; functional impact minimal~~ | Added to `sc-review.md` Use: line |
+| ~~I4~~ | ~~SPACECRAFT.md /sc-review permission column missing sc-security/sc-performance~~ | minor | ~~Documentation inconsistency; functional impact minimal~~ | Added to README.md routing table |
