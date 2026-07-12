@@ -9,8 +9,10 @@ permission:
   skill:
     "*": deny
     "sc-architect": allow
-    "sc-mission": allow
     "sc-git": allow
+    "sc-mission": allow
+    "sc-performance": allow
+    "sc-security": allow
     "sc-solid": allow
     "sc-ux-design": allow
     "sc-verification": allow
