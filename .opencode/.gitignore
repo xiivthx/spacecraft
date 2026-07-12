@@ -3,7 +3,3 @@ package.json
 package-lock.json
 bun.lock
 .gitignore
-# sc-ux-design needs its own package.json + lockfile for Playwright dependency
-!skills/design/sc-ux-design/package.json
-!skills/design/sc-ux-design/package-lock.json
-!skills/design/sc-ux-design/.gitignore

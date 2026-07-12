@@ -70,3 +70,8 @@ scripts/sc
 scripts/src/spacecraft
 scripts/src/sc
 *.json
+
+# sc-ux-design needs its own package.json + lockfile for Playwright dependency
+!.engine/skills/design/sc-ux-design/package.json
+!.engine/skills/design/sc-ux-design/package-lock.json
+!.engine/skills/design/sc-ux-design/.gitignore
