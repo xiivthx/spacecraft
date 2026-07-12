@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.21.0 - 2026-07-12
+
+- Feat: optimize agent models for task profiles — sc-reviewer `glm-5.2` → `deepseek-v4-pro` (reasoning), sc-planner `flash-free` → `qwen3.7-plus` (structured JSON), sc-tester `flash-free` → `deepseek-v4-flash` (Go Flash). Coder stays `kimi-k2.7-code`, commander stays `deepseek-v4-pro`, designer stays `glm-5.2`. All agents get reasoning effort variants (M07MTPHTR)
+- Feat: add sc-security skill — static security review (OWASP top 10, hardcoded secrets, SQL/command injection, manifest scanning) for sc-reviewer read-only use
+- Feat: add sc-performance skill — performance review (N+1 detection, memory leaks, bundle size, React re-render anti-patterns) for sc-reviewer read-only use
+- Feat: expand sc-reviewer edge cases from 3 to 7 — add false-green tests, unaddressed prior findings (regression), huge diffs (>500 lines), conflicting evidence
+- Feat: add research-request output pattern to sc-reviewer — reviewer emits "research needed: <query>" finding; commander executes spacecraft research
+- Feat: add reviewer-facing sections to sc-tdd (false-green heuristics), sc-web-backend (Fastify lifecycle, validation, promises), sc-web-frontend (React hooks, useEffect, Tailwind, keys)
+- Feat: register sc-security and sc-performance in AGENTS.md, SPACECRAFT.md routing tables, and sc-reviewer agent permissions
+- Feat: add sc-llm-vision skill — LLM-driven visual design review via Gemini + agy CLI for screenshot-based UI quality inspection
+- Docs: migrate M07MTPHTR knowledge — 6 solved issues, 4 deferred minors, 3 general lessons
+
 ## 0.20.0 - 2026-07-11
 
 - Feat: add sc-search skill — auto-triggered 3-tier search escalation (google_search → webfetch → spacecraft research → ask user) for stuck issues, gray areas, and stale knowledge (M07KGTNR0)
