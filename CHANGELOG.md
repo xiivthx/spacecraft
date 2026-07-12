@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.1 - 2026-07-12
+
+- Chore: reorganize skills into category folders (core/quality/design/web/data/meta) with flat symlinks for OpenCode discovery
+- Chore: move agents, commands, skills from .opencode/ to .engine/ — source of truth consolidated
+- Chore: remove project-local .opencode/ symlink; skills served from global ~/.config/opencode/skills/ only
+
 ## 0.21.0 - 2026-07-12
 
 - Feat: optimize agent models for task profiles — sc-reviewer `glm-5.2` → `deepseek-v4-pro` (reasoning), sc-planner `flash-free` → `qwen3.7-plus` (structured JSON), sc-tester `flash-free` → `deepseek-v4-flash` (Go Flash). Coder stays `kimi-k2.7-code`, commander stays `deepseek-v4-pro`, designer stays `glm-5.2`. All agents get reasoning effort variants (M07MTPHTR)
