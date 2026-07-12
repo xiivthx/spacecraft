@@ -2,11 +2,6 @@
 name: sc-security
 description: >
   Static security review of source and manifests. Activate on "security review", "check for secrets", "OWASP check", "injection scan", "audit dependencies", or hardcoded credentials.
-license: MIT
-compatibility: opencode
-metadata:
-  version: 1.0
-  audience: xiivthx
 ---
 
 # sc-security
@@ -145,8 +140,6 @@ Recommendation: pass / fix-before-merge / block
 ## Research auto-trigger
 
 When encountering unfamiliar language patterns, exploit payloads, or dependency version patterns, run `spacecraft research "<topic>"` before classifying a finding.
-
----
 
 ## References
 

@@ -110,7 +110,7 @@ Default to handoff. Only closeout on explicit ship/release/merge intent.
 | `/sc-plan` | sc-commander | sc-planner (read-only) | sc-mission, sc-clarify, sc-planning, sc-architect | task: sc-planner → allow; skill: sc-planning → allow, sc-architect → allow |
 | `/sc-build` | sc-commander | sc-coder (write), sc-tester (write) | sc-mission, sc-clarify, sc-git, sc-tdd, sc-solid, sc-ux-design, sc-verification, sc-web-frontend, sc-web-backend, sc-database | task: sc-coder → allow, sc-tester → allow; skill: sc-git → allow, sc-tdd → allow, sc-solid → allow, sc-ux-design → allow, sc-verification → allow, sc-web-frontend → allow, sc-web-backend → allow, sc-database → allow |
 | `/sc-resume` | sc-commander | — | sc-mission | — |
-| `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid, sc-ux-design, sc-architect | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-ux-design → allow, sc-verification → allow, sc-architect → allow |
+| `/sc-review` | sc-commander | sc-reviewer (read-only), sc-designer (read-only, optional) | sc-mission, sc-verification, sc-git, sc-solid, sc-performance, sc-security, sc-ux-design, sc-architect | task: sc-reviewer → allow, sc-designer → allow; skill: sc-git → allow, sc-solid → allow, sc-performance → allow, sc-security → allow, sc-ux-design → allow, sc-verification → allow, sc-architect → allow |
 | `/sc-quick` | sc-commander | — | sc-mission, sc-git | skill: sc-git → allow |
 | `/sc-ship` | sc-commander | — | sc-mission, sc-verification, sc-git, sc-learn | skill: sc-git → allow, sc-verification → allow, sc-learn → allow |
 

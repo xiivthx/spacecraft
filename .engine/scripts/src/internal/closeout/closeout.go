@@ -222,6 +222,9 @@ func releaseReadinessErrors(rr mission.ReleaseReadiness) []string {
 	if !ReleaseGateSatisfied(rr.PostRebaseVerification, defaultReleaseGateStatuses) {
 		errors = append(errors, "Record verification after latest rebase in review.json releaseReadiness.postRebaseVerification.")
 	}
+	if !ReleaseGateSatisfied(rr.EvalCoverage, defaultReleaseGateStatuses) {
+		errors = append(errors, "Eval coverage below threshold. Run 'spacecraft eval <mission-id>' and update review.json releaseReadiness.evalCoverage.")
+	}
 	return errors
 }
 

@@ -80,3 +80,13 @@ func (c *Config) CurrentFile() string { return c.currentFile }
 func (c *Config) MissionDir(id string) string {
 	return filepath.Join(c.missionsDir, id)
 }
+
+// EvalsDir returns the root evals directory (.space/evals).
+func (c *Config) EvalsDir() string {
+	return filepath.Join(c.spaceDir, "evals")
+}
+
+// EvalMissionDir returns the eval directory for a mission (.space/evals/<id>).
+func (c *Config) EvalMissionDir(id string) string {
+	return filepath.Join(c.spaceDir, "evals", id)
+}

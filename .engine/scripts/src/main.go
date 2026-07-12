@@ -19,6 +19,7 @@ import (
 	"spacecraft/internal/closeout"
 	"spacecraft/internal/compact"
 	"spacecraft/internal/config"
+	"spacecraft/internal/eval"
 	"spacecraft/internal/gitutil"
 	"spacecraft/internal/id"
 	"spacecraft/internal/mission"
@@ -110,6 +111,8 @@ func main() {
 		exitCode = compactCmd(args)
 	case "check-deps":
 		exitCode = checkDepsCmd(args)
+	case "eval":
+		exitCode = evalCmd(args)
 	case "-h", "--help", "help":
 		fmt.Print(usage())
 	default:
@@ -143,6 +146,8 @@ Usage:
   spacecraft research <query> [flags]
   spacecraft check-deps [flags]
   spacecraft compact [--tee] <command> [args...]
+  spacecraft eval <mission-id>
+  spacecraft eval init <mission-id>
 `
 }
 
@@ -1355,6 +1360,88 @@ func detectManifests() []string {
 		}
 	}
 	return manifests
+}
+
+// ---------- eval command ----------
+
+func evalCmd(args []string) int {
+	if len(args) == 0 {
+		fmt.Print(evalUsage())
+		return 1
+	}
+
+	sub := args[0]
+	switch sub {
+	case "init":
+		return evalInitCmd(args[1:])
+	case "-h", "--help", "help":
+		fmt.Print(evalUsage())
+		return 0
+	default:
+		return evalRunCmd(args)
+	}
+}
+
+func evalRunCmd(args []string) int {
+	res := resolveOrUseCurrent(args)
+	if res.Safety != "safe" || res.Selected == nil {
+		return printErr(resolver.FormatResolutionBlock(res, "eval"))
+	}
+	id := res.Selected.ID
+
+	runner := eval.NewRunner(store, cfg.EvalsDir())
+	runResult, err := runner.Run(id)
+	if err != nil {
+		return printErr("eval:", err)
+	}
+
+	fmt.Printf("Eval complete for %s\n", id)
+	fmt.Printf("Deterministic: allPassed=%v\n", runResult.EvalResult.Deterministic.AllPassed)
+	fmt.Printf("Rubric average: %.1f/4.0\n", runResult.EvalResult.Scorecard.Average)
+	if runResult.EvalResult.LMJudge.Fallback {
+		fmt.Printf("LM Judge: fallback (%s)\n", runResult.EvalResult.LMJudge.FallbackReason)
+	} else {
+		fmt.Printf("LM Judge: %d/4 (model: %s)\n", runResult.EvalResult.LMJudge.Score, runResult.EvalResult.LMJudge.Model)
+	}
+	fmt.Printf("Coverage: %.2f (%d/%d checks)\n", runResult.EvalResult.Coverage, runResult.EvalResult.CoveredChecks, runResult.EvalResult.TotalChecks)
+	if runResult.EvalResult.CoverageSatisfied {
+		fmt.Println("Coverage threshold: satisfied")
+	} else {
+		fmt.Println("Coverage threshold: NOT satisfied")
+	}
+	fmt.Printf("Evidence: %s\n", runResult.Entry.ID)
+
+	return 0
+}
+
+func evalInitCmd(args []string) int {
+	res := resolveOrUseCurrent(args)
+	if res.Safety != "safe" || res.Selected == nil {
+		return printErr(resolver.FormatResolutionBlock(res, "eval init"))
+	}
+	id := res.Selected.ID
+	if err := eval.Init(cfg.EvalsDir(), id); err != nil {
+		return printErr(err)
+	}
+	return 0
+}
+
+func resolveOrUseCurrent(args []string) mission.ResolveOutput {
+	if len(args) > 0 {
+		return r.Resolve(strings.Join(args, " "))
+	}
+	result, err := r.RequireResolved("eval")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Resolution failed or blocked. Provide a mission id or selector.")
+		return r.Resolve("")
+	}
+	return result
+}
+
+func evalUsage() string {
+	return `spacecraft eval <mission-id>         Run eval suite against mission evidence
+spacecraft eval init <mission-id>   Scaffold eval directory
+`
 }
 
 // ---------- check-deps command ----------

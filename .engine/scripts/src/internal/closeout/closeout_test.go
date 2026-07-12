@@ -61,6 +61,7 @@ func readyReview() *mission.Review {
 			SpecNote:               &mission.ReleaseGate{Status: strPtr("updated")},
 			TagPlan:                &mission.ReleaseGate{Status: strPtr("planned")},
 			PostRebaseVerification: &mission.ReleaseGate{Status: strPtr("passed")},
+			EvalCoverage:           &mission.ReleaseGate{Status: strPtr("passed")},
 		},
 	}
 }
