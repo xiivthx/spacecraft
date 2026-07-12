@@ -193,6 +193,17 @@ Audit date: 2026-07-09. Covers all 13 skills, 8 commands, Go CLI, and docs.
 
 20 issues fixed: S14-S26 (Skills), C10-C12 (Commands, /sc-git command removed), A7-A9 (Agents), D6 (Docs). All 73 issues now resolved. sc-learn skill exists (not audited — separate concern).
 
+### From M07N361SC: Eval Framework — trajectory evals, LM judges, rubric scoring, eval gating
+
+**Status**: migrated (2026-07-12). 4 open (deferred to follow-up).
+
+| # | Issue | Severity | Impact | Fix |
+|---|-------|----------|--------|-----|
+| I5 | Hallucination & response_quality scorers check stdout/stderr file paths instead of resolved content — produces unreliable scores for standard evidence entries | minor | Scoring inaccuracy for 2 of 5 rubric dimensions | Deferred — resolve paths to content in `ReadEvidenceEntries` or scorer functions |
+| I6 | No unit tests for `Coverage()` (division-by-zero edge case) or `LoadConfig()` (bounds check) | minor | Regression risk if init.go changes | Deferred — add `TestCoverage` and `TestLoadConfig` in `init_test.go` |
+| I7 | Eval feedback loop — subsequent runs include previous eval-type evidence entries, causing shifting trajectory/rubric scores | minor | Non-deterministic results on repeated runs | Deferred — filter out `Type="eval"` entries during deterministic/rubric analysis |
+| I8 | Exported `MarshalJSON` duplicates unexported `marshalJSON` with identical implementation | minor | Code duplication, no functional impact | Deferred — consolidate or remove duplicate |
+
 ### From M07MTPHTR: improve review method — model upgrade, skills, edge cases
 
 **Status**: migrated (2026-07-12). 3 fixed, 1 deferred.

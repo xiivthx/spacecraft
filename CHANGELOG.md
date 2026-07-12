@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.24.0 - 2026-07-12
+
+- Feat: add eval framework — `spacecraft eval <id>` runs structured evaluation (deterministic checks, rubric scoring, LM judge) against mission evidence, `eval init <id>` scaffolds eval directory (M07N361SC)
+- Feat: add sc-eval skill — agent-facing instructions for creating labelled eval examples, writing rubrics, and running eval suites
+- Feat: add eval coverage gate to sc-ship — blocks merge when coverage below configured threshold (default 0.8)
+- Feat: add evidence.jsonl eval-type entries — eval results written back to mission evidence with `"type":"eval"` for downstream traceability
+- Docs: fix sc-security SKILL.md trim, README/sc-review permission updates, docs/issues.md resolution from M07MTPHTR
+
 ## 0.23.0 - 2026-07-12
 
 - Feat: add `make install` for global Spacecraft setup — symlinks CLI to `~/.local/bin/`, writes `~/.config/opencode/opencode.jsonc` with absolute paths
