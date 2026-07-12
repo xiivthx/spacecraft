@@ -13,7 +13,8 @@ OpenCode configuration for Spacecraft missions. Copy to project root as `opencod
     "sc-commander": {
       "mode": "primary",
       "description": "Mission commander — orchestrates mission-driven implementation using lean prompts",
-      "model": "opencode-go/deepseek-v4-pro",
+      "model": "deepseek/deepseek-v4-pro",
+      // "model": "opencode-go/deepseek-v4-pro",
       // "model": "opencode-go/qwen3.7-max",
       "temperature": 0.2,
       "variant": "high",
@@ -40,7 +41,8 @@ OpenCode configuration for Spacecraft missions. Copy to project root as `opencod
     "sc-reviewer": {
       "mode": "subagent",
       "description": "Read-only reviewer for diff, evidence, and release readiness",
-      "model": "opencode-go/deepseek-v4-pro",
+      "model": "deepseek/deepseek-v4-pro",
+      // "model": "opencode-go/deepseek-v4-pro",
       // "model": "opencode-go/kimi-k2.7-code",
       "temperature": 0.1,
       "variant": "medium",
@@ -58,8 +60,8 @@ OpenCode configuration for Spacecraft missions. Copy to project root as `opencod
     "sc-tester": {
       "mode": "subagent",
       "description": "Write-capable tester that writes tests and captures verification evidence (TDD)",
-      "model": "opencode-go/deepseek-v4-flash",
-      // "model": "opencode/deepseek-v4-flash-free",
+      "model": "opencode-go/kimi-k2.7-code",
+      // "model": "opencode-go/deepseek-v4-flash",
       "temperature": 0.1,
       "color": "#ffcc80"
     }

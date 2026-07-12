@@ -26,19 +26,21 @@ import (
 	"spacecraft/internal/research"
 	"spacecraft/internal/resolver"
 	"spacecraft/internal/state"
+	"spacecraft/internal/trace"
 	"spacecraft/internal/workflow"
 )
 
 // CLI dependencies set during init.
 var (
-	cfg   *config.Config
-	store *mission.FSStore
-	r     *resolver.Resolver
-	ss    *state.StateSetter
-	ws    *workflow.Snapshot
-	cc    *closeout.Checker
-	arc   *archive.ReadinessChecker
-	ar    *archive.MissionArchiver
+	cfg         *config.Config
+	store       *mission.FSStore
+	traceStore  *trace.FSTraceStore
+	r           *resolver.Resolver
+	ss          *state.StateSetter
+	ws          *workflow.Snapshot
+	cc          *closeout.Checker
+	arc         *archive.ReadinessChecker
+	ar          *archive.MissionArchiver
 )
 
 func main() {
@@ -53,6 +55,7 @@ func main() {
 		os.Exit(1)
 	}
 	store = mission.NewFSStore(cfg)
+	traceStore = trace.NewFSTraceStore(cfg)
 	r = resolver.New(store, gitutil.OSCommandRunner{}, nil)
 	ss = state.NewSetter(store)
 	ws = workflow.NewSnapshot(store)
@@ -113,6 +116,10 @@ func main() {
 		exitCode = checkDepsCmd(args)
 	case "eval":
 		exitCode = evalCmd(args)
+	case "traces":
+		exitCode = tracesCmd(args)
+	case "cost":
+		exitCode = costCmd(args)
 	case "-h", "--help", "help":
 		fmt.Print(usage())
 	default:
@@ -148,6 +155,8 @@ Usage:
   spacecraft compact [--tee] <command> [args...]
   spacecraft eval <mission-id>
   spacecraft eval init <mission-id>
+  spacecraft traces <mission-id> [--json] [--verbose] [--flat]
+  spacecraft cost [--mission <id>] [--all]
 `
 }
 
@@ -1743,6 +1752,204 @@ func splitVersion(v string) []int {
 	return nums
 }
 
+// ---------- traces command ----------
+
+func tracesCmd(args []string) int {
+	fs := flag.NewFlagSet("traces", flag.ContinueOnError)
+	fs.SetOutput(os.Stderr)
+	fs.Usage = func() { fmt.Print(tracesUsage()) }
+
+	var (
+		jsonOut bool
+		verbose bool
+		flat    bool
+	)
+	fs.BoolVar(&jsonOut, "json", false, "JSONL output")
+	fs.BoolVar(&verbose, "verbose", false, "Show full tool args")
+	fs.BoolVar(&flat, "flat", false, "Disable sub-agent nesting indent")
+
+	flagArgs, positional := splitFlags(args)
+	if err := fs.Parse(flagArgs); err != nil {
+		if err == flag.ErrHelp {
+			return 0
+		}
+		return 1
+	}
+
+	if len(positional) == 0 {
+		return printErr("Missing mission ID.\n\n" + tracesUsage())
+	}
+	missionID := strings.TrimSpace(positional[0])
+
+	// Resolve the mission id to validate it exists.
+	res := r.Resolve(missionID)
+	if res.Safety != "safe" || res.Selected == nil {
+		return printErr(resolver.FormatResolutionBlock(res, "traces"))
+	}
+
+	// Load traces.
+	entries, err := traceStore.LoadTraces(missionID)
+	if err != nil {
+		return printErr("Failed to load traces:", err)
+	}
+
+	if jsonOut {
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetEscapeHTML(false)
+		for _, e := range entries {
+			enc.Encode(e)
+		}
+		return 0
+	}
+
+	if len(entries) == 0 {
+		fmt.Println("No trace events recorded.")
+		return 0
+	}
+
+	title := res.Selected.Title
+	opts := trace.TraceDisplayOptions{Verbose: verbose, Flat: flat}
+	output := trace.FormatTraceTable(entries, missionID, title, opts)
+	fmt.Print(output)
+	return 0
+}
+
+func tracesUsage() string {
+	return `spacecraft traces <mission-id> [flags]
+
+Flags:
+  --json       Raw JSONL output
+  --verbose    Show full tool args
+  --flat       Disable sub-agent nesting indent
+`
+}
+
+// ---------- cost command ----------
+
+func costCmd(args []string) int {
+	fs := flag.NewFlagSet("cost", flag.ContinueOnError)
+	fs.SetOutput(os.Stderr)
+	fs.Usage = func() { fmt.Print(costUsage()) }
+
+	var (
+		missionFlag string
+		all         bool
+	)
+	fs.StringVar(&missionFlag, "mission", "", "Show per-model breakdown for one mission")
+	fs.BoolVar(&all, "all", false, "Show all missions with trace data")
+
+	if err := fs.Parse(args); err != nil {
+		if err == flag.ErrHelp {
+			return 0
+		}
+		return 1
+	}
+
+	if missionFlag != "" {
+		return costMissionCmd(missionFlag)
+	}
+
+	_ = all // --all is the default behavior when no flags
+
+	ids, err := traceStore.ListMissionsWithTraces()
+	if err != nil {
+		return printErr("Failed to list trace data:", err)
+	}
+	if len(ids) == 0 {
+		fmt.Println("No trace data found.")
+		return 0
+	}
+
+	var rows []trace.CostRow
+	var totalIn, totalOut int
+	var totalCost float64
+
+	for _, id := range ids {
+		entries, err := traceStore.LoadTraces(id)
+		if err != nil || len(entries) == 0 {
+			continue
+		}
+		s := trace.ComputeSummary(entries)
+		// Resolve mission title.
+		title := id
+		if m, lErr := store.Load(id); lErr == nil && m != nil {
+			title = fmt.Sprintf("%s — %s", id, m.Title)
+			if len(title) > 48 {
+				title = title[:45] + "..."
+			}
+		}
+		rows = append(rows, trace.CostRow{
+			Mission:   title,
+			TokensIn:  s.TotalInTokens,
+			TokensOut: s.TotalOutTokens,
+			Cost:      s.EstimatedCost,
+		})
+		totalIn += s.TotalInTokens
+		totalOut += s.TotalOutTokens
+		totalCost += s.EstimatedCost
+	}
+
+	totalLabel := fmt.Sprintf("Total (%d missions)", len(rows))
+	total := trace.CostRow{
+		Mission:   totalLabel,
+		TokensIn:  totalIn,
+		TokensOut: totalOut,
+		Cost:      totalCost,
+	}
+
+	fmt.Print(trace.FormatCostTable(rows, total))
+	return 0
+}
+
+func costMissionCmd(missionID string) int {
+	res := r.Resolve(missionID)
+	if res.Safety != "safe" || res.Selected == nil {
+		return printErr(resolver.FormatResolutionBlock(res, "cost"))
+	}
+
+	entries, err := traceStore.LoadTraces(missionID)
+	if err != nil {
+		return printErr("Failed to load traces:", err)
+	}
+	if len(entries) == 0 {
+		fmt.Println("No trace events recorded.")
+		return 0
+	}
+
+	s := trace.ComputeSummary(entries)
+	title := fmt.Sprintf("%s — %s", missionID, res.Selected.Title)
+	if len(title) > 48 {
+		title = title[:45] + "..."
+	}
+
+	rows := []trace.CostRow{{
+		Mission:   title,
+		TokensIn:  s.TotalInTokens,
+		TokensOut: s.TotalOutTokens,
+		Cost:      s.EstimatedCost,
+	}}
+	total := trace.CostRow{
+		Mission:   fmt.Sprintf("Total"),
+		TokensIn:  s.TotalInTokens,
+		TokensOut: s.TotalOutTokens,
+		Cost:      s.EstimatedCost,
+	}
+
+	fmt.Print(trace.FormatCostTable(rows, total))
+	fmt.Println()
+	fmt.Print(trace.FormatCostBreakdown(entries))
+	return 0
+}
+
+func costUsage() string {
+	return `spacecraft cost [--mission <id>] [--all]
+
+Flags:
+  --mission <id>  Show per-model breakdown for one mission
+  --all           Show all missions with trace data (default)
+`
+}
+
 // ---------- helpers ----------
 
 func requireResolved(cmd string) mission.ResolveOutput {
@@ -1879,6 +2086,18 @@ func normMissionID(value string) *string {
 		return &s
 	}
 	return nil
+}
+
+// splitFlags separates flag-like arguments (--*) from positional arguments.
+func splitFlags(args []string) (flags, positional []string) {
+	for _, a := range args {
+		if strings.HasPrefix(a, "-") {
+			flags = append(flags, a)
+		} else {
+			positional = append(positional, a)
+		}
+	}
+	return flags, positional
 }
 
 func slugify(value string) string {

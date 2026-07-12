@@ -41,7 +41,7 @@ func FormatTraceTable(entries []TraceEntry, missionID, missionTitle string, opts
 	for _, e := range entries {
 		relTS := formatRelativeTS(e.TS, baseTS)
 		latStr := formatLatency(e.LatencyMs)
-		typeAndDetail := formatEventTypeDetail(e)
+		typeAndDetail := formatEventTypeDetail(e, opts)
 
 		if !opts.Flat && e.TraceID != nil {
 			indent = 2
@@ -120,10 +120,10 @@ func FormatCostBreakdown(entries []TraceEntry) string {
 	var order []string
 
 	for _, e := range entries {
-		model := "unknown"
-		if e.Model != nil {
-			model = *e.Model
+		if e.Model == nil {
+			continue
 		}
+		model := *e.Model
 		if !seen[model] {
 			seen[model] = true
 			order = append(order, model)
@@ -184,14 +184,14 @@ func formatLatency(ms int) string {
 	return fmt.Sprintf("%5.1fs ", float64(ms)/1000.0)
 }
 
-func formatEventTypeDetail(e TraceEntry) string {
+func formatEventTypeDetail(e TraceEntry, opts TraceDisplayOptions) string {
 	switch e.Type {
 	case EventToolCall:
 		tool := "?"
 		if e.Tool != nil {
 			tool = *e.Tool
 		}
-		args := formatArgs(e)
+		args := formatArgs(e, opts.Verbose)
 		return fmt.Sprintf("%-12s %-8s %s", e.Type, tool, args)
 	case EventModelInvoke:
 		model := "?"
@@ -222,14 +222,13 @@ func formatEventTypeDetail(e TraceEntry) string {
 	}
 }
 
-func formatArgs(e TraceEntry) string {
+func formatArgs(e TraceEntry, verbose bool) string {
 	if e.Args == nil || len(e.Args) == 0 || string(e.Args) == "null" {
 		return ""
 	}
-	// Return args as trimmed string, truncate if too long
 	s := string(e.Args)
 	s = strings.TrimSpace(s)
-	if len(s) > 40 {
+	if !verbose && len(s) > 40 {
 		s = s[:37] + "..."
 	}
 	return s

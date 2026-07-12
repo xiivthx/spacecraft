@@ -57,6 +57,7 @@ Thumbs.db
 
 # Spacecraft local mission state
 .space/
+.space/traces/
 
 # signs
 signs/*
