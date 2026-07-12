@@ -34,21 +34,23 @@ When versions or APIs are uncertain, run `spacecraft research "<package> latest 
 
 ## Per-task loop
 
+**Orchestrator rule**: You are an orchestrator, not an implementer. You MUST use the Task tool to invoke `sc-coder` and `sc-tester` for all source code writing and testing. You must NOT use Write, Edit, or Bash to create or modify source files (`.go`, `.ts`, `.tsx`, `.js`, `.css`, etc.) or test files. Your write operations are limited to: updating plan.json, staging and committing artifacts, and capturing evidence. Violating this rule bypasses the zero-trust review chain.
+
 Start from `$ARGUMENTS` task if given, otherwise the first non-completed task in plan.json. For each task:
 
 ### 1. TDD cycle (Plan → Red → Green → Verify)
 
 For each acceptance check (one at a time):
 
-a. **Triage** — Is this test-worthy? If the test would be a trivial tautology (simple getter, config mapping, boilerplate), skip TDD — code directly. Record the skip. Otherwise proceed with the cycle.
+a. **Triage** — Is this test-worthy? If the test would be a trivial tautology (simple getter, config mapping, boilerplate), skip TDD. Delegate the implementation to `sc-coder` with clear instructions. Record the skip. Otherwise proceed with the cycle.
 
 b. **Plan** — What seam are we testing? What is the expected behavior and independent expected value? Confirm the plan before writing code. No test at an unplanned seam.
 
-c. **Red** — delegate to `sc-tester`: write exactly ONE failing test for the planned acceptance check. sc-tester must verify the test fails before returning. If the test passes without implementation, it is not testing the right thing — reject and re-write.
+c. **Red** — MUST delegate to `sc-tester` via Task tool: write exactly ONE failing test for the planned acceptance check. sc-tester must verify the test fails before returning. If the test passes without implementation, it is not testing the right thing — reject and re-write.
 
-d. **Green** — delegate to `sc-coder`: write the minimum production code to make the single failing test pass. sc-coder must not change unrelated code, add features beyond the test, or modify other tests.
+d. **Green** — MUST delegate to `sc-coder` via Task tool: write the minimum production code to make the single failing test pass. sc-coder must not change unrelated code, add features beyond the test, or modify other tests.
 
-e. **Verify** — delegate to `sc-tester`: after the test passes, sc-tester runs the full test suite for the affected package, captures evidence with `scripts/spacecraft evidence "<label>" -- <command>`, runs `scripts/spacecraft validate`, and confirms all task acceptance criteria.
+e. **Verify** — MUST delegate to `sc-tester` via Task tool: after the test passes, sc-tester runs the full test suite for the affected package, captures evidence with `scripts/spacecraft evidence "<label>" -- <command>`, runs `scripts/spacecraft validate`, and confirms all task acceptance criteria.
 
 Repeat a–e for the next acceptance check until all checks for the task are covered.
 
@@ -104,6 +106,7 @@ When versions or APIs are uncertain, run `spacecraft research "<package> latest 
 - UI implementation without recorded design direction
 - Dependency/API choice needing current official docs not yet checked
 - Write attempt on `main`
+- Commander writing source code directly (violation of orchestrator rule)
 - Dirty/untracked files that cannot be safely attributed to the current task
 - Unsafe files or secrets before staging
 - Failed verification or validation
