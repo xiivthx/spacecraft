@@ -1,4 +1,4 @@
-.PHONY: build test clean lint install uninstall sync-plugin
+.PHONY: build test clean lint install uninstall
 
 GO_SRC := .engine/scripts/src
 GO_OUT := scripts/spacecraft
@@ -26,11 +26,6 @@ install: build
 	@echo "Installed: spacecraft -> $(LOCAL_BIN)/spacecraft"
 	@echo "Config:    $(GLOBAL_CONFIG)"
 	@echo "Restart OpenCode to apply."
-
-sync-plugin:
-	@mkdir -p $(HOME)/.config/opencode/plugins
-	@cp .opencode/plugins/engine.js $(HOME)/.config/opencode/plugins/
-	@echo "Synced engine plugin to global config"
 
 uninstall:
 	@rm -f $(LOCAL_BIN)/spacecraft
