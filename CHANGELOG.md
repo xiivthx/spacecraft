@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.26.4 - 2026-07-13
+
+- Fix: engine plugin self-locates via `import.meta.url` instead of plugin context, removes sync-plugin target and script
+
 ## 0.26.3 - 2026-07-13
 
 - Refactor: engine plugin uses `directory` from plugin context instead of hardcoded paths (M07O1KTGQ)
