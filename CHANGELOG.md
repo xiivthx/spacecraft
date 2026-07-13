@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.26.5 - 2026-07-13
+
+- Docs: add Standards section to AGENTS.md (em dash ban, CHANGELOG immutability, quality-first, E2E bug repro, pixel-perfect UI, lint/test excellence)
+- Docs: add Bug fixes, Quality over cost, and Engineering excellence values to PERSONA.md; replace em dashes with plain dashes throughout
+
 ## 0.26.4 - 2026-07-13
 
 - Fix: engine plugin self-locates via `import.meta.url` instead of plugin context, removes sync-plugin target and script
