@@ -131,12 +131,6 @@ If `map.json` is missing, proceed without it — it's optional input, not a hard
 - [ ] File paths verified real (not guessed)
 - [ ] Assumptions recorded in `decisions.md` if any
 
-## Research auto-trigger
-
-When planning tasks that involve unfamiliar APIs, dependencies, or frameworks, run `spacecraft research "<query>"` to verify approach and version compatibility before committing to the plan.
-
----
-
 ## References
 
 - `spec.md` — mission specification (input)

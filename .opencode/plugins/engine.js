@@ -8,6 +8,8 @@ const projectRoot = path.resolve(__dirname, '../..');
 const engineDir = path.join(projectRoot, '.engine');
 const skillsDir = path.join(engineDir, 'skills');
 const commandsDir = path.join(engineDir, 'commands');
+const spaceDir = path.join(projectRoot, '.space');
+const missionsDir = path.join(spaceDir, 'missions');
 
 let _bootstrapCache = undefined;
 
@@ -17,6 +19,21 @@ const readFileIfExists = (filePath) => {
   } catch {
     return '';
   }
+};
+
+const uiKeywords = ['component', 'screen', 'layout', 'UI', 'design', 'visual', 'button', 'form'];
+
+const hasUiKeywords = (content) => {
+  if (!content) return false;
+  const lower = content.toLowerCase();
+  return uiKeywords.some(k => lower.includes(k.toLowerCase()));
+};
+
+const shouldIncludeDesign = () => {
+  const missionId = readFileIfExists(path.join(spaceDir, 'current')).trim();
+  if (!missionId) return false;
+  const specPath = path.join(missionsDir, missionId, 'spec.md');
+  return hasUiKeywords(readFileIfExists(specPath));
 };
 
 const parseFrontmatter = (content) => {
@@ -50,7 +67,7 @@ const getBootstrapContent = () => {
   const parts = [];
   if (persona) parts.push(persona);
   if (agents) parts.push(agents);
-  if (design) parts.push(design);
+  if (design && shouldIncludeDesign()) parts.push(design);
 
   if (parts.length === 0) {
     _bootstrapCache = null;

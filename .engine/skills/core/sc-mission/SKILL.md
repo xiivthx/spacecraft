@@ -59,10 +59,6 @@ Mission states enforce the development lane gates:
 
 Set state with `scripts/spacecraft set-state <state>`. The CLI enforces valid transitions.
 
-## Research auto-trigger
-
-When mission context involves unfamiliar tools, frameworks, or APIs, run `spacecraft research "<query>"` before making lifecycle decisions that depend on that knowledge.
-
 ## Rules
 
 - **Must**: Resolve the active mission with `scripts/spacecraft resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority.

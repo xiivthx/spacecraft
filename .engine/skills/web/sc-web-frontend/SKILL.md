@@ -125,12 +125,6 @@ Before claiming frontend work done:
 - [ ] No unapproved dependencies
 - [ ] Accessibility: semantic HTML, focus management, aria labels where needed
 
-## Research auto-trigger
-
-When using unfamiliar React APIs, Tailwind CSS utilities, or Vitest features, run `spacecraft research "<topic> latest docs"` before implementing. Frontend tooling evolves rapidly — verify current APIs.
-
----
-
 ## References
 
 - `references/components.md` — React component patterns, TypeScript typing, data flow, composition

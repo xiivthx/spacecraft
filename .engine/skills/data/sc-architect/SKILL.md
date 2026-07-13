@@ -104,12 +104,6 @@ Before claiming architecture work done:
 - [ ] No speculative architecture (YAGNI applied)
 - [ ] Domain-specific references consulted when applicable
 
-## Research auto-trigger
-
-When evaluating unfamiliar architecture patterns, technology tradeoffs, or domain-specific constraints, run `spacecraft research "<pattern> vs <alternative> tradeoffs"` before making a decision.
-
----
-
 ## References
 
 - `references/adr-templates.md` — ADR templates, decision frameworks, tradeoff documentation

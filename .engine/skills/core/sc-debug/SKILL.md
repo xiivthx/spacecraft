@@ -186,12 +186,6 @@ Session start: recite the mantra block (see Workflow §Recite the mantra). Maint
 - [ ] Cross-references to sc-verification, sc-git, sc-clarify used where appropriate
 - [ ] Fix validated with sc-verification evidence before post-mortem
 
-## Research auto-trigger
-
-When encountering an unknown error message, unexpected framework behavior, or configuration issue during debugging, invoke `spacecraft research <query>` to search for known solutions before forming hypotheses.
-
----
-
 ## References
 
 - `sc-verification` — evidence capture and validation

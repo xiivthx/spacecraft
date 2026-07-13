@@ -108,12 +108,6 @@ Before committing code:
 - [ ] Rule of Three respected — no premature extraction
 - [ ] Naming consistent with existing codebase vocabulary
 
-## Research auto-trigger
-
-When unsure about language-specific best practices, design pattern applicability, or framework conventions, run `spacecraft research "<topic>"` before applying SOLID principles. Code quality decisions should be informed by current ecosystem standards, not memory.
-
----
-
 ## References
 
 - `references/solid-principles.md` — 5 principles with detection questions and examples

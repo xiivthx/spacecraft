@@ -159,10 +159,6 @@ Before claiming UI implementation is ready:
 - [ ] No banned fonts (Inter/Geist/Space Grotesk) without deliberate pairing
 - [ ] Tier 3 visual verification run if Playwright available
 
-## Research auto-trigger
-
-When unsure about UI pattern classification or animation best practices, run `spacecraft research "<topic>"` before deciding. The 46-rule catalog is canonical — edge cases benefit from fresh context.
-
 ## References
 
 - `references/anti-slop-catalog.md` — all 46 impeccable.style patterns with detection methods and fixes

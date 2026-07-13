@@ -143,3 +143,18 @@ Rebase → verify → `git merge --no-ff` → tag → delete branch → archive.
 | `.engine/DESIGN.md` | UI/visual design discipline |
 
 Skill details: `.engine/skills/*/sc-*/SKILL.md`
+
+## Research auto-trigger
+
+When encountering gray areas, outdated knowledge, or uncertainty, invoke the search escalation via `sc-search` skill before proceeding. The Commander decides when to invoke it; the skill provides the mechanism.
+
+**Search vs. Research:**
+- **sc-search** (quick): auto-triggered 3-tier escalation with user fallback — `google_search` → `webfetch` → `spacecraft research`; ask user if all tiers fail. For unfamiliar errors, deprecated APIs, dependency version uncertainty, and technical gray areas.
+- **spacecraft research** (systematic): direct CLI invocation for scoped, versioned documentation search via Brave Search. For deep investigation with `--scope` and `--deep` flags.
+
+| Lane | Trigger | Example |
+|------|---------|---------|
+| **Planning** (sc-plan) | Unsure about dependency version, API compatibility, or best practices | sc-search escalation, ending with `spacecraft research "express v5 migration guide"` if needed |
+| **Implementation** (sc-build) | Unfamiliar API, deprecated method, syntax question | sc-search escalation, ending with `spacecraft research "react useActionState example"` if needed |
+| **Debugging** (sc-debug) | Unknown error message, stack trace from framework, configuration issue | sc-search escalation, ending with `spacecraft research "postgresql deadlock detected Error 40P01"` if needed |
+| **Clarification** (sc-clarify) | Ambiguity about ecosystem conventions | sc-search escalation, ending with `spacecraft research "next.js app router vs pages router 2026"` if needed |

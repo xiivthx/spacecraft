@@ -103,12 +103,6 @@ Use this exact sequence unless the user specifies otherwise:
 - [ ] Decision recorded in `decisions.md`
 - [ ] No blocking question remains open before planning or implementation
 
-## Research auto-trigger
-
-Before asking the user about ecosystem conventions, API usage, or framework practices, run `spacecraft research "<query>"`. Only escalate to the user when research doesn't resolve the ambiguity.
-
----
-
 ## References
 
 - `questions.md` — open and answered questions per mission
