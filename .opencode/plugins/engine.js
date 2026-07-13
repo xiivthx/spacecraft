@@ -1,17 +1,5 @@
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.resolve(__dirname, '../..');
-
-const engineDir = path.join(projectRoot, '.engine');
-const skillsDir = path.join(engineDir, 'skills');
-const commandsDir = path.join(engineDir, 'commands');
-const spaceDir = path.join(projectRoot, '.space');
-const missionsDir = path.join(spaceDir, 'missions');
-
-let _bootstrapCache = undefined;
 
 const readFileIfExists = (filePath) => {
   try {
@@ -27,13 +15,6 @@ const hasUiKeywords = (content) => {
   if (!content) return false;
   const lower = content.toLowerCase();
   return uiKeywords.some(k => lower.includes(k.toLowerCase()));
-};
-
-const shouldIncludeDesign = () => {
-  const missionId = readFileIfExists(path.join(spaceDir, 'current')).trim();
-  if (!missionId) return false;
-  const specPath = path.join(missionsDir, missionId, 'spec.md');
-  return hasUiKeywords(readFileIfExists(specPath));
 };
 
 const parseFrontmatter = (content) => {
@@ -57,31 +38,46 @@ const parseFrontmatter = (content) => {
   return { frontmatter, body: match[2] };
 };
 
-const getBootstrapContent = () => {
-  if (_bootstrapCache !== undefined) return _bootstrapCache;
+export const EnginePlugin = async ({ directory }) => {
+  const engineDir = path.join(directory, '.engine');
+  const skillsDir = path.join(engineDir, 'skills');
+  const commandsDir = path.join(engineDir, 'commands');
+  const spaceDir = path.join(directory, '.space');
+  const missionsDir = path.join(spaceDir, 'missions');
 
-  const persona = readFileIfExists(path.join(engineDir, 'PERSONA.md'));
-  const agents = readFileIfExists(path.join(engineDir, 'AGENTS.md'));
-  const design = readFileIfExists(path.join(engineDir, 'DESIGN.md'));
+  let _bootstrapCache = undefined;
 
-  const parts = [];
-  if (persona) parts.push(persona);
-  if (agents) parts.push(agents);
-  if (design && shouldIncludeDesign()) parts.push(design);
+  const shouldIncludeDesign = () => {
+    const missionId = readFileIfExists(path.join(spaceDir, 'current')).trim();
+    if (!missionId) return false;
+    const specPath = path.join(missionsDir, missionId, 'spec.md');
+    return hasUiKeywords(readFileIfExists(specPath));
+  };
 
-  if (parts.length === 0) {
-    _bootstrapCache = null;
-    return null;
-  }
+  const getBootstrapContent = () => {
+    if (_bootstrapCache !== undefined) return _bootstrapCache;
 
-  _bootstrapCache = `<EXTREMELY_IMPORTANT>
+    const persona = readFileIfExists(path.join(engineDir, 'PERSONA.md'));
+    const agents = readFileIfExists(path.join(engineDir, 'AGENTS.md'));
+    const design = readFileIfExists(path.join(engineDir, 'DESIGN.md'));
+
+    const parts = [];
+    if (persona) parts.push(persona);
+    if (agents) parts.push(agents);
+    if (design && shouldIncludeDesign()) parts.push(design);
+
+    if (parts.length === 0) {
+      _bootstrapCache = null;
+      return null;
+    }
+
+    _bootstrapCache = `<EXTREMELY_IMPORTANT>
 ${parts.join('\n\n---\n\n')}
 </EXTREMELY_IMPORTANT>`;
 
-  return _bootstrapCache;
-};
+    return _bootstrapCache;
+  };
 
-export const EnginePlugin = async ({ client, directory }) => {
   return {
     config: async (config) => {
       config.skills = config.skills || {};
@@ -129,3 +125,5 @@ export const EnginePlugin = async ({ client, directory }) => {
     }
   };
 };
+
+export default EnginePlugin;
