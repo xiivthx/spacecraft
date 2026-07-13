@@ -1,5 +1,9 @@
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const pluginDir = path.dirname(fileURLToPath(import.meta.url));
+const spaceRoot = path.resolve(pluginDir, '../..');
 
 const readFileIfExists = (filePath) => {
   try {
@@ -39,10 +43,10 @@ const parseFrontmatter = (content) => {
 };
 
 export const EnginePlugin = async ({ directory }) => {
-  const engineDir = path.join(directory, '.engine');
+  const engineDir = path.join(spaceRoot, '.engine');
   const skillsDir = path.join(engineDir, 'skills');
   const commandsDir = path.join(engineDir, 'commands');
-  const spaceDir = path.join(directory, '.space');
+  const spaceDir = path.join(spaceRoot, '.space');
   const missionsDir = path.join(spaceDir, 'missions');
 
   let _bootstrapCache = undefined;
@@ -80,6 +84,12 @@ ${parts.join('\n\n---\n\n')}
 
   return {
     config: async (config) => {
+      config.instructions = config.instructions || [];
+      const personaPath = path.join(engineDir, 'PERSONA.md');
+      const agentsPath = path.join(engineDir, 'AGENTS.md');
+      if (!config.instructions.includes(personaPath)) config.instructions.push(personaPath);
+      if (!config.instructions.includes(agentsPath)) config.instructions.push(agentsPath);
+
       config.skills = config.skills || {};
       config.skills.paths = config.skills.paths || [];
       if (!config.skills.paths.includes(skillsDir)) {
