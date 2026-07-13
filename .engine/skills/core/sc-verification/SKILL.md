@@ -32,7 +32,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 ### Edge cases
 
-- **Evidence command fails** — Capture the failure as evidence. Do not skip. Fix the issue and re-capture.
+- **Evidence command fails** — Capture the failure as evidence. Do not skip. Fix the issue and re-capture. After re-capture, clean up the failed entry: delete the failed evidence file or use `scripts/spacecraft evidence --force <label> -- <command>` to overwrite.
 - **Validation fails** — `scripts/spacecraft validate` returns non-zero. Check which acceptance criteria are unmet. Fix before claiming done.
 - **Check cannot be automated** — State why in the evidence label. Mark as `manual`. Document the manual verification steps.
 - **No plan.json exists** — Cannot map evidence to acceptance checks. Ask user to create a plan first.

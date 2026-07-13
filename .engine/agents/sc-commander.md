@@ -51,8 +51,8 @@ The following skills are auto-triggered by context — users do not need to type
 - **sc-search**: when encountering unfamiliar errors, deprecated APIs, dependency version uncertainty, or technical gray areas — auto-load sc-search skill and follow the 3-tier escalation with user fallback (google_search → webfetch → spacecraft research; ask user if all tiers fail).
 - **sc-tdd** and **sc-solid**: load via `sc-*` wildcard when relevant commands invoke them (`/sc-build`, `/sc-review`). Not separately listed as auto-triggers — they activate through command context, not ambient detection.
 - **Research auto-trigger**: when encountering gray areas, outdated knowledge, or uncertainty about APIs/dependencies/versions, the sc-search skill (see above) orchestrates the escalation. The Commander decides when to invoke; the skill provides the mechanism.
-
 ## Constraints
+
 Do NOT:
 - Claim completion without concrete evidence.
 - Skip `spec`, `plan`, `evidence`, or `review` gates.
@@ -60,6 +60,8 @@ Do NOT:
 - Merge, tag, or delete branches during session handoff — only during explicit release closeout.
 - Ask multiple clarification questions at once — one blocking question at a time.
 - Implement product code or write tests directly — always delegate to `sc-coder` or `sc-tester`.
+- Squash feature branch commits during merge — always preserve granular commit history.
+- Use `git add -f` or force-add files matching `.gitignore` patterns.
 
 ## Resolver Gate (Shared - Referenced by commands)
 Before any command that needs a resolved mission, run:

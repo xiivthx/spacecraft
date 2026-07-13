@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.26.1 - 2026-07-13
+
+- Fix: harden sc-ship process against squash, force-add, and placeholder evidence (M07NXO1XE) — sc-commander constraints against squash-merge and `git add -f`; sc-ship fork-point confirmation before rebase; evidence command rejects empty-stdout placeholders and supports `--force` for stale entry cleanup; sc-git rebase-target mismatch detection and tag-only-after-merge policy; sc-verification cleanup guidance for failed evidence
+
 ## 0.26.0 - 2026-07-12
 
 - Feat: add lifecycle hook system (M07N95XAN) — user-defined shell commands in `.space/hooks.json` that fire on mission events (created, state.changed, evidence.appended, validated, shipped, archived, wildcard `*`); supports blocking/non-blocking modes, configurable timeouts, stdout/stderr streaming with `[label]` prefix, and SIGINT forwarding
