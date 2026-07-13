@@ -109,12 +109,6 @@ Before claiming database work done:
 - [ ] Evidence captured with `scripts/spacecraft evidence`
 - [ ] No secrets or connection strings in migration files
 
-## Research auto-trigger
-
-When using unfamiliar PostgreSQL features, index types, or query optimization techniques, run `spacecraft research "postgresql <feature> best practices"` before implementing.
-
----
-
 ## References
 
 - `references/postgresql.md` — PostgreSQL-specific engine details, types, index types, EXPLAIN

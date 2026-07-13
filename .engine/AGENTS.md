@@ -58,51 +58,12 @@ Conventional Commits. Target 1–3 per branch, max 5. Squash WIP before merge. R
 
 ### Development lanes
 
-Commander auto-detects intent and routes to the appropriate lane. No user decision required.
-
-| Lane | Intent | Entry | Workflow |
-|------|--------|-------|----------|
-| 💬 **Advisory** | ask, talk, consult, research | default | direct response |
-| 🚀 **Mission** | add, build, implement, feature | `/sc-start` | full flow — below |
-| 🔧 **Debug** | fix, debug, diagnose, error | `/sc-debug` | 5-step discipline |
-| ⚡ **Quick** | human edits, config, small fix | `/sc-quick` | branch → self-review → ship |
-
-#### Advisory lane (default)
-- Questions, discussion, research, consultation — no mutating work
-- No mission created, no git operations
-- Research auto-trigger still active (`spacecraft research`)
-
-#### Mission lane
-`/sc-start → /sc-design(if UI) → /sc-plan → /sc-build → /sc-ship`
-
-- Full artifacts: `spec.md`, `plan.json`, `evidence.jsonl`, `review.md`, `review.json`
-- Commander auto-handles clarification, mapping, verification
-- No implementation before `spec.md` + `plan.json`
-- `/sc-build` loops per task: implement → verify → checkpoint commit
-- **Zero trust**: sc-reviewer reviews plan inside `/sc-plan`, diff + evidence inside `/sc-build`. `/sc-review` is a standalone manual command — not part of the pipeline.
-
-#### Debug lane
-`/sc-debug` — five-step discipline: reproduce → trace fail path → falsify hypothesis → cross-reference → post-mortem
-
-- Scoped to fix/diagnose. No feature scope creep
-- Evidence captured within debug workflow
-
-#### Quick lane
-`/sc-quick → branch → commit freely → fast self-review → report ready → wait for explicit /sc-ship`
-
-- For: prompt tweaks, config, docs, small fixes — where full flow is overhead
-- Skips: `spec.md`, `plan.json`, TDD build, formal review, evidence capture
-- Keeps: git safety, Conventional Commits, changelog, versioning, `--no-ff` merge
-- Commander self-review directly — no subagent, no review artifacts
+Commander auto-detects intent and routes to the appropriate lane without user input. Full lane behavior, decision flow, self-review, release rules, and session handoff: see [`PERSONA.md`](./PERSONA.md).
 
 ### Evidence
 ```sh
 scripts/spacecraft evidence "<label>" -- <command>
 ```
-
-### Release
-Merge to main only on explicit `/sc-ship` or user release command. Never auto-detect.
-Rebase → verify → `git merge --no-ff` → tag → delete branch → archive.
 
 ## Available skills
 
@@ -143,3 +104,7 @@ Rebase → verify → `git merge --no-ff` → tag → delete branch → archive.
 | `.engine/DESIGN.md` | UI/visual design discipline |
 
 Skill details: `.engine/skills/*/sc-*/SKILL.md`
+
+## Research auto-trigger
+
+When encountering gray areas, outdated knowledge, or uncertainty, invoke the search escalation via `sc-search` skill. Full escalation tiers, trigger conditions, and examples: see [`PERSONA.md`](./PERSONA.md) §4 Expertise — Research.

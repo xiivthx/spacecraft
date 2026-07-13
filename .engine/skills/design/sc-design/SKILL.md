@@ -174,12 +174,6 @@ Before claiming design work is ready:
 - [ ] Thai-first labels used when user works in Thai
 - [ ] Art direction not locked without user choice
 
-## Research auto-trigger
-
-When design decisions involve unfamiliar UI patterns, accessibility standards, or framework capabilities, run `spacecraft research "<topic>"` before committing to a design direction. For CSS/HTML-specific questions, prefer MDN or framework docs over general web search.
-
----
-
 ## References
 
 - `DESIGN.md` — project design direction

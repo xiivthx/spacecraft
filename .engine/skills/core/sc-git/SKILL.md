@@ -141,12 +141,6 @@ Before claiming git work is done:
 - [ ] Verification passed after latest rebase
 - [ ] Closeout check passes before release claim
 
-## Research auto-trigger
-
-When git operations involve unfamiliar flags, rebase conflict resolution strategies, or tag/signing conventions, run `spacecraft research "git <topic>"` before executing. Git mistakes are hard to undo — verify the command before running it.
-
----
-
 ## References
 
 - `scripts/spacecraft resolve --help` — resolver subcommand

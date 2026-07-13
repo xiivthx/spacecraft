@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.26.2 - 2026-07-13
+
+- Docs: restructure PERSONA.md into 9 components (Identity, Values, Communication, Expertise, Boundaries, Workflow, Tool Usage, Memory Policy, Examples) — each rule lives in exactly one authoritative file
+- Docs: deduplicate lane behavior, release rules, and research auto-trigger from AGENTS.md into PERSONA.md; AGENTS.md now cross-references PERSONA.md for those domains
+- Docs: infuse Feynman (first-principles clarity), Zen (simplicity as discipline, non-attachment), and hacker ethos (source-first, trace the wire) into commander persona values
+- Fix: enforce changelog and version bump as mandatory in sc-ship — never deferrable, hard gate
+- Docs: trim prompt redundancy across AGENTS.md/PERSONA.md
+
 ## 0.26.1 - 2026-07-13
 
 - Fix: harden sc-ship process against squash, force-add, and placeholder evidence (M07NXO1XE) — sc-commander constraints against squash-merge and `git add -f`; sc-ship fork-point confirmation before rebase; evidence command rejects empty-stdout placeholders and supports `--force` for stale entry cleanup; sc-git rebase-target mismatch detection and tag-only-after-merge policy; sc-verification cleanup guidance for failed evidence

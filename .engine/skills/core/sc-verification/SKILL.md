@@ -38,10 +38,6 @@ Use this exact sequence unless the user specifies otherwise:
 - **No plan.json exists** — Cannot map evidence to acceptance checks. Ask user to create a plan first.
 - **Evidence already captured for this check** — Re-run to ensure freshness. Never reuse stale evidence.
 
-## Research auto-trigger
-
-When a verification command uses an unfamiliar tool or flag, run `spacecraft research "<tool> <flag> usage"` before capturing evidence. Incorrect verification commands produce misleading evidence.
-
 ## Rules
 
 - **Must**: No done/pass/verified/ready claim without evidence.

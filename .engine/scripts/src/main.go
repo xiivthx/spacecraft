@@ -17,7 +17,6 @@ import (
 
 	"spacecraft/internal/archive"
 	"spacecraft/internal/closeout"
-	"spacecraft/internal/compact"
 	"spacecraft/internal/config"
 	"spacecraft/internal/eval"
 	"spacecraft/internal/gitutil"
@@ -113,8 +112,6 @@ func main() {
 		exitCode = archiveCmd(args)
 	case "research":
 		exitCode = researchCmd(args)
-	case "compact":
-		exitCode = compactCmd(args)
 	case "check-deps":
 		exitCode = checkDepsCmd(args)
 	case "eval":
@@ -149,13 +146,12 @@ Usage:
   spacecraft git-suggest [type] [slug]
   spacecraft set-state <state>
   spacecraft clarify-status <open|clear|deferred>
-  spacecraft evidence [--compact] [--force] <label> -- <command...>
+  spacecraft evidence <label> -- <command...>
   spacecraft validate
   spacecraft closeout-check
   spacecraft archive [selector]
   spacecraft research <query> [flags]
   spacecraft check-deps [flags]
-  spacecraft compact [--tee] <command> [args...]
   spacecraft eval <mission-id>
   spacecraft eval init <mission-id>
   spacecraft traces <mission-id> [--json] [--verbose] [--flat]
@@ -693,34 +689,16 @@ func clarifyStatusCmd(args []string) int {
 
 func evidenceCmd(args []string) int {
 	sep := -1
-	useCompact := false
-	useForce := false
-	preSep := args
-	// Parse --compact and --force flags before the -- separator.
 	for i, a := range args {
 		if a == "--" {
 			sep = i
-			preSep = args[:i]
 			break
-		}
-	}
-	for _, a := range preSep {
-		switch a {
-		case "--compact":
-			useCompact = true
-		case "--force":
-			useForce = true
 		}
 	}
 	if sep == -1 {
 		return printErr("Missing -- before evidence command.\n\n" + usage())
 	}
 	label := strings.TrimSpace(strings.Join(args[:sep], " "))
-	// Filter flags out of the label.
-	for _, flag := range []string{"--compact", "--force"} {
-		label = strings.ReplaceAll(label, flag, "")
-	}
-	label = strings.Join(strings.Fields(label), " ")
 	cmdParts := args[sep+1:]
 	if label == "" {
 		return printErr("Missing evidence label.\n\n" + usage())
@@ -734,34 +712,6 @@ func evidenceCmd(args []string) int {
 	}
 	id := res.Selected.ID
 	os.MkdirAll(filepath.Join(store.MissionDir(id), "outputs"), 0755)
-
-	// I14: --force removes existing evidence entries with matching label.
-	if useForce {
-		entries, _ := store.ReadEvidenceEntries(id)
-		var kept []mission.EvidenceEntry
-		for _, e := range entries {
-			if e.Label == label {
-				// Delete old output files.
-				if e.Stdout != "" {
-					os.Remove(filepath.Join(store.MissionDir(id), e.Stdout))
-				}
-				if e.Stderr != "" {
-					os.Remove(filepath.Join(store.MissionDir(id), e.Stderr))
-				}
-				continue
-			}
-			kept = append(kept, e)
-		}
-		// Rewrite evidence.jsonl without the removed entries.
-		evPath := filepath.Join(store.MissionDir(id), "evidence.jsonl")
-		var buf bytes.Buffer
-		enc := json.NewEncoder(&buf)
-		enc.SetEscapeHTML(false)
-		for _, e := range kept {
-			enc.Encode(e)
-		}
-		os.WriteFile(evPath, buf.Bytes(), 0644)
-	}
 
 	eid, stdoutP, stderrP, err := store.ReserveEvidencePath(id)
 	if err != nil {
@@ -787,32 +737,8 @@ func evidenceCmd(args []string) int {
 		CreatedAt: isoNow(),
 	}
 
-	if useCompact {
-		compactP := filepath.Join(store.MissionDir(id), "outputs", eid+".compact.txt")
-		ci := compact.ParseCommand(cmdParts)
-		dslPath := filepath.Join(cfg.Root(), ".space", "compact", "filters.json")
-		filter, dslErr := compact.LoadDSLFilter(dslPath, ci)
-		if dslErr != nil {
-			fmt.Fprintf(os.Stderr, "spacecraft evidence: DSL config error: %v\n", dslErr)
-			fmt.Fprintf(os.Stderr, "(falling back to auto-detected filter)\n")
-		}
-		if filter == nil {
-			filter = autoDetectFilter(ci)
-		}
-		compacted := result.stdout
-		if filter != nil {
-			compacted = filter.Apply(result.stdout)
-		}
-		os.WriteFile(compactP, []byte(compacted), 0644)
-		compactRel := rel(compactP)
-		entry.Compact = &compactRel
-		fmt.Printf("Evidence: %s\n", eid)
-		fmt.Printf("Exit code: %d\n", result.code)
-		fmt.Printf("Raw: %d bytes  Compact: %d bytes\n", len(result.stdout), len(compacted))
-	} else {
-		fmt.Printf("Evidence: %s\n", eid)
-		fmt.Printf("Exit code: %d\n", result.code)
-	}
+	fmt.Printf("Evidence: %s\n", eid)
+	fmt.Printf("Exit code: %d\n", result.code)
 
 	if err := store.AppendEvidence(id, &entry); err != nil {
 		return printErr("Failed to append evidence:", err)
@@ -952,184 +878,6 @@ func archiveCmd(args []string) int {
 	fmt.Printf("Archived mission %s\n", id)
 	fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
 	return 0
-}
-
-// ---------- compact command ----------
-
-func compactCmd(args []string) int {
-	tee := false
-	// Parse --tee flag manually (positional before the command).
-	var remaining []string
-	for _, a := range args {
-		if a == "--tee" {
-			tee = true
-		} else if a == "--help" || a == "-h" {
-			fmt.Print(compactUsage())
-			return 0
-		} else {
-			remaining = append(remaining, a)
-		}
-	}
-
-	if len(remaining) == 0 {
-		fmt.Print(compactUsage())
-		return 0
-	}
-
-	ci := compact.ParseCommand(remaining)
-
-	// DSL override: load user config from .space/compact/filters.json.
-	dslPath := filepath.Join(cfg.Root(), ".space", "compact", "filters.json")
-	filter, err := compact.LoadDSLFilter(dslPath, ci)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "spacecraft compact: DSL config error: %v\n", err)
-		return 1
-	}
-	if filter == nil {
-		filter = autoDetectFilter(ci)
-	}
-
-	runner := compact.NewRunner(remaining, filter)
-	result, err := runner.Run()
-	if err != nil {
-		return fatalErr("compact:", err)
-	}
-
-	// Print compact output.
-	if result.Output != "" {
-		fmt.Print(result.Output)
-		if !strings.HasSuffix(result.Output, "\n") {
-			fmt.Println()
-		}
-	}
-
-	// Tee: save full output on non-zero exit.
-	if tee && result.ExitCode != 0 {
-		teeDir := filepath.Join(cfg.Root(), ".space", "compact")
-		os.MkdirAll(teeDir, 0755)
-		ts := time.Now().UTC().Format("20060102T150405")
-		safeName := safeCompactName(remaining)
-		teePath := filepath.Join(teeDir, ts+"_"+safeName+".log")
-		content := result.Stdout
-		if result.Stderr != "" {
-			content += "\n--- stderr ---\n" + result.Stderr
-		}
-		os.WriteFile(teePath, []byte(content), 0644)
-		fmt.Fprintf(os.Stderr, "\n[full output: %s]\n", rel(teePath))
-	}
-
-	return result.ExitCode
-}
-
-// autoDetectFilter selects the appropriate filter based on command info.
-func autoDetectFilter(ci *compact.CommandInfo) compact.Filter {
-	if ci == nil {
-		return nil
-	}
-	switch ci.Exe {
-	case "git":
-		switch ci.Arg1 {
-		case "status":
-			return &compact.FilterGitStatus{}
-		case "diff":
-			return &compact.FilterGitDiff{}
-		case "log":
-			return &compact.FilterGitLog{}
-		default:
-			return &compact.FilterGeneric{}
-		}
-	case "go":
-		switch ci.Arg1 {
-		case "test":
-			return &compact.FilterGoTest{}
-		case "build":
-			return &compact.FilterGoBuild{}
-		case "vet":
-			return &compact.FilterGoVet{}
-		default:
-			return &compact.FilterGeneric{}
-		}
-	case "npm":
-		switch ci.Arg1 {
-		case "test":
-			return &compact.FilterNpmTest{}
-		default:
-			return &compact.FilterGeneric{}
-		}
-	case "docker":
-		switch ci.Arg1 {
-		case "ps":
-			return &compact.FilterDockerPs{}
-		default:
-			return &compact.FilterGeneric{}
-		}
-	case "curl":
-		return &compact.FilterCurl{}
-	case "ls", "dir":
-		return &compact.FilterLs{}
-	case "cat", "type":
-		return &compact.FilterCat{}
-	default:
-		return &compact.FilterGeneric{}
-	}
-}
-
-// safeCompactName creates a filesystem-safe name from command parts.
-func safeCompactName(parts []string) string {
-	if len(parts) == 0 {
-		return "unknown"
-	}
-	name := strings.TrimSpace(parts[0])
-	// Use just the base executable name.
-	if idx := strings.LastIndex(name, "/"); idx >= 0 {
-		name = name[idx+1:]
-	}
-	// Append first arg if present and not a flag.
-	if len(parts) > 1 && len(parts[1]) > 0 && parts[1][0] != '-' {
-		name += "-" + parts[1]
-	}
-	// Sanitize: replace non-alphanumeric with underscore.
-	var sb strings.Builder
-	for _, r := range name {
-		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
-			sb.WriteRune(r)
-		} else {
-			sb.WriteByte('_')
-		}
-	}
-	result := sb.String()
-	if len(result) > 60 {
-		result = result[:60]
-	}
-	if result == "" {
-		return "unknown"
-	}
-	return result
-}
-
-func compactUsage() string {
-	return `spacecraft compact [--tee] <command> [args...]
-
-Run a command and emit compact, token-optimized output.
-
-Flags:
-  --tee    Save full unfiltered output to .space/compact/ on non-zero exit.
-
-DSL overrides:
-  User rules in .space/compact/filters.json take priority over auto-detection.
-  See AGENTS.md for the DSL schema reference.
-
-Auto-detected filters:
-  git status, git diff, git log
-  go test, go build, go vet
-  npm test
-  docker ps
-  curl
-  ls, cat
-
-All other commands use a generic dedup+truncation filter.
-Exit code is passed through from the child command.
-`
 }
 
 // ---------- research command ----------

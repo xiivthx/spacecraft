@@ -137,10 +137,6 @@ Recommendation: pass / fix-before-merge / block
 - [ ] No dynamic audit tools executed
 - [ ] Results recorded in task output or `evidence.jsonl`
 
-## Research auto-trigger
-
-When encountering unfamiliar language patterns, exploit payloads, or dependency version patterns, run `spacecraft research "<topic>"` before classifying a finding.
-
 ## References
 
 - OWASP Top 10 (2021) — https://owasp.org/Top10/

@@ -136,12 +136,6 @@ Before claiming backend work done:
 - [ ] Evidence captured with `scripts/spacecraft evidence`
 - [ ] No unapproved dependencies
 
-## Research auto-trigger
-
-When the default stack version is uncertain or the user specifies an unfamiliar framework, run `spacecraft research "<framework> setup guide"` before scaffolding. Backend frameworks evolve — verify current APIs.
-
----
-
 ## References
 
 - `references/api-patterns.md` — REST route design, Fastify schema validation, error handling, middleware

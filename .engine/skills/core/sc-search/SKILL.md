@@ -38,6 +38,7 @@ When Tier 1 returns a specific relevant URL.
 - Use `webfetch` to fetch the page content.
 - Extract the concrete answer (version number, fix, migration path, correct syntax).
 - Timeout: ~10s. If the page doesn't resolve the question, escalate.
+- Alternative: use `ctx_fetch_and_index` to fetch + index, then `ctx_search` to query — useful when you need to cross-reference multiple sources or re-query the same page.
 
 ### Tier 3 — Systematic research (`spacecraft research`)
 
@@ -71,7 +72,7 @@ When the topic is immediately recognizable, shortcut to the appropriate tier:
 | Scenario | Start at |
 |----------|----------|
 | Exact error message | Tier 1 (google_search) |
-| Known package, need latest version | Tier 2 (webfetch npm/pypi/crates.io) |
+| Known package, need latest version | Tier 2 (webfetch npm/pypi/crates.io, or ctx_fetch_and_index → ctx_search) |
 | Framework best practice (React, Go, etc.) | Tier 3 (spacecraft research --scope) |
 | "How do I...?" with no specific docs | Tier 1 → escalate as needed |
 
@@ -81,12 +82,6 @@ When the topic is immediately recognizable, shortcut to the appropriate tier:
 - Debugging discipline — use sc-debug
 - Requirement clarification — use sc-clarify
 - Architectural decisions — use sc-architect
-
-## Research auto-trigger
-
-When Tiers 1–2 are exhausted and the topic matches a known scope, `spacecraft research` provides scoped, versioned results via Brave Search. This skill orchestrates the escalation; the CLI provides the mechanism.
-
----
 
 ## References
 

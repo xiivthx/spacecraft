@@ -10,12 +10,18 @@ Resolve the mission. Block if unsafe.
 
 Read the resolved mission's spec.md, plan.json, evidence.jsonl, review.md, review.json, questions.md, decisions.md, and git diff when git is available.
 
-Run:
+Run these in order. Each must pass before the next:
+
 ```
 scripts/spacecraft validate
 scripts/spacecraft git-info
+# Hard gate: changelog and version bump. Both mandatory — never defer.
+# Checks that the work branch has a commit touching CHANGELOG.md since fork.
+git log main..HEAD --oneline | grep -q 'CHANGELOG' || { echo "FAIL: CHANGELOG.md not updated. Add a version bump + changelog commit before merge."; exit 1; }
 scripts/spacecraft closeout-check
 ```
+
+Changelog update and version bump are **never deferrable**. sc-git requires even docs/chore changes to tag the next patch version. Do not proceed with merge until these commits exist on the work branch.
 
 ## Workflow
 
@@ -31,11 +37,11 @@ Only close/ship/merge if:
 - there are no critical findings
 - sc-git gates pass: branch hygiene, commit style, rebase status, merge plan
 - changelog updated with this merge's changes (mandatory — never defer)
-- version bump complete or explicitly deferred with rationale
-- tag plan exists for the bumped version
+- version bump committed (mandatory — never defer. sc-git tags next patch even for chores)
+- tag plan for the bumped version
 - if UI files changed, review.md or review.json includes a design review result
 - UI work has no unresolved critical design findings
-- if UI files changed, art direction decisions are recorded in decisions.md or explicitly deferred
+- if UI files changed, art direction decisions are recorded in decisions.md
 
 If any gate fails, block closeout. List exact missing actions and next command.
 
@@ -86,8 +92,8 @@ sc-ship gates are verification gates — research should have happened during sc
 - review.json status not `ready`
 - Critical findings unresolved
 - sc-git gates fail (branch hygiene, commit style, rebase, merge plan)
-- Changelog not updated
-- Version bump missing without explicit deferral
+- Changelog not updated (mandatory — never defer)
+- Version bump not committed (mandatory — never defer)
 - UI changes without design review recorded
 
 ## Error handling
