@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.26.3 - 2026-07-13
+
+- Refactor: engine plugin uses `directory` from plugin context instead of hardcoded paths (M07O1KTGQ)
+- Feat: add `make sync-plugin` target and sync helper script
+
 ## 0.26.2 - 2026-07-13
 
 - Docs: restructure PERSONA.md into 9 components (Identity, Values, Communication, Expertise, Boundaries, Workflow, Tool Usage, Memory Policy, Examples) — each rule lives in exactly one authoritative file
