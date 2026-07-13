@@ -33,6 +33,14 @@ make test           # Go + Node tests
 ### Commits
 Conventional Commits. Target 1–3 per branch, max 5. Squash WIP before merge. Rebase on `main` → verify → `git merge --no-ff`.
 
+### Standards
+- Never use the em dash ("-"). Use plain dash instead.
+- Never manually modify CHANGELOG.md or any auto-generated files.
+- Prefer quality, simplicity, robustness, scalability, and long-term maintainability over development cost.
+- Bug fixes: reproduce in E2E setting as close to end-user experience as possible before fixing.
+- E2E testing: be picky about UI, obsessed with pixel perfection. Fix anything that looks off, even if unrelated.
+- Engineering excellence: lint, test failures, test flakiness - fix even if not caused by current work.
+
 ### Mission ids
 `M07FYB5W5` — compact sortable (prefix + base36 ms since 2026-01-01).
 
