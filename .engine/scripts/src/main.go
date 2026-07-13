@@ -149,7 +149,7 @@ Usage:
   spacecraft git-suggest [type] [slug]
   spacecraft set-state <state>
   spacecraft clarify-status <open|clear|deferred>
-  spacecraft evidence <label> -- <command...>
+  spacecraft evidence [--compact] [--force] <label> -- <command...>
   spacecraft validate
   spacecraft closeout-check
   spacecraft archive [selector]
@@ -694,8 +694,9 @@ func clarifyStatusCmd(args []string) int {
 func evidenceCmd(args []string) int {
 	sep := -1
 	useCompact := false
+	useForce := false
 	preSep := args
-	// Parse --compact flag before the -- separator.
+	// Parse --compact and --force flags before the -- separator.
 	for i, a := range args {
 		if a == "--" {
 			sep = i
@@ -704,19 +705,22 @@ func evidenceCmd(args []string) int {
 		}
 	}
 	for _, a := range preSep {
-		if a == "--compact" {
+		switch a {
+		case "--compact":
 			useCompact = true
+		case "--force":
+			useForce = true
 		}
 	}
 	if sep == -1 {
 		return printErr("Missing -- before evidence command.\n\n" + usage())
 	}
 	label := strings.TrimSpace(strings.Join(args[:sep], " "))
-	// Filter --compact out of the label.
-	if useCompact {
-		label = strings.TrimSpace(strings.ReplaceAll(label, "--compact", ""))
-		label = strings.Join(strings.Fields(label), " ")
+	// Filter flags out of the label.
+	for _, flag := range []string{"--compact", "--force"} {
+		label = strings.ReplaceAll(label, flag, "")
 	}
+	label = strings.Join(strings.Fields(label), " ")
 	cmdParts := args[sep+1:]
 	if label == "" {
 		return printErr("Missing evidence label.\n\n" + usage())
@@ -730,11 +734,47 @@ func evidenceCmd(args []string) int {
 	}
 	id := res.Selected.ID
 	os.MkdirAll(filepath.Join(store.MissionDir(id), "outputs"), 0755)
+
+	// I14: --force removes existing evidence entries with matching label.
+	if useForce {
+		entries, _ := store.ReadEvidenceEntries(id)
+		var kept []mission.EvidenceEntry
+		for _, e := range entries {
+			if e.Label == label {
+				// Delete old output files.
+				if e.Stdout != "" {
+					os.Remove(filepath.Join(store.MissionDir(id), e.Stdout))
+				}
+				if e.Stderr != "" {
+					os.Remove(filepath.Join(store.MissionDir(id), e.Stderr))
+				}
+				continue
+			}
+			kept = append(kept, e)
+		}
+		// Rewrite evidence.jsonl without the removed entries.
+		evPath := filepath.Join(store.MissionDir(id), "evidence.jsonl")
+		var buf bytes.Buffer
+		enc := json.NewEncoder(&buf)
+		enc.SetEscapeHTML(false)
+		for _, e := range kept {
+			enc.Encode(e)
+		}
+		os.WriteFile(evPath, buf.Bytes(), 0644)
+	}
+
 	eid, stdoutP, stderrP, err := store.ReserveEvidencePath(id)
 	if err != nil {
 		return printErr("Failed to reserve evidence path:", err)
 	}
 	result := execCmd(cmdParts)
+
+	// I13: reject placeholder evidence — exitCode 0 with no real output
+	if result.code == 0 && len(strings.TrimSpace(result.stdout)) == 0 {
+		return printErr("Evidence command produced no output (exit 0, empty stdout).\n" +
+			"Use a command that demonstrates actual behavior, not echo/placeholder.\n\n" + usage())
+	}
+
 	os.WriteFile(stdoutP, []byte(result.stdout), 0644)
 	os.WriteFile(stderrP, []byte(result.stderr), 0644)
 	entry := mission.EvidenceEntry{

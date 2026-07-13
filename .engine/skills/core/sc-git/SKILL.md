@@ -74,6 +74,7 @@ Use this exact sequence unless the user specifies otherwise:
 ### Rebase & Merge
 
 - **Must**: Before merge, rebase on latest `main`. Reverify after rebase.
+- **Must**: Identify fork point with `git log --oneline main..HEAD | head -1` before rebase. If `main` has advanced beyond the expected base, warn: "Rebase target mismatch: main HEAD differs from fork point. Confirm correct base before rebase."
 - **Must**: Merge only with `--no-ff`. No fast-forward or squash-merge into `main`.
 - **Must not**: Rebase/rewrite `main`. Resolve conflicts on work branch, then reverify.
 - **Must**: After merge, delete local branch unless asked to keep.
@@ -92,8 +93,9 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: After EVERY no-ff merge to `main`, create an annotated tag: `git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"`. Tagging is mandatory after every merge regardless of bump policy.
 - **Must**: When bump policy says "no bump" (docs/chore), still tag as the next patch version (e.g., v0.6.0 → v0.6.1). The tag tracks changes to main; the bump policy only controls whether the version number reflects feature/breaking scope.
-- **Must**: Tag immediately after merge, before any other operation. Do not pause or defer.
-- **Must**: Do not tag before merge exists. Do not push unless asked.
+- **Must**: Create tag ONLY AFTER merge is confirmed clean (`git merge --no-ff` completes successfully). Never create tag before merge, even if merge retries are expected.
+- **Must**: If merge is reverted/redone, delete the premature tag first before retrying. Verify tag was created only once on final clean merge.
+- **Must**: Do not push unless asked.
 
 ### Post-merge
 

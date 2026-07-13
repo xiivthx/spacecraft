@@ -53,7 +53,9 @@ This ensures internal research (`spacecraft research`) can draw on accumulated m
 ### 3. Prepare merge
 
 If all gates pass, use sc-git to prepare merge to main:
-- rebase, verify, merge with `--no-ff`, tag, branch cleanup
+- confirm fork point and rebase target: `git log --oneline main..HEAD | head -1` to identify fork point, then rebase on `main` only after confirming `main` HEAD matches expected base
+- never squash — merge with `--no-ff` preserving all granular commits
+- tag, branch cleanup
 - compact shipped mission artifacts with `scripts/spacecraft archive` unless the user asks to keep the full live mission folder
 - no push unless explicitly requested
 
