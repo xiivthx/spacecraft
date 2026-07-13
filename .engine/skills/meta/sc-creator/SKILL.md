@@ -38,7 +38,7 @@ Six phases — execute in order unless the user specifies otherwise.
 
 ### Phase 2: Create
 
-1. **Create directory** — `.opencode/skills/sc-<name>/`. Add `references/` subdirectory if the skill has reference content.
+1. **Create directory** — `.engine/skills/sc-<name>/`. Add `references/` subdirectory if the skill has reference content.
 
 2. **Write SKILL.md** from the template — every section is required:
    - `description` — under 200 chars, includes 2–3 trigger phrases. This is the only thing the agent sees before loading.
@@ -111,7 +111,7 @@ Phase 1: Gather
   Conventions surveyed: [skill names]
 
 Phase 2: Create
-  Directory: .opencode/skills/sc-<name>/
+  Directory: .engine/skills/sc-<name>/
   SKILL.md: [N] lines, description [N] chars
   References: [count] files ([total] lines)
 
@@ -136,7 +136,7 @@ Before claiming a skill is created:
 
 - [ ] Template (`references/template.md`) consulted
 - [ ] 1–2 existing skills surveyed for conventions
-- [ ] Directory created at `.opencode/skills/sc-<name>/`
+- [ ] Directory created at `.engine/skills/sc-<name>/`
 - [ ] SKILL.md has all 7 template sections
 - [ ] `description` under 200 chars with trigger phrases
 - [ ] Content rewritten for spacecraft context (not copy-paste)

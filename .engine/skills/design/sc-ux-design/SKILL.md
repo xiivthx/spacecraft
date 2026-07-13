@@ -45,7 +45,7 @@ After design brief approval, before real implementation:
 
 2. **Every draft MUST include**: visible "DRAFT — Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`).
 
-3. **Serve for review**: `node .opencode/skills/sc-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
+3. **Serve for review**: `node .engine/skills/sc-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
 4. **Iterate** until approved (max 3 rounds — if still unapproved, escalate to user for direction). Only then begin real implementation.
 5. **Before approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
@@ -73,11 +73,11 @@ Run after implementation:
 - **Identical card grids**: Same-sized cards repeated with icon + heading + text? If no differentiation → flag.
 
 **Tier 3 — Browser visual check** (optional, needs Playwright):
-`node .opencode/skills/sc-ux-design/scripts/visual-verify.mjs <html-file>`
+`node .engine/skills/sc-ux-design/scripts/visual-verify.mjs <html-file>`
 - 3 viewports (375/768/1280px), full-page screenshots
 - Audits: horizontal overflow, clipped content, text touching viewport edge, cramped padding
 - JSON report: `breakpoint`, `issues` (selector, kind, severity), `screenshots`
-- Install: `cd .opencode/skills/sc-ux-design && npm install`
+- Install: `cd .engine/skills/sc-ux-design && npm install`
 - Skill functions without Tier 3 if Playwright is unavailable.
 
 ## Rules

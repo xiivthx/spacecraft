@@ -75,7 +75,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: HTML design artifacts belong under `.space/missions/<id>/design/`.
 - **Must**: Use the artifact to show options, not to implement product UI.
-- **Must**: To preview HTML artifacts, use: `node .opencode/skills/sc-design/scripts/serve-html.mjs [artifact-or-dir] --open`.
+- **Must**: To preview HTML artifacts, use: `node .engine/skills/sc-design/scripts/serve-html.mjs [artifact-or-dir] --open`.
 - **Must**: If no artifact path is provided, the preview script serves the resolved mission's `design/` folder.
 - **Must**: After creating an HTML artifact, include the exact preview command in the response.
 - **Must**: Treat HTML artifacts as decision aids, not design essays.

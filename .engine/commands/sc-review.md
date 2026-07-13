@@ -47,7 +47,7 @@ Ask the subagent to review:
 
 When visual review needs a browser and no app-specific dev server is running:
 ```
-node .opencode/skills/sc-design/scripts/serve-html.mjs <artifact-or-dir> --open
+node .engine/skills/sc-design/scripts/serve-html.mjs <artifact-or-dir> --open
 ```
 
 After the subagent responds, record findings in review.md. If review.json exists, add design findings with severity: critical, important, minor. Critical design findings block /sc-ship.
