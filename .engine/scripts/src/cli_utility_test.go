@@ -727,6 +727,9 @@ func TestRoadmapContinueCmd(t *testing.T) {
 func TestRoadmapArchiveCmd(t *testing.T) {
 	defer setupLifecycleTest(t)()
 	mid := makeShippableMission(t)
+	if code := setStateCmd([]string{"shipped"}); code != 0 {
+		t.Fatalf("setStateCmd(shipped) = %d, want 0", code)
+	}
 	if e := roadmapNewCmd([]string{"Archive Roadmap"}); e != 0 {
 		t.Fatalf("roadmapNewCmd = %d", e)
 	}

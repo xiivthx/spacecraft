@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.9 - 2026-07-15
+
+- Feat: auto-archive mission on set-state shipped
+- Feat: auto-clean roadmap when all missions shipped
+
 ## 0.31.8 - 2026-07-14
 
 - Fix: closeout-check now blocks merges without CHANGELOG.md update
