@@ -177,6 +177,8 @@ func (fakeGitRunner) Run(name string, args ...string) (int, string, string) {
 		return 0, "1", ""
 	case "git log --format=%s main..HEAD":
 		return 0, "feat: do thing", ""
+	case "git log --oneline main..HEAD -- CHANGELOG.md":
+		return 0, "abc123 chore: bump version", ""
 	}
 	return 1, "", ""
 }

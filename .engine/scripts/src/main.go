@@ -588,6 +588,13 @@ func gitInfoCmd() int {
 	if git.Branch == "main" && git.Dirty {
 		fmt.Println("WARNING: dirty changes on main branch. Create a work branch before editing product files.")
 	}
+	if git.Branch != "" && git.Branch != "main" {
+		runner := gitutil.OSCommandRunner{}
+		_, out, _ := runner.Run("git", "log", "--oneline", "main..HEAD", "--", "CHANGELOG.md")
+		if strings.TrimSpace(out) == "" {
+			fmt.Println("WARNING: CHANGELOG.md not updated in this branch. Add a version bump + changelog commit before merge.")
+		}
+	}
 	return 0
 }
 

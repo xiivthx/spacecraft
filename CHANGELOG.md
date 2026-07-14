@@ -4,6 +4,7 @@
 
 - Fix: closeout-check now blocks merges without CHANGELOG.md update
 - Fix: git-info warns when dirty changes exist on main branch
+- Fix: git-info warns when CHANGELOG.md is missing from branch commits
 
 ## 0.31.7 - 2026-07-14
 
