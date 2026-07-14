@@ -26,6 +26,8 @@ out/
 dist/
 build/
 coverage/
+coverage.out
+*.out
 .turbo/
 .vercel/
 
