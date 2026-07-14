@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.26.8 - 2026-07-14
+
+- Feat: split sc-commander into commander + sc-adviser agent for architectural design escalation
+- Feat: add sc-adviser read-only subagent with off-hours protocol and architect-tasks leave mechanism
+
 ## 0.26.7 - 2026-07-14
 
 - Docs: add issues roadmap with 24 open issues across 6 phases, sorted by priority and dependency order
