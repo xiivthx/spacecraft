@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.31.4 - 2026-07-14
+
+- Feat: auto-close GitHub issues with extended patterns, multi-source scanning, pre-check, and --no-close-issues flag (M07Q5XKB2)
+
 ## 0.31.3 - 2026-07-14
 
 - Feat: add CI workflow with test & coverage gate (75% threshold) (M07Q5XHEI)
