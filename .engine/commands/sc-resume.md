@@ -22,6 +22,18 @@ scripts/spacecraft git-info
 
 If git is dirty and the mission state is not `draft`, flag it prominently in the resume output.
 
+## Context memory
+
+Query ctx_search for prior mission context (best-effort, degrade gracefully):
+
+- Use ctx_search with `sort: "timeline"` for session recall from auto-captured events (decisions, errors, blockers, plans, user prompts, rejected approaches)
+- Scope to `source: "sc-memory/<mission-id>"` for mission-specific indexed artifacts (spec, plan, decisions, lessons)
+- Scope to prior missions for cross-mission recall where relevant
+- If ctx_search is unavailable or returns nothing, fall back to reading markdown files from `.space/archive/` and `.space/missions/`
+- Missing memory is not a blocker -- continue with file reads
+
+Surface ctx_search results in the handoff resume under "Prior mission context".
+
 ## Live state
 
 Mission status:
@@ -49,12 +61,13 @@ Based on the live state above, present a concise handoff resume:
 1. **Mission**: ID, title, state, how resolved (branch/session/explicit)
 2. **Git**: branch, HEAD short sha, clean or dirty (list dirty files if ≤5)
 3. **Clarification**: status + blocking question count
-4. **Progress**: tasks completed/total, next task (ID + title)
-5. **Evidence**: count, last entry (label + date + exit code)
-6. **Review**: status + unresolved finding count
-7. **Blockers**: list if any
-8. **Next action**: if the workflow `Next:` field is a slash command (starts with `/sc-`), quote it exactly as the pickup command. If it is a parenthesized status like `(clarify)` or `(shipped)`, explain what the Commander should do: for `(clarify)` — sc-clarify skill will auto-trigger, just tell the user to continue the session; for `(shipped)` — mission is complete, nothing to do.
-9. **Session advice**: continue this chat or start new session, with brief reason
+4. **Prior mission context**: relevant ctx_search results from indexed artifacts and timeline (decisions, lessons, issues from prior missions) or "(unavailable)" when context-mode fails
+5. **Progress**: tasks completed/total, next task (ID + title)
+6. **Evidence**: count, last entry (label + date + exit code)
+7. **Review**: status + unresolved finding count
+8. **Blockers**: list if any
+9. **Next action**: if the workflow `Next:` field is a slash command (starts with `/sc-`), quote it exactly as the pickup command. If it is a parenthesized status like `(clarify)` or `(shipped)`, explain what the Commander should do: for `(clarify)` — sc-clarify skill will auto-trigger, just tell the user to continue the session; for `(shipped)` — mission is complete, nothing to do.
+10. **Session advice**: continue this chat or start new session, with brief reason
 
 ## Constraints
 

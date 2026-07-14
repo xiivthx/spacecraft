@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.31.0 - 2026-07-14
+
+- Feat: add sc-memory skill wrapping ctx_search and ctx_index with spacecraft conventions (M07PYRGLG)
+- Feat: wire ctx_index hooks into sc-mission, sc-learn auto-indexing mission artifacts and lessons (M07PYRGLG)
+- Feat: add ctx_search queries to sc-resume for prior mission context in handoff (M07PYRGLG)
+
 ## 0.30.2 - 2026-07-14
 
 - Fix: accept string shorthand for ReleaseGate JSON unmarshaling to prevent archive blocking (M07PYOT0G)

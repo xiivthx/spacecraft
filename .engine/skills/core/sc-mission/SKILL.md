@@ -28,9 +28,10 @@ Use this exact sequence unless the user specifies otherwise:
 
 1. **Resolve mission** — Run `scripts/spacecraft resolve [selector] [--json]`, `status`, or `missions`; `.space/current` is fallback state, not sole authority. Commander auto-detects development lane (Advisory, Mission, Debug, Quick) based on user intent.
 2. **Read artifacts** — Read `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
-3. **Route ambiguity** — If intent, scope, or acceptance criteria is ambiguous, route to sc-clarify before proceeding.
-4. **Enforce lifecycle** — Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Repeat build -> verify -> checkpoint commit for successive tasks.
-5. **Release or handoff** — On ship intent, run release closeout. On session end, give handoff summary.
+3. **Index artifacts** — After creating or updating spec.md, plan.json, decisions.md, or questions.md, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort: warn on failure, never block). See sc-memory for conventions.
+4. **Route ambiguity** — If intent, scope, or acceptance criteria is ambiguous, route to sc-clarify before proceeding.
+5. **Enforce lifecycle** — Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Repeat build -> verify -> checkpoint commit for successive tasks.
+6. **Release or handoff** — On ship intent, run release closeout. On session end, give handoff summary.
 
 ### Edge cases
 
@@ -80,6 +81,7 @@ Set state with `scripts/spacecraft set-state <state>`. The CLI enforces valid tr
 - **Must**: After successful release closeout, archive shipped mission artifacts under `.space/archive/` unless the user asks to keep the full live mission folder.
 - **Must**: Keep mission artifacts small and human-readable.
 - **Must**: Prefer explicit evidence over narrative claims.
+- **Must**: After creating or updating spec.md, plan.json, decisions.md, or questions.md, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort, non-blocking -- warn on failure). See sc-memory for label format and conventions.
 - **Must**: End each session with a recommended next action and session advice: continue this chat for small adjacent steps, or start a new session when the phase changed, the thread is context-heavy, or mission artifacts are sufficient for handoff.
 
 ## Out of scope
@@ -94,6 +96,7 @@ This skill does NOT handle:
 - Debugging or bug diagnosis — use sc-debug
 - Code review — handled by reviewer subagent
 - Knowledge capture and migration — use sc-learn
+- Cross-mission memory, artifact indexing conventions, ctx_search/ctx_index wrapping — use sc-memory
 
 ## Output format
 
