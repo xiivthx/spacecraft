@@ -193,6 +193,25 @@ func TestSetClarificationStatus_invalid(t *testing.T) {
 	}
 }
 
+func TestSetClarificationStatus_missingMission(t *testing.T) {
+	store, _, cleanup := newTestStore(t)
+	defer cleanup()
+
+	setter := NewSetter(store)
+	err := setter.SetClarificationStatus("M07ST_GHOST", "clear")
+	if err == nil {
+		t.Fatal("expected error for missing mission")
+	}
+}
+
+func TestValidationError_Error(t *testing.T) {
+	err := &ValidationError{Errors: []string{"missing spec.md", "missing plan.json"}}
+	got := err.Error()
+	if !strings.Contains(got, "validation: 2 error(s)") {
+		t.Errorf("unexpected error string: %q", got)
+	}
+}
+
 func TestValidateMission_valid(t *testing.T) {
 	store, cfg, cleanup := newTestStore(t)
 	defer cleanup()
@@ -292,6 +311,168 @@ func TestValidateMission_planNoTasks(t *testing.T) {
 	}
 	if !containsStr(errs.Errors, "tasks array") {
 		t.Errorf("expected tasks array error, got: %v", errs.Errors)
+	}
+}
+
+func TestValidateMission_missingMissionJson(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST20", "Missing JSON", "draft"); err != nil {
+		t.Fatal(err)
+	}
+	os.Remove(filepath.Join(cfg.MissionDir("M07ST20"), "mission.json"))
+	os.WriteFile(filepath.Join(cfg.MissionDir("M07ST20"), "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(cfg.MissionDir("M07ST20"), "plan.json"), []byte(`{"missionId":"M07ST20","tasks":[]}`), 0644)
+	os.WriteFile(filepath.Join(cfg.MissionDir("M07ST20"), "evidence.jsonl"), []byte{}, 0644)
+
+	setter := NewSetter(store)
+	errs := setter.ValidateMission("M07ST20")
+	if errs == nil {
+		t.Fatal("expected validation errors")
+	}
+	if !containsStr(errs.Errors, "missing mission.json") {
+		t.Errorf("expected missing mission.json, got %v", errs.Errors)
+	}
+}
+
+func TestValidateMission_invalidMissionJson(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST21", "Bad JSON", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST21")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST21","tasks":[]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte{}, 0644)
+	os.WriteFile(filepath.Join(dir, "mission.json"), []byte("not json"), 0644)
+
+	setter := NewSetter(store)
+	errs := setter.ValidateMission("M07ST21")
+	if errs == nil {
+		t.Fatal("expected validation errors")
+	}
+	if !containsStr(errs.Errors, "invalid JSON in mission.json") {
+		t.Errorf("expected invalid JSON in mission.json error, got %v", errs.Errors)
+	}
+}
+
+func TestValidateMission_invalidPlanJson(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST22", "Bad plan", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST22")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte("not json"), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte{}, 0644)
+
+	setter := NewSetter(store)
+	errs := setter.ValidateMission("M07ST22")
+	if errs == nil {
+		t.Fatal("expected validation errors")
+	}
+	if !containsStr(errs.Errors, "invalid JSON in plan.json") {
+		t.Errorf("expected invalid JSON in plan.json error, got %v", errs.Errors)
+	}
+}
+
+func TestValidateMission_invalidEvidenceJson(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST23", "Bad evidence", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST23")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST23","tasks":[]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte("not json"), 0644)
+
+	setter := NewSetter(store)
+	errs := setter.ValidateMission("M07ST23")
+	if errs == nil {
+		t.Fatal("expected validation errors")
+	}
+	if !containsStr(errs.Errors, "invalid JSON in evidence.jsonl") {
+		t.Errorf("expected invalid JSON in evidence.jsonl error, got %v", errs.Errors)
+	}
+}
+
+func TestValidateMission_evidenceMissingId(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST24", "Missing evidence id", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST24")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST24","tasks":[]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte(`{"foo":"bar"}`+"\n"), 0644)
+
+	setter := NewSetter(store)
+	errs := setter.ValidateMission("M07ST24")
+	if errs == nil {
+		t.Fatal("expected validation errors")
+	}
+	if !containsStr(errs.Errors, "must have string id") {
+		t.Errorf("expected missing id error, got %v", errs.Errors)
+	}
+}
+
+func TestValidateMission_evidenceDuplicateId(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST25", "Duplicate evidence id", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST25")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST25","tasks":[]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte(`{"id":"ev1"}`+"\n"+`{"id":"ev1"}`+"\n"), 0644)
+
+	setter := NewSetter(store)
+	errs := setter.ValidateMission("M07ST25")
+	if errs == nil {
+		t.Fatal("expected validation errors")
+	}
+	if !containsStr(errs.Errors, "duplicate evidence id ev1") {
+		t.Errorf("expected duplicate evidence id error, got %v", errs.Errors)
+	}
+}
+
+func TestValidateMission_invalidReviewJson(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST26", "Bad review", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST26")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST26","tasks":[]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte{}, 0644)
+	os.WriteFile(filepath.Join(dir, "review.json"), []byte("not json"), 0644)
+
+	setter := NewSetter(store)
+	errs := setter.ValidateMission("M07ST26")
+	if errs == nil {
+		t.Fatal("expected validation errors")
+	}
+	if !containsStr(errs.Errors, "invalid JSON in review.json") {
+		t.Errorf("expected invalid JSON in review.json error, got %v", errs.Errors)
 	}
 }
 

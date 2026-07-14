@@ -44,6 +44,13 @@ var (
 	arc         *archive.ReadinessChecker
 	ar          *archive.MissionArchiver
 	hooksCfg    *hooks.Config
+
+	// Overridable endpoints for testing.
+	braveBaseURL   = "https://api.search.brave.com"
+	npmRegistryURL = "https://registry.npmjs.org"
+	goProxyURL     = "https://proxy.golang.org"
+	pypiURL        = "https://pypi.org"
+	cratesURL      = "https://crates.io"
 )
 
 func main() {
@@ -1013,7 +1020,7 @@ func researchCmd(args []string) int {
 				}
 			}
 
-			brave := research.NewBraveClient(apiKey, "https://api.search.brave.com")
+			brave := research.NewBraveClient(apiKey, braveBaseURL)
 			searchResults, err := brave.Search(ctx, query, domains, results)
 			if err != nil {
 				return fatalErr("Brave Search error:", err)
@@ -1161,10 +1168,10 @@ func lookupPackage(ctx context.Context, query string, timeout time.Duration) (*r
 		name   string
 		client interface{ Lookup(context.Context, string) (*research.PackageInfo, error) }
 	}{
-		{"npm", research.NewNpmClientWithTimeout("https://registry.npmjs.org", timeout)},
-		{"go", research.NewGoProxyClientWithTimeout("https://proxy.golang.org", timeout)},
-		{"pypi", research.NewPypiClientWithTimeout("https://pypi.org", timeout)},
-		{"crates", research.NewCargoClientWithTimeout("https://crates.io", timeout)},
+		{"npm", research.NewNpmClientWithTimeout(npmRegistryURL, timeout)},
+		{"go", research.NewGoProxyClientWithTimeout(goProxyURL, timeout)},
+		{"pypi", research.NewPypiClientWithTimeout(pypiURL, timeout)},
+		{"crates", research.NewCargoClientWithTimeout(cratesURL, timeout)},
 	}
 	for _, c := range clients {
 		pkg, err := c.client.Lookup(ctx, query)
@@ -1453,28 +1460,28 @@ Flags:
 func lookupLatestVersion(ctx context.Context, dep research.Dependency, timeout time.Duration) (string, error) {
 	switch dep.Ecosystem {
 	case "go":
-		c := research.NewGoProxyClientWithTimeout("https://proxy.golang.org", timeout)
+		c := research.NewGoProxyClientWithTimeout(goProxyURL, timeout)
 		pkg, err := c.Lookup(ctx, dep.Name)
 		if err != nil {
 			return "", err
 		}
 		return pkg.LatestVersion, nil
 	case "npm":
-		c := research.NewNpmClientWithTimeout("https://registry.npmjs.org", timeout)
+		c := research.NewNpmClientWithTimeout(npmRegistryURL, timeout)
 		pkg, err := c.Lookup(ctx, dep.Name)
 		if err != nil {
 			return "", err
 		}
 		return pkg.LatestVersion, nil
 	case "pypi":
-		c := research.NewPypiClientWithTimeout("https://pypi.org", timeout)
+		c := research.NewPypiClientWithTimeout(pypiURL, timeout)
 		pkg, err := c.Lookup(ctx, dep.Name)
 		if err != nil {
 			return "", err
 		}
 		return pkg.LatestVersion, nil
 	case "crates":
-		c := research.NewCargoClientWithTimeout("https://crates.io", timeout)
+		c := research.NewCargoClientWithTimeout(cratesURL, timeout)
 		pkg, err := c.Lookup(ctx, dep.Name)
 		if err != nil {
 			return "", err

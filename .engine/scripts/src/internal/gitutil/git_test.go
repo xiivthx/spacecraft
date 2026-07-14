@@ -117,3 +117,36 @@ func TestGitInfoMultipleDirtyFiles(t *testing.T) {
 		t.Errorf("DirtyFiles = %d, want 2", info.DirtyFiles)
 	}
 }
+
+func TestOSCommandRunner_Run_success(t *testing.T) {
+	runner := OSCommandRunner{}
+	code, out, _ := runner.Run("echo", "hello")
+	if code != 0 {
+		t.Errorf("exit code = %d, want 0", code)
+	}
+	if out != "hello\n" {
+		t.Errorf("stdout = %q, want \"hello\\n\"", out)
+	}
+}
+
+func TestOSCommandRunner_Run_failure(t *testing.T) {
+	runner := OSCommandRunner{}
+	code, out, _ := runner.Run("false")
+	if code != 1 {
+		t.Errorf("exit code = %d, want 1", code)
+	}
+	if out != "" {
+		t.Errorf("stdout = %q, want empty", out)
+	}
+}
+
+func TestOSCommandRunner_Run_notFound(t *testing.T) {
+	runner := OSCommandRunner{}
+	code, out, _ := runner.Run("spacecraft-gitutil-no-such-command")
+	if code != 127 {
+		t.Errorf("exit code = %d, want 127", code)
+	}
+	if out != "" {
+		t.Errorf("stdout = %q, want empty", out)
+	}
+}

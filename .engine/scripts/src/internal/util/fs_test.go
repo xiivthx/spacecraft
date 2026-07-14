@@ -116,3 +116,62 @@ func TestEnsureFile(t *testing.T) {
 		t.Fatalf("EnsureFile on existing file failed: %v", err)
 	}
 }
+
+func TestEnsureFileInvalidPath(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "missing", "dir", "file.txt")
+	if err := EnsureFile(path); err == nil {
+		t.Error("EnsureFile should error for path with missing parent directory")
+	}
+}
+
+func TestReadJsonFileNotFound(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "missing.json")
+	var target map[string]interface{}
+	if err := ReadJson(path, &target); err == nil {
+		t.Error("ReadJson should error for missing file")
+	}
+}
+
+func TestWriteJsonMarshalFailure(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bad.json")
+	if err := WriteJson(path, func() {}); err == nil {
+		t.Error("WriteJson should error for unmarshalable value")
+	}
+}
+
+func TestDisplayPathFallback(t *testing.T) {
+	got := DisplayPath("", "/a/b/c.txt")
+	want := "/a/b/c.txt"
+	if got != want {
+		t.Errorf("DisplayPath(%q, %q) = %q, want %q", "", "/a/b/c.txt", got, want)
+	}
+}
+
+func TestCountEvidenceWhitespaceOnly(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "evidence.jsonl")
+	if err := os.WriteFile(path, []byte("\n   \n\t\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if n := CountEvidence(path); n != 0 {
+		t.Errorf("CountEvidence whitespace-only = %d, want 0", n)
+	}
+}
+
+func TestCountEvidenceReadError(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "evidence.jsonl")
+	if err := os.WriteFile(path, []byte("{\"id\":\"E01\"}\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(path, 0000); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Chmod(path, 0644) })
+	if n := CountEvidence(path); n != 0 {
+		t.Errorf("CountEvidence unreadable = %d, want 0", n)
+	}
+}

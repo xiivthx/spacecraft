@@ -1,6 +1,8 @@
 package eval
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"spacecraft/internal/mission"
@@ -103,5 +105,27 @@ func TestRubricTooManyDimensions(t *testing.T) {
 	_, err := ScoreRubric(badRubric, nil)
 	if err == nil {
 		t.Error("expected error for rubric with too many dimensions")
+	}
+}
+
+func TestRubricResolveContentFromFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "output.txt")
+	content := "Build succeeded with no errors"
+	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+		t.Fatalf("write output file: %v", err)
+	}
+
+	rubric := &EvalRubric{Dimensions: StdDimensions()}
+	entries := []mission.EvidenceEntry{
+		{ID: "e1", Label: "build-check", Command: "go build ./...", ExitCode: 0, Stdout: path},
+	}
+
+	scorecard, err := ScoreRubric(rubric, entries)
+	if err != nil {
+		t.Fatalf("ScoreRubric: %v", err)
+	}
+	if len(scorecard.Scores) != 5 {
+		t.Errorf("expected 5 scores, got %d", len(scorecard.Scores))
 	}
 }

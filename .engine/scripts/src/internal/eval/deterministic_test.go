@@ -86,6 +86,23 @@ func TestDeterministicLintDetection(t *testing.T) {
 	}
 }
 
+func TestDeterministicLintFail(t *testing.T) {
+	entries := []mission.EvidenceEntry{
+		{ID: "e1", Label: "lint", Command: "go vet ./...", ExitCode: 1},
+	}
+	result := RunDeterministic(entries)
+	if result.AllPassed {
+		t.Error("expected AllPassed=false when lint fails")
+	}
+	lint := result.Checks[2]
+	if lint.Name != "lint" {
+		t.Errorf("third check should be lint, got %s", lint.Name)
+	}
+	if lint.Passed {
+		t.Error("lint check should fail with exit code 1")
+	}
+}
+
 func TestTrajectorySummary(t *testing.T) {
 	entries := []mission.EvidenceEntry{
 		{ID: "e1", Label: "build", Command: "go build ./...", ExitCode: 0},
