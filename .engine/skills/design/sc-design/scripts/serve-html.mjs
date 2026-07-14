@@ -32,7 +32,7 @@ function usage() {
   return `Design HTML server
 
 Usage:
-  node .opencode/skills/sc-design/scripts/serve-html.mjs [html-file-or-dir] [options]
+  node .engine/skills/sc-design/scripts/serve-html.mjs [html-file-or-dir] [options]
 
 Options:
   --open             Open the preview URL in the default browser.
@@ -41,9 +41,9 @@ Options:
   -h, --help         Show this help.
 
 Examples:
-  node .opencode/skills/sc-design/scripts/serve-html.mjs --open
-  node .opencode/skills/sc-design/scripts/serve-html.mjs okinawa-ui-directions.html --open
-  node .opencode/skills/sc-design/scripts/serve-html.mjs .space/missions/M-123/design/example.html --port 4330
+  node .engine/skills/sc-design/scripts/serve-html.mjs --open
+  node .engine/skills/sc-design/scripts/serve-html.mjs okinawa-ui-directions.html --open
+  node .engine/skills/sc-design/scripts/serve-html.mjs .space/missions/M-123/design/example.html --port 4330
 `;
 }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.26.6 - 2026-07-14
+
+- Fix: replace stale `.opencode/skills/` references with `.engine/skills/` (20 occurrences, 8 files)
+
 ## 0.26.5 - 2026-07-13
 
 - Docs: add Standards section to AGENTS.md (em dash ban, CHANGELOG immutability, quality-first, E2E bug repro, pixel-perfect UI, lint/test excellence)

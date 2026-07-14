@@ -16,12 +16,12 @@
   },
   "spec": {
     "keywords": ["git", "branch", "merge", "commit", "tag"],
-    "fileHints": [".opencode/skills/sc-git/", "scripts/spacecraft"],
+    "fileHints": [".engine/skills/sc-git/", "scripts/spacecraft"],
     "intent": "create sc-map skill for project structure survey"
   },
   "files": [
     {
-      "path": ".opencode/skills/sc-git/SKILL.md",
+      "path": ".engine/skills/sc-git/SKILL.md",
       "category": "skill",
       "layer": "skills",
       "lines": 180,
@@ -31,7 +31,7 @@
   ],
   "touchpoints": [
     {
-      "path": ".opencode/skills/sc-map/SKILL.md",
+      "path": ".engine/skills/sc-map/SKILL.md",
       "reason": "new skill being created — primary artifact",
       "priority": 1,
       "keywords": ["map", "survey", "structure"],
@@ -55,10 +55,10 @@
   "riskZones": {
     "red": ["scripts/spacecraft"],
     "yellow": ["opencode.json", "AGENTS.md"],
-    "green": [".opencode/skills/sc-map/SKILL.md"]
+    "green": [".engine/skills/sc-map/SKILL.md"]
   },
   "layers": {
-    "skills": [".opencode/skills/sc-git/SKILL.md", ".opencode/skills/sc-map/SKILL.md"],
+    "skills": [".engine/skills/sc-git/SKILL.md", ".engine/skills/sc-map/SKILL.md"],
     "agents": ["AGENTS.md", "PERSONA.md"],
     "scripts": ["scripts/spacecraft", "scripts/src/main.go"],
     "config": ["opencode.json", "Makefile"],

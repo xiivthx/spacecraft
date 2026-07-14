@@ -40,7 +40,7 @@ Keep HTML artifact copy compact. One artifact should answer one config question.
 Flag visuals that are decorative, abstract, or hard to connect to the decision being asked.
 Flag unnecessary artifact creation when a short chat question would be clearer and cheaper.
 When you recommend or create HTML design artifacts, include the preview command:
-`node .opencode/skills/sc-design/scripts/serve-html.mjs <artifact-or-dir> --open`.
+`node .engine/skills/sc-design/scripts/serve-html.mjs <artifact-or-dir> --open`.
 Group findings by:
 - critical design blockers
 - important design issues

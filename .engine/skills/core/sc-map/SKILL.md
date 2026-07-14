@@ -59,7 +59,7 @@ For each file, classify by category:
 - `code` — source files (.ts, .js, .go, .py, .rs, .sh, etc.)
 - `config` — configuration (.json, .yaml, .yml, .toml, .env.example)
 - `docs` — documentation (.md, .rst, .txt)
-- `skill` — skill files (matches `.opencode/skills/*/`)
+- `skill` — skill files (matches `.engine/skills/*/`)
 - `script` — scripts, Makefiles, tooling
 - `test` — test files (matches `*test*`, `*spec*`, `tests/`)
 
@@ -175,7 +175,7 @@ Assign each touchpoint and its dependencies to an architectural layer:
 
 | Layer | example |
 |-------|-------------------|
-| `skills` | `.opencode/skills/*/SKILL.md` |
+| `skills` | `.engine/skills/*/SKILL.md` |
 | `agents` | `AGENTS.md`, `PERSONA.md` |
 | `scripts` | `scripts/`, `scripts/src/` |
 | `config` | `opencode.json`, `Makefile`, `package.json` |
