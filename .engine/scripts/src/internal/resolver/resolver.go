@@ -165,17 +165,17 @@ func (r *Resolver) Resolve(selector string) mission.ResolveOutput {
 	currentMissionId, _ := r.store.ReadCurrent()
 	if currentMissionId != nil {
 		record := findMissionRecordFn(records, *currentMissionId)
-		var mid *string
-		if record != nil {
-			mid = &record.ID
+		if record == nil {
+			r.store.ClearCurrent()
+		} else {
+			signals = append(signals, mission.SignalInfo{
+				Source:            ".space/current",
+				Value:             *currentMissionId,
+				ExpectedMissionId: *currentMissionId,
+				MissionId:         &record.ID,
+			})
+			selectFunc(record, ".space/current")
 		}
-		signals = append(signals, mission.SignalInfo{
-			Source:            ".space/current",
-			Value:             *currentMissionId,
-			ExpectedMissionId: *currentMissionId,
-			MissionId:         mid,
-		})
-		selectFunc(record, ".space/current")
 	}
 
 	// 6. Single active mission fallback
