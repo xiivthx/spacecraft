@@ -36,6 +36,8 @@ Activate when the user asks to:
 
    If they don't exist, create them from the templates below.
 
+   After each write to these files, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort, non-blocking). See sc-memory for conventions.
+
 2. **Record issues** — When a bug, gap, or finding is discovered:
    ```
    ### <short title>
@@ -106,6 +108,7 @@ See `references/templates.md` for the full file templates. Copy them when creati
 - **Must**: During ship, migrate solved and learned items to global lessons registry before the version bump commit.
 - **Must not**: Ship with unresolved issues still only in the mission folder — they must be promoted to global docs.
 - **Must not**: Delete mission tracking files after migration — archive them with the mission.
+- **Must**: After writing to issues.md, solved.md, or learned.md, ctx_index the file with source label `sc-memory/<mission-id>/<type>` (best-effort, non-blocking -- warn on failure). See sc-memory for label format and conventions.
 
 ## Out of scope
 
@@ -142,6 +145,7 @@ Before claiming knowledge migration is done:
 - `references/templates.md` — mission tracking file templates (issues.md, solved.md, learned.md)
 - `docs/issues.md` — global issue registry (aggregation target)
 - `docs/learned.md` — global lessons learned (aggregation target, internal research source)
+- sc-memory — cross-mission memory conventions (ctx_index/ctx_search wrapping)
 - `.space/missions/<id>/issues.md` — per-mission issue tracking
 - `.space/missions/<id>/solved.md` — per-mission resolved items
 - `.space/missions/<id>/learned.md` — per-mission lessons
