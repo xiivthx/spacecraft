@@ -101,7 +101,6 @@ scripts/spacecraft evidence "<label>" -- <command>
 | `sc-learn` | Capture mission knowledge, issues, and lessons learned |
 | `sc-llm-vision` | Use LLM vision models (Gemini via agy CLI) to review UI screenshots |
 | `sc-localize` | Review bilingual copy for cultural fit |
-| `sc-map` | Survey project structure before planning |
 | `sc-memory` | Wraps ctx_search and ctx_index with spacecraft conventions for structured cross-mission memory |
 | `sc-mission` | Manage mission artifacts and lifecycle |
 | `sc-pathfinder` | Chart a map of tickets for large, multi-session work |

@@ -13,8 +13,6 @@ Do not finalize plan.json while blocking clarification remains open. Non-blockin
 
 If the mission includes UI, use sc-design and read DESIGN.md. If UI art direction is not chosen, stop and recommend /sc-design before finalizing UI tasks.
 
-**sc-map**: If `outputs/map.json` is missing and the project has >10 source files, invoke sc-map before delegating to sc-planner. The map identifies touchpoints, dependency chains, and risk zones so the plan has zero side-effect blind spots.
-
 ## Workflow
 
 1. Invoke sc-planner as a read-only subagent to draft the plan. A user invocation of /sc-plan is explicit permission to use the read-only sc-planner subagent; do not ask for separate subagent permission.
