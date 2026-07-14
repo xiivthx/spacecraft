@@ -12,6 +12,7 @@ type Config struct {
 	root          string
 	spaceDir      string
 	missionsDir   string
+	roadmapsDir   string
 	archiveDir    string
 	currentFile   string
 	traceStoreDir string
@@ -40,6 +41,11 @@ func WithCurrentFile(file string) ConfigOption {
 	return func(c *Config) { c.currentFile = file }
 }
 
+// WithRoadmapsDir overrides the default roadmaps directory path.
+func WithRoadmapsDir(dir string) ConfigOption {
+	return func(c *Config) { c.roadmapsDir = dir }
+}
+
 // WithTraceStoreDir overrides the default trace store directory path.
 func WithTraceStoreDir(dir string) ConfigOption {
 	return func(c *Config) { c.traceStoreDir = dir }
@@ -55,13 +61,14 @@ func NewConfig(root string, opts ...ConfigOption) (*Config, error) {
 		return nil, fmt.Errorf("config: root must be absolute: %s", root)
 	}
 	c := &Config{
-		root:          root,
-		spaceDir:      filepath.Join(root, ".space"),
-		missionsDir:   filepath.Join(root, ".space", "missions"),
-		archiveDir:    filepath.Join(root, ".space", "archive"),
-		currentFile:   filepath.Join(root, ".space", "current"),
-		traceStoreDir: filepath.Join(root, ".space", "traces"),
-	}
+			root:          root,
+			spaceDir:      filepath.Join(root, ".space"),
+			missionsDir:   filepath.Join(root, ".space", "missions"),
+			roadmapsDir:   filepath.Join(root, ".space", "roadmaps"),
+			archiveDir:    filepath.Join(root, ".space", "archive"),
+			currentFile:   filepath.Join(root, ".space", "current"),
+			traceStoreDir: filepath.Join(root, ".space", "traces"),
+		}
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -76,6 +83,9 @@ func (c *Config) SpaceDir() string { return c.spaceDir }
 
 // MissionsDir returns the missions directory path.
 func (c *Config) MissionsDir() string { return c.missionsDir }
+
+// RoadmapsDir returns the roadmaps directory path.
+func (c *Config) RoadmapsDir() string { return c.roadmapsDir }
 
 // ArchiveDir returns the archive directory path.
 func (c *Config) ArchiveDir() string { return c.archiveDir }

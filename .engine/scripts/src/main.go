@@ -24,6 +24,7 @@ import (
 	"spacecraft/internal/id"
 	"spacecraft/internal/mission"
 	"spacecraft/internal/research"
+	"spacecraft/internal/roadmap"
 	"spacecraft/internal/resolver"
 	"spacecraft/internal/state"
 	"spacecraft/internal/trace"
@@ -32,10 +33,11 @@ import (
 
 // CLI dependencies set during init.
 var (
-	cfg         *config.Config
-	store       *mission.FSStore
-	traceStore  *trace.FSTraceStore
-	r           *resolver.Resolver
+	cfg          *config.Config
+	store        *mission.FSStore
+	traceStore   *trace.FSTraceStore
+	roadmapStore *roadmap.FSStore
+	r            *resolver.Resolver
 	ss          *state.StateSetter
 	ws          *workflow.Snapshot
 	cc          *closeout.Checker
@@ -57,6 +59,7 @@ func main() {
 	}
 	store = mission.NewFSStore(cfg)
 	traceStore = trace.NewFSTraceStore(cfg)
+	roadmapStore = roadmap.NewFSStore(cfg)
 	r = resolver.New(store, gitutil.OSCommandRunner{}, nil)
 	ss = state.NewSetter(store)
 	ws = workflow.NewSnapshot(store)
@@ -120,6 +123,8 @@ func main() {
 		exitCode = tracesCmd(args)
 	case "cost":
 		exitCode = costCmd(args)
+	case "roadmap":
+		exitCode = roadmapCmd(args)
 	case "-h", "--help", "help":
 		fmt.Print(usage())
 	default:
@@ -156,6 +161,13 @@ Usage:
   spacecraft eval init <mission-id>
   spacecraft traces <mission-id> [--json] [--verbose] [--flat]
   spacecraft cost [--mission <id>] [--all]
+  spacecraft roadmap new <title> [--desc <text>]
+  spacecraft roadmap add <roadmap-id> <mission-id> [--after <target-mission-id>]
+  spacecraft roadmap remove <roadmap-id> <mission-id>
+  spacecraft roadmap show <roadmap-id>
+  spacecraft roadmap list
+  spacecraft roadmap continue <roadmap-id>
+  spacecraft roadmap archive <roadmap-id>
 `
 }
 
@@ -1946,4 +1958,323 @@ func cmdToStr(parts []string) string {
 		}
 	}
 	return strings.Join(res, " ")
+}
+
+// ---------- roadmap commands ----------
+
+func roadmapCmd(args []string) int {
+	if len(args) == 0 {
+		return printErr("Missing roadmap subcommand.\nUsage: spacecraft roadmap <new|list|add|remove|show|continue|archive>")
+	}
+	sub := args[0]
+	rest := args[1:]
+	switch sub {
+	case "new":
+		return roadmapNewCmd(rest)
+	case "list":
+		return roadmapListCmd()
+	case "add":
+		return roadmapAddCmd(rest)
+	case "remove":
+		return roadmapRemoveCmd(rest)
+	case "show":
+		return roadmapShowCmd(rest)
+	case "continue":
+		return roadmapContinueCmd(rest)
+	case "archive":
+		return roadmapArchiveCmd(rest)
+	default:
+		return printErr(fmt.Sprintf("Unknown roadmap subcommand %q.\nUsage: spacecraft roadmap <new|list|add|remove|show|continue|archive>", sub))
+	}
+}
+
+func roadmapNewCmd(args []string) int {
+	desc := ""
+	positional := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		if args[i] == "--desc" || args[i] == "-d" {
+			if i+1 < len(args) {
+				desc = args[i+1]
+				i++
+			}
+		} else if !strings.HasPrefix(args[i], "-") {
+			positional = append(positional, args[i])
+		}
+	}
+	title := strings.TrimSpace(strings.Join(positional, " "))
+	if title == "" {
+		return printErr("Missing roadmap title.\nUsage: spacecraft roadmap new <title> [--desc <text>]")
+	}
+
+	mid, err := id.MissionId()
+	if err != nil {
+		return printErr(err)
+	}
+	now := time.Now()
+	r := &roadmap.Roadmap{
+		ID:          mid,
+		Title:       title,
+		Description: desc,
+		Missions:    []string{},
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}
+	if err := roadmapStore.Create(r); err != nil {
+		return printErr("Failed to create roadmap:", err)
+	}
+	fmt.Println(mid)
+	return 0
+}
+
+func roadmapListCmd() int {
+	rms, err := roadmapStore.List()
+	if err != nil {
+		return printErr(err)
+	}
+	if len(rms) == 0 {
+		fmt.Println("No roadmaps.")
+		return 0
+	}
+	for _, rm := range rms {
+		shipped := 0
+		for _, mid := range rm.Missions {
+			m, err := store.Load(mid)
+			if err == nil && (m.State == "shipped" || m.State == "archived") {
+				shipped++
+			}
+		}
+		fmt.Printf("%s %s [%d/%d]\n", rm.ID, rm.Title, shipped, len(rm.Missions))
+	}
+	return 0
+}
+
+// stub implementations for future tasks — compile-error-safe
+func roadmapAddCmd(args []string) int {
+	afterIdx := -1
+	positional := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		if args[i] == "--after" {
+			if i+1 < len(args) {
+				afterIdx = -2 // flag: need to resolve target
+				positional = append(positional, args[i+1])
+				i++
+			}
+		} else if !strings.HasPrefix(args[i], "-") {
+			positional = append(positional, args[i])
+		}
+	}
+	if len(positional) < 2 {
+		return printErr("Usage: spacecraft roadmap add <roadmap-id> <mission-id> [--after <target-mission-id>]")
+	}
+	rid := positional[0]
+	mid := positional[1]
+	var targetMid string
+	if afterIdx == -2 && len(positional) >= 3 {
+		targetMid = positional[2]
+		afterIdx = 0
+	}
+
+	rm, err := roadmapStore.Load(rid)
+	if err != nil {
+		return printErr("roadmap not found: " + rid)
+	}
+
+	if _, err := store.Load(mid); err != nil {
+		return printErr("mission not found: " + mid)
+	}
+
+	for _, m := range rm.Missions {
+		if m == mid {
+			fmt.Println("mission already in roadmap:", mid)
+			return 0
+		}
+	}
+
+	all, _ := roadmapStore.List()
+	for _, other := range all {
+		if other.ID == rid {
+			continue
+		}
+		for _, m := range other.Missions {
+			if m == mid {
+				return printErr("already in roadmap: " + mid + " -> " + other.ID)
+			}
+		}
+	}
+
+	if targetMid != "" {
+		found := false
+		for i, m := range rm.Missions {
+			if m == targetMid {
+				rm.Missions = append(rm.Missions[:i+1], append([]string{mid}, rm.Missions[i+1:]...)...)
+				found = true
+				break
+			}
+		}
+		if !found {
+			return printErr("target mission not found in roadmap: " + targetMid)
+		}
+	} else {
+		rm.Missions = append(rm.Missions, mid)
+	}
+
+	rm.UpdatedAt = time.Now()
+	if err := roadmapStore.Save(rm); err != nil {
+		return printErr("Failed to save roadmap:", err)
+	}
+	fmt.Printf("Added %s to roadmap %s\n", mid, rid)
+	return 0
+}
+
+func roadmapRemoveCmd(args []string) int {
+	if len(args) < 2 {
+		return printErr("Usage: spacecraft roadmap remove <roadmap-id> <mission-id>")
+	}
+	rid := args[0]
+	mid := args[1]
+
+	rm, err := roadmapStore.Load(rid)
+	if err != nil {
+		return printErr("roadmap not found: " + rid)
+	}
+
+	found := false
+	for i, m := range rm.Missions {
+		if m == mid {
+			rm.Missions = append(rm.Missions[:i], rm.Missions[i+1:]...)
+			found = true
+			break
+		}
+	}
+	if !found {
+		return printErr("mission not found in roadmap: " + mid)
+	}
+
+	rm.UpdatedAt = time.Now()
+	if err := roadmapStore.Save(rm); err != nil {
+		return printErr("Failed to save roadmap:", err)
+	}
+	fmt.Printf("Removed %s from roadmap %s\n", mid, rid)
+	return 0
+}
+func roadmapShowCmd(args []string) int {
+	if len(args) < 1 {
+		return printErr("Usage: spacecraft roadmap show <roadmap-id>")
+	}
+	rid := args[0]
+	rm, err := roadmapStore.Load(rid)
+	if err != nil {
+		return printErr("roadmap not found: " + rid)
+	}
+
+	fmt.Println(rm.Title)
+	if rm.Description != "" {
+		fmt.Println(rm.Description)
+	}
+	fmt.Println()
+
+	shipped := 0
+	total := len(rm.Missions)
+	shippedStates := map[string]bool{"shipped": true, "archived": true}
+
+	for _, mid := range rm.Missions {
+		marker := "[ ]"
+		m, err := store.Load(mid)
+		if err == nil && shippedStates[m.State] {
+			marker = "[x]"
+			shipped++
+		}
+		label := mid
+		if m != nil {
+			label = fmt.Sprintf("%s %s", mid, m.Title)
+		}
+		fmt.Printf("%s  %s\n", marker, label)
+	}
+
+	fmt.Println()
+	nextIdx := -1
+	for i, mid := range rm.Missions {
+		m, err := store.Load(mid)
+		if err != nil || !shippedStates[m.State] {
+			nextIdx = i
+			break
+		}
+	}
+
+	if total == 0 {
+		fmt.Println("No missions in roadmap.")
+	} else if shipped == total {
+		fmt.Printf("%d/%d done [done]\n", shipped, total)
+	} else {
+		msg := fmt.Sprintf("%d/%d done", shipped, total)
+		if nextIdx >= 0 {
+			msg += fmt.Sprintf(" — next: %s", rm.Missions[nextIdx])
+		}
+		fmt.Println(msg)
+	}
+	return 0
+}
+func roadmapContinueCmd(args []string) int {
+	if len(args) < 1 {
+		return printErr("Usage: spacecraft roadmap continue <roadmap-id>")
+	}
+	rid := args[0]
+	rm, err := roadmapStore.Load(rid)
+	if err != nil {
+		return printErr("roadmap not found: " + rid)
+	}
+
+	if len(rm.Missions) == 0 {
+		return printErr("roadmap has no missions")
+	}
+
+	shippedStates := map[string]bool{"shipped": true, "archived": true}
+
+	for _, mid := range rm.Missions {
+		m, err := store.Load(mid)
+		if err != nil || !shippedStates[m.State] {
+			if err := store.WriteCurrent(mid); err != nil {
+				return printErr("Failed to set current mission:", err)
+			}
+			label := mid
+			if m != nil {
+				label = fmt.Sprintf("%s %s", mid, m.Title)
+			}
+			fmt.Println(label)
+			return 0
+		}
+	}
+
+	fmt.Println("all missions complete")
+	return 0
+}
+func roadmapArchiveCmd(args []string) int {
+	if len(args) < 1 {
+		return printErr("Usage: spacecraft roadmap archive <roadmap-id>")
+	}
+	rid := args[0]
+	rm, err := roadmapStore.Load(rid)
+	if err != nil {
+		return printErr("roadmap not found: " + rid)
+	}
+
+	shippedStates := map[string]bool{"shipped": true, "archived": true}
+	for _, mid := range rm.Missions {
+		m, err := store.Load(mid)
+		if err != nil || !shippedStates[m.State] {
+			return printErr("mission " + mid + " is not shipped — cannot archive roadmap")
+		}
+	}
+
+	src := filepath.Join(cfg.RoadmapsDir(), rid+".json")
+	dst := filepath.Join(cfg.ArchiveDir(), rid+".json")
+	if err := os.MkdirAll(cfg.ArchiveDir(), 0755); err != nil {
+		return printErr("Failed to ensure archive dir:", err)
+	}
+	if err := os.Rename(src, dst); err != nil {
+		return printErr("Failed to archive roadmap:", err)
+	}
+
+	fmt.Printf("Roadmap %s archived\n", rid)
+	return 0
 }
