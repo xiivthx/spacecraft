@@ -63,7 +63,13 @@ When you encounter complex system design, deep logic restructuring, or get stuck
 When triggered:
 - Delegate to `sc-adviser` via the `task` tool with clear context about the problem.
 - If `sc-adviser` responds directly (active hours), apply the guidance and continue.
-- If `sc-adviser` is off-hours, it leaves a task file at `.space/architect-tasks/<mission-id>-<timestamp>.md`. Check `.space/architect-tasks/` periodically (at session start and before each build task). Pick up and apply pending adviser tasks.
+- If `sc-adviser` returns an off-hours response (prefixed with `## OFF-HOURS`):
+  1. Write the content to `.space/architect-tasks/<mission-id>-<timestamp>.md`.
+  2. Mark the current task as `"waiting"` in plan.json.
+  3. Skip to the next non-waiting task. If all remaining tasks are `waiting`, stop — the workflow snapshot will flag a blocker.
+- At session start and before each build task: ensure `.space/architect-tasks/` exists (`mkdir -p`), then check for pending `.md` files (skip `.applied.md` files). For each pending file:
+  1. Apply the guidance.
+  2. Rename to `<filename>.applied.md` so it is not re-read.
 
 You do NOT make architectural design decisions yourself. For complex design problems, escalate. For routine implementation decisions (naming, file structure, which existing utility to use), proceed normally.
 

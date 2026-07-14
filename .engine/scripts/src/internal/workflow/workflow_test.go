@@ -68,6 +68,28 @@ func TestNextTask_nilStatusIsOpen(t *testing.T) {
 	}
 }
 
+func TestNextTask_skipsWaiting(t *testing.T) {
+	tasks := []mission.Task{
+		{ID: strPtr("T01"), Status: strPtr("waiting")},
+		{ID: strPtr("T02"), Status: strPtr("pending")},
+	}
+	nt := NextTask(tasks)
+	if nt == nil || *nt.ID != "T02" {
+		t.Errorf("expected T02 (skipped waiting T01), got %v", nt)
+	}
+}
+
+func TestNextTask_allWaiting(t *testing.T) {
+	tasks := []mission.Task{
+		{ID: strPtr("T01"), Status: strPtr("waiting")},
+		{ID: strPtr("T02"), Status: strPtr("waiting")},
+	}
+	nt := NextTask(tasks)
+	if nt != nil {
+		t.Errorf("expected nil (all waiting), got %v", nt)
+	}
+}
+
 func TestNextCommand_states(t *testing.T) {
 	tests := []struct {
 		state     string
@@ -284,6 +306,37 @@ func TestSnapshot_Build_allDone(t *testing.T) {
 	}
 	if snap.Next != "/sc-ship" {
 		t.Errorf("expected /sc-ship, got %q", snap.Next)
+	}
+	if snap.Tasks.Completed != 1 {
+		t.Errorf("expected 1 completed, got %d", snap.Tasks.Completed)
+	}
+}
+
+func TestSnapshot_Build_allWaitingTasks(t *testing.T) {
+	store := newMockStore(t)
+	store.mission.State = "implementing"
+	store.writeSpec("M07WF08")
+	store.writePlan("M07WF08", &mission.Plan{
+		MissionId: "M07WF08",
+		Tasks: []mission.Task{
+			{ID: strPtr("T01"), Status: strPtr("done")},
+			{ID: strPtr("T02"), Status: strPtr("waiting")},
+			{ID: strPtr("T03"), Status: strPtr("waiting")},
+		},
+	})
+
+	snapper := NewSnapshot(store)
+	res := mission.ResolveOutput{Safety: "safe"}
+
+	snap, err := snapper.Build(res, "M07WF08")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !containsStr(snap.Blockers, "architectural guidance") {
+		t.Errorf("expected architect-tasks blocker, got %v", snap.Blockers)
+	}
+	if snap.Next != "/sc-resume" {
+		t.Errorf("expected /sc-resume when all open tasks are waiting, got %q", snap.Next)
 	}
 	if snap.Tasks.Completed != 1 {
 		t.Errorf("expected 1 completed, got %d", snap.Tasks.Completed)
