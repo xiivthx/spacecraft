@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.30.1 - 2026-07-14
+
+- Refactor: inject behavioral directives into all 7 sc-* agent prompts for tighter communication discipline (M07PXR32X)
+
 ## 0.30.0 - 2026-07-14
 
 - Feat: add deploy hooks (before:deploy, after:deploy) and --ci flag for archive command (M07PFFNAV)
