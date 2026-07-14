@@ -585,6 +585,9 @@ func gitInfoCmd() int {
 		st = fmt.Sprintf("dirty (%d files)", git.DirtyFiles)
 	}
 	fmt.Printf("Status: %s\n", st)
+	if git.Branch == "main" && git.Dirty {
+		fmt.Println("WARNING: dirty changes on main branch. Create a work branch before editing product files.")
+	}
 	return 0
 }
 

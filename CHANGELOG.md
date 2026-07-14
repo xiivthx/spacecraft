@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.8 - 2026-07-14
+
+- Fix: closeout-check now blocks merges without CHANGELOG.md update
+- Fix: git-info warns when dirty changes exist on main branch
+
 ## 0.31.7 - 2026-07-14
 
 - Fix: clear stale .space/current in resolver (#31)
