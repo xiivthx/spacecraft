@@ -154,9 +154,6 @@ func makeShippableMission(t *testing.T) string {
 	if code := clarifyStatusCmd([]string{"clear"}); code != 0 {
 		t.Fatalf("clarifyStatusCmd = %d, want 0", code)
 	}
-	if code := setStateCmd([]string{"shipped"}); code != 0 {
-		t.Fatalf("setStateCmd = %d, want 0", code)
-	}
 	return id
 }
 
@@ -474,11 +471,11 @@ func TestArchiveCmdNoArgsNoCurrent(t *testing.T) {
 func TestArchiveCmdHappy(t *testing.T) {
 	defer setupLifecycleTest(t)()
 	id := makeShippableMission(t)
-	if code := archiveCmd([]string{id}); code != 0 {
-		t.Errorf("archiveCmd() = %d, want 0", code)
+	if code := setStateCmd([]string{"shipped"}); code != 0 {
+		t.Errorf("setStateCmd(shipped) = %d, want 0", code)
 	}
 	if _, err := store.Load(id); err == nil {
-		t.Error("mission source not removed after archive")
+		t.Error("mission source not removed after shipped (auto-archive)")
 	}
 }
 

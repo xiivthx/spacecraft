@@ -692,7 +692,7 @@ func setStateCmd(args []string) int {
 		}
 		fmt.Printf("Spacecraft mission %s state: %s\n", res.Selected.ID, stateDisplay(state))
 		if state == "shipped" {
-			fmt.Println("Tip: run `spacecraft archive` to archive this mission.")
+			autoArchive(res.Selected.ID)
 		}
 	return 0
 }
@@ -865,6 +865,35 @@ func closeoutCmd() int {
 	return 0
 }
 
+func autoArchive(id string) {
+	m, err := store.Load(id)
+	if err != nil {
+		return
+	}
+	if m.State != "shipped" {
+		return
+	}
+	plan, _ := store.LoadPlan(id)
+	review, _ := store.LoadReview(id)
+	entries, _ := store.ReadEvidenceEntries(id)
+	if errs := arc.CheckReadiness(id, plan, review, entries); errs != nil {
+		fmt.Printf("Archive blocked: %s\n", strings.Join(errs.Errors, "; "))
+		fmt.Println("Fix issues above and run `spacecraft archive` to retry.")
+		return
+	}
+	result, err := ar.Archive(archive.ArchiveParams{
+		ID: id, Mission: m, Plan: plan, Review: review, EvidenceEntries: entries, CloseIssues: true,
+	})
+	if err != nil {
+		fmt.Printf("Archive failed: %v\n", err)
+		return
+	}
+	fmt.Printf("Archived mission %s\n", id)
+	fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
+	_ = hooks.Fire(context.Background(), hooksCfg, "mission.archived")
+	checkRoadmapDone(id)
+}
+
 func archiveCmd(args []string) int {
 	ciMode := false
 	closeIssues := true
@@ -982,8 +1011,35 @@ func archiveCmd(args []string) int {
 	} else {
 		fmt.Printf("Archived mission %s\n", id)
 		fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
+		checkRoadmapDone(id)
 	}
 	return 0
+}
+
+func checkRoadmapDone(missionId string) {
+	roadmaps, err := roadmapStore.List()
+	if err != nil || len(roadmaps) == 0 {
+		return
+	}
+	for _, rm := range roadmaps {
+		for _, mid := range rm.Missions {
+			if mid == missionId {
+				allDone := true
+				for _, mid2 := range rm.Missions {
+					m, err := store.Load(mid2)
+					if err != nil || m.State != "shipped" {
+						allDone = false
+						break
+					}
+				}
+				if allDone {
+					roadmapStore.Delete(rm.ID)
+					fmt.Printf("Roadmap %q (%s) fully shipped — cleaned up.\n", rm.Title, rm.ID)
+				}
+				return
+			}
+		}
+	}
 }
 
 // ---------- research command ----------
