@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.31.3 - 2026-07-14
+
+- Feat: add CI workflow with test & coverage gate (75% threshold) (M07Q5XHEI)
+
 ## 0.31.2 - 2026-07-14
 
 - Feat: add AI review checklist to spec.md template (M07PFFNEB)
