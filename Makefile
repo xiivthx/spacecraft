@@ -39,5 +39,5 @@ dev: build
 docs:
 	@echo "Generating documentation..."
 	@mkdir -p docs/generated
-	@scripts/spacecraft help > docs/generated/cli-reference.txt 2>&1 || true
+	@scripts/spacecraft help > docs/generated/cli-reference.txt 2>&1
 	@echo "Documentation generated in docs/generated/"
