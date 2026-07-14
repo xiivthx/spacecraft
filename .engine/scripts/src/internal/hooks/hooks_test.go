@@ -539,3 +539,63 @@ func TestRun_NoTrailingNewline(t *testing.T) {
 		t.Errorf("output should contain prefixed line even without trailing newline: %s", outStr)
 	}
 }
+
+func TestDeployHooks(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "hooks.json")
+	cfg := Config{
+		Hooks: []Hook{
+			{Event: "deploy.before", Label: "pre-deploy", Command: "echo deploying", Blocking: true, Timeout: 30},
+			{Event: "deploy.after", Label: "post-deploy", Command: "echo deployed", Blocking: false, Timeout: 30},
+		},
+	}
+	data, _ := json.Marshal(cfg)
+	os.WriteFile(p, data, 0644)
+
+	got, err := LoadConfig(p)
+	if err != nil {
+		t.Fatalf("LoadConfig error: %v", err)
+	}
+	if len(got.Hooks) != 2 {
+		t.Fatalf("expected 2 hooks, got %d", len(got.Hooks))
+	}
+
+	beforeHooks := Match(got, "deploy.before")
+	if len(beforeHooks) != 1 {
+		t.Errorf("expected 1 deploy.before hook, got %d", len(beforeHooks))
+	}
+	if beforeHooks[0].Label != "pre-deploy" {
+		t.Errorf("expected pre-deploy, got %s", beforeHooks[0].Label)
+	}
+
+	afterHooks := Match(got, "deploy.after")
+	if len(afterHooks) != 1 {
+		t.Errorf("expected 1 deploy.after hook, got %d", len(afterHooks))
+	}
+	if afterHooks[0].Label != "post-deploy" {
+		t.Errorf("expected post-deploy, got %s", afterHooks[0].Label)
+	}
+}
+
+func TestDeployHookExecution(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "hooks.json")
+	cfg := Config{
+		Hooks: []Hook{
+			{Event: "deploy.before", Label: "pre-deploy", Command: "echo before-deploy", Blocking: true, Timeout: 30},
+		},
+	}
+	data, _ := json.Marshal(cfg)
+	os.WriteFile(p, data, 0644)
+
+	loaded, err := LoadConfig(p)
+	if err != nil {
+		t.Fatalf("LoadConfig error: %v", err)
+	}
+
+	ctx := context.Background()
+	err = Fire(ctx, loaded, "deploy.before")
+	if err != nil {
+		t.Errorf("Fire deploy.before failed: %v", err)
+	}
+}
