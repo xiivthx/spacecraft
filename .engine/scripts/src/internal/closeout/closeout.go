@@ -141,6 +141,14 @@ func (c *Checker) Check(id string, m *mission.Mission, plan *mission.Plan, revie
 			errors = append(errors, "Rebase the work branch on latest main, then rerun verification.")
 		}
 
+		// Check CHANGELOG.md was touched since fork (mandatory for any merge)
+		changelogCode, changelogOut, _ := c.gitRunner.Run("git", "log", "--oneline", "main..HEAD", "--", "CHANGELOG.md")
+		if changelogCode != 0 && changelogCode != 1 {
+			warnings = append(warnings, "Could not check CHANGELOG.md history.")
+		} else if changelogCode == 1 || strings.TrimSpace(changelogOut) == "" {
+			errors = append(errors, "CHANGELOG.md not updated in this branch. Add a version bump + changelog commit before merge.")
+		}
+
 		// Check commit count
 		commitCountCode, commitCountOut, _ := c.gitRunner.Run("git", "rev-list", "--count", "main..HEAD")
 		count := -1
