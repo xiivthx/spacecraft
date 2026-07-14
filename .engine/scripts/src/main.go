@@ -244,7 +244,7 @@ func newCmd(args []string) int {
 	}
 
 	// Write stubs
-	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Mission Spec\n\n## Goal\n\n## User-visible behavior\n\n## Non-goals\n\n## Constraints\n\n## Edge Cases\n\n## Error Handling\n\n## Integration Points\n\n## Test Plan\n\n## Acceptance checks\n"), 0644)
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Mission Spec\n\n## Goal\n\n## User-visible behavior\n\n## Non-goals\n\n## Constraints\n\n## Edge Cases\n\n## Error Handling\n\n## Integration Points\n\n## Test Plan\n\n## AI Review Checklist\n\n- [ ] No hallucinated package names, APIs, or URLs\n- [ ] All dependencies verified installed or stdlib\n\n## Acceptance checks\n"), 0644)
 	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"`+mid+`","tasks":[]}`+"\n"), 0644)
 	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte(""), 0644)
 	os.WriteFile(filepath.Join(dir, "review.md"), []byte("# Mission Review\n"), 0644)
