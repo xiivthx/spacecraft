@@ -7,7 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"spacecraft/internal/mission"
@@ -336,6 +338,26 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 		return nil, err
 	}
 
+	// Parse and close GitHub issues referenced in spec.md and decisions.md
+	var issueTexts []string
+	if specData, err := os.ReadFile(filepath.Join(sourceDir, "spec.md")); err == nil {
+		issueTexts = append(issueTexts, string(specData))
+	}
+	if decisionsData, err := os.ReadFile(filepath.Join(sourceDir, "decisions.md")); err == nil {
+		issueTexts = append(issueTexts, string(decisionsData))
+	}
+	
+	var allIssues []int
+	seen := make(map[int]bool)
+	for _, text := range issueTexts {
+		for _, num := range parseIssueReferences(text) {
+			if !seen[num] {
+				seen[num] = true
+				allIssues = append(allIssues, num)
+			}
+		}
+	}
+
 	// Remove source
 	if err := os.RemoveAll(sourceDir); err != nil {
 		return nil, fmt.Errorf("remove source mission dir: %w", err)
@@ -343,6 +365,11 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 
 	// Clear selection or set next roadmap mission
 	a.updateCurrentAfterArchive(id)
+
+	// Close GitHub issues after source is removed
+	if len(allIssues) > 0 {
+		closeGitHubIssues(allIssues, id)
+	}
 
 	return &ArchiveResult{ArchiveDir: archiveDir}, nil
 }
@@ -455,6 +482,45 @@ func (a *MissionArchiver) updateCurrentAfterArchive(archivedId string) {
 			}
 		}
 	}
+}
+
+// parseIssueReferences extracts GitHub issue numbers from text.
+// Matches patterns like "fixes #123", "closes #456", "resolves #789".
+func parseIssueReferences(text string) []int {
+	pattern := regexp.MustCompile(`(?i)(?:fixes?|closes?|resolves?)\s+#(\d+)`)
+	matches := pattern.FindAllStringSubmatch(text, -1)
+	
+	seen := make(map[int]bool)
+	var issues []int
+	for _, match := range matches {
+		if len(match) > 1 {
+			var num int
+			fmt.Sscanf(match[1], "%d", &num)
+			if num > 0 && !seen[num] {
+				seen[num] = true
+				issues = append(issues, num)
+			}
+		}
+	}
+	return issues
+}
+
+// closeGitHubIssues closes the specified GitHub issues using the gh CLI.
+func closeGitHubIssues(issues []int, missionId string) error {
+	if len(issues) == 0 {
+		return nil
+	}
+	
+	for _, num := range issues {
+		// Use gh CLI to close the issue with a comment
+		comment := fmt.Sprintf("Closed by mission %s (auto-close on ship)", missionId)
+		cmd := exec.Command("gh", "issue", "close", fmt.Sprintf("%d", num), "--comment", comment)
+		if output, err := cmd.CombinedOutput(); err != nil {
+			// Log error but don't fail the archive
+			fmt.Fprintf(os.Stderr, "Warning: failed to close issue #%d: %v\n%s\n", num, err, output)
+		}
+	}
+	return nil
 }
 
 func jsonMarshal(v interface{}) ([]byte, error) {
