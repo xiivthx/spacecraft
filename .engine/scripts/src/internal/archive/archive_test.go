@@ -1,6 +1,7 @@
 package archive
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -8,6 +9,7 @@ import (
 
 	"spacecraft/internal/config"
 	"spacecraft/internal/mission"
+	"spacecraft/internal/roadmap"
 	"spacecraft/internal/util"
 )
 
@@ -384,6 +386,166 @@ func TestReadinessChecker_closedStatuses(t *testing.T) {
 
 // --- helpers ---
 
+func TestMissionArchiver_Archive_roadmapAware(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	// Create a roadmap with 3 missions
+	roadmapDir := filepath.Join(cfg.SpaceDir(), "roadmaps")
+	if err := os.MkdirAll(roadmapDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	roadmapData := `{
+		"id": "R001",
+		"title": "Test Roadmap",
+		"missions": ["M07ARCH01", "M07ARCH02", "M07ARCH03"]
+	}`
+	if err := os.WriteFile(filepath.Join(roadmapDir, "R001.json"), []byte(roadmapData), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create missions
+	for i, id := range []string{"M07ARCH01", "M07ARCH02", "M07ARCH03"} {
+		state := "shipped"
+		if i > 0 {
+			state = "draft" // Only first mission is shipped
+		}
+		m := &mission.Mission{
+			ID:    id,
+			Title: "Test " + id,
+			State: state,
+		}
+		if err := store.Create(m); err != nil {
+			t.Fatal(err)
+		}
+		plan := &mission.Plan{
+			MissionId: id,
+			Tasks:     []mission.Task{{ID: strPtr("T1"), Status: strPtr("done")}},
+		}
+		if err := store.SavePlan(id, plan); err != nil {
+			t.Fatal(err)
+		}
+		review := readyReview()
+		if err := store.SaveReview(id, review); err != nil {
+			t.Fatal(err)
+		}
+		if err := store.AppendEvidence(id, &mission.EvidenceEntry{ID: "E001", Label: "test", ExitCode: 0}); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Set current to first mission
+	if err := store.WriteCurrent("M07ARCH01"); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create archiver with roadmap store
+	roadmapStore := newTestRoadmapStore(t, cfg)
+	archiver := NewArchiverWithRoadmap(store, roadmapStore)
+
+	// Archive first mission
+	params := ArchiveParams{
+		ID:              "M07ARCH01",
+		Mission:         mustLoad(store, "M07ARCH01"),
+		Plan:            mustLoadPlan(store, "M07ARCH01"),
+		Review:          readyReview(),
+		EvidenceEntries: []mission.EvidenceEntry{{ID: "E001", Label: "test", ExitCode: 0}},
+	}
+	result, err := archiver.Archive(params)
+	if err != nil {
+		t.Fatalf("archive failed: %v", err)
+	}
+	if result == nil {
+		t.Fatal("expected result")
+	}
+
+	// Verify current is set to next mission (M07ARCH02)
+	currId, err := store.ReadCurrent()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if currId == nil {
+		t.Fatal("expected current to be set")
+	}
+	if *currId != "M07ARCH02" {
+		t.Errorf("expected current to be M07ARCH02, got %s", *currId)
+	}
+}
+
+func TestMissionArchiver_Archive_noRoadmap(t *testing.T) {
+	store, _, cleanup := newTestStore(t)
+	defer cleanup()
+
+	// Create a shipped mission
+	m := &mission.Mission{
+		ID:    "M07ARCH10",
+		Title: "Test",
+		State: "shipped",
+	}
+	if err := store.Create(m); err != nil {
+		t.Fatal(err)
+	}
+	plan := &mission.Plan{
+		MissionId: "M07ARCH10",
+		Tasks:     []mission.Task{{ID: strPtr("T1"), Status: strPtr("done")}},
+	}
+	if err := store.SavePlan("M07ARCH10", plan); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.SaveReview("M07ARCH10", readyReview()); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.AppendEvidence("M07ARCH10", &mission.EvidenceEntry{ID: "E001", Label: "test", ExitCode: 0}); err != nil {
+		t.Fatal(err)
+	}
+
+	// Set current
+	if err := store.WriteCurrent("M07ARCH10"); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create archiver without roadmap store
+	archiver := NewArchiver(store)
+
+	// Archive
+	params := ArchiveParams{
+		ID:              "M07ARCH10",
+		Mission:         mustLoad(store, "M07ARCH10"),
+		Plan:            mustLoadPlan(store, "M07ARCH10"),
+		Review:          readyReview(),
+		EvidenceEntries: []mission.EvidenceEntry{{ID: "E001", Label: "test", ExitCode: 0}},
+	}
+	_, err := archiver.Archive(params)
+	if err != nil {
+		t.Fatalf("archive failed: %v", err)
+	}
+
+	// Verify current is cleared
+	currId, err := store.ReadCurrent()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if currId != nil {
+		t.Errorf("expected current to be cleared, got %s", *currId)
+	}
+}
+
+func mustLoad(store mission.MissionStore, id string) *mission.Mission {
+	m, err := store.Load(id)
+	if err != nil {
+		panic(err)
+	}
+	return m
+}
+
+func mustLoadPlan(store mission.MissionStore, id string) *mission.Plan {
+	p, err := store.LoadPlan(id)
+	if err != nil {
+		panic(err)
+	}
+	return p
+}
+
 func newTestStore(t *testing.T) (mission.MissionStore, *config.Config, func()) {
 	t.Helper()
 	dir, err := os.MkdirTemp("", "spacecraft-archive-test-")
@@ -421,4 +583,59 @@ func containsStr(list []string, sub string) bool {
 		}
 	}
 	return false
+}
+
+type testRoadmapStore struct {
+	cfg *config.Config
+}
+
+func newTestRoadmapStore(t *testing.T, cfg *config.Config) *testRoadmapStore {
+	return &testRoadmapStore{cfg: cfg}
+}
+
+func (s *testRoadmapStore) Create(r *roadmap.Roadmap) error {
+	return nil
+}
+
+func (s *testRoadmapStore) Save(r *roadmap.Roadmap) error {
+	return nil
+}
+
+func (s *testRoadmapStore) Delete(id string) error {
+	return nil
+}
+
+func (s *testRoadmapStore) List() ([]*roadmap.Roadmap, error) {
+	dir := filepath.Join(s.cfg.SpaceDir(), "roadmaps")
+	if !util.Exists(dir) {
+		return nil, nil
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	var out []*roadmap.Roadmap
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
+			continue
+		}
+		r, err := s.Load(strings.TrimSuffix(e.Name(), ".json"))
+		if err != nil {
+			continue
+		}
+		out = append(out, r)
+	}
+	return out, nil
+}
+
+func (s *testRoadmapStore) Load(id string) (*roadmap.Roadmap, error) {
+	path := filepath.Join(s.cfg.SpaceDir(), "roadmaps", id+".json")
+	if !util.Exists(path) {
+		return nil, fmt.Errorf("roadmap not found: %s", id)
+	}
+	var r roadmap.Roadmap
+	if err := util.ReadJson(path, &r); err != nil {
+		return nil, err
+	}
+	return &r, nil
 }

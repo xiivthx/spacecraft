@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"spacecraft/internal/mission"
+	"spacecraft/internal/roadmap"
 	"spacecraft/internal/util"
 )
 
@@ -107,8 +108,9 @@ func (r *ReadinessChecker) CheckReadiness(id string, plan *mission.Plan, review 
 
 // MissionArchiver handles the physical archiving of a mission directory.
 type MissionArchiver struct {
-	store     mission.MissionStore
-	nowFn     func() string
+	store        mission.MissionStore
+	roadmapStore roadmap.RoadmapStore
+	nowFn        func() string
 }
 
 // NewArchiver creates a new MissionArchiver.
@@ -116,6 +118,15 @@ func NewArchiver(store mission.MissionStore) *MissionArchiver {
 	return &MissionArchiver{
 		store: store,
 		nowFn: isoNow,
+	}
+}
+
+// NewArchiverWithRoadmap creates a new MissionArchiver with roadmap support.
+func NewArchiverWithRoadmap(store mission.MissionStore, roadmapStore roadmap.RoadmapStore) *MissionArchiver {
+	return &MissionArchiver{
+		store:        store,
+		roadmapStore: roadmapStore,
+		nowFn:        isoNow,
 	}
 }
 
@@ -330,8 +341,8 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 		return nil, fmt.Errorf("remove source mission dir: %w", err)
 	}
 
-	// Clear selection
-	clearArchivedMissionSelection(id, a.store)
+	// Clear selection or set next roadmap mission
+	a.updateCurrentAfterArchive(id)
 
 	return &ArchiveResult{ArchiveDir: archiveDir}, nil
 }
@@ -383,6 +394,65 @@ func clearArchivedMissionSelection(id string, store mission.MissionStore) {
 		sessId := util.NormalizeMissionId(string(content))
 		if sessId != nil && *sessId == id {
 			os.WriteFile(path, []byte(""), 0644)
+		}
+	}
+}
+
+// updateCurrentAfterArchive clears .space/current or sets it to the next roadmap mission.
+func (a *MissionArchiver) updateCurrentAfterArchive(archivedId string) {
+	// Clear current if it points to the archived mission
+	currId, _ := a.store.ReadCurrent()
+	if currId != nil && *currId == archivedId {
+		a.store.ClearCurrent()
+	}
+
+	// Clear session bindings
+	sessionsDir := filepath.Join(filepath.Dir(filepath.Dir(a.store.MissionDir(archivedId))), "sessions")
+	if util.Exists(sessionsDir) {
+		entries, _ := os.ReadDir(sessionsDir)
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			path := filepath.Join(sessionsDir, entry.Name())
+			content, _ := os.ReadFile(path)
+			sessId := util.NormalizeMissionId(string(content))
+			if sessId != nil && *sessId == archivedId {
+				os.WriteFile(path, []byte(""), 0644)
+			}
+		}
+	}
+
+	// If roadmap store is available, find and set next mission
+	if a.roadmapStore == nil {
+		return
+	}
+
+	roadmaps, err := a.roadmapStore.List()
+	if err != nil || len(roadmaps) == 0 {
+		return
+	}
+
+	// Find the next unshipped mission in any roadmap
+	for _, rm := range roadmaps {
+		foundArchived := false
+		for _, mid := range rm.Missions {
+			if mid == archivedId {
+				foundArchived = true
+				continue
+			}
+			if foundArchived {
+				// Check if this mission is not shipped
+				m, err := a.store.Load(mid)
+				if err != nil {
+					continue
+				}
+				if m.State != "shipped" {
+					// Found next unshipped mission
+					a.store.WriteCurrent(mid)
+					return
+				}
+			}
 		}
 	}
 }

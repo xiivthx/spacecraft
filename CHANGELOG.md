@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.28.0 - 2026-07-14
+
+- Fix: clear .space/current or set next roadmap mission on archive to prevent resolver conflicts (M07PFFJGY)
+
 ## 0.27.0 - 2026-07-14
 
 - Docs: expand README.md with Overview, Installation, Quick Start, and 5 Usage sections (M07PFFIY3)
