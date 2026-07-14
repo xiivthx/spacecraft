@@ -103,3 +103,51 @@ func TestConfigTraceStoreDirOverride(t *testing.T) {
 		t.Errorf("Root = %q, want %q", cfg.Root(), "/repo")
 	}
 }
+
+func TestConfigOptionOverrides(t *testing.T) {
+	cfg, err := NewConfig("/root",
+		WithMissionsDir("/custom/missions"),
+		WithArchiveDir("/custom/archive"),
+		WithCurrentFile("/custom/current"),
+		WithRoadmapsDir("/custom/roadmaps"),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.MissionsDir() != "/custom/missions" {
+		t.Errorf("MissionsDir = %q, want %q", cfg.MissionsDir(), "/custom/missions")
+	}
+	if cfg.ArchiveDir() != "/custom/archive" {
+		t.Errorf("ArchiveDir = %q, want %q", cfg.ArchiveDir(), "/custom/archive")
+	}
+	if cfg.CurrentFile() != "/custom/current" {
+		t.Errorf("CurrentFile = %q, want %q", cfg.CurrentFile(), "/custom/current")
+	}
+	if cfg.RoadmapsDir() != "/custom/roadmaps" {
+		t.Errorf("RoadmapsDir = %q, want %q", cfg.RoadmapsDir(), "/custom/roadmaps")
+	}
+}
+
+func TestConfigRoadmapsDir(t *testing.T) {
+	cfg, _ := NewConfig("/base")
+	want := filepath.Join("/base", ".space", "roadmaps")
+	if cfg.RoadmapsDir() != want {
+		t.Errorf("RoadmapsDir = %q, want %q", cfg.RoadmapsDir(), want)
+	}
+}
+
+func TestConfigEvalsDir(t *testing.T) {
+	cfg, _ := NewConfig("/base")
+	want := filepath.Join("/base", ".space", "evals")
+	if cfg.EvalsDir() != want {
+		t.Errorf("EvalsDir = %q, want %q", cfg.EvalsDir(), want)
+	}
+}
+
+func TestConfigEvalMissionDir(t *testing.T) {
+	cfg, _ := NewConfig("/base")
+	want := filepath.Join("/base", ".space", "evals", "M123")
+	if cfg.EvalMissionDir("M123") != want {
+		t.Errorf("EvalMissionDir = %q, want %q", cfg.EvalMissionDir("M123"), want)
+	}
+}

@@ -5,8 +5,10 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"spacecraft/internal/config"
+	"spacecraft/internal/id"
 	"spacecraft/internal/util"
 )
 
@@ -511,6 +513,327 @@ func TestFSStore_List_branchMetadata(t *testing.T) {
 	}
 	if len(records[0].Branches) != 1 || records[0].Branches[0] != branch {
 		t.Errorf("expected branch %s, got %v", branch, records[0].Branches)
+	}
+}
+
+// --- artifact existence ---
+
+func TestFSStore_ArtifactExists(t *testing.T) {
+	_, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	writeTestMission(t, store, "M07ART01", "Artifact test", "draft")
+
+	if store.PlanExists("M07ART01") {
+		t.Error("plan should not exist")
+	}
+	if store.QuestionsExists("M07ART01") {
+		t.Error("questions should not exist")
+	}
+	if store.DecisionsExists("M07ART01") {
+		t.Error("decisions should not exist")
+	}
+	if store.ReviewJSONExists("M07ART01") {
+		t.Error("review.json should not exist")
+	}
+	if store.ReviewMDExists("M07ART01") {
+		t.Error("review.md should not exist")
+	}
+
+	dir := store.MissionDir("M07ART01")
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte("{}"), 0644)
+	os.WriteFile(filepath.Join(dir, "questions.md"), []byte("q"), 0644)
+	os.WriteFile(filepath.Join(dir, "decisions.md"), []byte("d"), 0644)
+	os.WriteFile(filepath.Join(dir, "review.json"), []byte("{}"), 0644)
+	os.WriteFile(filepath.Join(dir, "review.md"), []byte("r"), 0644)
+
+	if !store.PlanExists("M07ART01") {
+		t.Error("plan should exist")
+	}
+	if !store.QuestionsExists("M07ART01") {
+		t.Error("questions should exist")
+	}
+	if !store.DecisionsExists("M07ART01") {
+		t.Error("decisions should exist")
+	}
+	if !store.DesignExists("M07ART01") {
+		t.Error("design should exist")
+	}
+	if !store.ReviewJSONExists("M07ART01") {
+		t.Error("review.json should exist")
+	}
+	if !store.ReviewMDExists("M07ART01") {
+		t.Error("review.md should exist")
+	}
+}
+
+// --- file operations ---
+
+func TestFSStore_ReadWriteFile(t *testing.T) {
+	_, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	writeTestMission(t, store, "M07FILE01", "File test", "draft")
+
+	data := []byte("hello mission")
+	if err := store.WriteFile("M07FILE01", "notes.txt", data); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := store.ReadFile("M07FILE01", "notes.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != "hello mission" {
+		t.Errorf("expected 'hello mission', got %q", string(got))
+	}
+}
+
+// --- archive ---
+
+func TestFSStore_ArchiveMission(t *testing.T) {
+	cfg, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	writeTestMission(t, store, "M07ARCH01", "Archive test", "shipped")
+
+	compactM := CompactMission{ID: "M07ARCH01", Title: "Archive test", State: "shipped"}
+	compactP := CompactPlan{MissionID: "M07ARCH01"}
+	evidence := []CompactEvidenceEntry{
+		{ID: "E07ARCH01", Command: "true", ExitCode: 0, CreatedAt: "2026-07-07T00:00:00.000Z"},
+	}
+	review := &Review{Status: strPtr("ready")}
+
+	archiveDir := cfg.ArchiveDir()
+	if err := store.ArchiveMission("M07ARCH01", archiveDir, compactM, compactP, evidence, review); err != nil {
+		t.Fatal(err)
+	}
+
+	dest := filepath.Join(archiveDir, "M07ARCH01")
+	if !util.Exists(filepath.Join(dest, "mission.json")) {
+		t.Error("archived mission.json should exist")
+	}
+	if !util.Exists(filepath.Join(dest, "plan.json")) {
+		t.Error("archived plan.json should exist")
+	}
+	if !util.Exists(filepath.Join(dest, "evidence.jsonl")) {
+		t.Error("archived evidence.jsonl should exist")
+	}
+	if !util.Exists(filepath.Join(dest, "review.json")) {
+		t.Error("archived review.json should exist")
+	}
+
+	data, _ := os.ReadFile(filepath.Join(dest, "evidence.jsonl"))
+	if !strings.Contains(string(data), "E07ARCH01") {
+		t.Errorf("evidence.jsonl should contain E07ARCH01, got %q", string(data))
+	}
+}
+
+func TestFSStore_ArchiveMission_alreadyExists(t *testing.T) {
+	cfg, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	archiveDir := cfg.ArchiveDir()
+	os.MkdirAll(filepath.Join(archiveDir, "M07ARCH02"), 0755)
+
+	err := store.ArchiveMission("M07ARCH02", archiveDir, CompactMission{ID: "M07ARCH02"}, CompactPlan{}, nil, nil)
+	if err == nil {
+		t.Error("expected error when archive already exists")
+	}
+}
+
+// --- current/session edge cases ---
+
+func TestFSStore_WriteCurrent_error(t *testing.T) {
+	_, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	if err := os.WriteFile(store.cfg.SpaceDir(), []byte{}, 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.WriteCurrent("M07ERR"); err == nil {
+		t.Error("expected error when .space is a file")
+	}
+}
+
+func TestFSStore_ClearCurrent_error(t *testing.T) {
+	_, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	if err := os.WriteFile(store.cfg.SpaceDir(), []byte{}, 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.ClearCurrent(); err == nil {
+		t.Error("expected error when .space is a file")
+	}
+}
+
+func TestFSStore_SessionFilePath(t *testing.T) {
+	cfg, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	path := store.SessionFilePath("my session key")
+	if path == "" {
+		t.Fatal("expected path for normal key")
+	}
+	if !strings.HasSuffix(path, ".current") {
+		t.Errorf("expected .current suffix, got %s", path)
+	}
+	if filepath.Dir(path) != filepath.Join(cfg.SpaceDir(), "sessions") {
+		t.Errorf("unexpected dir: %s", filepath.Dir(path))
+	}
+
+	if store.SessionFilePath("!!!") != "" {
+		t.Error("expected empty path for key that slugifies to empty")
+	}
+
+	long := strings.Repeat("a", 100)
+	longPath := store.SessionFilePath(long)
+	if len(filepath.Base(longPath)) > 80+len(".current") {
+		t.Errorf("slug too long: %s", filepath.Base(longPath))
+	}
+}
+
+func TestFSStore_WriteSession_emptyKey(t *testing.T) {
+	_, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	if err := store.WriteSession("???", "M07ID"); err == nil {
+		t.Error("expected error for empty session slug")
+	}
+	if err := store.ClearSession("???"); err != nil {
+		t.Errorf("expected nil for clear of empty session slug, got %v", err)
+	}
+}
+
+func TestFSStore_Create_error(t *testing.T) {
+	dir, err := os.MkdirTemp("", "spacecraft-create-error-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	block := filepath.Join(dir, "block")
+	if err := os.WriteFile(block, []byte{}, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := config.NewConfig(dir, config.WithMissionsDir(filepath.Join(block, "missions")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	store := NewFSStore(cfg)
+
+	m := &Mission{ID: "M07ERR", Title: "Err", State: "draft"}
+	if err := store.Create(m); err == nil {
+		t.Error("expected error when missions dir parent is a file")
+	}
+}
+
+// --- reserve evidence path ---
+
+func TestFSStore_ReserveEvidencePath_collision(t *testing.T) {
+	_, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	writeTestMission(t, store, "M07RES01", "Reserve collision", "draft")
+	outputsDir := filepath.Join(store.MissionDir("M07RES01"), "outputs")
+
+	now := time.Now()
+	for offset := -5; offset <= 5; offset++ {
+		eid, err := id.EvidenceId(now.Add(time.Duration(offset) * time.Millisecond))
+		if err != nil {
+			t.Fatal(err)
+		}
+		os.WriteFile(filepath.Join(outputsDir, eid+".stdout.txt"), []byte{}, 0644)
+	}
+
+	eid, stdoutPath, stderrPath, err := store.ReserveEvidencePath("M07RES01")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if eid == "" || stdoutPath == "" || stderrPath == "" {
+		t.Error("expected non-empty paths")
+	}
+	if !util.Exists(stdoutPath) {
+		t.Error("reserved stdout file should exist")
+	}
+}
+
+func TestFSStore_ReserveEvidencePath_error(t *testing.T) {
+	_, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	writeTestMission(t, store, "M07RES02", "Reserve error", "draft")
+	outputsDir := filepath.Join(store.MissionDir("M07RES02"), "outputs")
+
+	if err := os.Chmod(outputsDir, 0000); err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chmod(outputsDir, 0755)
+
+	_, _, _, err := store.ReserveEvidencePath("M07RES02")
+	if err == nil {
+		t.Error("expected error when outputs dir is not writable")
+	}
+}
+
+// --- branch metadata ---
+
+func TestFSStore_List_branchNamesVariations(t *testing.T) {
+	_, store, cleanup := newTestConfig(t)
+	defer cleanup()
+
+	branch := "feat/branch"
+	workBranch := "feat/work"
+	gitWorkBranch := "feat/gitwork"
+	m := &Mission{
+		ID:         "M07BR01",
+		Title:      "Branches",
+		State:      "draft",
+		Branch:     &branch,
+		WorkBranch: &workBranch,
+		Git:        GitBlock{WorkBranch: &gitWorkBranch},
+	}
+	if err := store.Create(m); err != nil {
+		t.Fatal(err)
+	}
+
+	records, err := store.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 1 {
+		t.Fatalf("expected 1 record, got %d", len(records))
+	}
+	if len(records[0].Branches) != 3 {
+		t.Errorf("expected 3 branches, got %d: %v", len(records[0].Branches), records[0].Branches)
+	}
+
+	empty := ""
+	m2 := &Mission{
+		ID:         "M07BR02",
+		Title:      "Empty branches",
+		State:      "draft",
+		Branch:     &empty,
+		WorkBranch: &empty,
+		Git:        GitBlock{WorkBranch: &empty},
+	}
+	if err := store.Create(m2); err != nil {
+		t.Fatal(err)
+	}
+
+	records, err = store.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(records) != 2 {
+		t.Fatalf("expected 2 records, got %d", len(records))
+	}
+	for _, r := range records {
+		if r.ID == "M07BR02" && len(r.Branches) != 0 {
+			t.Errorf("expected no branches for empty strings, got %v", r.Branches)
+		}
 	}
 }
 

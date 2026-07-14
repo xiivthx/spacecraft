@@ -182,4 +182,60 @@ func TestMissionRecordFields(t *testing.T) {
 	}
 }
 
+func TestTaskIsComplete(t *testing.T) {
+	cases := []struct {
+		status *string
+		want   bool
+	}{
+		{nil, false},
+		{stringPtr("pending"), false},
+		{stringPtr("done"), true},
+		{stringPtr("cancelled"), true},
+		{stringPtr("in_progress"), false},
+	}
+	for _, c := range cases {
+		if got := TaskIsComplete(c.status); got != c.want {
+			t.Errorf("TaskIsComplete(%v) = %v, want %v", c.status, got, c.want)
+		}
+	}
+}
+
+func TestBlockingFindings(t *testing.T) {
+	if got := BlockingFindings(nil); got != nil {
+		t.Errorf("expected nil for nil review, got %v", got)
+	}
+
+	summary := "ok"
+	info := "info"
+	blocksFalse := false
+	r := &Review{
+		Findings: []Finding{
+			{Summary: &summary, Severity: &info, BlocksShip: &blocksFalse},
+		},
+	}
+	if got := BlockingFindings(r); len(got) != 0 {
+		t.Errorf("expected no blocking findings, got %d", len(got))
+	}
+
+	blocksTrue := true
+	r2 := &Review{
+		Findings: []Finding{
+			{Summary: &summary, BlocksShip: &blocksTrue},
+		},
+	}
+	if got := BlockingFindings(r2); len(got) != 1 {
+		t.Errorf("expected 1 blocking finding (blocksShip), got %d", len(got))
+	}
+
+	critical := "critical"
+	r3 := &Review{
+		Findings: []Finding{
+			{Summary: &summary, Severity: &critical},
+		},
+	}
+	if got := BlockingFindings(r3); len(got) != 1 {
+		t.Errorf("expected 1 blocking finding (critical), got %d", len(got))
+	}
+}
+
 func stringPtr(s string) *string { return &s }

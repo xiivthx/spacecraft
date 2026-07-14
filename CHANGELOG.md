@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.26.12 - 2026-07-14
+
+- Test: increase coverage from 52.9% to 85.4% — util 98.6%, config 100%, mission 88.4%, eval 93.1%, resolver 89.9%, state 100%, gitutil 100%, hooks 90.8%, main.go 81.0% (M07PFFIGL)
+- Test: add 425 tests across 16 packages, no test exceeds 5s
+- Test: add CLI lifecycle tests (init, new, current, resolve, missions, use, bind-branch, status, set-state, clarify-status, evidence, exec, validate, closeout, archive)
+- Test: add CLI utility tests (research, eval, check-deps, traces, cost, git-info, git-suggest, workflow, roadmap)
+- Test: add eval package tests (runner, types, init, deterministic, rubric, lmjudge)
+- Test: add mission package tests (store, model, archive, closeout)
+- Test: add foundation package tests (util/fs, util/slug, config)
+- Test: add critical package tests (resolver, state, gitutil, hooks)
+
 ## 0.26.11 - 2026-07-14
 
 - Fix: remove duplicated MarshalJSON in eval/init.go - callers use single public function (M07PFFHYJ)
