@@ -1,8 +1,8 @@
 ---
 name: sc-creator
 description: >
-  Create new Spacecraft skills from datasources. Activate on "create skill", "new skill", "add skill",
-  or when building a sc-* skill from a template or research.
+  Create spacecraft skills, agents, and commands from templates. Activate on "create skill", "new agent",
+  "add command", or when building sc-* artifacts from templates or research.
 license: MIT
 compatibility: opencode
 metadata:
@@ -12,86 +12,146 @@ metadata:
 
 # sc-creator
 
-End-to-end skill creation: gather content, scaffold from template, wire to agents and commands, polish for spacecraft conventions, register in docs, and verify system consistency. Output is a fully integrated `sc-*` skill ready for use.
+Create spacecraft artifacts (skills, agents, commands) from templates. End-to-end workflow: gather content, scaffold from template, wire to system, polish for conventions, register in docs, verify consistency.
 
 ## When to use
 
 Activate when the user asks to:
 
-- **"Create skill X" / "new skill" / "add skill sc-*"** — explicit skill creation
-- **"Build a skill from this datasource"** — content from files, research, or internal knowledge
-- When a new `sc-*` capability needs to be codified into the system
+- **"Create skill X" / "new skill" / "add skill sc-*"** — skill creation
+- **"Create agent X" / "new agent" / "add agent sc-*"** — agent creation
+- **"Create command X" / "new command" / "add command sc-*"** — command creation
+- **"Build from this datasource"** — content from files, research, or internal knowledge
+- When a new sc-* capability needs to be codified into the system
 
 ## Workflow
 
-Six phases — execute in order unless the user specifies otherwise.
+Three creation modes. Execute in order unless the user specifies otherwise.
+
+### Mode selection
+
+1. **Identify artifact type** — skill, agent, or command
+2. **Read template** — `templates/skill.md`, `templates/agent.md`, or `templates/command.md`
+3. **Survey conventions** — Read 1–2 existing artifacts of the same type
+4. **Map content** — Decide structure based on artifact type
 
 ### Phase 1: Gather
 
-1. **Identify datasource** — User provides content (`.space/temp/` files, a URL, a description) or Commander researches internally. If domain knowledge is missing, run `spacecraft research "<topic>"` before proceeding.
+1. **Identify datasource** — User provides content (`.space/temp/` files, a URL, a description) or research internally. If domain knowledge is missing, run `spacecraft research "<topic>"` before proceeding.
 
-2. **Read template** — `references/template.md`. This is the canonical structure. Always start here — never write a skill from memory.
+2. **Read template** — Based on artifact type:
+   - **Skill**: `templates/skill.md` — canonical skill structure
+   - **Agent**: `templates/agent.md` — canonical agent structure
+   - **Command**: `templates/command.md` — canonical command structure
 
-3. **Survey conventions** — Read 1–2 existing skills (e.g., `sc-git/SKILL.md`, `sc-verification/SKILL.md`). Absorb: naming patterns, section tone, cross-reference style, how rules are phrased.
+3. **Survey conventions** — Read 1–2 existing artifacts of the same type. Absorb: naming patterns, section tone, cross-reference style, how rules are phrased.
 
-4. **Map content** — Decide what goes in SKILL.md vs references. SKILL.md is operational (trigger, workflow, rules, checklist). References are detail (examples, deep dives, tables, code samples).
+4. **Map content** — Decide structure:
+   - **Skill**: SKILL.md (operational) + references/ (detail)
+   - **Agent**: Single markdown file with role, constraints, tools
+   - **Command**: Single markdown file with frontmatter, workflow, gates
 
 ### Phase 2: Create
 
-1. **Create directory** — `.engine/skills/sc-<name>/`. Add `references/` subdirectory if the skill has reference content.
+#### For skills:
 
-2. **Write SKILL.md** from the template — every section is required:
-   - `description` — under 200 chars, includes 2–3 trigger phrases. This is the only thing the agent sees before loading.
-   - `## When to use` — concrete trigger patterns, not abstract categories (e.g., "when user says 'commit'" not "when git operations occur")
-   - `## Workflow` — exact sequence with commands in backticks. Use sub-bullets for variations and edge cases.
-   - `## Rules` — Must / Must not / Prefer. Non-negotiable items first. Every Must must be verifiable.
-   - `## Out of scope` — what this skill does NOT handle. Keeps boundaries clean and prevents scope creep.
-   - `## Output format` — exact expected output shape. Show the format, not just describe it.
-   - `## Checklist` — actionable items. Every item must be verifiable (can a reviewer confirm it?).
-   - `## References` — list reference files with one-line descriptions. Load-on-demand only.
+1. **Create directory** — `.engine/skills/<category>/sc-<name>/`. Add `references/` subdirectory if needed.
+
+2. **Write SKILL.md** from template — every section required:
+   - `description` — under 200 chars, includes 2–3 trigger phrases
+   - `## When to use` — concrete trigger patterns
+   - `## Workflow` — exact sequence with commands in backticks
+   - `## Rules` — Must / Must not / Prefer. Every Must verifiable.
+   - `## Out of scope` — what this skill does NOT handle
+   - `## Output format` — exact expected output shape
+   - `## Checklist` — actionable, verifiable items
+   - `## References` — list reference files with one-line descriptions
 
 3. **Write references** — One file per topic. Each reference:
-   - Starts with `> Consult when:` one-liner so the agent knows when to load it
-   - Is 30–150 lines — concise enough to load quickly, long enough to be useful
-   - Has a `## Spacecraft integration` section at the end linking to missions, plan.json, evidence
-   - Uses TypeScript examples consistent with the codebase style
+   - Starts with `> Consult when:` one-liner
+   - Is 30–150 lines
+   - Has `## Spacecraft integration` section linking to missions, plan.json, evidence
+
+#### For agents:
+
+1. **Create file** — `.engine/agents/sc-<name>.md`
+
+2. **Write agent** from template — every section required:
+   - `name` — agent identifier
+   - `description` — under 200 chars, role summary
+   - `## Role` — what this agent does
+   - `## Constraints` — what this agent must/must not do
+   - `## Tools` — which tools this agent can use
+   - `## Output format` — expected response shape
+   - `## Checklist` — verification items
+
+#### For commands:
+
+1. **Create file** — `.engine/commands/sc-<name>.md`
+
+2. **Write command** from template — every section required:
+   - Frontmatter: `name`, `description`, `subtask` (if applicable)
+   - `## Pre-flight Checks` — validation before execution
+   - `## Workflow` — exact execution sequence
+   - `## Hard Stop Gates` — conditions that block execution
+   - `## Error Handling` — how to handle failures
+   - `## Output format` — expected output shape
 
 ### Phase 3: Wire
 
-1. **Map to agents** — Relevant agents by role: sc-coder (implementation/code quality), sc-tester (testing/verification), sc-planner (architecture/planning), sc-reviewer (review/gates), sc-designer (UI/design). sc-commander has `sc-*` wildcard — never needs explicit wiring.
-2. **Update agent files** — Add `"sc-<name>": allow` to `skill.permission` block, alphabetical order.
+1. **Map to system** — Based on artifact type:
+   - **Skill**: Map to agents by role. Add `"sc-<name>": allow` to agent `skill.permission` blocks.
+   - **Agent**: Add to `opencode.json` agent registry. Wire to skills via `skill.permission`.
+   - **Command**: Add to `opencode.json` command registry. Wire to agents via `agent` field.
+
+2. **Update registries** — Add to appropriate config files in alphabetical order.
 
 ### Phase 4: Polish
 
 1. **Spacecraft-native rewrite** — Reference spacecraft concepts (missions, `plan.json`, `evidence.jsonl`, `decisions.md`, `spec.md`). Operational tone, not educational.
-2. **Remove agent names** — Skills are passive resources. Never mention Commander, sc-coder, sc-tester, sc-reviewer, sc-planner, or sc-designer in skill content.
-3. **Remove mutual cross-references** — No loops between skills. Each skill is self-contained.
-4. **Consolidate content** — Single source of truth per domain. No duplicated knowledge across skills.
-5. **Verify limits** — `description` < 200 chars. SKILL.md 80–150 lines (meta-skills may exceed). References 30–150 lines each.
+
+2. **Remove agent names** — Skills and commands are passive resources. Never mention Commander, sc-coder, sc-tester, sc-reviewer, sc-planner, or sc-designer in content.
+
+3. **Remove mutual cross-references** — No loops between artifacts. Each is self-contained.
+
+4. **Consolidate content** — Single source of truth per domain. No duplicated knowledge.
+
+5. **Verify limits**:
+   - **Skill**: `description` < 200 chars. SKILL.md 80–150 lines (meta-skills may exceed). References 30–150 lines each.
+   - **Agent**: `description` < 200 chars. File 50–200 lines.
+   - **Command**: `description` < 200 chars. File 30–150 lines.
 
 ### Phase 5: Register
 
-1. **Update command files** — Add `sc-<name>` to `Use:` lines in relevant commands: build (impl/test/quality), review (review/gates), plan (planning/architecture), design (UI/design).
-2. **Update SPACECRAFT.md** — Four spots: §Slash commands, §Routing table, §Subagent table, §Skill references table. Add row with skill name, file path, used by.
-3. **Go scripts** — No changes needed. Skills are OpenCode agent-layer; Go CLI handles missions and workflow.
+1. **Update SPACECRAFT.md** — Based on artifact type:
+   - **Skill**: §Slash commands, §Routing table, §Subagent table, §Skill references table
+   - **Agent**: §Subagent table, §Agent references table
+   - **Command**: §Slash commands, §Routing table
+
+2. **Update AGENTS.md** — Add to available skills/agents/commands tables.
+
+3. **Go scripts** — No changes needed. Artifacts are OpenCode agent-layer; Go CLI handles missions and workflow.
 
 ### Phase 6: Verify
 
-1. **Cross-check system consistency** — Audit skills on disk, agent permissions, command `Use:` lines, and SPACECRAFT.md tables against each other. Confirm: zero phantom refs, zero skills missing from docs.
-2. **Fix common issues** — Stale references, missing SPACECRAFT.md entries, description overflow, missing quick command from command registry.
-3. **Self-review** — Run new skill's own checklist. Verify 7 template sections, no agent names, no cross-reference loops.
-4. **Commit** — Conventional Commits, non-main branch only. Body lists created files, agents wired, commands registered.
+1. **Cross-check system consistency** — Audit artifacts on disk, agent permissions, command registries, and SPACECRAFT.md tables against each other. Confirm: zero phantom refs, zero artifacts missing from docs.
+
+2. **Fix common issues** — Stale references, missing SPACECRAFT.md entries, description overflow, missing registry entries.
+
+3. **Self-review** — Run new artifact's own checklist. Verify all required sections, no agent names, no cross-reference loops.
+
+4. **Commit** — Conventional Commits, non-main branch only. Body lists created files, wiring, registrations.
 
 ## Rules
 
-- **Must**: Start from `references/template.md`. Survey 1–2 existing skills for conventions before writing.
-- **Must**: All 7 template sections present. Description under 200 chars with trigger phrases.
+- **Must**: Start from appropriate template (`templates/skill.md`, `templates/agent.md`, or `templates/command.md`). Survey 1–2 existing artifacts of the same type.
+- **Must**: All required sections present. Description under 200 chars with trigger phrases.
 - **Must**: Rewrite datasource content for spacecraft context. Never copy-paste verbatim.
-- **Must**: Delegate detail to references. SKILL.md is operational; references are deep dives.
-- **Must**: Wire to agents, register in commands and SPACECRAFT.md before claiming done.
-- **Must**: Cross-check all four system layers (skills, agents, commands, docs) before commit.
-- **Must not**: Include agent names in skill content. Skills are passive resources.
-- **Must not**: Create mutual cross-references between skills. No loops — single direction only.
+- **Must**: Delegate detail to references (skills only). Main file is operational; references are deep dives.
+- **Must**: Wire to system, register in SPACECRAFT.md and AGENTS.md before claiming done.
+- **Must**: Cross-check all system layers (artifacts, agents, commands, docs) before commit.
+- **Must not**: Include agent names in skill/command content. Skills and commands are passive resources.
+- **Must not**: Create mutual cross-references between artifacts. No loops — single direction only.
 - **Must not**: Write on `main`. Create a work branch before any mutating work.
 
 ## Out of scope
@@ -105,25 +165,27 @@ Six phases — execute in order unless the user specifies otherwise.
 ## Output format
 
 ```
+Mode: [skill | agent | command]
+
 Phase 1: Gather
   Datasource: [path / url / research topic]
-  Template: references/template.md ✓
-  Conventions surveyed: [skill names]
+  Template: templates/<type>.md ✓
+  Conventions surveyed: [artifact names]
 
 Phase 2: Create
-  Directory: .engine/skills/sc-<name>/
-  SKILL.md: [N] lines, description [N] chars
-  References: [count] files ([total] lines)
+  Directory/File: .engine/<type>/<path>
+  Main file: [N] lines, description [N] chars
+  References: [count] files ([total] lines) — skills only
 
 Phase 3: Wire
-  Agents: [list with ✓ per agent]
+  System: [agents / commands / registries]
 
 Phase 4: Polish
   Agent names removed ✓ | Loops checked ✓ | Consolidated ✓ | Limits ok ✓
 
 Phase 5: Register
-  Commands: [list]
-  SPACECRAFT.md: routing ✓ | subagent ✓ | skill refs ✓
+  SPACECRAFT.md: [tables updated]
+  AGENTS.md: [tables updated]
 
 Phase 6: Verify
   Cross-check: [N] phantom refs, [N] missing docs, [N] overflow descs
@@ -132,19 +194,19 @@ Phase 6: Verify
 
 ## Checklist
 
-Before claiming a skill is created:
+Before claiming an artifact is created:
 
-- [ ] Template (`references/template.md`) consulted
-- [ ] 1–2 existing skills surveyed for conventions
-- [ ] Directory created at `.engine/skills/sc-<name>/`
-- [ ] SKILL.md has all 7 template sections
+- [ ] Template consulted (`templates/skill.md`, `templates/agent.md`, or `templates/command.md`)
+- [ ] 1–2 existing artifacts of same type surveyed for conventions
+- [ ] Directory/file created at correct path
+- [ ] All required sections present
 - [ ] `description` under 200 chars with trigger phrases
 - [ ] Content rewritten for spacecraft context (not copy-paste)
-- [ ] No agent names anywhere in skill content
-- [ ] No mutual cross-references with other skills (loops)
-- [ ] Agent files updated for all relevant agents (alphabetical order)
-- [ ] Command `Use:` lines updated for all relevant commands
-- [ ] SPACECRAFT.md updated: routing table, subagent table, skill refs table
+- [ ] No agent names in skill/command content
+- [ ] No mutual cross-references with other artifacts (loops)
+- [ ] System wiring complete (agent permissions, command registries)
+- [ ] SPACECRAFT.md updated: relevant tables
+- [ ] AGENTS.md updated: relevant tables
 - [ ] Cross-check: zero phantom refs, zero missing doc entries
 - [ ] Committed with Conventional Commit on a non-main branch
 
@@ -152,5 +214,6 @@ Before claiming a skill is created:
 
 ## References
 
-- `references/template.md` — canonical skill template with field annotations and section requirements
-- `docs/SPACECRAFT.md` — master registry: routing table, subagent table, skill references table
+- `templates/skill.md` — canonical skill template with field annotations
+- `templates/agent.md` — canonical agent template with field annotations
+- `templates/command.md` — canonical command template with field annotations
