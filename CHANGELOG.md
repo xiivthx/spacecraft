@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.6 - 2026-07-14
+
+- Fix: add dirty state check for non-main branches in workflow (#18)
+- Fix: create bootstrap eval labelled examples (#7)
+
 ## 0.31.5 - 2026-07-14
 
 - Chore: remove sc-map skill (redundant with codegraph) (M07Q5XKDZ)
