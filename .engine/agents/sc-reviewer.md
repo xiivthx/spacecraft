@@ -47,12 +47,21 @@ Do NOT:
 - **Conflicting evidence — two tasks claim same behavior, outputs disagree** — Flag as critical. When two evidence entries reference the same behavior but show conflicting results (different output, different status codes), the truth is ambiguous. Both pieces of evidence are suspect.
 
 ## Output Format
-Output your findings in text format grouped by severity.
-Additionally, you MUST output a `review.json`-ready JSON block formatted exactly like this:
+Output findings in text format grouped by severity, preceded by a unified status block:
+
+```
+[STATUS: APPROVED|REJECTED]
+[EVIDENCE VERIFICATION: PASS|FAIL]
+[CRITICAL ISSUES: <comma-separated or "none">]
+```
+
+Below the status block, output a `review.json`-ready JSON block formatted exactly like this:
 
 ```json
 {
   "status": "blocked" | "ready",
+  "evidenceVerification": "pass" | "fail",
+  "criticalIssues": ["issue 1", "issue 2"],
   "findings": [
     {
       "severity": "critical" | "important" | "minor",
