@@ -75,8 +75,10 @@ func buildJudgePrompt(entries []mission.EvidenceEntry) string {
 	if len(entries) > 0 {
 		sb.WriteString("Evidence entries:\n")
 		for _, e := range entries {
+			stdout := resolveContent(e.Stdout)
+			stderr := resolveContent(e.Stderr)
 			sb.WriteString(fmt.Sprintf("- [%s] %s: %s (exit=%d, stdout=%d bytes, stderr=%d bytes)\n",
-				e.Label, e.Command, e.ID, e.ExitCode, len(e.Stdout), len(e.Stderr)))
+				e.Label, e.Command, e.ID, e.ExitCode, len(stdout), len(stderr)))
 		}
 	} else {
 		sb.WriteString("(no evidence entries to evaluate)\n")
