@@ -73,7 +73,7 @@ func main() {
 	ws.SetCommandsDir(filepath.Join(cfg.Root(), ".opencode", "commands"))
 	cc = closeout.NewChecker(store, gitutil.OSCommandRunner{})
 	arc = archive.NewReadinessChecker(store)
-	ar = archive.NewArchiver(store)
+	ar = archive.NewArchiverWithRoadmap(store, roadmapStore)
 	hooksCfg, _ = hooks.LoadConfig(filepath.Join(cfg.SpaceDir(), "hooks.json"))
 
 	if len(os.Args) < 2 {
