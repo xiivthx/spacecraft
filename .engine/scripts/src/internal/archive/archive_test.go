@@ -617,6 +617,26 @@ func TestParseIssueReferences(t *testing.T) {
 			text:     "This mission fixes #23 and closes #24. Also resolves #25.",
 			expected: []int{23, 24, 25},
 		},
+		{
+			name:     "Fixed keyword",
+			text:     "Fixed #42 in this mission",
+			expected: []int{42},
+		},
+		{
+			name:     "fixed lowercase",
+			text:     "fixed #55 during development",
+			expected: []int{55},
+		},
+		{
+			name:     "checkmark fixed",
+			text:     "✅ Fixed #99 in review",
+			expected: []int{99},
+		},
+		{
+			name:     "FIXED uppercase",
+			text:     "FIXED #77 with refactor",
+			expected: []int{77},
+		},
 	}
 
 	for _, tt := range tests {
@@ -689,6 +709,102 @@ func TestMissionArchiver_Archive_closesGitHubIssues(t *testing.T) {
 	// Verify mission was archived
 	if store.SpecExists("M07ARCH20") {
 		t.Error("mission should have been archived")
+	}
+}
+
+func TestParseIssuesFromPlanAndEvidence(t *testing.T) {
+	// Plan with issue references in task titles
+	plan := &mission.Plan{
+		MissionId: "M07TEST1",
+		Tasks: []mission.Task{
+			{ID: strPtr("T1"), Title: strPtr("Fixed #10"), Status: strPtr("done")},
+			{ID: strPtr("T2"), Title: strPtr("Closes #20"), Status: strPtr("done")},
+		},
+	}
+	planJSON, err := jsonMarshal(plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	planIssues := parseIssueReferences(string(planJSON))
+	if len(planIssues) != 2 {
+		t.Fatalf("expected 2 issues from plan, got %d: %v", len(planIssues), planIssues)
+	}
+
+	// Evidence entry with issue reference
+	entry := mission.EvidenceEntry{
+		ID: "E001", Label: "closes #30", Command: "test", ExitCode: 0,
+	}
+	evJSON, err := jsonMarshal(entry)
+	if err != nil {
+		t.Fatal(err)
+	}
+	evIssues := parseIssueReferences(string(evJSON))
+	if len(evIssues) != 1 || evIssues[0] != 30 {
+		t.Fatalf("expected issue 30 from evidence, got: %v", evIssues)
+	}
+
+	// Cross-source dedup: same #10 in both plan and spec-like text
+	allText := string(planJSON) + "\n" + "fixes #10" + "\n" + string(evJSON)
+	allIssues := parseIssueReferences(allText)
+	if len(allIssues) != 3 {
+		t.Fatalf("expected 3 unique issues (#10, #20, #30), got %d: %v", len(allIssues), allIssues)
+	}
+}
+
+func TestMissionArchiver_Archive_CloseIssuesFalse(t *testing.T) {
+	store, _, cleanup := newTestStore(t)
+	defer cleanup()
+
+	m := &mission.Mission{
+		ID:    "M07ARCH30",
+		Title: "No close test",
+		State: "shipped",
+	}
+	if err := store.Create(m); err != nil {
+		t.Fatal(err)
+	}
+
+	specContent := "fixes #888"
+	if err := store.WriteFile("M07ARCH30", "spec.md", []byte(specContent)); err != nil {
+		t.Fatal(err)
+	}
+
+	plan := &mission.Plan{
+		MissionId: "M07ARCH30",
+		Tasks:     []mission.Task{{ID: strPtr("T1"), Status: strPtr("done")}},
+	}
+	if err := store.SavePlan("M07ARCH30", plan); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.SaveReview("M07ARCH30", readyReview()); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.AppendEvidence("M07ARCH30", &mission.EvidenceEntry{ID: "E001", Label: "test", ExitCode: 0}); err != nil {
+		t.Fatal(err)
+	}
+
+	archiver := NewArchiver(store)
+
+	params := ArchiveParams{
+		ID:              "M07ARCH30",
+		Mission:         mustLoad(store, "M07ARCH30"),
+		Plan:            mustLoadPlan(store, "M07ARCH30"),
+		Review:          readyReview(),
+		EvidenceEntries: []mission.EvidenceEntry{{ID: "E001", Label: "test", ExitCode: 0}},
+		CloseIssues:     false,
+	}
+	_, err := archiver.Archive(params)
+	if err != nil {
+		t.Fatalf("archive with CloseIssues=false failed: %v", err)
+	}
+}
+
+func TestIsIssueClosed_ghNotAvailable(t *testing.T) {
+	// isIssueClosed should return false when gh is not on PATH
+	// (best-effort fallback: if check fails, attempt close anyway)
+	result := isIssueClosed(99999)
+	if result {
+		t.Error("isIssueClosed should return false when gh is unavailable")
 	}
 }
 

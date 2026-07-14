@@ -17,6 +17,8 @@ import (
 	"spacecraft/internal/util"
 )
 
+var issueRefPattern = regexp.MustCompile(`(?i)(?:fix(?:es?|ed)|closes?|resolves?|✅\s*fixed)\s+#(\d+)`)
+
 // readinessStatuses are the gate statuses used by defaultReleaseGateStatuses.
 // Reuses closeout's logic conceptually but avoids import dependency.
 
@@ -139,6 +141,7 @@ type ArchiveParams struct {
 	Plan            *mission.Plan
 	Review          *mission.Review
 	EvidenceEntries []mission.EvidenceEntry
+	CloseIssues     bool
 }
 
 // ArchiveResult describes where the archive was stored.
@@ -338,13 +341,23 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 		return nil, err
 	}
 
-	// Parse and close GitHub issues referenced in spec.md and decisions.md
+	// Parse and close GitHub issues referenced in spec.md, decisions.md, plan.json, and evidence.jsonl
 	var issueTexts []string
 	if specData, err := os.ReadFile(filepath.Join(sourceDir, "spec.md")); err == nil {
 		issueTexts = append(issueTexts, string(specData))
 	}
 	if decisionsData, err := os.ReadFile(filepath.Join(sourceDir, "decisions.md")); err == nil {
 		issueTexts = append(issueTexts, string(decisionsData))
+	}
+	if params.Plan != nil {
+		if planJSON, err := jsonMarshal(params.Plan); err == nil {
+			issueTexts = append(issueTexts, string(planJSON))
+		}
+	}
+	for _, e := range params.EvidenceEntries {
+		if evJSON, err := jsonMarshal(e); err == nil {
+			issueTexts = append(issueTexts, string(evJSON))
+		}
 	}
 	
 	var allIssues []int
@@ -368,7 +381,7 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 
 	// Close GitHub issues after source is removed
 	if len(allIssues) > 0 {
-		closeGitHubIssues(allIssues, id)
+		closeGitHubIssues(allIssues, id, params.CloseIssues)
 	}
 
 	return &ArchiveResult{ArchiveDir: archiveDir}, nil
@@ -485,10 +498,10 @@ func (a *MissionArchiver) updateCurrentAfterArchive(archivedId string) {
 }
 
 // parseIssueReferences extracts GitHub issue numbers from text.
-// Matches patterns like "fixes #123", "closes #456", "resolves #789".
+// Matches patterns like "fixes #123", "closes #456", "resolves #789",
+// "Fixed #N", "fixed #N", "✅ Fixed #N".
 func parseIssueReferences(text string) []int {
-	pattern := regexp.MustCompile(`(?i)(?:fixes?|closes?|resolves?)\s+#(\d+)`)
-	matches := pattern.FindAllStringSubmatch(text, -1)
+	matches := issueRefPattern.FindAllStringSubmatch(text, -1)
 	
 	seen := make(map[int]bool)
 	var issues []int
@@ -506,21 +519,59 @@ func parseIssueReferences(text string) []int {
 }
 
 // closeGitHubIssues closes the specified GitHub issues using the gh CLI.
-func closeGitHubIssues(issues []int, missionId string) error {
+// Pre-checks issue state and skips already-closed issues (best-effort).
+// Reports counts: closed, already-closed, skipped, failed.
+func closeGitHubIssues(issues []int, missionId string, doClose bool) {
 	if len(issues) == 0 {
-		return nil
+		return
 	}
-	
+
+	if !doClose {
+		fmt.Printf("Issue close skipped (--no-close-issues): %d issue(s)\n", len(issues))
+		return
+	}
+
+	var closed, alreadyClosed, failed int
+
 	for _, num := range issues {
-		// Use gh CLI to close the issue with a comment
+		if isIssueClosed(num) {
+			fmt.Printf("Issue #%d already closed, skipping\n", num)
+			alreadyClosed++
+			continue
+		}
+
 		comment := fmt.Sprintf("Closed by mission %s (auto-close on ship)", missionId)
 		cmd := exec.Command("gh", "issue", "close", fmt.Sprintf("%d", num), "--comment", comment)
 		if output, err := cmd.CombinedOutput(); err != nil {
-			// Log error but don't fail the archive
 			fmt.Fprintf(os.Stderr, "Warning: failed to close issue #%d: %v\n%s\n", num, err, output)
+			failed++
+		} else {
+			closed++
 		}
 	}
-	return nil
+
+	fmt.Printf("Issues: %d closed, %d already closed", closed, alreadyClosed)
+	if failed > 0 {
+		fmt.Printf(", %d failed", failed)
+	}
+	fmt.Println()
+}
+
+// isIssueClosed checks if a GitHub issue is already closed.
+// Best-effort: if gh is unavailable or check fails, returns false.
+func isIssueClosed(num int) bool {
+	cmd := exec.Command("gh", "issue", "view", fmt.Sprintf("%d", num), "--json", "state")
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+	var result struct {
+		State string `json:"state"`
+	}
+	if err := json.Unmarshal(output, &result); err != nil {
+		return false
+	}
+	return result.State == "CLOSED"
 }
 
 func jsonMarshal(v interface{}) ([]byte, error) {

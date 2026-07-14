@@ -854,10 +854,13 @@ func closeoutCmd() int {
 
 func archiveCmd(args []string) int {
 	ciMode := false
+	closeIssues := true
 	var filteredArgs []string
 	for _, arg := range args {
 		if arg == "--ci" {
 			ciMode = true
+		} else if arg == "--no-close-issues" {
+			closeIssues = false
 		} else {
 			filteredArgs = append(filteredArgs, arg)
 		}
@@ -939,9 +942,10 @@ func archiveCmd(args []string) int {
 
 	_ = hooks.Fire(context.Background(), hooksCfg, "deploy.before")
 
-	result, err := ar.Archive(archive.ArchiveParams{
-		ID: id, Mission: m, Plan: plan, Review: review, EvidenceEntries: entries,
-	})
+		result, err := ar.Archive(archive.ArchiveParams{
+			ID: id, Mission: m, Plan: plan, Review: review, EvidenceEntries: entries,
+			CloseIssues: closeIssues,
+		})
 	if err != nil {
 		if ciMode {
 			output := map[string]interface{}{"success": false, "error": err.Error()}
