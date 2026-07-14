@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.26.11 - 2026-07-14
+
+- Fix: remove duplicated MarshalJSON in eval/init.go - callers use single public function (M07PFFHYJ)
+- Fix: eval scorers resolve file content before scoring - hallucination/response-quality checks read actual output, not path strings (M07PFFHYJ)
+- Fix: filter eval-type entries from scoring - prevents feedback loop where eval results influence their own scores (M07PFFHYJ)
+
 ## 0.26.10 - 2026-07-14
 
 - Feat: add issue tracking to roadmap CLI — issues stored in roadmap JSON, displayed grouped by phase with `roadmap show` (M07PFMSUD)
