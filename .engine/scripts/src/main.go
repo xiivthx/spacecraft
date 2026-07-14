@@ -677,10 +677,13 @@ func setStateCmd(args []string) int {
 	if err := ss.SetState(res.Selected.ID, state); err != nil {
 		return printErr(err)
 	}
-	if hooks.Fire(context.Background(), hooksCfg, "mission.state.changed") != nil {
-		return 1
-	}
-	fmt.Printf("Spacecraft mission %s state: %s\n", res.Selected.ID, stateDisplay(state))
+		if hooks.Fire(context.Background(), hooksCfg, "mission.state.changed") != nil {
+			return 1
+		}
+		fmt.Printf("Spacecraft mission %s state: %s\n", res.Selected.ID, stateDisplay(state))
+		if state == "shipped" {
+			fmt.Println("Tip: run `spacecraft archive` to archive this mission.")
+		}
 	return 0
 }
 
