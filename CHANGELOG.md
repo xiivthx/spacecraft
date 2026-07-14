@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.7 - 2026-07-14
+
+- Fix: clear stale .space/current in resolver (#31)
+- Fix: add archive hint after set-state shipped (#28)
+
 ## 0.31.6 - 2026-07-14
 
 - Fix: add dirty state check for non-main branches in workflow (#18)
