@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.29.0 - 2026-07-14
+
+- Feat: auto-close GitHub issues on ship when spec.md/decisions.md contains "fixes #N" or "closes #N" (M07PSM4N3)
+- Refactor: sc-creator skill now supports creating skills, agents, and commands from templates (M07PSM4N3)
+- Docs: evaluate sc-map vs codegraph - keep both as complementary tools (M07PSM4N3)
+- Refactor: move templates from docs/templates/ to sc-creator skill directory (M07PSM4N3)
+
 ## 0.28.0 - 2026-07-14
 
 - Fix: clear .space/current or set next roadmap mission on archive to prevent resolver conflicts (M07PFFJGY)
