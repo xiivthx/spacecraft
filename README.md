@@ -1,18 +1,143 @@
 # Spacecraft
 
-Spacecraft is a lean, local-first OpenCode harness for mission-driven software development.
+Spacecraft is a lean, local-first OpenCode harness for mission-driven software development. It provides a structured workflow for planning, implementing, reviewing, and shipping code with full traceability and verification.
 
-**Persona:** `PERSONA.md` · **Rules:** `AGENTS.md` · **Spec:** `SPEC.md` · **Design:** `DESIGN.md`
+**Persona:** `PERSONA.md` · **Rules:** `AGENTS.md` · **Design:** `DESIGN.md`
 
-## Quickstart
+## Overview
+
+Spacecraft wraps OpenCode with a mission-control layer that enforces disciplined development practices:
+
+- **Mission-driven workflow** - Every feature starts with a spec, gets planned into tasks, implemented with TDD, reviewed, and shipped with full evidence
+- **Zero-trust verification** - No output becomes authoritative without passing review gates (plan review, diff review, evidence capture)
+- **Git safety** - Feature branches, Conventional Commits, no-ff merge, version tagging
+- **Local-first** - All mission state, artifacts, and evidence stored locally in `.space/`
+- **Extensible skills** - Modular skill system for web dev, databases, security, performance, and more
+
+The commander orchestrates specialized subagents (planner, designer, reviewer, coder, tester) through a structured pipeline: `/sc-start` → `/sc-plan` → `/sc-build` → `/sc-ship`.
+
+## Installation
+
+See the [full installation guide](./docs/installation.md) for detailed instructions.
+
+### Quick install
 
 ```sh
-make build                          # build the Go helper binary
-make install                        # or: global install (symlink + config)
-scripts/spacecraft new "My mission" # create a mission
-scripts/spacecraft missions         # list missions
-scripts/spacecraft use 1            # select a mission
-scripts/spacecraft status           # show resolved mission state
+# Build from source
+git clone <repo-url>
+cd spacecraft
+make build
+
+# Install globally (symlink + config)
+make install
+
+# Verify
+scripts/spacecraft help
+```
+
+### Requirements
+
+- Go 1.21+ (for building from source)
+- macOS or Linux (Windows not yet supported)
+- OpenCode CLI installed and configured
+
+## Quick Start
+
+```sh
+# 1. Initialize spacecraft in your project
+scripts/spacecraft init
+
+# 2. Create a new mission
+scripts/spacecraft new "Add user authentication"
+
+# 3. Start the mission workflow
+# In OpenCode, run: /sc-start
+
+# 4. Plan the mission
+# In OpenCode, run: /sc-plan
+
+# 5. Build (implement tasks)
+# In OpenCode, run: /sc-build
+
+# 6. Ship when ready
+# In OpenCode, run: /sc-ship
+```
+
+## Usage
+
+### Create and manage missions
+
+```sh
+# Create a new mission
+scripts/spacecraft new "Implement rate limiting"
+
+# List all missions
+scripts/spacecraft missions
+
+# Select a mission by number or ID
+scripts/spacecraft use 1
+scripts/spacecraft use M07PFFIY3
+
+# Check current mission status
+scripts/spacecraft status
+```
+
+### Capture verification evidence
+
+```sh
+# Run a command and capture output as evidence
+scripts/spacecraft evidence "build passes" -- make build
+
+# Run tests and capture evidence
+scripts/spacecraft evidence "tests pass" -- make test
+
+# Validate mission artifacts
+scripts/spacecraft validate
+```
+
+### Research and dependencies
+
+```sh
+# Search for package information
+scripts/spacecraft research "express v5 migration guide"
+
+# Check dependency freshness
+scripts/spacecraft check-deps
+
+# Get git suggestions for branch/commit names
+scripts/spacecraft git-suggest feat add-rate-limiting
+```
+
+### Development workflow
+
+```sh
+# Check git status and branch info
+scripts/spacecraft git-info
+
+# Resolve active mission (JSON output)
+scripts/spacecraft resolve --json
+
+# Set mission state manually
+scripts/spacecraft set-state planned
+
+# Archive a shipped mission
+scripts/spacecraft archive M07PFFIY3
+```
+
+### Advanced commands
+
+```sh
+# Bind current branch to mission
+scripts/spacecraft bind-branch
+
+# Show workflow readiness
+scripts/spacecraft flow
+
+# Check release readiness before merge
+scripts/spacecraft closeout-check
+
+# Set clarification status
+scripts/spacecraft clarify-status blocked
 ```
 
 ## Slash commands
@@ -71,7 +196,7 @@ scripts/spacecraft             Go binary helper
 
 Commander auto-handles clarification, mapping, git hygiene, review, and verification within these steps. sc-reviewer reviews plans and diffs. `/sc-review` is a standalone manual command — not in the pipeline.
 
-See `SPEC.md` §Workflow and §Verification for full gate rules.
+See `AGENTS.md` §Workflow and §Verification for full gate rules.
 
 ## Git
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.27.0 - 2026-07-14
+
+- Docs: expand README.md with Overview, Installation, Quick Start, and 5 Usage sections (M07PFFIY3)
+- Docs: add comprehensive installation guide (docs/installation.md) covering Homebrew, source build, and binary download
+- Tooling: add dev and docs targets to Makefile for developer workflow
+- Tooling: add developer automation scripts (setup.sh, test.sh, coverage.sh) with cross-platform support
+- Docs: fix broken SPEC.md references in README.md
+
 ## 0.26.12 - 2026-07-14
 
 - Test: increase coverage from 52.9% to 85.4% — util 98.6%, config 100%, mission 88.4%, eval 93.1%, resolver 89.9%, state 100%, gitutil 100%, hooks 90.8%, main.go 81.0% (M07PFFIGL)

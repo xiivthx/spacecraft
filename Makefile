@@ -1,4 +1,4 @@
-.PHONY: build test clean lint install uninstall
+.PHONY: build test clean lint install uninstall dev docs
 
 GO_SRC := .engine/scripts/src
 GO_OUT := scripts/spacecraft
@@ -31,3 +31,13 @@ uninstall:
 	@rm -f $(LOCAL_BIN)/spacecraft
 	@echo "Removed $(LOCAL_BIN)/spacecraft"
 	@echo "Config at $(GLOBAL_CONFIG) left intact."
+
+dev: build
+	@echo "Development mode: binary rebuilt at $(GO_OUT)"
+	@echo "Run: scripts/spacecraft help"
+
+docs:
+	@echo "Generating documentation..."
+	@mkdir -p docs/generated
+	@scripts/spacecraft help > docs/generated/cli-reference.txt 2>&1
+	@echo "Documentation generated in docs/generated/"
