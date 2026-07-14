@@ -2,7 +2,7 @@
 
 Spacecraft is a lean, local-first OpenCode harness for mission-driven software development. It provides a structured workflow for planning, implementing, reviewing, and shipping code with full traceability and verification.
 
-**Persona:** `PERSONA.md` · **Rules:** `AGENTS.md` · **Spec:** `SPEC.md` · **Design:** `DESIGN.md` · **Contributing:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+**Persona:** `PERSONA.md` · **Rules:** `AGENTS.md` · **Design:** `DESIGN.md`
 
 ## Overview
 
@@ -196,7 +196,7 @@ scripts/spacecraft             Go binary helper
 
 Commander auto-handles clarification, mapping, git hygiene, review, and verification within these steps. sc-reviewer reviews plans and diffs. `/sc-review` is a standalone manual command — not in the pipeline.
 
-See `SPEC.md` §Workflow and §Verification for full gate rules.
+See `AGENTS.md` §Workflow and §Verification for full gate rules.
 
 ## Git
 
