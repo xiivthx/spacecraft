@@ -10,7 +10,7 @@ build:
 	cd $(GO_SRC) && go build -o ../../../$(GO_OUT) .
 
 test:
-	cd $(GO_SRC) && go test ./...
+	cd $(GO_SRC) && go test -coverprofile=coverage.out ./...
 
 clean:
 	rm -f $(GO_OUT)
