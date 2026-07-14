@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.1 - 2026-07-14
+
+- Fix: add archive-aware loadMission helper for roadmap commands to recognize shipped missions (M07Q480PR)
+- Docs: add bug radar rule to auto-create GitHub issues for discovered problems
+
 ## 0.31.0 - 2026-07-14
 
 - Feat: add sc-memory skill wrapping ctx_search and ctx_index with spacecraft conventions (M07PYRGLG)
