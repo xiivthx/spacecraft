@@ -2103,6 +2103,25 @@ func roadmapNewCmd(args []string) int {
 	return 0
 }
 
+// loadMission loads a mission, checking live missions first then archive fallback.
+// ponytail: archive fallback here instead of inside store.Load so Load stays simple.
+func loadMission(id string) (*mission.Mission, error) {
+	m, err := store.Load(id)
+	if err == nil {
+		return m, nil
+	}
+	archivePath := filepath.Join(cfg.ArchiveDir(), id, "mission.json")
+	data, readErr := os.ReadFile(archivePath)
+	if readErr != nil {
+		return nil, readErr
+	}
+	var am mission.Mission
+	if err := json.Unmarshal(data, &am); err != nil {
+		return nil, err
+	}
+	return &am, nil
+}
+
 func roadmapListCmd() int {
 	rms, err := roadmapStore.List()
 	if err != nil {
@@ -2115,7 +2134,7 @@ func roadmapListCmd() int {
 	for _, rm := range rms {
 		shipped := 0
 		for _, mid := range rm.Missions {
-			m, err := store.Load(mid)
+				m, err := loadMission(mid)
 			if err == nil && (m.State == "shipped" || m.State == "archived") {
 				shipped++
 			}
@@ -2156,7 +2175,7 @@ func roadmapAddCmd(args []string) int {
 		return printErr("roadmap not found: " + rid)
 	}
 
-	if _, err := store.Load(mid); err != nil {
+	if _, err := loadMission(mid); err != nil {
 		return printErr("mission not found: " + mid)
 	}
 
@@ -2256,7 +2275,7 @@ func roadmapShowCmd(args []string) int {
 
 	for _, mid := range rm.Missions {
 		marker := "[ ]"
-		m, err := store.Load(mid)
+		m, err := loadMission(mid)
 		if err == nil && shippedStates[m.State] {
 			marker = "[x]"
 			shipped++
@@ -2305,7 +2324,7 @@ func roadmapShowCmd(args []string) int {
 	fmt.Println()
 	nextIdx := -1
 	for i, mid := range rm.Missions {
-		m, err := store.Load(mid)
+		m, err := loadMission(mid)
 		if err != nil || !shippedStates[m.State] {
 			nextIdx = i
 			break
@@ -2342,7 +2361,7 @@ func roadmapContinueCmd(args []string) int {
 	shippedStates := map[string]bool{"shipped": true, "archived": true}
 
 	for _, mid := range rm.Missions {
-		m, err := store.Load(mid)
+		m, err := loadMission(mid)
 		if err != nil || !shippedStates[m.State] {
 			if err := store.WriteCurrent(mid); err != nil {
 				return printErr("Failed to set current mission:", err)
@@ -2371,7 +2390,7 @@ func roadmapArchiveCmd(args []string) int {
 
 	shippedStates := map[string]bool{"shipped": true, "archived": true}
 	for _, mid := range rm.Missions {
-		m, err := store.Load(mid)
+		m, err := loadMission(mid)
 		if err != nil || !shippedStates[m.State] {
 			return printErr("mission " + mid + " is not shipped — cannot archive roadmap")
 		}

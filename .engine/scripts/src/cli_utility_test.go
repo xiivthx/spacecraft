@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"spacecraft/internal/mission"
 	"spacecraft/internal/roadmap"
 	"spacecraft/internal/trace"
 )
@@ -757,5 +758,208 @@ func TestRoadmapArchiveBlocked(t *testing.T) {
 
 	if e := roadmapArchiveCmd([]string{rid}); e != 1 {
 		t.Errorf("roadmapArchiveCmd(active mission) = %d, want 1", e)
+	}
+}
+
+// writeArchiveMission creates a mission.json in the archive directory.
+func writeArchiveMission(t *testing.T, id, title, state string) {
+	t.Helper()
+	dir := filepath.Join(cfg.ArchiveDir(), id)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatalf("mkdir archive: %v", err)
+	}
+	m := mission.Mission{
+		ID:    id,
+		Title: title,
+		State: state,
+	}
+	data, err := json.Marshal(m)
+	if err != nil {
+		t.Fatalf("marshal mission: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "mission.json"), data, 0644); err != nil {
+		t.Fatalf("write archive mission: %v", err)
+	}
+}
+
+func TestRoadmapShowWithArchivedMission(t *testing.T) {
+	defer setupLifecycleTest(t)()
+	mid := createMission(t, "Live Shipped")
+	if e := setStateCmd([]string{"shipped"}); e != 0 {
+		t.Fatalf("setStateCmd = %d", e)
+	}
+
+	archID := "MARCHIVED01"
+	writeArchiveMission(t, archID, "Archived Mission", "shipped")
+
+	if e := roadmapNewCmd([]string{"Mixed Roadmap"}); e != 0 {
+		t.Fatalf("roadmapNewCmd = %d", e)
+	}
+	rms, _ := roadmapStore.List()
+	rid := rms[0].ID
+
+	if e := roadmapAddCmd([]string{rid, mid}); e != 0 {
+		t.Fatalf("add live = %d", e)
+	}
+	if e := roadmapAddCmd([]string{rid, archID}); e != 0 {
+		t.Fatalf("add archived = %d", e)
+	}
+
+	if e := roadmapShowCmd([]string{rid}); e != 0 {
+		t.Errorf("roadmapShowCmd with archived = %d, want 0", e)
+	}
+}
+
+func TestRoadmapListCountsArchived(t *testing.T) {
+	defer setupLifecycleTest(t)()
+	mid := createMission(t, "Live Shipped")
+	if e := setStateCmd([]string{"shipped"}); e != 0 {
+		t.Fatalf("setStateCmd = %d", e)
+	}
+
+	archID := "MARCHIVED02"
+	writeArchiveMission(t, archID, "Archived Mission", "shipped")
+
+	if e := roadmapNewCmd([]string{"Count Roadmap"}); e != 0 {
+		t.Fatalf("roadmapNewCmd = %d", e)
+	}
+	rms, _ := roadmapStore.List()
+	rid := rms[0].ID
+
+	if e := roadmapAddCmd([]string{rid, mid}); e != 0 {
+		t.Fatalf("add live = %d", e)
+	}
+	if e := roadmapAddCmd([]string{rid, archID}); e != 0 {
+		t.Fatalf("add archived = %d", e)
+	}
+
+	// roadmapListCmd prints [shipped/total] — just verify it doesn't error
+	if e := roadmapListCmd(); e != 0 {
+		t.Errorf("roadmapListCmd with archived = %d, want 0", e)
+	}
+}
+
+func TestRoadmapContinueSkipsArchived(t *testing.T) {
+	defer setupLifecycleTest(t)()
+	archID := "MARCHIVED03"
+	writeArchiveMission(t, archID, "Already Archived", "archived")
+
+	mid := createMission(t, "Still Active")
+
+	if e := roadmapNewCmd([]string{"Continue Roadmap"}); e != 0 {
+		t.Fatalf("roadmapNewCmd = %d", e)
+	}
+	rms, _ := roadmapStore.List()
+	rid := rms[0].ID
+
+	if e := roadmapAddCmd([]string{rid, archID}); e != 0 {
+		t.Fatalf("add archived = %d", e)
+	}
+	if e := roadmapAddCmd([]string{rid, mid}); e != 0 {
+		t.Fatalf("add active = %d", e)
+	}
+
+	if e := roadmapContinueCmd([]string{rid}); e != 0 {
+		t.Errorf("roadmapContinueCmd = %d, want 0", e)
+	}
+	curr, _ := store.ReadCurrent()
+	if curr == nil || *curr != mid {
+		t.Errorf("current = %v, want %s (must skip archived)", curr, mid)
+	}
+}
+
+func TestRoadmapArchiveAllArchived(t *testing.T) {
+	defer setupLifecycleTest(t)()
+	archID := "MARCHIVED04"
+	writeArchiveMission(t, archID, "Archived Mission", "shipped")
+
+	if e := roadmapNewCmd([]string{"All Archived Roadmap"}); e != 0 {
+		t.Fatalf("roadmapNewCmd = %d", e)
+	}
+	rms, _ := roadmapStore.List()
+	rid := rms[0].ID
+
+	if e := roadmapAddCmd([]string{rid, archID}); e != 0 {
+		t.Fatalf("roadmapAddCmd = %d", e)
+	}
+
+	if e := roadmapArchiveCmd([]string{rid}); e != 0 {
+		t.Errorf("roadmapArchiveCmd(all archived) = %d, want 0", e)
+	}
+}
+
+func TestRoadmapAddArchivedMission(t *testing.T) {
+	defer setupLifecycleTest(t)()
+	archID := "MARCHIVED05"
+	writeArchiveMission(t, archID, "Archived Mission", "shipped")
+
+	if e := roadmapNewCmd([]string{"Add Roadmap"}); e != 0 {
+		t.Fatalf("roadmapNewCmd = %d", e)
+	}
+	rms, _ := roadmapStore.List()
+	rid := rms[0].ID
+
+	if e := roadmapAddCmd([]string{rid, archID}); e != 0 {
+		t.Errorf("roadmapAddCmd(archived mid) = %d, want 0", e)
+	}
+}
+
+func TestRoadmapPrefersLiveOverArchived(t *testing.T) {
+	defer setupLifecycleTest(t)()
+	mid := createMission(t, "Live Shipped Title")
+	if e := setStateCmd([]string{"shipped"}); e != 0 {
+		t.Fatalf("setStateCmd = %d", e)
+	}
+
+	// Write stale archive version with different title
+	archDir := filepath.Join(cfg.ArchiveDir(), mid)
+	if err := os.MkdirAll(archDir, 0755); err != nil {
+		t.Fatalf("mkdir archive: %v", err)
+	}
+	stale := mission.Mission{ID: mid, Title: "Stale Archived Title", State: "shipped"}
+	data, _ := json.Marshal(stale)
+	os.WriteFile(filepath.Join(archDir, "mission.json"), data, 0644)
+
+	if e := roadmapNewCmd([]string{"Prefer Live Roadmap"}); e != 0 {
+		t.Fatalf("roadmapNewCmd = %d", e)
+	}
+	rms, _ := roadmapStore.List()
+	rid := rms[0].ID
+
+	if e := roadmapAddCmd([]string{rid, mid}); e != 0 {
+		t.Fatalf("roadmapAddCmd = %d", e)
+	}
+
+	// roadmapShowCmd should use the live title, not the stale archive title
+	if e := roadmapShowCmd([]string{rid}); e != 0 {
+		t.Errorf("roadmapShowCmd = %d, want 0", e)
+	}
+}
+
+func TestRoadmapCorruptArchiveTreatedAsNotFound(t *testing.T) {
+	defer setupLifecycleTest(t)()
+	mid := createMission(t, "Only Live")
+	if e := setStateCmd([]string{"shipped"}); e != 0 {
+		t.Fatalf("setStateCmd = %d", e)
+	}
+
+	badID := "MBADCORRUPT"
+	archDir := filepath.Join(cfg.ArchiveDir(), badID)
+	if err := os.MkdirAll(archDir, 0755); err != nil {
+		t.Fatalf("mkdir archive: %v", err)
+	}
+	os.WriteFile(filepath.Join(archDir, "mission.json"), []byte("{not json"), 0644)
+
+	if e := roadmapNewCmd([]string{"Corrupt Roadmap"}); e != 0 {
+		t.Fatalf("roadmapNewCmd = %d", e)
+	}
+	rms, _ := roadmapStore.List()
+	rid := rms[0].ID
+
+	if e := roadmapAddCmd([]string{rid, mid}); e != 0 {
+		t.Fatalf("add live = %d", e)
+	}
+	if e := roadmapAddCmd([]string{rid, badID}); e != 1 {
+		t.Errorf("roadmapAddCmd(corrupt archive) = %d, want 1", e)
 	}
 }
