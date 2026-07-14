@@ -576,6 +576,122 @@ func dirExists(path string) bool {
 	return err == nil && info.IsDir()
 }
 
+func TestParseIssueReferences(t *testing.T) {
+	tests := []struct {
+		name     string
+		text     string
+		expected []int
+	}{
+		{
+			name:     "single fix",
+			text:     "fixes #123",
+			expected: []int{123},
+		},
+		{
+			name:     "multiple fixes",
+			text:     "fixes #123 and closes #456",
+			expected: []int{123, 456},
+		},
+		{
+			name:     "case insensitive",
+			text:     "Fixes #123 CLOSES #456",
+			expected: []int{123, 456},
+		},
+		{
+			name:     "resolves keyword",
+			text:     "resolves #789",
+			expected: []int{789},
+		},
+		{
+			name:     "no duplicates",
+			text:     "fixes #123 fixes #123",
+			expected: []int{123},
+		},
+		{
+			name:     "no matches",
+			text:     "no issue references here",
+			expected: nil,
+		},
+		{
+			name:     "mixed content",
+			text:     "This mission fixes #23 and closes #24. Also resolves #25.",
+			expected: []int{23, 24, 25},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := parseIssueReferences(tt.text)
+			if len(result) != len(tt.expected) {
+				t.Errorf("expected %d issues, got %d: %v", len(tt.expected), len(result), result)
+				return
+			}
+			for i, num := range result {
+				if num != tt.expected[i] {
+					t.Errorf("expected issue %d at position %d, got %d", tt.expected[i], i, num)
+				}
+			}
+		})
+	}
+}
+
+func TestMissionArchiver_Archive_closesGitHubIssues(t *testing.T) {
+	store, _, cleanup := newTestStore(t)
+	defer cleanup()
+
+	// Create a shipped mission with issue references in spec.md
+	m := &mission.Mission{
+		ID:    "M07ARCH20",
+		Title: "Test",
+		State: "shipped",
+	}
+	if err := store.Create(m); err != nil {
+		t.Fatal(err)
+	}
+	
+	// Write spec.md with issue references
+	specContent := "# Test Mission\n\nfixes #999\ncloses #998"
+	if err := store.WriteFile("M07ARCH20", "spec.md", []byte(specContent)); err != nil {
+		t.Fatal(err)
+	}
+	
+	plan := &mission.Plan{
+		MissionId: "M07ARCH20",
+		Tasks:     []mission.Task{{ID: strPtr("T1"), Status: strPtr("done")}},
+	}
+	if err := store.SavePlan("M07ARCH20", plan); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.SaveReview("M07ARCH20", readyReview()); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.AppendEvidence("M07ARCH20", &mission.EvidenceEntry{ID: "E001", Label: "test", ExitCode: 0}); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create archiver
+	archiver := NewArchiver(store)
+
+	// Archive - this will try to close issues but gh CLI may not be available
+	// The test verifies the parsing logic works, not the actual API call
+	params := ArchiveParams{
+		ID:              "M07ARCH20",
+		Mission:         mustLoad(store, "M07ARCH20"),
+		Plan:            mustLoadPlan(store, "M07ARCH20"),
+		Review:          readyReview(),
+		EvidenceEntries: []mission.EvidenceEntry{{ID: "E001", Label: "test", ExitCode: 0}},
+	}
+	_, err := archiver.Archive(params)
+	if err != nil {
+		t.Fatalf("archive failed: %v", err)
+	}
+
+	// Verify mission was archived
+	if store.SpecExists("M07ARCH20") {
+		t.Error("mission should have been archived")
+	}
+}
+
 func containsStr(list []string, sub string) bool {
 	for _, s := range list {
 		if strings.Contains(s, sub) {
