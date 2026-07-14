@@ -21,16 +21,26 @@ func NextTask(tasks []mission.Task) *mission.Task {
 	return nil
 }
 
-// taskIsOpen returns true if the task is not completed/done/cancelled.
+// taskIsOpen returns true if the task is not completed/done/cancelled/waiting.
 func taskIsOpen(task mission.Task) bool {
 	if task.Status == nil {
 		return true
 	}
 	switch *task.Status {
-	case "done", "cancelled":
+	case "done", "cancelled", "waiting":
 		return false
 	}
 	return true
+}
+
+// hasWaitingTasks returns true if any task has status "waiting".
+func hasWaitingTasks(tasks []mission.Task) bool {
+	for _, t := range tasks {
+		if t.Status != nil && *t.Status == "waiting" {
+			return true
+		}
+	}
+	return false
 }
 
 // NextCommand returns the recommended next slash command for a mission.
@@ -150,7 +160,10 @@ func (s *Snapshot) Build(res mission.ResolveOutput, missionID string) (mission.W
 	}
 
 	if !hasBlockingClarification && artifactGateClear && nextTask == nil {
-		if m.State == "ready" {
+		if hasWaitingTasks(tasks) {
+			blockers = append(blockers, "all open tasks are waiting on architectural guidance — check .space/architect/")
+			next = "/sc-resume"
+		} else if m.State == "ready" {
 			next = "/sc-ship"
 		} else {
 			next = "/sc-review"

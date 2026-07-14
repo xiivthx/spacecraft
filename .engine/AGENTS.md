@@ -8,6 +8,7 @@ Local-first mission-control harness for OpenCode-driven development.
 
 ```
 .engine/            # OpenCode engine config, skills, and conventions
+  agents/           # sc-* agent definitions (commander, coder, reviewer, etc.)
   skills/           # sc-* skills in categorized subdirs (core/, quality/, design/, etc.)
   opencode.json     # Agent config, permissions, models
 scripts/            # Go CLI: scripts/spacecraft
@@ -67,6 +68,18 @@ Conventional Commits. Target 1–3 per branch, max 5. Squash WIP before merge. R
 ### Development lanes
 
 Commander auto-detects intent and routes to the appropriate lane without user input. Full lane behavior, decision flow, self-review, release rules, and session handoff: see [`PERSONA.md`](./PERSONA.md).
+
+### Available agents
+
+| Agent | Role |
+|-------|------|
+| `sc-commander` | Primary agent — mission orchestration, lane detection, subagent delegation |
+| `sc-coder` | Write-capable — implements production code |
+| `sc-tester` | Write-capable — writes tests and captures evidence (TDD) |
+| `sc-planner` | Read-only — converts spec into executable plan |
+| `sc-reviewer` | Read-only — reviews diffs, evidence, and release readiness |
+| `sc-designer` | Read-only — shapes UI direction and critiques visual design |
+| `sc-adviser` | Read-only — complex system design and deep logic restructuring, invoked on escalation |
 
 ### Evidence
 ```sh

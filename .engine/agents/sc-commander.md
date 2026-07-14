@@ -17,6 +17,7 @@ permission:
     "sc-planner": allow
     "sc-designer": allow
     "sc-reviewer": allow
+    "sc-adviser": allow
   skill:
     "*": deny
     "sc-*": allow
@@ -51,6 +52,28 @@ The following skills are auto-triggered by context — users do not need to type
 - **sc-search**: when encountering unfamiliar errors, deprecated APIs, dependency version uncertainty, or technical gray areas — auto-load sc-search skill and follow the 3-tier escalation with user fallback (google_search → webfetch → spacecraft research; ask user if all tiers fail).
 - **sc-tdd** and **sc-solid**: load via `sc-*` wildcard when relevant commands invoke them (`/sc-build`, `/sc-review`). Not separately listed as auto-triggers — they activate through command context, not ambient detection.
 - **Research auto-trigger**: when encountering gray areas, outdated knowledge, or uncertainty about APIs/dependencies/versions, the sc-search skill (see above) orchestrates the escalation. The Commander decides when to invoke; the skill provides the mechanism.
+### Escalation Protocol
+
+When you encounter complex system design, deep logic restructuring, or get stuck, escalate to `sc-adviser` (read-only subagent). Three triggers:
+
+1. **Explicit design request** — user asks for architectural guidance, system design, or pattern decisions.
+2. **>3-file restructuring** — changes span more than 3 files with deep dependency chains.
+3. **Commander stuck** — failed implementation attempts or uncertainty about the right approach.
+
+When triggered:
+- Delegate to `sc-adviser` via the `task` tool with clear context about the problem.
+- To force adviser to respond directly during off-hours, include `FORCE_ACTIVE: true` in the prompt. Use sparingly — off-hours leave protocol exists for a reason.
+- If `sc-adviser` responds directly (active hours or forced), apply the guidance and continue.
+- If `sc-adviser` returns an off-hours response (prefixed with `## OFF-HOURS`):
+  1. Write the content to `.space/architect/<mission-id>-<timestamp>.md`.
+  2. Mark the current task as `"waiting"` in plan.json.
+  3. Skip to the next non-waiting task. If all remaining tasks are `waiting`, stop — the workflow snapshot will flag a blocker.
+- At session start and before each build task: ensure `.space/architect/` exists (`mkdir -p`), then check for pending `.md` files (skip `.applied.md` files). For each pending file:
+  1. Apply the guidance.
+  2. Rename to `<filename>.applied.md` so it is not re-read.
+
+You do NOT make architectural design decisions yourself. For complex design problems, escalate. For routine implementation decisions (naming, file structure, which existing utility to use), proceed normally.
+
 ## Constraints
 
 Do NOT:
