@@ -2192,6 +2192,40 @@ func roadmapShowCmd(args []string) int {
 	}
 
 	fmt.Println()
+	fmt.Println("Issues:")
+	if len(rm.Issues) == 0 {
+		fmt.Println("No issues")
+	} else {
+		// Group by phase
+		phaseOrder := []string{}
+		phaseMap := map[string][]roadmap.Issue{}
+		for _, issue := range rm.Issues {
+			phase := issue.Phase
+			if phase == "" {
+				phase = "unassigned"
+			}
+			if _, exists := phaseMap[phase]; !exists {
+				phaseOrder = append(phaseOrder, phase)
+			}
+			phaseMap[phase] = append(phaseMap[phase], issue)
+		}
+		for _, phase := range phaseOrder {
+			fmt.Printf("\n  %s:\n", phase)
+			for _, issue := range phaseMap[phase] {
+				marker := "[ ]"
+				if issue.State == "closed" {
+					marker = "[x]"
+				}
+				labels := ""
+				if len(issue.Labels) > 0 {
+					labels = " (" + strings.Join(issue.Labels, ", ") + ")"
+				}
+				fmt.Printf("    %s #%d %s%s\n", marker, issue.Number, issue.Title, labels)
+			}
+		}
+	}
+
+	fmt.Println()
 	nextIdx := -1
 	for i, mid := range rm.Missions {
 		m, err := store.Load(mid)

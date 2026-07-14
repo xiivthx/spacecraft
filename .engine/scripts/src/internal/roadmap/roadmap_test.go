@@ -1,6 +1,7 @@
 package roadmap
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 	"time"
@@ -204,5 +205,99 @@ func TestInsertOrdering(t *testing.T) {
 	}
 	if loaded.Missions[0] != "A" || loaded.Missions[1] != "B" || loaded.Missions[2] != "C" {
 		t.Errorf("order mismatch: %v", loaded.Missions)
+	}
+}
+
+func TestIssueJSONRoundtrip(t *testing.T) {
+	issue := Issue{
+		Number: 27,
+		Title:  "Test issue",
+		URL:    "https://github.com/test/27",
+		State:  "open",
+		Labels: []string{"bug", "priority"},
+		Phase:  "phase-1",
+	}
+
+	data, err := json.Marshal(issue)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var got Issue
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatal(err)
+	}
+
+	if got.Number != issue.Number {
+		t.Errorf("Number = %d, want %d", got.Number, issue.Number)
+	}
+	if got.Title != issue.Title {
+		t.Errorf("Title = %q, want %q", got.Title, issue.Title)
+	}
+	if got.URL != issue.URL {
+		t.Errorf("URL = %q, want %q", got.URL, issue.URL)
+	}
+	if got.State != issue.State {
+		t.Errorf("State = %q, want %q", got.State, issue.State)
+	}
+	if len(got.Labels) != 2 || got.Labels[0] != "bug" {
+		t.Errorf("Labels = %v, want [bug priority]", got.Labels)
+	}
+	if got.Phase != issue.Phase {
+		t.Errorf("Phase = %q, want %q", got.Phase, issue.Phase)
+	}
+}
+
+func TestRoadmapWithIssues(t *testing.T) {
+	r := Roadmap{
+		ID:          "M07ISSUES",
+		Title:       "Roadmap with issues",
+		Description: "testing issue serialization",
+		Missions:    []string{"M07A"},
+		Issues: []Issue{
+			{Number: 1, Title: "First issue", URL: "https://github.com/test/1", State: "open", Labels: []string{"bug"}, Phase: "phase-1"},
+			{Number: 2, Title: "Second issue", URL: "https://github.com/test/2", State: "closed", Phase: "phase-2"},
+		},
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	data, err := json.Marshal(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var got Roadmap
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatal(err)
+	}
+
+	if len(got.Issues) != 2 {
+		t.Fatalf("Issues length = %d, want 2", len(got.Issues))
+	}
+	if got.Issues[0].Number != 1 || got.Issues[0].Title != "First issue" || got.Issues[0].Phase != "phase-1" {
+		t.Errorf("Issues[0] = %+v, want first issue with phase-1", got.Issues[0])
+	}
+	if got.Issues[1].Number != 2 || got.Issues[1].State != "closed" || got.Issues[1].Phase != "phase-2" {
+		t.Errorf("Issues[1] = %+v, want second closed issue with phase-2", got.Issues[1])
+	}
+}
+
+func TestBackwardCompat(t *testing.T) {
+	oldJSON := `{"id":"M07OLD","title":"Old roadmap","description":"legacy","missions":["M07A"],"createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:00:00Z"}`
+
+	var got Roadmap
+	if err := json.Unmarshal([]byte(oldJSON), &got); err != nil {
+		t.Fatalf("failed to unmarshal legacy roadmap: %v", err)
+	}
+
+	if got.ID != "M07OLD" {
+		t.Errorf("ID = %q, want %q", got.ID, "M07OLD")
+	}
+	if got.Title != "Old roadmap" {
+		t.Errorf("Title = %q, want %q", got.Title, "Old roadmap")
+	}
+	if len(got.Issues) != 0 {
+		t.Errorf("Issues = %v, want nil or empty", got.Issues)
 	}
 }
