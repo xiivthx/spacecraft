@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.26.10 - 2026-07-14
+
+- Feat: add issue tracking to roadmap CLI — issues stored in roadmap JSON, displayed grouped by phase with `roadmap show` (M07PFMSUD)
+
 ## 0.26.9 - 2026-07-14
 
 - Feat: add roadmap feature — CLI commands for multi-mission long-term work (new, add, remove, show, list, continue, archive) with `.space/roadmaps/` JSON store and derived lifecycle states (M07PDUTCZ)
