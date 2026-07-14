@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.30.0 - 2026-07-14
+
+- Feat: add deploy hooks (before:deploy, after:deploy) and --ci flag for archive command (M07PFFNAV)
+- Docs: enhance spec template with Edge Cases, Error Handling, Integration Points, Test Plan sections (M07PFFNAV)
+- Docs: add CI/CD examples (GitHub Actions, GitLab CI, hook config) (M07PFFNAV)
+- Cancelled: sandbox, model routing, AI review, MCP integration (over-engineering, no real value)
+
 ## 0.29.0 - 2026-07-14
 
 - Feat: auto-close GitHub issues on ship when spec.md/decisions.md contains "fixes #N" or "closes #N" (M07PSM4N3)

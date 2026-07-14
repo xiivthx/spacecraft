@@ -23,6 +23,8 @@ var knownEvents = map[string]bool{
 	"mission.validated":         true,
 	"mission.shipped":           true,
 	"mission.archived":          true,
+	"deploy.before":             true,
+	"deploy.after":              true,
 	"*":                         true,
 }
 

@@ -161,7 +161,7 @@ Usage:
   spacecraft evidence <label> -- <command...>
   spacecraft validate
   spacecraft closeout-check
-  spacecraft archive [selector]
+  spacecraft archive [selector] [--ci]
   spacecraft research <query> [flags]
   spacecraft check-deps [flags]
   spacecraft eval <mission-id>
@@ -244,7 +244,7 @@ func newCmd(args []string) int {
 	}
 
 	// Write stubs
-	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Mission Spec\n\n## Goal\n\n## User-visible behavior\n\n## Non-goals\n\n## Constraints\n\n## Acceptance checks\n"), 0644)
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Mission Spec\n\n## Goal\n\n## User-visible behavior\n\n## Non-goals\n\n## Constraints\n\n## Edge Cases\n\n## Error Handling\n\n## Integration Points\n\n## Test Plan\n\n## Acceptance checks\n"), 0644)
 	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"`+mid+`","tasks":[]}`+"\n"), 0644)
 	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte(""), 0644)
 	os.WriteFile(filepath.Join(dir, "review.md"), []byte("# Mission Review\n"), 0644)
@@ -853,26 +853,68 @@ func closeoutCmd() int {
 }
 
 func archiveCmd(args []string) int {
+	ciMode := false
+	var filteredArgs []string
+	for _, arg := range args {
+		if arg == "--ci" {
+			ciMode = true
+		} else {
+			filteredArgs = append(filteredArgs, arg)
+		}
+	}
+
 	var res mission.ResolveOutput
-	if len(args) > 0 {
-		res = r.Resolve(strings.Join(args, " "))
+	if len(filteredArgs) > 0 {
+		res = r.Resolve(strings.Join(filteredArgs, " "))
 	} else {
 		var err error
 		res, err = r.RequireResolved("archive")
 		if err != nil {
-			return printErr(resolver.FormatResolutionBlock(res, "archive"))
+			if ciMode {
+				output := map[string]interface{}{
+					"success": false,
+					"error":   resolver.FormatResolutionBlock(res, "archive"),
+				}
+				data, _ := json.MarshalIndent(output, "", "  ")
+				fmt.Println(string(data))
+			} else {
+				return printErr(resolver.FormatResolutionBlock(res, "archive"))
+			}
+			return 1
 		}
 	}
 	if res.Safety != "safe" || res.Selected == nil {
+		if ciMode {
+			output := map[string]interface{}{
+				"success": false,
+				"error":   resolver.FormatResolutionBlock(res, "archive"),
+			}
+			data, _ := json.MarshalIndent(output, "", "  ")
+			fmt.Println(string(data))
+			return 1
+		}
 		return printErr(resolver.FormatResolutionBlock(res, "archive"))
 	}
 	id := res.Selected.ID
 	m, err := store.Load(id)
 	if err != nil {
+		if ciMode {
+			output := map[string]interface{}{"success": false, "error": err.Error()}
+			data, _ := json.MarshalIndent(output, "", "  ")
+			fmt.Println(string(data))
+			return 1
+		}
 		return printErr(err)
 	}
 	if m.State != "shipped" {
-		return printErr(fmt.Sprintf("Archive blocked: mission %s state is %s. Archive only shipped missions.", id, m.State))
+		errMsg := fmt.Sprintf("Archive blocked: mission %s state is %s. Archive only shipped missions.", id, m.State)
+		if ciMode {
+			output := map[string]interface{}{"success": false, "error": errMsg}
+			data, _ := json.MarshalIndent(output, "", "  ")
+			fmt.Println(string(data))
+			return 1
+		}
+		return printErr(errMsg)
 	}
 	var plan *mission.Plan
 	if p, err := store.LoadPlan(id); err == nil {
@@ -885,17 +927,45 @@ func archiveCmd(args []string) int {
 	entries, _ := store.ReadEvidenceEntries(id)
 	errs := arc.CheckReadiness(id, plan, review, entries)
 	if errs != nil {
-		return printErr(fmt.Sprintf("Archive blocked for %s:\n- %s", id, strings.Join(errs.Errors, "\n- ")))
+		errMsg := fmt.Sprintf("Archive blocked for %s:\n- %s", id, strings.Join(errs.Errors, "\n- "))
+		if ciMode {
+			output := map[string]interface{}{"success": false, "error": errMsg}
+			data, _ := json.MarshalIndent(output, "", "  ")
+			fmt.Println(string(data))
+			return 1
+		}
+		return printErr(errMsg)
 	}
+
+	_ = hooks.Fire(context.Background(), hooksCfg, "deploy.before")
+
 	result, err := ar.Archive(archive.ArchiveParams{
 		ID: id, Mission: m, Plan: plan, Review: review, EvidenceEntries: entries,
 	})
 	if err != nil {
+		if ciMode {
+			output := map[string]interface{}{"success": false, "error": err.Error()}
+			data, _ := json.MarshalIndent(output, "", "  ")
+			fmt.Println(string(data))
+			return 1
+		}
 		return printErr(err)
 	}
+	_ = hooks.Fire(context.Background(), hooksCfg, "deploy.after")
 	_ = hooks.Fire(context.Background(), hooksCfg, "mission.archived")
-	fmt.Printf("Archived mission %s\n", id)
-	fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
+
+	if ciMode {
+		output := map[string]interface{}{
+			"success":    true,
+			"missionId":  id,
+			"archiveDir": rel(result.ArchiveDir),
+		}
+		data, _ := json.MarshalIndent(output, "", "  ")
+		fmt.Println(string(data))
+	} else {
+		fmt.Printf("Archived mission %s\n", id)
+		fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
+	}
 	return 0
 }
 
