@@ -84,3 +84,15 @@ func (s *FSStore) Delete(id string) error {
 	}
 	return os.Remove(path)
 }
+
+func DeriveState(r *Roadmap, isShipped func(missionId string) bool) string {
+	if len(r.Missions) == 0 {
+		return "active"
+	}
+	for _, mid := range r.Missions {
+		if !isShipped(mid) {
+			return "active"
+		}
+	}
+	return "done"
+}

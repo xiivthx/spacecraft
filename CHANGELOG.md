@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.26.9 - 2026-07-14
+
+- Feat: add roadmap feature — CLI commands for multi-mission long-term work (new, add, remove, show, list, continue, archive) with `.space/roadmaps/` JSON store and derived lifecycle states (M07PDUTCZ)
+- Feat: add roadmap lifecycle validation — active/done/archived state transitions, duplicate detection, cross-roadmap conflict guard
+- Feat: add large-scope auto-detect rule in PERSONA.md — commander suggests roadmap when task count exceeds 7 or scope is multi-phase
+
 ## 0.26.8 - 2026-07-14
 
 - Feat: split sc-commander into commander + sc-adviser agent for architectural design escalation

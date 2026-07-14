@@ -2215,8 +2215,66 @@ func roadmapShowCmd(args []string) int {
 	return 0
 }
 func roadmapContinueCmd(args []string) int {
-	return printErr("roadmap continue: not yet implemented")
+	if len(args) < 1 {
+		return printErr("Usage: spacecraft roadmap continue <roadmap-id>")
+	}
+	rid := args[0]
+	rm, err := roadmapStore.Load(rid)
+	if err != nil {
+		return printErr("roadmap not found: " + rid)
+	}
+
+	if len(rm.Missions) == 0 {
+		return printErr("roadmap has no missions")
+	}
+
+	shippedStates := map[string]bool{"shipped": true, "archived": true}
+
+	for _, mid := range rm.Missions {
+		m, err := store.Load(mid)
+		if err != nil || !shippedStates[m.State] {
+			if err := store.WriteCurrent(mid); err != nil {
+				return printErr("Failed to set current mission:", err)
+			}
+			label := mid
+			if m != nil {
+				label = fmt.Sprintf("%s %s", mid, m.Title)
+			}
+			fmt.Println(label)
+			return 0
+		}
+	}
+
+	fmt.Println("all missions complete")
+	return 0
 }
 func roadmapArchiveCmd(args []string) int {
-	return printErr("roadmap archive: not yet implemented")
+	if len(args) < 1 {
+		return printErr("Usage: spacecraft roadmap archive <roadmap-id>")
+	}
+	rid := args[0]
+	rm, err := roadmapStore.Load(rid)
+	if err != nil {
+		return printErr("roadmap not found: " + rid)
+	}
+
+	shippedStates := map[string]bool{"shipped": true, "archived": true}
+	for _, mid := range rm.Missions {
+		m, err := store.Load(mid)
+		if err != nil || !shippedStates[m.State] {
+			return printErr("mission " + mid + " is not shipped — cannot archive roadmap")
+		}
+	}
+
+	src := filepath.Join(cfg.RoadmapsDir(), rid+".json")
+	dst := filepath.Join(cfg.ArchiveDir(), rid+".json")
+	if err := os.MkdirAll(cfg.ArchiveDir(), 0755); err != nil {
+		return printErr("Failed to ensure archive dir:", err)
+	}
+	if err := os.Rename(src, dst); err != nil {
+		return printErr("Failed to archive roadmap:", err)
+	}
+
+	fmt.Printf("Roadmap %s archived\n", rid)
+	return 0
 }

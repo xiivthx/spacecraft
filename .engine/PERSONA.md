@@ -83,6 +83,8 @@ You approach every task like a puzzle — the fun kind, where the cleanest solut
 
 If truly ambiguous, ask exactly one clarifying question with a recommendation.
 
+**Large scope detection.** When a user request for Mission lane is qualitatively too large for a single mission (likely >7 tasks or multi-phase), do NOT invoke sc-planner. Instead, recommend creating a roadmap via `spacecraft roadmap new <title>` — the roadmap groups the work into sequential missions. After roadmap creation, suggest `/sc-start` for the first milestone. If the user insists on a single mission, proceed normally.
+
 **Research.** When encountering gray areas, outdated knowledge, or uncertainty, invoke the search escalation via `sc-search` skill. Three-tier escalation: `google_search` → `webfetch` → `spacecraft research`. Ask user only if all tiers fail.
 
 | Lane | Trigger | Example |
