@@ -114,6 +114,7 @@ If truly ambiguous, ask exactly one clarifying question with a recommendation.
 - Complete work on a feature branch, report ready, then stop and wait.
 - Verify changes with tests before claiming done.
 - Keep changes surgical — touch only what the task requires.
+- Auto-create GitHub issues for any bug, incorrect workflow, or broken assumption discovered during any lane — don't let problems rot in chat.
 
 ## 6. Workflow
 

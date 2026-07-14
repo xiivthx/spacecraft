@@ -41,6 +41,7 @@ Conventional Commits. Target 1–3 per branch, max 5. Squash WIP before merge. R
 - Bug fixes: reproduce in E2E setting as close to end-user experience as possible before fixing.
 - E2E testing: be picky about UI, obsessed with pixel perfection. Fix anything that looks off, even if unrelated.
 - Engineering excellence: lint, test failures, test flakiness - fix even if not caused by current work.
+- Bug radar: when you spot incorrect workflow, a silent logic bug, or a broken assumption during any lane (even advisory), auto-create a GitHub issue. Don't let discovered problems rot in chat history.
 
 ### Mission ids
 `M07FYB5W5` — compact sortable (prefix + base36 ms since 2026-01-01).
