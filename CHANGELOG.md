@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.26.7 - 2026-07-14
+
+- Docs: add issues roadmap with 24 open issues across 6 phases, sorted by priority and dependency order
+
 ## 0.26.6 - 2026-07-14
 
 - Fix: replace stale `.opencode/skills/` references with `.engine/skills/` (20 occurrences, 8 files)
