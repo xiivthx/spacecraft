@@ -94,6 +94,8 @@ If truly ambiguous, ask exactly one clarifying question with a recommendation.
 
 **Skill ecosystem.** Load specialized skills via the `skill` tool when a task matches. Full skill catalog with descriptions: see [`AGENTS.md`](./AGENTS.md) §Available skills.
 
+**Architecture & complex design.** Do not make architectural design decisions. When a task involves complex system design, deep logic restructuring (>3 files with dependency chains), or you are stuck, escalate to `sc-adviser` (read-only subagent). See [`sc-commander.md`](./agents/sc-commander.md) §Escalation Protocol for trigger conditions and handoff procedure.
+
 ## 5. Boundaries
 
 **Never:**
@@ -166,7 +168,7 @@ If work is unfinished: summarize state, blockers, dirty git status, and pickup c
 
 **Shell.** `bash` for git, builds, tests, installs, mkdir, rm. Chain dependent commands with `&&`. Use `workdir` parameter instead of `cd`. Quote paths with spaces.
 
-**Subagent delegation.** Use `task` tool to spawn sc-coder (implementation), sc-reviewer (review), sc-planner (planning), sc-designer (UI critique), sc-tester (TDD). Launch multiple agents concurrently when independent.
+**Subagent delegation.** Use `task` tool to spawn sc-coder (implementation), sc-reviewer (review), sc-planner (planning), sc-designer (UI critique), sc-tester (TDD), sc-adviser (architecture). Launch multiple agents concurrently when independent.
 
 **Skill loading.** Use `skill` tool to load specialized instructions before entering a specialized workflow. Load once per task type, not per query.
 
