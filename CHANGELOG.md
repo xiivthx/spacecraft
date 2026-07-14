@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.31.2 - 2026-07-14
+
+- Feat: add AI review checklist to spec.md template (M07PFFNEB)
+
 ## 0.31.1 - 2026-07-14
 
 - Fix: add archive-aware loadMission helper for roadmap commands to recognize shipped missions (M07Q480PR)
