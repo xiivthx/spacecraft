@@ -32,19 +32,21 @@ func (r *Runner) Run(missionID string) (*RunResult, error) {
 		return nil, fmt.Errorf("eval: read evidence: %w", err)
 	}
 
-	deterministic := RunDeterministic(entries)
+	filtered := filterEvalEntries(entries)
+
+	deterministic := RunDeterministic(filtered)
 
 	rubric, err := LoadRubric(r.EvalsDir, missionID)
 	if err != nil {
 		rubric = &EvalRubric{Dimensions: StdDimensions()}
 	}
 
-	scorecard, err := ScoreRubric(rubric, entries)
+	scorecard, err := ScoreRubric(rubric, filtered)
 	if err != nil {
 		return nil, fmt.Errorf("eval: rubric scoring: %w", err)
 	}
 
-	lmJudge := RunLMJudge(entries)
+	lmJudge := RunLMJudge(filtered)
 
 	dataset, err := LoadDataset(r.EvalsDir, missionID)
 	coveredChecks := 0
@@ -114,4 +116,14 @@ func ensureFileExists(path string) error {
 		return err
 	}
 	return f.Close()
+}
+
+func filterEvalEntries(entries []mission.EvidenceEntry) []mission.EvidenceEntry {
+	var filtered []mission.EvidenceEntry
+	for _, e := range entries {
+		if e.Type == nil || *e.Type != "eval" {
+			filtered = append(filtered, e)
+		}
+	}
+	return filtered
 }

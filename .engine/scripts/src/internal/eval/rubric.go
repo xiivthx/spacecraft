@@ -3,11 +3,30 @@ package eval
 import (
 	"fmt"
 	"math"
+	"os"
 	"sort"
 	"strings"
 
 	"spacecraft/internal/mission"
 )
+
+func resolveContent(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return s
+	}
+	if strings.Contains(s, "\n") {
+		return s
+	}
+	if len(s) > 500 {
+		return s
+	}
+	data, err := os.ReadFile(s)
+	if err != nil {
+		return s
+	}
+	return string(data)
+}
 
 // ScoreRubric evaluates all evidence entries against the given rubric and returns a scorecard.
 func ScoreRubric(rubric *EvalRubric, entries []mission.EvidenceEntry) (*EvalScorecard, error) {
@@ -166,8 +185,8 @@ func scoreHallucination(entries []mission.EvidenceEntry) DimensionScore {
 	suspiciousKeywords := []string{"unknown", "not found", "does not exist", "invalid", "undefined", "fabricated"}
 	warnCount := 0
 	for _, e := range entries {
-		stdout := strings.ToLower(e.Stdout)
-		stderr := strings.ToLower(e.Stderr)
+		stdout := strings.ToLower(resolveContent(e.Stdout))
+		stderr := strings.ToLower(resolveContent(e.Stderr))
 		for _, kw := range suspiciousKeywords {
 			if strings.Contains(stdout, kw) || strings.Contains(stderr, kw) {
 				warnCount++
@@ -205,7 +224,9 @@ func scoreResponseQuality(entries []mission.EvidenceEntry) DimensionScore {
 	minContentLen := 10
 	adequateEntries := 0
 	for _, e := range entries {
-		if len(strings.TrimSpace(e.Stdout)) >= minContentLen || len(strings.TrimSpace(e.Stderr)) >= minContentLen {
+		stdout := resolveContent(e.Stdout)
+		stderr := resolveContent(e.Stderr)
+		if len(strings.TrimSpace(stdout)) >= minContentLen || len(strings.TrimSpace(stderr)) >= minContentLen {
 			adequateEntries++
 		}
 	}

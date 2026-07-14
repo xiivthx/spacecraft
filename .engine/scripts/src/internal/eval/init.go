@@ -90,7 +90,7 @@ func defaultRubricJSON() []byte {
 	rubric := EvalRubric{
 		Dimensions: StdDimensions(),
 	}
-	b, _ := marshalJSON(rubric)
+	b, _ := MarshalJSON(rubric)
 	return b
 }
 
@@ -98,18 +98,14 @@ func defaultDatasetJSON() []byte {
 	dataset := EvalDataset{
 		Examples: []EvalDatasetEntry{},
 	}
-	b, _ := marshalJSON(dataset)
+	b, _ := MarshalJSON(dataset)
 	return b
 }
 
 func defaultConfigJSON() []byte {
 	cfg := DefaultEvalConfig()
-	b, _ := marshalJSON(cfg)
+	b, _ := MarshalJSON(cfg)
 	return b
-}
-
-func marshalJSON(v interface{}) ([]byte, error) {
-	return json.MarshalIndent(v, "", "  ")
 }
 
 // MarshalJSON marshals v to indented JSON.
