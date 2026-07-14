@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.31.5 - 2026-07-14
+
+- Chore: remove sc-map skill (redundant with codegraph) (M07Q5XKDZ)
+
 ## 0.31.4 - 2026-07-14
 
 - Feat: auto-close GitHub issues with extended patterns, multi-source scanning, pre-check, and --no-close-issues flag (M07Q5XKB2)

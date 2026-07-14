@@ -51,7 +51,6 @@ The following skills are auto-triggered by context — users do not need to type
 - **sc-clarify**: when ambiguity is detected in spec, scope, intent, or acceptance criteria, auto-load sc-clarify skill and ask exactly one blocking question. Do not wait for `/sc-clarify`.
 - **sc-mission status**: at session start and before any mutating work, run `scripts/spacecraft resolve --json` and `scripts/spacecraft status` to check mission state.
 - **sc-debug**: when user reports a bug, error, stack trace, or asks to debug/diagnose/investigate an issue. Load sc-debug skill and apply five-step discipline.
-- **sc-map**: before `/sc-plan` when `outputs/map.json` is missing and the project has >10 source files. Map the project structure to ensure task coverage.
 - **sc-search**: when encountering unfamiliar errors, deprecated APIs, dependency version uncertainty, or technical gray areas — auto-load sc-search skill and follow the 3-tier escalation with user fallback (google_search → webfetch → spacecraft research; ask user if all tiers fail).
 - **sc-tdd** and **sc-solid**: load via `sc-*` wildcard when relevant commands invoke them (`/sc-build`, `/sc-review`). Not separately listed as auto-triggers — they activate through command context, not ambient detection.
 - **Research auto-trigger**: when encountering gray areas, outdated knowledge, or uncertainty about APIs/dependencies/versions, the sc-search skill (see above) orchestrates the escalation. The Commander decides when to invoke; the skill provides the mechanism.
