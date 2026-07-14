@@ -259,7 +259,9 @@ func buildBlockers(m *mission.Mission, specExists, planExists bool, tasks []miss
 	if onMainBlock && gitInfo.IsRepo && gitInfo.Branch == "main" {
 		blockers = append(blockers, "implementation workflow requires a non-main work branch")
 	}
-	// TODO: add dirty state check for non-main branches when GitInfo exposes dirty flag
+	if gitInfo.IsRepo && gitInfo.Branch != "main" && gitInfo.Dirty {
+		blockers = append(blockers, fmt.Sprintf("worktree has %d uncommitted file(s); commit or stash before continuing", gitInfo.DirtyFiles))
+	}
 
 	return blockers
 }
