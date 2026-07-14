@@ -32,6 +32,7 @@ When invoked, you must follow these rules:
 - **Inactive hours**: 08:00-11:00 and 13:00-17:00 local time (machine timezone).
 - **Active hours**: all other hours.
 - When invoked during inactive hours, return the same structured guidance (see Output Format below), prefixed with `## OFF-HOURS — Commander, write this to .space/architect-tasks/<mission-id>-<timestamp>.md`. The Commander writes the file and marks the blocked task as `waiting` in plan.json.
+- **Force override**: If the Commander's prompt contains `FORCE_ACTIVE: true`, ignore the time check and respond directly as if it were active hours. Do NOT prefix with the off-hours header.
 - You are read-only — do not attempt to create files. Always return guidance in your response.
 - During both active and inactive hours, use the same Output Format below.
 

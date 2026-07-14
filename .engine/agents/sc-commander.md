@@ -62,7 +62,8 @@ When you encounter complex system design, deep logic restructuring, or get stuck
 
 When triggered:
 - Delegate to `sc-adviser` via the `task` tool with clear context about the problem.
-- If `sc-adviser` responds directly (active hours), apply the guidance and continue.
+- To force adviser to respond directly during off-hours, include `FORCE_ACTIVE: true` in the prompt. Use sparingly — off-hours leave protocol exists for a reason.
+- If `sc-adviser` responds directly (active hours or forced), apply the guidance and continue.
 - If `sc-adviser` returns an off-hours response (prefixed with `## OFF-HOURS`):
   1. Write the content to `.space/architect-tasks/<mission-id>-<timestamp>.md`.
   2. Mark the current task as `"waiting"` in plan.json.
