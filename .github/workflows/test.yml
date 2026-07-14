@@ -1,0 +1,39 @@
+name: Test & Coverage
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: .engine/scripts/src/go.mod
+
+      - name: Run tests with coverage
+        run: make test
+
+      - name: Coverage report
+        working-directory: .engine/scripts/src
+        run: go tool cover -func coverage.out
+
+      - name: Check coverage threshold
+        working-directory: .engine/scripts/src
+        run: |
+          COVERAGE=$(go tool cover -func coverage.out | grep '^total:' | awk '{print $3}' | sed 's/%//')
+          echo "Total coverage: ${COVERAGE}%"
+          if [ "$(echo "$COVERAGE < 75" | bc)" -eq 1 ]; then
+            echo "Coverage ${COVERAGE}% below threshold 75%"
+            exit 1
+          fi
+          echo "Coverage ${COVERAGE}% meets threshold 75%"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: .engine/scripts/src/coverage.out
