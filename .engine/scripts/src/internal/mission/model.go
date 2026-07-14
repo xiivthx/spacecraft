@@ -1,6 +1,8 @@
 // Package mission defines the core data model types for the Spacecraft mission system.
 package mission
 
+import "encoding/json"
+
 // GitBlock stores git state at mission creation/update time.
 type GitBlock struct {
 	IsRepo            bool    `json:"isRepo"`
@@ -166,6 +168,23 @@ type WorkflowSnapshot struct {
 type ReleaseGate struct {
 	Status    *string `json:"status"`
 	Rationale *string `json:"rationale"`
+}
+
+// UnmarshalJSON accepts both a plain string (shorthand for status) and a full
+// ReleaseGate object, so that agents writing review.json can use either form.
+func (rg *ReleaseGate) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		rg.Status = &s
+		return nil
+	}
+	type alias ReleaseGate
+	var a alias
+	if err := json.Unmarshal(data, &a); err != nil {
+		return err
+	}
+	*rg = ReleaseGate(a)
+	return nil
 }
 
 // ReleaseReadiness aggregates all release readiness gates.

@@ -152,6 +152,55 @@ func TestReviewRoundTrip(t *testing.T) {
 	}
 }
 
+func TestReleaseGateUnmarshalString(t *testing.T) {
+	data := []byte(`"ok"`)
+	var rg ReleaseGate
+	if err := json.Unmarshal(data, &rg); err != nil {
+		t.Fatalf("Unmarshal string ReleaseGate: %v", err)
+	}
+	if rg.Status == nil || *rg.Status != "ok" {
+		t.Errorf("Status = %v, want 'ok'", rg.Status)
+	}
+	if rg.Rationale != nil {
+		t.Errorf("expected nil Rationale, got %v", rg.Rationale)
+	}
+}
+
+func TestReleaseGateUnmarshalStruct(t *testing.T) {
+	data := []byte(`{"status":"ok","rationale":"trust me"}`)
+	var rg ReleaseGate
+	if err := json.Unmarshal(data, &rg); err != nil {
+		t.Fatalf("Unmarshal struct ReleaseGate: %v", err)
+	}
+	if rg.Status == nil || *rg.Status != "ok" {
+		t.Errorf("Status = %v, want 'ok'", rg.Status)
+	}
+	if rg.Rationale == nil || *rg.Rationale != "trust me" {
+		t.Errorf("Rationale = %v, want 'trust me'", rg.Rationale)
+	}
+}
+
+func TestReleaseReadinessStringGates(t *testing.T) {
+	data := []byte(`{
+		"version": "0.30.1",
+		"changelog": "updated",
+		"specNote": "",
+		"tagPlan": "v0.30.1",
+		"postRebaseVerification": "not needed",
+		"evalCoverage": "0.00"
+	}`)
+	var rr ReleaseReadiness
+	if err := json.Unmarshal(data, &rr); err != nil {
+		t.Fatalf("Unmarshal string ReleaseReadiness: %v", err)
+	}
+	if rr.Version == nil || *rr.Version.Status != "0.30.1" {
+		t.Errorf("Version = %v", rr.Version)
+	}
+	if rr.Changelog == nil || *rr.Changelog.Status != "updated" {
+		t.Errorf("Changelog = %v", rr.Changelog)
+	}
+}
+
 func TestCompactMissionRoundTrip(t *testing.T) {
 	cm := CompactMission{
 		ID:    "M07ABCDEF",
