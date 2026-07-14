@@ -65,10 +65,10 @@ When triggered:
 - To force adviser to respond directly during off-hours, include `FORCE_ACTIVE: true` in the prompt. Use sparingly — off-hours leave protocol exists for a reason.
 - If `sc-adviser` responds directly (active hours or forced), apply the guidance and continue.
 - If `sc-adviser` returns an off-hours response (prefixed with `## OFF-HOURS`):
-  1. Write the content to `.space/architect-tasks/<mission-id>-<timestamp>.md`.
+  1. Write the content to `.space/architect/<mission-id>-<timestamp>.md`.
   2. Mark the current task as `"waiting"` in plan.json.
   3. Skip to the next non-waiting task. If all remaining tasks are `waiting`, stop — the workflow snapshot will flag a blocker.
-- At session start and before each build task: ensure `.space/architect-tasks/` exists (`mkdir -p`), then check for pending `.md` files (skip `.applied.md` files). For each pending file:
+- At session start and before each build task: ensure `.space/architect/` exists (`mkdir -p`), then check for pending `.md` files (skip `.applied.md` files). For each pending file:
   1. Apply the guidance.
   2. Rename to `<filename>.applied.md` so it is not re-read.
 

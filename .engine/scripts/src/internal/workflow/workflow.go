@@ -161,7 +161,7 @@ func (s *Snapshot) Build(res mission.ResolveOutput, missionID string) (mission.W
 
 	if !hasBlockingClarification && artifactGateClear && nextTask == nil {
 		if hasWaitingTasks(tasks) {
-			blockers = append(blockers, "all open tasks are waiting on architectural guidance — check .space/architect-tasks/")
+			blockers = append(blockers, "all open tasks are waiting on architectural guidance — check .space/architect/")
 			next = "/sc-resume"
 		} else if m.State == "ready" {
 			next = "/sc-ship"

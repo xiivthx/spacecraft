@@ -333,7 +333,7 @@ func TestSnapshot_Build_allWaitingTasks(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !containsStr(snap.Blockers, "architectural guidance") {
-		t.Errorf("expected architect-tasks blocker, got %v", snap.Blockers)
+		t.Errorf("expected architect blocker, got %v", snap.Blockers)
 	}
 	if snap.Next != "/sc-resume" {
 		t.Errorf("expected /sc-resume when all open tasks are waiting, got %q", snap.Next)
