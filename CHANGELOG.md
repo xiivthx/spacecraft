@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.30.2 - 2026-07-14
+
+- Fix: accept string shorthand for ReleaseGate JSON unmarshaling to prevent archive blocking (M07PYOT0G)
+
 ## 0.30.1 - 2026-07-14
 
 - Refactor: inject behavioral directives into all 7 sc-* agent prompts for tighter communication discipline (M07PXR32X)
