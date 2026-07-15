@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.10 - 2026-07-15
+
+- Feat: add criteria decomposition to sc-review (specification, evidence, quality, integrity)
+- Feat: add optional Criterion field to Finding struct for traceability
+
 ## 0.31.9 - 2026-07-15
 
 - Feat: auto-archive mission on set-state shipped
