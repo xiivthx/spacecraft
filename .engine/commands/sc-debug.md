@@ -7,20 +7,17 @@ Debug: $ARGUMENTS
 
 ## Pre-flight checks
 
-If the user is reporting a bug, error, or unexpected behavior, enter debug mode. Recite the mantra once in your first response, then apply the five steps in order.
+If the user is reporting a bug, error, or unexpected behavior, enter debug mode. State the five constraints once in your first response, then apply in order.
 
-## Workflow
+## Five steps
 
-### Recite the mantra - verbatim, first thing in first response
+State these once, first response:
 
-> **Mantra:**
-> 1. **First is reproducibility.** Can the issue be reproduced reliably?
-> 2. **Know the fail path.** Debugger first; then source trace + knob enumeration; then in-code instrumentation.
-> 3. **Question your hypothesis.** What would disprove it?
-> 4. **Every run is a breadcrumb.** Cross-reference all of them.
-> 5. **Document the post-mortem.** Repro, root cause, fix, validation - all four, or refuse to draft.
-
-Then begin work.
+1. **Reproduce first.** No fix without a reliable repro.
+2. **Know the fail path.** Debugger first; then source trace + config parameters; then in-code instrumentation.
+3. **Test before accepting.** What would disprove the hypothesis? Run counter-example first.
+4. **Every run is a breadcrumb.** Cross-reference all experiments.
+5. **Post-mortem or refuse to draft.** Repro, root cause, fix, validation - all four or stop.
 
 ---
 
@@ -28,10 +25,10 @@ Then begin work.
 
 Build a runnable repro before anything else.
 - **Reliable repro** - capture exact steps, inputs, environment as a runnable artifact (failing test, curl, CLI). Use `sc-verification` for evidence.
-- **Flaky repro** - the bug is not yet debuggable. Raise the rate first: loop the trigger, parallelise, add stress, narrow timing windows, inject sleeps. 50% flake is debuggable; 1% is not.
-- **No repro at all** - stop. Say so explicitly. Ask the user for env access, captured artifacts (HAR, log dump, core), or permission to instrument. Do **not** proceed to hypothesise.
+- **Flaky repro** - raise the rate first: loop the trigger, run in parallel, add stress. 50% flake is debuggable; 1% is not.
+- **No repro at all** - stop. Ask the user for env access, captured artifacts (HAR, log dump, core), or permission to instrument. Do not proceed to guess.
 
-Target: a fast (1-5 s), deterministic pass/fail signal. Pin time, seed the RNG, freeze network, isolate filesystem.
+Target: a fast (1-5 s), deterministic pass/fail signal.
 
 **Use `sc-git`** to create an investigation branch from latest `main` before any diagnostic code changes.
 
@@ -39,134 +36,87 @@ Target: a fast (1-5 s), deterministic pass/fail signal. Pin time, seed the RNG, 
 
 ### 2. Know the fail path
 
-Once reproducible, find *where* the code breaks and *what stops it from breaking*. Try in this order - escalate only when the prior tactic fails.
+Find *where* the code breaks and *what stops it from breaking*. Escalate only when the prior tactic fails.
 
-1. **Attach a debugger.** If the environment supports it, attach and step to the failure site. One breakpoint beats ten logs. Do this **before** turning any knobs.
-2. **Source trace + knob enumeration.** If no debugger, trace the code path end-to-end and list every knob that can influence the outcome: config flags, env vars, feature toggles, branch conditions, input shape, timing, concurrency. Flip one at a time.
-3. **In-code instrumentation.** If outside knobs can't move the failure, go inside: `printf` / log statements at the suspected fail site, dump the relevant internal state. Tag every probe with a unique prefix (e.g. `[DBG-a4f2]`) so cleanup is a single grep. Let the trace show where reality diverges from your model.
-
----
-
-### 3. Falsify the hypothesis
-
-When a candidate root cause surfaces, scrutinise it **before** testing it.
-
-- Does it actually explain the symptom end-to-end? Walk it through.
-- What is the simplest **proof**? What is the cleanest **disproof**?
-- Run the **disproof first**. If the hypothesis survives, it's real. If it dies, you saved yourself from chasing a phantom.
-- Generate 3-5 ranked hypotheses, not one. Single-hypothesis thinking anchors on the first plausible idea.
+1. **Attach a debugger.** Step to the failure site. One breakpoint beats ten logs.
+2. **Source trace + config parameters.** Trace the code path end-to-end. List every config parameter: flags, env vars, feature toggles, branch conditions, input shape, timing, concurrency. Flip one at a time.
+3. **In-code instrumentation.** `printf` / log statements at the suspected fail site. Tag every probe with a unique prefix (e.g. `[DBG-a4f2]`) so cleanup is a single grep.
 
 ---
 
-### 4. Every run is a breadcrumb
+### 3. Test the hypothesis
 
-Maintain a running **ledger** of every experiment in this session. Each entry: what changed, what happened, what it ruled in or out.
+Examine a candidate root cause **before** testing it.
 
-#### Breadcrumb ledger format
+- Does it explain the symptom end-to-end?
+- What is the cleanest **counter-example**? Run it first.
+- Generate 3-5 ranked hypotheses, not one.
+
+---
+
+### 4. Breadcrumb ledger
+
+Maintain a running ledger of every experiment. Each entry: what changed, what happened, what it ruled in or out.
 
 | Field | Description |
 |-------|-------------|
-| `timestamp` | ISO 8601 of the experiment |
+| `timestamp` | ISO 8601 |
 | `hypothesis` | What was believed before the run |
 | `command` | Exact command or action taken |
-| `output_hash` | SHA-256 of output or short summary |
 | `result` | PASS, FAIL, or specific observation |
 | `rules_in` | What this run confirms |
 | `rules_out` | What this run eliminates |
 
-**Operating rules for the ledger:**
-
-- When a new hypothesis surfaces, walk the ledger. Does it hold for **every** prior observation, not just the most recent?
-- If any past run contradicts it, the hypothesis is wrong or incomplete - refine or discard.
-- When in doubt, design the **single experiment** whose outcome makes it certain. Run that next.
-- Update the ledger after every run. It is your memory across the session.
-- The completed ledger is raw material for the post-mortem in step 5.
+- When a new hypothesis surfaces, walk the ledger. Does it hold for **every** prior observation?
+- If any past run contradicts it, refine or discard.
+- Update the ledger after every run.
 
 ---
 
 ### 5. Post-mortem
 
-After the fix lands and is validated, draft the canonical engineering record. For other engineers and future-you who will have forgotten in 6 months.
+**Refuse to draft without ALL four mandatory inputs:**
 
-**Refuse to draft without ALL four mandatory inputs.** If any are missing, list what's missing and stop:
+- [ ] **Repro steps** - deterministic repro exists (runnable)
+- [ ] **Root cause** - actual mechanism identified (not a hypothesis)
+- [ ] **Fix** - PR / commit / branch pointer
+- [ ] **Validation** - original repro now passes
 
-- [ ] **Repro steps** - deterministic repro exists (runnable, not just a description)
-- [ ] **Root cause** - the actual mechanism is identified (not a hypothesis)
-- [ ] **Fix** - PR / commit / branch pointer to the actual change
-- [ ] **Validation** - the original repro now passes; the fix is confirmed
+#### Structure
 
-If you came in via steps 1-4, the breadcrumb ledger from step 4 is your raw material - pull from it.
-
-#### Post-mortem structure
-
-1. **Summary** *(mandatory)* - What broke, what fixed it, one sentence.
-2. **Symptom** - What was observed (errors, logs, test failures).
-3. **Root cause** *(mandatory)* - Actual bug mechanism with code identifiers, file paths, commit SHAs.
+1. **Summary** - What broke, what fixed it, one sentence.
+2. **Symptom** - What was observed.
+3. **Root cause** - Actual bug mechanism with file paths, commit SHAs.
 4. **Why it produced the symptom** - Link root cause to symptom.
-5. **Fix** *(mandatory)* - What changed, why it addresses root cause. Link to PR/commit.
-6. **How it was found** - Debugging path: repro, tools, rejected hypotheses, confirming experiment.
-7. **Why it slipped through** - CI gap, latent code, review miss. Blameless.
-8. **Validation** *(mandatory)* - Original repro passes, specific test names, before/after numbers.
-9. **Action items / follow-ups** - Concrete next-steps. If none: "None - the fix is sufficient."
+5. **Fix** - What changed, why it addresses root cause.
+6. **How it was found** - Debugging path, rejected hypotheses, confirming experiment.
+7. **Why it slipped through** - CI gap, untested code, review miss. Blameless.
+8. **Validation** - Original repro passes, test names, before/after numbers.
+9. **Action items** - Concrete next-steps. If none: "None."
 
-Use `sc-git` to reference commit/PR pointers in the post-mortem. Use `sc-verification` to capture validation evidence.
+Use `sc-git` for commit/PR pointers. Use `sc-verification` for validation evidence.
 
 ---
 
-## Rules
+## Anti-rationalization guards
 
-### General
+These excuses are always wrong. When you catch yourself thinking one, return to the step you're skipping:
 
-- **Must**: Recite the mantra block **once** per debug session, in your first response. Do not re-recite mid-session.
-- **Must**: Recite **verbatim**. Never paraphrase, shorten, or skip lines of the recital.
-- **Must**: Apply the five steps **in order**. The step order is enforced - no skipping ahead.
-- **Must**: If the user says "skip the mantra" - skip the recital but still apply the five steps silently.
-- **Must not**: Propose a fix before step 1 is satisfied (reliable repro exists).
-- **Must not**: Form a hypothesis before step 2 has narrowed the fail path (no hypothesis before trace).
-- **Must not**: Accept a conclusion before step 3 has tried to disprove the hypothesis (no conclusion before falsification).
-- **Must not**: Commit to a hypothesis before step 4 confirms it against every prior breadcrumb.
-- **Must not**: Draft a post-mortem before step 5's four mandatory inputs are all satisfied.
-- **Must**: No fix before reproduction. If you catch yourself proposing a fix without a reliable repro, stop and return to step 1.
-- **Must**: If ambiguity about bug behavior blocks diagnosis, route to `sc-clarify` before continuing.
-- **Must**: Use `sc-verification` for capturing reproducible evidence (step 1) and fix validation (step 5). Do not reimplement evidence capture.
-- **Must**: Use `sc-git` for creating investigation branches before diagnostic code changes and for recording commit/PR references in the post-mortem. Do not reimplement git hygiene.
-- **Must**: Use `sc-clarify` when user intent, bug behavior, or expected behavior is materially ambiguous. Do not reimplement clarification workflow.
-- **Must**: The mantra is a constraint **you** carry through the session - not advice to deliver back to the user.
-
-### Anti-rationalization guards
-
-Agents often try to skip debug steps with plausible-sounding excuses. These excuses are always wrong. When you hear yourself thinking one of these, stop and return to the step you're trying to skip:
-
-| Excuse | Why it's wrong | Correct action |
-|--------|----------------|----------------|
-| "This is an obvious one-liner - I can see the fix" | You're fixing what you *think* is broken, not what's actually broken. Many "obvious" fixes paper over symptoms while leaving the root cause untouched. | Return to step 1. Reproduce first, then confirm the fix addresses the root cause, not just the symptom. |
-| "I've seen this pattern before - I know what's wrong" | Pattern-matching is hypothesis generation, not diagnosis. The same symptom can have different root causes. You're skipping steps 2 and 3. | Treat pattern recognition as a hypothesis. Trace the fail path (step 2), then falsify (step 3). |
-| "A repro would take too long - let me just try this fix" | Without a repro, you can't validate the fix. You're trading 5 minutes of repro-building for potentially hours of blind debugging. | Build the repro. If it truly takes too long, say so explicitly and ask for help isolating. |
-| "I'll add a breadcrumb ledger later - let me just explore first" | You're losing data. Every unrecorded run is wasted effort that can't be cross-referenced. | Start the ledger now. Even a partial entry is better than none. |
-| "The debugger isn't available, so I'll skip to hypothesis" | Knob enumeration (step 2.2) and in-code instrumentation (step 2.3) are available when debuggers aren't. | Follow the step 2 escalation order: debugger - source trace + knobs - instrumentation. |
-| "It's a post-mortem for myself - I don't need all four inputs" | A post-mortem without root cause is a symptom log. Without repro, the next person can't verify. Without validation, it's a guess. | All four inputs are mandatory. Refuse to draft. |
+| Excuse | Correct action |
+|--------|----------------|
+| "This is an obvious one-liner" | Return to step 1. Reproduce first. |
+| "I've seen this pattern before" | Treat as hypothesis. Trace (step 2), then test (step 3). |
+| "A repro would take too long" | Build the repro. If truly too long, say so and ask for help. |
+| "I'll add a ledger later" | Start the ledger now. |
+| "The debugger isn't available" | Follow step 2 escalation: trace + config parameters, then instrumentation. |
+| "I don't need all four inputs" | All four mandatory. Refuse to draft. |
 
 ## Hard stop gates
 
 - No reliable reproduction exists
 - Hypothesis formed before fail path traced
-- Conclusion accepted before falsification attempted
+- Conclusion accepted before testing attempted
 - Post-mortem drafted without all four mandatory inputs
-- Ambiguity about bug behavior blocks diagnosis
+- Ambiguity about bug behavior blocks diagnosis - route to `sc-clarify`
 
-## Error handling
-
-- Do not propose fixes before step 1 is satisfied.
-- Do not form hypotheses before step 2 has narrowed the fail path.
-- Do not accept conclusions before step 3 has tried to disprove the hypothesis.
-- Do not draft post-mortem before step 5's four mandatory inputs are all satisfied.
-
-## Edge cases
-
-- **Flaky reproduction** - Raise the reproduction rate before debugging. Loop the trigger, parallelise, add stress.
-- **No reproduction possible** - Stop. Ask for env access, captured artifacts, or permission to instrument.
-- **Debugger not available** - Follow step 2 escalation: source trace + knob enumeration, then in-code instrumentation.
-- **Ambiguous bug behavior** - Route to `sc-clarify` before continuing debug steps.
-- **User says "skip the mantra"** - Skip the recital but still apply the five steps silently.
-
-End with post-mortem (if fix validated) or next debug step. Use `sc-verification` for evidence capture, `sc-git` for branch hygiene, `sc-clarify` for ambiguity.
+End with post-mortem (if fix validated) or next debug step.
