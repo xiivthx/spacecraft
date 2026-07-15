@@ -45,16 +45,23 @@ Only close/ship/merge if:
 
 If any gate fails, block closeout. List exact missing actions and next command.
 
-### 2. Migrate mission knowledge
+### 2. Migrate mission knowledge and prepare release commit
 
-Before version bump and changelog, use sc-learn to preserve what was learned:
+Before merge, combine knowledge migration with version bump and changelog in one commit:
 
-1. Read `.space/missions/<id>/issues.md`, `solved.md`, `learned.md`.
-2. Migrate unresolved issues to `docs/issues.md` with mission context.
-3. Migrate solved items and lessons to `docs/learned.md` with mission context.
-4. Mark mission files as migrated. Do not delete them — they archive with the mission.
+1. Use sc-learn to preserve what was learned:
+   - Read `.space/missions/<id>/issues.md`, `solved.md`, `learned.md`.
+   - For unresolved issues: create GitHub Issues with mission context.
+   - Migrate solved items and lessons to `docs/learned.md` with mission context.
+   - Mark mission files as migrated. Do not delete them — they archive with the mission.
 
-This ensures internal research (`spacecraft research`) can draw on accumulated mission knowledge.
+2. Update CHANGELOG.md with this merge's changes.
+
+3. Bump version (sc-git tags next patch even for chores).
+
+4. Commit all three together: knowledge migration + changelog + version bump.
+
+This ensures internal research (`spacecraft research`) can draw on accumulated mission knowledge, and all release artifacts are in one atomic commit.
 
 ### 3. Prepare merge
 
