@@ -63,6 +63,7 @@ Conventional Commits. Target 1–3 per branch, max 5. Squash WIP before merge. R
 | `/sc-review` | Formal review of diff, evidence, and release readiness. |
 | `/sc-ship` | Merge to main, tag, archive mission. |
 | `/sc-quick` | Fast lane for small changes: branch, commit, self-review, report ready. Ship only on explicit `/sc-ship`. |
+| `/sc-debug` | Debug and diagnose bugs with five-step discipline (reproduce, trace, falsify, cross-reference, post-mortem). |
 | `/sc-research` | Run systematic research via spacecraft research CLI (Brave Search, scoped docs, deep analysis). |
 | `/sc-resume` | Resume an active mission with full context handoff. |
 
@@ -95,7 +96,6 @@ scripts/spacecraft evidence "<label>" -- <command>
 | `sc-clarify` | Resolve ambiguity through focused user clarification |
 | `sc-creator` | Create new Spacecraft skills from datasources |
 | `sc-database` | Design schemas, write migrations, optimize queries, and manage indexes (PostgreSQL default) |
-| `sc-debug` | Five-step debugging discipline (reproduce → trace → falsify → cross-reference → post-mortem) |
 | `sc-design` | Shape, critique, and polish UI/visual design |
 | `sc-git` | Git safety, branching, Conventional Commits, no-ff merge, versioning |
 | `sc-learn` | Capture mission knowledge, issues, and lessons learned |
