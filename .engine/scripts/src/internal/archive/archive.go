@@ -42,52 +42,50 @@ func (e *ReadinessError) Error() string {
 }
 
 // CheckReadiness validates that a shipped mission is ready for archiving.
+// For quick-fix missions (Debug/Quick lanes), plan and review are optional -
+// evidence is sufficient proof when state is "shipped".
 func (r *ReadinessChecker) CheckReadiness(id string, plan *mission.Plan, review *mission.Review, entries []mission.EvidenceEntry) *ReadinessError {
 	var errors []string
 
-	if plan == nil {
-		errors = append(errors, "missing plan.json")
-	}
-	if review == nil {
-		errors = append(errors, "missing review.json")
-	} else if review.Status == nil || *review.Status != "ready" {
-		stat := "missing"
-		if review.Status != nil {
-			stat = *review.Status
-		}
-		errors = append(errors, fmt.Sprintf("review status is %s", stat))
-	}
-
-	var tasks []mission.Task
-	if plan != nil && plan.Tasks != nil {
-		tasks = plan.Tasks
-	}
-
-	if len(tasks) == 0 {
-		errors = append(errors, "plan.json has no tasks")
-	}
-
-	var incomplete []string
-	for _, t := range tasks {
-		if !mission.TaskIsComplete(t.Status) {
-			name := "unnamed"
-			if t.ID != nil {
-				name = *t.ID
-			} else if t.Title != nil {
-				name = *t.Title
-			}
-			incomplete = append(incomplete, name)
-		}
-	}
-	if len(incomplete) > 0 {
-		errors = append(errors, fmt.Sprintf("incomplete tasks: %s", strings.Join(incomplete, ", ")))
-	}
-
+	// Evidence is always required - it's the proof of work
 	if len(entries) == 0 {
 		errors = append(errors, "evidence.jsonl has no evidence")
 	}
 
-	if review != nil {
+	// Plan and review are required for full missions, optional for quick-fix
+	// If they exist with meaningful content, validate them
+	// Empty plan (no tasks) or not-reviewed review = quick-fix lane, skip validation
+	hasPlanContent := plan != nil && plan.Tasks != nil && len(plan.Tasks) > 0
+	hasReviewContent := review != nil && review.Status != nil && *review.Status != "not-reviewed"
+
+	if hasPlanContent {
+		var tasks []mission.Task
+		if plan.Tasks != nil {
+			tasks = plan.Tasks
+		}
+
+		var incomplete []string
+		for _, t := range tasks {
+			if !mission.TaskIsComplete(t.Status) {
+				name := "unnamed"
+				if t.ID != nil {
+					name = *t.ID
+				} else if t.Title != nil {
+					name = *t.Title
+				}
+				incomplete = append(incomplete, name)
+			}
+		}
+		if len(incomplete) > 0 {
+			errors = append(errors, fmt.Sprintf("incomplete tasks: %s", strings.Join(incomplete, ", ")))
+		}
+	}
+
+	if hasReviewContent {
+		if review.Status != nil && *review.Status != "ready" {
+			errors = append(errors, fmt.Sprintf("review status is %s", *review.Status))
+		}
+
 		blocking := mission.BlockingFindings(review)
 		if len(blocking) > 0 {
 			var names []string
@@ -227,10 +225,12 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 	summaryLines = append(summaryLines, "## Kept Artifacts")
 	summaryLines = append(summaryLines, "- SUMMARY.md")
 	summaryLines = append(summaryLines, "- mission.json")
-	summaryLines = append(summaryLines, "- plan.json")
+	summaryLines = append(summaryLines, "- plan.json (empty tasks for quick-fix missions)")
 	summaryLines = append(summaryLines, "- evidence.jsonl")
-	summaryLines = append(summaryLines, "- review.json / review.md when present")
-	summaryLines = append(summaryLines, "- spec.md, decisions.md, and questions.md when present")
+	if params.Review != nil {
+		summaryLines = append(summaryLines, "- review.json")
+	}
+	summaryLines = append(summaryLines, "- review.md, spec.md, decisions.md, questions.md when present")
 	summaryLines = append(summaryLines, "")
 
 	// Create archive dir under store's configured archive directory
