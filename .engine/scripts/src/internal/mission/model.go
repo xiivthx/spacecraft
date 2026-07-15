@@ -203,6 +203,7 @@ type Finding struct {
 	Summary    *string `json:"summary"`
 	Severity   *string `json:"severity"`
 	BlocksShip *bool   `json:"blocksShip"`
+	Criterion  *string `json:"criterion,omitempty"`
 }
 
 // Review is the code review output stored in review.json.
