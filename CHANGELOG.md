@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.13 - 2026-07-15
+
+- Refactor: move sc-debug from skill to command for explicit debug lane entry
+- Docs: simplify sc-debug wording (remove jargon, British spellings)
+
 ## 0.31.12 - 2026-07-15
 
 - Fix: archive readiness allows quick-fix missions without formal plan/review - evidence is sufficient proof
