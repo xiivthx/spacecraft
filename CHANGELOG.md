@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.31.11 - 2026-07-15
+
+- Fix: evidence capture runs from user CWD instead of spacecraft root (remove cmd.Dir override)
+- Fix: require explicit set-state shipped and evidence capture for GitHub issue closing (#35)
+- Docs: sc-git/sc-mission add post-merge checklist for issue closing verification
+
 ## 0.31.10 - 2026-07-15
 
 - Feat: add criteria decomposition to sc-review (specification, evidence, quality, integrity)
