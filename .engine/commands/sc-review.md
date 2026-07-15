@@ -56,6 +56,48 @@ After the subagent responds, record findings in review.md. If review.json exists
 
 Invoke sc-reviewer as a read-only subagent. A user invocation of /sc-review is explicit permission to use the read-only sc-reviewer subagent; do not ask for separate subagent permission. The reviewer must not edit files.
 
+**Reviewer prompt structure (criteria decomposition):**
+
+Instead of a monolithic "review this diff" prompt, instruct the reviewer to evaluate each criterion separately. This reduces the risk of the reviewer latching onto the most salient feature and missing other issues.
+
+Pass this structured prompt to the reviewer:
+
+```
+Review the diff against these criteria. Evaluate each independently:
+
+1. SPECIFICATION COMPLIANCE
+   - Does the implementation meet all requirements in spec.md?
+   - Are all acceptance criteria from plan.json satisfied?
+   - Any scope creep or missing features?
+
+2. EVIDENCE VALIDITY
+   - Does every "done" task in plan.json have corresponding evidence in evidence.jsonl?
+   - Does the evidence demonstrate functional correctness (not just config validation)?
+   - Are there any evidence gaps or weak evidence (e.g., "PASS: config set to X" without behavioral proof)?
+
+3. CODE QUALITY
+   - SOLID principles (sc-solid)
+   - Performance issues (sc-performance)
+   - Security vulnerabilities (sc-security)
+   - Test coverage and quality
+
+4. INTEGRITY
+   - Cross-reference integrity: do evidence labels match plan acceptance checks?
+   - Git hygiene: clean diff, conventional commits, no unrelated changes?
+   - No debug code, secrets, or build artifacts?
+
+For each criterion, report:
+- PASS or FAIL
+- Findings (if any) with severity: critical, important, minor
+- Evidence references (if applicable)
+
+Aggregate findings at the end. Critical findings in any criterion block /sc-ship.
+```
+
+**Optional: repeated evaluation for critical reviews**
+
+For high-stakes reviews (security-sensitive, core logic, large diff), consider running the reviewer 2-3 times with slightly different prompts and aggregating findings. This reduces variance and catches edge cases. Trade-off: increased cost and time.
+
 ### 5. Record findings
 
 After the subagent returns findings, record the review in:
@@ -63,11 +105,12 @@ After the subagent returns findings, record the review in:
 - review.json
 
 Before transitioning state, apply the **Kalama Sutta gate**:
-1. "Does the evidence actually prove the acceptance claims?" — read evidence output, not just labels
-2. "Did I verify behavior or just read config?" — prefer functional proof
-3. "Am I trusting a tool output blindly?" — inspect the evidence stdout/stderr
-4. "Did I skip any acceptance check?" — cross-check evidence against plan.json
-5. "Would an adversary agree this review is honest?" — no rubber-stamping
+1. "Does the evidence actually prove the acceptance claims?" - read evidence output, not just labels
+2. "Did I verify behavior or just read config?" - prefer functional proof
+3. "Am I trusting a tool output blindly?" - inspect the evidence stdout/stderr
+4. "Did I skip any acceptance check?" - cross-check evidence against plan.json
+5. "Would an adversary agree this review is honest?" - no rubber-stamping
+6. "Did I evaluate each criterion independently?" - specification, evidence, quality, integrity
 
 Then transition state:
 - **Pass** → `scripts/spacecraft set-state ready`
