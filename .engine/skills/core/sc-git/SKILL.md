@@ -100,7 +100,9 @@ Use this exact sequence unless the user specifies otherwise:
 ### Post-merge
 
 After the no-ff merge completes, immediately execute the mandatory steps from Rules §Tagging and §Release Prep:
-- Tag, verify tag, delete branch, archive.
+- Tag, verify tag, delete branch.
+- **Must**: Run `scripts/spacecraft set-state shipped` to trigger archive and close GitHub issues referenced in artifacts.
+- **Must**: Capture evidence of issue closing output (e.g., "Issues: X closed, Y already closed").
 - After cleanup you are on `main` — any further mutation requires a new non-main branch.
 
 ### Review Gate
@@ -140,6 +142,7 @@ Before claiming git work is done:
 - [ ] Conventional Commits used
 - [ ] Verification passed after latest rebase
 - [ ] Closeout check passes before release claim
+- [ ] After merge: ran `set-state shipped`, captured evidence of issue closing
 
 ## References
 
