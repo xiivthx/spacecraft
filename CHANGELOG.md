@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.12 - 2026-07-15
+
+- Fix: archive readiness allows quick-fix missions without formal plan/review - evidence is sufficient proof
+- Fix: archive summary accurately reflects which artifacts are kept
+
 ## 0.31.11 - 2026-07-15
 
 - Fix: evidence capture runs from user CWD instead of spacecraft root (remove cmd.Dir override)

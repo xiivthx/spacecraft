@@ -40,12 +40,10 @@ func TestReadinessChecker_noPlan(t *testing.T) {
 	defer cleanup()
 
 	checker := NewReadinessChecker(store)
-	errs := checker.CheckReadiness("M07AR02", nil, nil, nil)
-	if errs == nil {
-		t.Fatal("expected errors")
-	}
-	if !containsStr(errs.Errors, "missing plan.json") {
-		t.Errorf("expected plan error, got: %v", errs.Errors)
+	// Quick-fix lane: no plan is OK if evidence exists
+	errs := checker.CheckReadiness("M07AR02", nil, nil, []mission.EvidenceEntry{{ID: "E001"}})
+	if errs != nil {
+		t.Errorf("expected no errors for quick-fix lane, got: %v", errs.Errors)
 	}
 }
 
@@ -55,12 +53,10 @@ func TestReadinessChecker_noReview(t *testing.T) {
 
 	checker := NewReadinessChecker(store)
 	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("done")}}}
+	// Quick-fix lane: no review is OK if evidence exists
 	errs := checker.CheckReadiness("M07AR03", plan, nil, []mission.EvidenceEntry{{ID: "E001"}})
-	if errs == nil {
-		t.Fatal("expected errors")
-	}
-	if !containsStr(errs.Errors, "missing review.json") {
-		t.Errorf("expected review error, got: %v", errs.Errors)
+	if errs != nil {
+		t.Errorf("expected no errors for quick-fix lane, got: %v", errs.Errors)
 	}
 }
 
@@ -70,10 +66,18 @@ func TestReadinessChecker_reviewNotReady(t *testing.T) {
 
 	checker := NewReadinessChecker(store)
 	plan := &mission.Plan{Tasks: []mission.Task{{ID: strPtr("T01"), Status: strPtr("done")}}}
-	review := &mission.Review{Status: strPtr("blocked")}
+	// "not-reviewed" is OK for quick-fix lane
+	review := &mission.Review{Status: strPtr("not-reviewed")}
 	errs := checker.CheckReadiness("M07AR04", plan, review, []mission.EvidenceEntry{{ID: "E001"}})
+	if errs != nil {
+		t.Errorf("expected no errors for not-reviewed status, got: %v", errs.Errors)
+	}
+
+	// But "blocked" should still fail
+	review = &mission.Review{Status: strPtr("blocked")}
+	errs = checker.CheckReadiness("M07AR04b", plan, review, []mission.EvidenceEntry{{ID: "E001"}})
 	if errs == nil {
-		t.Fatal("expected errors")
+		t.Fatal("expected errors for blocked review")
 	}
 	if !containsStr(errs.Errors, "review status is blocked") {
 		t.Errorf("expected review status error, got: %v", errs.Errors)
@@ -87,12 +91,10 @@ func TestReadinessChecker_noTasks(t *testing.T) {
 	checker := NewReadinessChecker(store)
 	plan := &mission.Plan{}
 	review := readyReview()
+	// Quick-fix lane: empty tasks is OK if evidence exists
 	errs := checker.CheckReadiness("M07AR05", plan, review, []mission.EvidenceEntry{{ID: "E001"}})
-	if errs == nil {
-		t.Fatal("expected errors")
-	}
-	if !containsStr(errs.Errors, "no tasks") {
-		t.Errorf("expected no tasks error, got: %v", errs.Errors)
+	if errs != nil {
+		t.Errorf("expected no errors for quick-fix lane, got: %v", errs.Errors)
 	}
 }
 
