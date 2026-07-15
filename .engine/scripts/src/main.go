@@ -793,7 +793,6 @@ func execCmd(parts []string) execResult {
 	var outB, errB bytes.Buffer
 	cmd.Stdout = &outB
 	cmd.Stderr = &errB
-	cmd.Dir = cfg.Root()
 	cmd.Env = os.Environ()
 
 	err := cmd.Run()
