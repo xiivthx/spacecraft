@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.31.14 - 2026-07-15
+
+- Docs: update sc-ship workflow - migrate issues to GitHub, not docs/issues.md
+- Docs: combine knowledge migration + changelog + version bump into one commit
+
 ## 0.31.13 - 2026-07-15
 
 - Refactor: move sc-debug from skill to command for explicit debug lane entry
