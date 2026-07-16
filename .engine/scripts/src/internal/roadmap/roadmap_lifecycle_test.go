@@ -19,7 +19,7 @@ func TestDeriveStateActive(t *testing.T) {
 	r := &Roadmap{
 		ID:       "M07L01",
 		Title:    "Test",
-		Missions: []string{"A", "B", "C"},
+		Missions: []MissionEntry{{ID: "A"}, {ID: "B"}, {ID: "C"}},
 	}
 	state := DeriveState(r, makeShipped("A"))
 	if state != "active" {
@@ -31,7 +31,7 @@ func TestDeriveStateDone(t *testing.T) {
 	r := &Roadmap{
 		ID:       "M07L02",
 		Title:    "Test",
-		Missions: []string{"A", "B"},
+		Missions: []MissionEntry{{ID: "A"}, {ID: "B"}},
 	}
 	state := DeriveState(r, makeShipped("A", "B"))
 	if state != "done" {
@@ -43,7 +43,7 @@ func TestDeriveStateEmpty(t *testing.T) {
 	r := &Roadmap{
 		ID:       "M07L03",
 		Title:    "Empty",
-		Missions: []string{},
+		Missions: []MissionEntry{},
 	}
 	state := DeriveState(r, makeShipped())
 	if state != "active" {
@@ -59,7 +59,7 @@ func TestSaveRoundtripPreservesMissions(t *testing.T) {
 	r := &Roadmap{
 		ID:        "M07L04",
 		Title:     "Test",
-		Missions:  []string{"X", "Y", "Z"},
+		Missions:  []MissionEntry{{ID: "X"}, {ID: "Y"}, {ID: "Z"}},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -67,7 +67,7 @@ func TestSaveRoundtripPreservesMissions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r.Missions = []string{"X", "Y", "Z", "W"}
+	r.Missions = []MissionEntry{{ID: "X"}, {ID: "Y"}, {ID: "Z"}, {ID: "W"}}
 	r.UpdatedAt = time.Now()
 	if err := s.Save(r); err != nil {
 		t.Fatal(err)

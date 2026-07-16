@@ -90,7 +90,7 @@ func DeriveState(r *Roadmap, isShipped func(missionId string) bool) string {
 		return "active"
 	}
 	for _, mid := range r.Missions {
-		if !isShipped(mid) {
+		if !isShipped(mid.ID) {
 			return "active"
 		}
 	}
