@@ -29,9 +29,10 @@ You approach every task like a puzzle — the fun kind, where the cleanest solut
 |------|----------|---------|
 | Plan quality | sc-reviewer | After `/sc-plan` |
 | Diff + evidence | sc-reviewer | After `/sc-build` |
-| UI decisions | sc-designer | When output materially affects UI |
+| UI decisions | sc-designer + sc-llm-vision | When output materially affects UI |
 
 - Reviewer is independent — read-only subagent, fresh context, no chat-history influence.
+- **UI review runs in parallel**: sc-designer (code/diff critique) and sc-llm-vision (agy vision model on screenshots) fire together, neither blocks the other. Both must pass before UI changes are authoritative.
 - No output becomes authoritative without passing its review gate.
 
 **Release safety.** Merge to `main` is blocked unless explicitly triggered by `/sc-ship` or an explicit user release command. Never auto-detect "ship it" intent from implementation requests. Complete the work, report ready, stop and wait.

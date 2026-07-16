@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.32.1 - 2026-07-16
+
+- Docs: add parallel UI review rule for sc-designer + sc-llm-vision
+
 ## 0.32.0 - 2026-07-16
 
 - Feat: suggest next roadmap mission after ship - print next unshipped mission with /sc-start hint
