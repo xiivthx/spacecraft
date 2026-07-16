@@ -300,6 +300,9 @@ func TestBackwardCompat(t *testing.T) {
 	if len(got.Missions) != 1 || got.Missions[0].ID != "M07A" {
 		t.Errorf("Missions = %v, want [M07A]", got.Missions)
 	}
+	if got.Missions[0].Description != "" {
+		t.Errorf("Missions[0].Description = %q, want empty string", got.Missions[0].Description)
+	}
 	if len(got.Issues) != 0 {
 		t.Errorf("Issues = %v, want nil or empty", got.Issues)
 	}
