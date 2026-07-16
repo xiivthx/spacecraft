@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.32.0 - 2026-07-16
+
+- Feat: suggest next roadmap mission after ship - print next unshipped mission with /sc-start hint
+
 ## 0.31.14 - 2026-07-15
 
 - Docs: update sc-ship workflow - migrate issues to GitHub, not docs/issues.md
