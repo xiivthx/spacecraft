@@ -644,7 +644,7 @@ func TestRoadmapAddAfterCmd(t *testing.T) {
 	}
 
 	rm, _ := roadmapStore.Load(rid)
-	if len(rm.Missions) != 2 || rm.Missions[1] != m2 {
+	if len(rm.Missions) != 2 || rm.Missions[1].ID != m2 {
 		t.Errorf("roadmap order = %v", rm.Missions)
 	}
 }
@@ -696,6 +696,27 @@ func TestRoadmapShowCmd(t *testing.T) {
 	}
 	if e := roadmapShowCmd([]string{rid}); e != 0 {
 		t.Errorf("roadmapShowCmd(rid) = %d, want 0", e)
+	}
+}
+
+func TestRoadmapAddWithDescription(t *testing.T) {
+	defer setupLifecycleTest(t)()
+	mid := createMission(t, "Desc Mission")
+	if e := roadmapNewCmd([]string{"Desc Roadmap"}); e != 0 {
+		t.Fatalf("roadmapNewCmd = %d", e)
+	}
+	rms, _ := roadmapStore.List()
+	rid := rms[0].ID
+	if e := roadmapAddCmd([]string{rid, mid, "--desc", "This is a test description"}); e != 0 {
+		t.Fatalf("roadmapAddCmd = %d", e)
+	}
+
+	rm, _ := roadmapStore.Load(rid)
+	if len(rm.Missions) != 1 {
+		t.Fatalf("expected 1 mission, got %d", len(rm.Missions))
+	}
+	if rm.Missions[0].Description != "This is a test description" {
+		t.Errorf("description = %q, want %q", rm.Missions[0].Description, "This is a test description")
 	}
 }
 

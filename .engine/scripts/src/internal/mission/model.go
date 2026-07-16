@@ -38,6 +38,7 @@ type ClarificationBlock struct {
 type Mission struct {
 	ID            string             `json:"id"`
 	Title         string             `json:"title"`
+	Description   string             `json:"description,omitempty"`
 	State         string             `json:"state"`
 	CreatedAt     string             `json:"createdAt"`
 	UpdatedAt     string             `json:"updatedAt"`

@@ -25,6 +25,21 @@ func TestMissionJSONRoundTrip(t *testing.T) {
 	}
 }
 
+func TestMissionBackwardCompatNoDescription(t *testing.T) {
+	oldJSON := `{"id":"M07OLD","title":"Old Mission","state":"draft","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:00:00Z"}`
+	var got Mission
+	if err := json.Unmarshal([]byte(oldJSON), &got); err != nil {
+		t.Fatalf("failed to unmarshal legacy mission: %v", err)
+	}
+	if got.ID != "M07OLD" || got.Title != "Old Mission" {
+		t.Errorf("mission fields = %+v", got)
+	}
+	if got.Description != "" {
+		t.Errorf("Description = %q, want empty string", got.Description)
+	}
+}
+
+
 func TestPlanRoundTrip(t *testing.T) {
 	id := "T01"
 	title := "Do something"

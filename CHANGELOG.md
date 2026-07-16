@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.33.0 - 2026-07-16
+
+- Feat: enrich roadmap missions with descriptions - add MissionEntry data model with ID and Description fields, backward compatible with old string array format
+
 ## 0.32.1 - 2026-07-16
 
 - Docs: add parallel UI review rule for sc-designer + sc-llm-vision

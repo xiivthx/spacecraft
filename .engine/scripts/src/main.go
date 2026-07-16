@@ -1033,10 +1033,10 @@ func checkRoadmapDone(missionId string) {
 	}
 	for _, rm := range roadmaps {
 		for _, mid := range rm.Missions {
-			if mid == missionId {
+			if mid.ID == missionId {
 				allDone := true
 				for _, mid2 := range rm.Missions {
-					m, err := store.Load(mid2)
+					m, err := store.Load(mid2.ID)
 					if err != nil || m.State != "shipped" {
 						allDone = false
 						break
@@ -2175,7 +2175,7 @@ func roadmapNewCmd(args []string) int {
 		ID:          mid,
 		Title:       title,
 		Description: desc,
-		Missions:    []string{},
+		Missions:    []roadmap.MissionEntry{},
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
@@ -2217,7 +2217,7 @@ func roadmapListCmd() int {
 	for _, rm := range rms {
 		shipped := 0
 		for _, mid := range rm.Missions {
-				m, err := loadMission(mid)
+			m, err := loadMission(mid.ID)
 			if err == nil && (m.State == "shipped" || m.State == "archived") {
 				shipped++
 			}
@@ -2230,6 +2230,7 @@ func roadmapListCmd() int {
 // stub implementations for future tasks — compile-error-safe
 func roadmapAddCmd(args []string) int {
 	afterIdx := -1
+	desc := ""
 	positional := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--after" {
@@ -2238,12 +2239,17 @@ func roadmapAddCmd(args []string) int {
 				positional = append(positional, args[i+1])
 				i++
 			}
+		} else if args[i] == "--desc" || args[i] == "-d" {
+			if i+1 < len(args) {
+				desc = args[i+1]
+				i++
+			}
 		} else if !strings.HasPrefix(args[i], "-") {
 			positional = append(positional, args[i])
 		}
 	}
 	if len(positional) < 2 {
-		return printErr("Usage: spacecraft roadmap add <roadmap-id> <mission-id> [--after <target-mission-id>]")
+		return printErr("Usage: spacecraft roadmap add <roadmap-id> <mission-id> [--desc <text>] [--after <target-mission-id>]")
 	}
 	rid := positional[0]
 	mid := positional[1]
@@ -2263,7 +2269,7 @@ func roadmapAddCmd(args []string) int {
 	}
 
 	for _, m := range rm.Missions {
-		if m == mid {
+		if m.ID == mid {
 			fmt.Println("mission already in roadmap:", mid)
 			return 0
 		}
@@ -2275,17 +2281,18 @@ func roadmapAddCmd(args []string) int {
 			continue
 		}
 		for _, m := range other.Missions {
-			if m == mid {
+			if m.ID == mid {
 				return printErr("already in roadmap: " + mid + " -> " + other.ID)
 			}
 		}
 	}
 
+	entry := roadmap.MissionEntry{ID: mid, Description: desc}
 	if targetMid != "" {
 		found := false
 		for i, m := range rm.Missions {
-			if m == targetMid {
-				rm.Missions = append(rm.Missions[:i+1], append([]string{mid}, rm.Missions[i+1:]...)...)
+			if m.ID == targetMid {
+				rm.Missions = append(rm.Missions[:i+1], append([]roadmap.MissionEntry{entry}, rm.Missions[i+1:]...)...)
 				found = true
 				break
 			}
@@ -2294,7 +2301,7 @@ func roadmapAddCmd(args []string) int {
 			return printErr("target mission not found in roadmap: " + targetMid)
 		}
 	} else {
-		rm.Missions = append(rm.Missions, mid)
+		rm.Missions = append(rm.Missions, entry)
 	}
 
 	rm.UpdatedAt = time.Now()
@@ -2319,7 +2326,7 @@ func roadmapRemoveCmd(args []string) int {
 
 	found := false
 	for i, m := range rm.Missions {
-		if m == mid {
+		if m.ID == mid {
 			rm.Missions = append(rm.Missions[:i], rm.Missions[i+1:]...)
 			found = true
 			break
@@ -2358,16 +2365,19 @@ func roadmapShowCmd(args []string) int {
 
 	for _, mid := range rm.Missions {
 		marker := "[ ]"
-		m, err := loadMission(mid)
+		m, err := loadMission(mid.ID)
 		if err == nil && shippedStates[m.State] {
 			marker = "[x]"
 			shipped++
 		}
-		label := mid
+		label := mid.ID
 		if m != nil {
-			label = fmt.Sprintf("%s %s", mid, m.Title)
+			label = fmt.Sprintf("%s %s", mid.ID, m.Title)
 		}
 		fmt.Printf("%s  %s\n", marker, label)
+		if mid.Description != "" {
+			fmt.Printf("     %s\n", mid.Description)
+		}
 	}
 
 	fmt.Println()
@@ -2407,7 +2417,7 @@ func roadmapShowCmd(args []string) int {
 	fmt.Println()
 	nextIdx := -1
 	for i, mid := range rm.Missions {
-		m, err := loadMission(mid)
+		m, err := loadMission(mid.ID)
 		if err != nil || !shippedStates[m.State] {
 			nextIdx = i
 			break
@@ -2444,14 +2454,14 @@ func roadmapContinueCmd(args []string) int {
 	shippedStates := map[string]bool{"shipped": true, "archived": true}
 
 	for _, mid := range rm.Missions {
-		m, err := loadMission(mid)
+		m, err := loadMission(mid.ID)
 		if err != nil || !shippedStates[m.State] {
-			if err := store.WriteCurrent(mid); err != nil {
+			if err := store.WriteCurrent(mid.ID); err != nil {
 				return printErr("Failed to set current mission:", err)
 			}
-			label := mid
+			label := mid.ID
 			if m != nil {
-				label = fmt.Sprintf("%s %s", mid, m.Title)
+				label = fmt.Sprintf("%s %s", mid.ID, m.Title)
 			}
 			fmt.Println(label)
 			return 0
@@ -2473,9 +2483,9 @@ func roadmapArchiveCmd(args []string) int {
 
 	shippedStates := map[string]bool{"shipped": true, "archived": true}
 	for _, mid := range rm.Missions {
-		m, err := loadMission(mid)
+		m, err := loadMission(mid.ID)
 		if err != nil || !shippedStates[m.State] {
-			return printErr("mission " + mid + " is not shipped — cannot archive roadmap")
+			return printErr("mission " + mid.ID + " is not shipped — cannot archive roadmap")
 		}
 	}
 

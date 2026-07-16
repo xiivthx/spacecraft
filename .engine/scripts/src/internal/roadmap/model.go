@@ -1,6 +1,9 @@
 package roadmap
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Issue struct {
 	Number int      `json:"number"`
@@ -11,12 +14,44 @@ type Issue struct {
 	Phase  string   `json:"phase,omitempty"`
 }
 
+type MissionEntry struct {
+	ID          string `json:"id"`
+	Description string `json:"description,omitempty"`
+}
+
 type Roadmap struct {
-	ID          string          `json:"id"`
-	Title       string          `json:"title"`
-	Description string          `json:"description"`
-	Missions    []string        `json:"missions"`
-	Issues      []Issue         `json:"issues,omitempty"`
-	CreatedAt   time.Time       `json:"createdAt"`
-	UpdatedAt   time.Time       `json:"updatedAt"`
+	ID          string         `json:"id"`
+	Title       string         `json:"title"`
+	Description string         `json:"description"`
+	Missions    []MissionEntry `json:"missions"`
+	Issues      []Issue        `json:"issues,omitempty"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+}
+
+func (r *Roadmap) UnmarshalJSON(data []byte) error {
+	type Alias Roadmap
+	aux := &struct {
+		Missions []json.RawMessage `json:"missions"`
+		*Alias
+	}{
+		Alias: (*Alias)(r),
+	}
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+	r.Missions = make([]MissionEntry, 0, len(aux.Missions))
+	for _, raw := range aux.Missions {
+		var entry MissionEntry
+		if err := json.Unmarshal(raw, &entry); err == nil {
+			r.Missions = append(r.Missions, entry)
+		} else {
+			var id string
+			if err := json.Unmarshal(raw, &id); err != nil {
+				return err
+			}
+			r.Missions = append(r.Missions, MissionEntry{ID: id})
+		}
+	}
+	return nil
 }

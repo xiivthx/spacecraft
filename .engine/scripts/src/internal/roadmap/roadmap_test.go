@@ -33,7 +33,7 @@ func TestCreateAndLoad(t *testing.T) {
 		ID:          "M07TEST01",
 		Title:       "Test Road",
 		Description: "a test",
-		Missions:    []string{"M07A", "M07B"},
+		Missions:    []MissionEntry{{ID: "M07A"}, {ID: "M07B"}},
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -54,7 +54,7 @@ func TestCreateAndLoad(t *testing.T) {
 	if got.Description != r.Description {
 		t.Errorf("Description = %q, want %q", got.Description, r.Description)
 	}
-	if len(got.Missions) != 2 || got.Missions[0] != "M07A" || got.Missions[1] != "M07B" {
+	if len(got.Missions) != 2 || got.Missions[0].ID != "M07A" || got.Missions[1].ID != "M07B" {
 		t.Errorf("Missions = %v, want [M07A M07B]", got.Missions)
 	}
 }
@@ -78,7 +78,7 @@ func TestSaveAndLoadRoundtrip(t *testing.T) {
 	r := &Roadmap{
 		ID:          "M07TEST02",
 		Title:       "Roundtrip",
-		Missions:    []string{},
+		Missions:    []MissionEntry{},
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -87,7 +87,7 @@ func TestSaveAndLoadRoundtrip(t *testing.T) {
 	}
 
 	r.Title = "Updated Title"
-	r.Missions = []string{"M07X", "M07Y"}
+	r.Missions = []MissionEntry{{ID: "M07X"}, {ID: "M07Y"}}
 	r.UpdatedAt = time.Now()
 	if err := s.Save(r); err != nil {
 		t.Fatal(err)
@@ -100,7 +100,7 @@ func TestSaveAndLoadRoundtrip(t *testing.T) {
 	if got.Title != "Updated Title" {
 		t.Errorf("Title = %q, want %q", got.Title, "Updated Title")
 	}
-	if len(got.Missions) != 2 || got.Missions[0] != "M07X" {
+	if len(got.Missions) != 2 || got.Missions[0].ID != "M07X" {
 		t.Errorf("Missions = %v, want [M07X M07Y]", got.Missions)
 	}
 }
@@ -128,7 +128,7 @@ func TestListMultiple(t *testing.T) {
 		if err := s.Create(&Roadmap{
 			ID:        id,
 			Title:     "R " + id,
-			Missions:  []string{},
+			Missions:  []MissionEntry{},
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}); err != nil {
@@ -153,7 +153,7 @@ func TestDelete(t *testing.T) {
 	r := &Roadmap{
 		ID:        "M07DEL01",
 		Title:     "To Delete",
-		Missions:  []string{},
+		Missions:  []MissionEntry{},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -188,7 +188,7 @@ func TestInsertOrdering(t *testing.T) {
 	r := &Roadmap{
 		ID:          "M07ORD01",
 		Title:       "Ordered",
-		Missions:    []string{"A", "B", "C"},
+		Missions:    []MissionEntry{{ID: "A"}, {ID: "B"}, {ID: "C"}},
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -203,7 +203,7 @@ func TestInsertOrdering(t *testing.T) {
 	if len(loaded.Missions) != 3 {
 		t.Fatalf("expected 3 missions, got %d", len(loaded.Missions))
 	}
-	if loaded.Missions[0] != "A" || loaded.Missions[1] != "B" || loaded.Missions[2] != "C" {
+	if loaded.Missions[0].ID != "A" || loaded.Missions[1].ID != "B" || loaded.Missions[2].ID != "C" {
 		t.Errorf("order mismatch: %v", loaded.Missions)
 	}
 }
@@ -253,7 +253,7 @@ func TestRoadmapWithIssues(t *testing.T) {
 		ID:          "M07ISSUES",
 		Title:       "Roadmap with issues",
 		Description: "testing issue serialization",
-		Missions:    []string{"M07A"},
+		Missions:    []MissionEntry{{ID: "M07A"}},
 		Issues: []Issue{
 			{Number: 1, Title: "First issue", URL: "https://github.com/test/1", State: "open", Labels: []string{"bug"}, Phase: "phase-1"},
 			{Number: 2, Title: "Second issue", URL: "https://github.com/test/2", State: "closed", Phase: "phase-2"},
@@ -296,6 +296,12 @@ func TestBackwardCompat(t *testing.T) {
 	}
 	if got.Title != "Old roadmap" {
 		t.Errorf("Title = %q, want %q", got.Title, "Old roadmap")
+	}
+	if len(got.Missions) != 1 || got.Missions[0].ID != "M07A" {
+		t.Errorf("Missions = %v, want [M07A]", got.Missions)
+	}
+	if got.Missions[0].Description != "" {
+		t.Errorf("Missions[0].Description = %q, want empty string", got.Missions[0].Description)
 	}
 	if len(got.Issues) != 0 {
 		t.Errorf("Issues = %v, want nil or empty", got.Issues)

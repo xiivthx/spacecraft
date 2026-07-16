@@ -477,19 +477,19 @@ func (a *MissionArchiver) updateCurrentAfterArchive(archivedId string) {
 	for _, rm := range roadmaps {
 		foundArchived := false
 		for _, mid := range rm.Missions {
-			if mid == archivedId {
+			if mid.ID == archivedId {
 				foundArchived = true
 				continue
 			}
 			if foundArchived {
 				// Check if this mission is not shipped
-				m, err := a.store.Load(mid)
+				m, err := a.store.Load(mid.ID)
 				if err != nil {
 					continue
 				}
 				if m.State != "shipped" {
 					// Found next unshipped mission
-					a.store.WriteCurrent(mid)
+					a.store.WriteCurrent(mid.ID)
 					return
 				}
 			}
