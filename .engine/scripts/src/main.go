@@ -890,6 +890,10 @@ func autoArchive(id string) {
 	fmt.Printf("Archived mission %s\n", id)
 	fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
 	_ = hooks.Fire(context.Background(), hooksCfg, "mission.archived")
+	if next, err := store.ReadCurrent(); err == nil && next != nil && *next != id {
+		fmt.Printf("\nNext mission in roadmap: %s\n", *next)
+		fmt.Println("Run: /sc-start")
+	}
 	checkRoadmapDone(id)
 }
 
@@ -1005,11 +1009,18 @@ func archiveCmd(args []string) int {
 			"missionId":  id,
 			"archiveDir": rel(result.ArchiveDir),
 		}
+		if next, err := store.ReadCurrent(); err == nil && next != nil && *next != id {
+			output["nextMission"] = *next
+		}
 		data, _ := json.MarshalIndent(output, "", "  ")
 		fmt.Println(string(data))
 	} else {
 		fmt.Printf("Archived mission %s\n", id)
 		fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
+		if next, err := store.ReadCurrent(); err == nil && next != nil && *next != id {
+			fmt.Printf("\nNext mission in roadmap: %s\n", *next)
+			fmt.Println("Run: /sc-start")
+		}
 		checkRoadmapDone(id)
 	}
 	return 0
