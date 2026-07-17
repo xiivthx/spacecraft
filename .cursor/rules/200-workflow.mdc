@@ -1,8 +1,6 @@
 ---
 description: Mission lifecycle, lane detection, workflow, release closeout
-alwaysApply: false
-globs:
-  - ".space/**"
+alwaysApply: true
 ---
 
 ## Lane Detection
@@ -21,25 +19,24 @@ Auto-classify every user request:
 For large, multi-mission work (>7 tasks), create a roadmap first.
 
 ### Create roadmap
-1. Generate ID: lowercase kebab-case from title (e.g. "add-user-auth")
-2. Write `.space/roadmaps/<id>.json` with schema from conventions
+1. Run `spacecraft roadmap new "<title>"` (or `spacecraft map new "<title>"`)
+2. Confirm `.space/roadmaps/<id>.json` matches the schema from conventions
 3. Missions array starts empty — populate as missions are created
 
 ### Add mission to roadmap
 When starting a mission that belongs to a roadmap:
 1. Create mission as normal (Start flow above)
-2. Read roadmap JSON, append `{"id":"<mission-id>","description":"<brief>"}` to `missions` array
-3. Update `updatedAt` timestamp
+2. Run `spacecraft roadmap add <roadmap-id> <mission-id> --desc "<brief>"`
+3. Confirm the roadmap `updatedAt` timestamp changed
 
 ### Continue roadmap
 Find next pending mission:
-1. List all missions in roadmap
-2. Check each against `.space/archive/` — skip if already shipped
-3. First unshipped = next. Start it with `/sc-start`
+1. Run `spacecraft roadmap next <roadmap-id>`
+2. Start the returned mission with the `/sc-start` Cursor skill
 
 ### Archive roadmap
 When all missions shipped:
-1. Move to `.space/archive/roadmaps/<id>.json`
+1. Run `spacecraft roadmap archive <roadmap-id>`
 2. Mark all linked issues as closed
 
 ## GitHub Issues Workflow
@@ -77,6 +74,8 @@ spacecraft state <mission-id> <new-state>
 Valid states: active, planned, in_progress, ready, blocked, shipped.
 Invalid transitions are rejected (e.g., shipped → active is blocked).
 
+Canonical CLI commands are `spacecraft evidence`, `spacecraft validate`, `spacecraft state`, and `spacecraft roadmap`. The supported short aliases are `evi`, `val`, and `map`.
+
 ## Clarification Management
 
 When a mission has unresolved questions:
@@ -99,7 +98,7 @@ To defer: `echo "deferred" > ...`
 6. Record decisions/questions in `decisions.md` / `questions.md`
 
 ### Plan -- Convert spec to plan
-1. Delegate to sc-planner: `/sc-planner`
+1. Delegate to the Cursor subagent `sc-planner`
 2. Output: `plan.json` with <=7 tasks
 3. Each task: id, title, status, files, acceptance, verify, evidence labels
 
@@ -109,19 +108,19 @@ To defer: `echo "deferred" > ...`
 3. Check dirty tree: `git status --porcelain`
 4. For each task in plan.json:
    - TDD cycle: sc-tester (Red) -> sc-coder (Green) -> sc-tester (Verify)
-   - Capture evidence: `spacecraft evi <label> -- <test-command>`
+   - Capture evidence: `spacecraft evidence <label> -- <test-command>`
    - Mark task done, checkpoint commit
-5. When all tasks done: validate artifacts: `spacecraft val`
+5. When all tasks done: validate artifacts: `spacecraft validate`
 6. Set state: `spacecraft state <id> ready`
 
 ### Review -- Formal review
-1. Delegate to sc-reviewer: `/sc-reviewer`
+1. Delegate to the Cursor subagent `sc-reviewer`
 2. Record findings in `review.md` and `review.json`
 3. Fix any issues, re-run verification
 
 ### Ship -- Merge and release
 Only on explicit user command (`ship it`, `merge`, `/sc-ship`):
-1. Run validate: `spacecraft val <id>` -- block on failure
+1. Run validate: `spacecraft validate <id>` -- block on failure
 2. Rebase on main: `git fetch origin && git rebase origin/main`
 3. Push: `git push origin feat/<id>/<title>`
 4. Merge on GitHub (or `git checkout main && git merge --no-ff feat/<id>/<title> && git push origin main`)
@@ -148,13 +147,13 @@ Skips spec.md, plan.json, TDD build, formal review.
 You are an orchestrator, not an implementer. Delegate all source code writing and testing to subagents. Never write or edit source files directly.
 
 **Available subagents:**
-- `/sc-coder` — implements production code (write-capable)
-- `/sc-tester` — writes tests, captures evidence (write-capable)
-- `/sc-planner` — converts spec to plan.json (read-only)
-- `/sc-reviewer` — reviews diff, evidence, release readiness (read-only)
-- `/sc-designer` — UI critique, anti-slop review (read-only)
-- `/sc-adviser` — complex system design guidance (read-only)
-- `/sc-firmware` — embedded C firmware, STM32 HAL, protocol, peripheral (write-capable)
+- `sc-coder` — implements production code (write-capable)
+- `sc-tester` — writes tests, captures evidence (write-capable)
+- `sc-planner` — converts spec to plan.json (read-only)
+- `sc-reviewer` — reviews diff, evidence, release readiness (read-only)
+- `sc-designer` — UI critique, anti-slop review (read-only)
+- `sc-adviser` — complex system design guidance (read-only)
+- `sc-firmware` — embedded C firmware, STM32 HAL, protocol, peripheral (write-capable)
 
 **Delegation patterns:**
 - Web/app code: delegate to sc-coder

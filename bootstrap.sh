@@ -1,58 +1,100 @@
 #!/bin/sh
-# bootstrap.sh — install spacecraft into any project
-# Usage: curl -fsSL https://raw.githubusercontent.com/xiivthx/spacecraft/main/bootstrap.sh | sh
-#    or: ./bootstrap.sh [project-dir]
-
+# bootstrap.sh — install spacecraft into a project (safe, project-local default).
+#
+# Usage:
+#   ./bootstrap.sh [project-dir]                 # from a spacecraft clone
+#   curl -fsSL <raw-url>/bootstrap.sh | sh       # remote (clones the repo)
+#   curl -fsSL <raw-url>/bootstrap.sh | sh -s -- /path/to/project
+#
+# Installs the full .cursor surface (rules, agents, skills, hooks, merged MCP)
+# and a .space scaffold into the target project, builds the CLI when Go is
+# available, and runs post-install smoke checks. Never writes ~/.cursorrules.
 set -e
 
+REPO_URL="${SPACECRAFT_REPO:-https://github.com/xiivthx/spacecraft.git}"
+REPO_REF="${SPACECRAFT_REF:-main}"
 TARGET="${1:-.}"
-REPO="https://raw.githubusercontent.com/xiivthx/spacecraft/main"
 
 echo "Spacecraft bootstrap"
 echo "===================="
 
-# Create directory structure
-mkdir -p "$TARGET/.cursor/agents"
-mkdir -p "$TARGET/.cursor/rules"
-mkdir -p "$TARGET/.space/missions"
-mkdir -p "$TARGET/.space/archive"
-
-# Download rules
-echo "Fetching rules..."
-for rule in 050-style 000-spacecraft 100-conventions 200-workflow 300-security 400-performance 500-database 600-firmware 610-firmware-peripherals 620-firmware-testing; do
-  curl -fsSL "$REPO/.cursor/rules/${rule}.mdc" -o "$TARGET/.cursor/rules/${rule}.mdc"
-  echo "  $rule.mdc"
-done
-
-# Download agents
-echo "Fetching agents..."
-for agent in sc-coder sc-tester sc-planner sc-reviewer sc-designer sc-adviser sc-firmware; do
-  curl -fsSL "$REPO/.cursor/agents/${agent}.md" -o "$TARGET/.cursor/agents/${agent}.md"
-  echo "  $agent"
-done
-
-# Download MCP config
-echo "Fetching mcp.json..."
-curl -fsSL "$REPO/.cursor/mcp.json" -o "$TARGET/.cursor/mcp.json"
-echo "  mcp.json"
-
-# Download CLI binary (macOS arm64)
-echo "Downloading spacecraft CLI..."
-OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-ARCH=$(uname -m)
-if [ "$OS" = "darwin" ] && [ "$ARCH" = "arm64" ]; then
-  curl -fsSL "$REPO/spacecraft" -o "$TARGET/spacecraft"
-  chmod +x "$TARGET/spacecraft"
-  echo "  spacecraft (darwin/arm64)"
+# Resolve the source repo: use the local clone if this script lives in one,
+# otherwise clone into a temp dir.
+SRC=""
+CLEANUP=""
+if [ -n "${BASH_SOURCE:-}" ]; then
+  SELF="${BASH_SOURCE}"
 else
-  echo "  skipped — prebuilt binary only for macOS arm64. Build from source: cd cmd/spacecraft && go build ."
+  SELF="$0"
+fi
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SELF")" 2>/dev/null && pwd || true)
+
+if [ -n "$SCRIPT_DIR" ] && [ -d "$SCRIPT_DIR/.cursor/rules" ] && [ -f "$SCRIPT_DIR/scripts/install-cursor.sh" ]; then
+  SRC="$SCRIPT_DIR"
+  echo "Using local source: $SRC"
+else
+  if ! command -v git >/dev/null 2>&1; then
+    echo "error: git is required to bootstrap remotely" >&2
+    exit 1
+  fi
+  SRC=$(mktemp -d 2>/dev/null || mktemp -d -t spacecraft)
+  CLEANUP="$SRC"
+  echo "Cloning $REPO_URL ($REPO_REF)..."
+  git clone --depth 1 --branch "$REPO_REF" "$REPO_URL" "$SRC" >/dev/null 2>&1 \
+    || git clone --depth 1 "$REPO_URL" "$SRC" >/dev/null 2>&1
 fi
 
+cleanup() { [ -n "$CLEANUP" ] && rm -rf "$CLEANUP"; }
+trap cleanup EXIT INT TERM
+
+# Install the config surface + scaffold + merged MCP.
+sh "$SRC/scripts/install-cursor.sh" "$TARGET" "$SRC"
+
+# Build (preferred) or fetch the CLI binary.
+BIN="$TARGET/spacecraft"
+if command -v go >/dev/null 2>&1; then
+  echo "Building spacecraft CLI from source..."
+  ( cd "$SRC/cmd/spacecraft" && go build -o "$(cd "$TARGET" && pwd)/spacecraft" . )
+  echo "  spacecraft -> $BIN"
+else
+  echo "Go not found; attempting optional prebuilt binary..."
+  OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+  ARCH=$(uname -m)
+  case "$ARCH" in
+    x86_64|amd64) ARCH=amd64 ;;
+    arm64|aarch64) ARCH=arm64 ;;
+  esac
+  ASSET="spacecraft-${OS}-${ARCH}"
+  BASE_URL="${REPO_URL%.git}/releases/latest/download"
+  if command -v curl >/dev/null 2>&1 && curl -fsSL "$BASE_URL/$ASSET" -o "$BIN" 2>/dev/null; then
+    chmod +x "$BIN"
+    if curl -fsSL "$BASE_URL/$ASSET.sha256" -o "$BIN.sha256" 2>/dev/null; then
+      EXPECTED=$(awk '{print $1}' "$BIN.sha256")
+      if command -v shasum >/dev/null 2>&1; then
+        ACTUAL=$(shasum -a 256 "$BIN" | awk '{print $1}')
+      else
+        ACTUAL=$(sha256sum "$BIN" | awk '{print $1}')
+      fi
+      rm -f "$BIN.sha256"
+      if [ "$EXPECTED" != "$ACTUAL" ]; then
+        echo "error: checksum mismatch for $ASSET" >&2
+        rm -f "$BIN"
+        exit 1
+      fi
+      echo "  spacecraft -> $BIN (checksum verified)"
+    else
+      echo "  spacecraft -> $BIN (no checksum published; unverified)"
+    fi
+  else
+    echo "  skipped — install Go and run 'make build', or build cmd/spacecraft manually."
+  fi
+fi
+
+# Smoke check.
+sh "$SRC/scripts/smoke.sh" "$TARGET" "$BIN"
+
 echo ""
-echo "Done. $TARGET is now spacecraft-ready."
+echo "Done. $TARGET is spacecraft-ready."
 echo ""
-echo "To install globally:"
-echo "  ln -sf \$(pwd)/spacecraft ~/.local/bin/spacecraft"
-echo "  cp .cursor/agents/sc-*.md ~/.cursor/agents/"
-echo ""
+echo "Optional global CLI:  ln -sf \"$(cd "$TARGET" && pwd)/spacecraft\" ~/.local/bin/spacecraft"
 echo "Restart Cursor to pick up config."

@@ -43,6 +43,7 @@ postgres-data/
 pgdata/
 
 # Caches
+.tmp/
 .cache/
 .parcel-cache/
 .eslintcache
@@ -59,6 +60,10 @@ Thumbs.db
 # Spacecraft local mission state
 .space/
 .space/traces/
+.tmp/
+
+# Generated CLI binary
+/spacecraft
 
 # signs
 signs/*

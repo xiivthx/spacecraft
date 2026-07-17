@@ -1,0 +1,39 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: cmd/spacecraft/go.mod
+          cache: false
+
+      - name: Go tests
+        run: go -C cmd/spacecraft test ./...
+
+      - name: Go vet
+        run: go -C cmd/spacecraft vet ./...
+
+      - name: gofmt check
+        run: |
+          unformatted=$(gofmt -l cmd/spacecraft)
+          if [ -n "$unformatted" ]; then
+            echo "gofmt needs to run on:"
+            echo "$unformatted"
+            exit 1
+          fi
+          echo "gofmt clean"
+
+      - name: Config smoke
+        run: sh scripts/config-smoke.sh .
+
+      - name: Bootstrap/install smoke
+        run: make test-install

@@ -34,7 +34,7 @@ Generate with: `node -e "const MS=Date.now()-new Date('2026-01-01').getTime();co
 {
   "id": "<mission-id>",
   "title": "<title>",
-  "state": "active|ready|blocked|shipped",
+  "state": "active|planned|in_progress|ready|blocked|shipped",
   "branches": ["<branch-name>"],
   "createdAt": "<iso-date>"
 }
@@ -85,6 +85,7 @@ JSON Lines file. Each line is one evidence entry:
 }
 ```
 Roadmap ID format: lowercase kebab-case slug derived from title (e.g. "add-user-auth").
+Manage roadmaps with `spacecraft roadmap` (short alias: `spacecraft map`).
 
 ### GitHub Issue Reference
 When creating issues from roadmap, link them by adding to the roadmap's `issues` array.
@@ -96,11 +97,11 @@ Then append issue to roadmap: read roadmap JSON, add to `issues` array, write ba
 
 ## Evidence Capture
 
-Capture evidence with `spacecraft evi`:
+Capture evidence with `spacecraft evidence` (short alias: `spacecraft evi`):
 ```
-spacecraft evi <label> -- <command>
+spacecraft evidence <label> -- <command>
 # or with explicit mission:
-spacecraft evi --mission <id> <label> -- <command>
+spacecraft evidence --mission <id> <label> -- <command>
 ```
 
 This runs the command, captures stdout, and appends a properly-escaped JSONL line to `.space/missions/<id>/evidence.jsonl`.

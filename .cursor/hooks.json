@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/check-ship-commands.sh",
+        "matcher": "git\\s+(merge|push|tag)\\b",
+        "failClosed": true
+      }
+    ]
+  }
+}
