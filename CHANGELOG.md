@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.34.1 - 2026-07-17
+
+- Docs: replace the retired docs issue registry with GitHub Issues in sc-learn
+
 ## 0.34.0 - 2026-07-17
 
 - Feat: complete Cursor-native spacecraft migration - rules, agents, skills, hooks, MCP
