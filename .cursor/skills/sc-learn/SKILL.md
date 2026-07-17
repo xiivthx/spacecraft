@@ -5,7 +5,7 @@ description: "Capture mission knowledge: issues, solutions, and lessons learned.
 
 # sc-learn
 
-Capture knowledge from missions: track issues found, solutions applied, and lessons learned. During ship, migrate unresolved issues to `docs/issues.md` and solved/learned items to `docs/learned.md` for internal research reuse.
+Capture knowledge from missions: track issues found, solutions applied, and lessons learned. During ship, create GitHub Issues for unresolved items and migrate solved/learned items to `docs/learned.md` for internal research reuse.
 
 ## When to use
 
@@ -14,7 +14,7 @@ Activate when the user asks to:
 - **"Record this issue" / "track this bug" / "note this finding"** - during a mission
 - **"Mark as solved" / "this is fixed"** - after resolving an issue
 - **"What did we learn?" / "lesson learned" / "capture knowledge"** - reflection
-- During ship migration - migrate mission knowledge to global docs before version bump
+- During ship migration - create GitHub Issues for open items; migrate solved/learned to `docs/learned.md` before version bump
 - During implementation - record issues and lessons as they are discovered
 
 ## Workflow
@@ -70,9 +70,10 @@ Before the version bump and changelog commit, run this migration:
 1. **Read mission files** - Load `.space/missions/<id>/issues.md`, `solved.md`, `learned.md`.
 
 2. **Migrate unresolved issues** - For each issue in `issues.md` with status `open`:
-   - Append to `docs/issues.md` under a new section: `### From <mission-id>: <mission-title>`
-   - Include: date, severity, description, impact
-   - Update the mission `issues.md` to mark each as `status: migrated`
+   - Create a GitHub Issue with mission context: `gh issue create --title "<title>" --body "<body>" --label bug`
+   - Body must include: mission id/title, date, severity, description, impact
+   - Update the mission `issues.md` to mark each as `status: migrated` and record the GitHub issue URL/number
+   - If the mission belongs to a roadmap, append the issue to the roadmap `issues` array
 
 3. **Migrate solved items** - For each entry in `solved.md` (specific issues fixed):
     - Append to `docs/learned.md` under the `## Solved` table with mission context
@@ -96,9 +97,10 @@ See `references/templates.md` for the full file templates. Copy them when creati
 - **Must**: Move issues from `issues.md` to `solved.md` when resolved during the mission.
 - **Must**: Distinguish Solved (specific issues fixed in this project) from Lessons (general principles, transferable to any codebase). If an insight only makes sense in the context of this specific tool, it's a solved issue, not a lesson.
 - **Must**: During migration, reword lesson entries from project-specific context into general principles before writing to `docs/learned.md`.
-- **Must**: During ship, migrate unresolved issues to global issue registry before the version bump commit.
-- **Must**: During ship, migrate solved and learned items to global lessons registry before the version bump commit.
-- **Must not**: Ship with unresolved issues still only in the mission folder - they must be promoted to global docs.
+- **Must**: During ship, create GitHub Issues for unresolved mission issues before the version bump commit.
+- **Must**: During ship, migrate solved and learned items to `docs/learned.md` before the version bump commit.
+- **Must not**: Ship with unresolved issues still only in the mission folder - they must be promoted to GitHub Issues.
+- **Must**: Use GitHub Issues as the sole global issue registry.
 - **Must not**: Delete mission tracking files after migration - archive them with the mission.
 - **Must**: After writing to issues.md, solved.md, or learned.md, ctx_index the file with source label `sc-memory/<mission-id>/<type>` (best-effort, non-blocking -- warn on failure). See sc-memory for label format and conventions.
 
@@ -113,7 +115,7 @@ See `references/templates.md` for the full file templates. Copy them when creati
 
 ```
 Mission: <mission-id>
-Issues: [N] open → migrated to docs/issues.md
+Issues: [N] open → GitHub Issues created (#N, #M, ...)
 Solved: [N] items → migrated to docs/learned.md
 Lessons: [N] items → migrated to docs/learned.md
 Migration complete. Ready for version bump.
@@ -124,7 +126,7 @@ Migration complete. Ready for version bump.
 Before claiming knowledge migration is done:
 
 - [ ] Mission tracking files exist (issues.md, solved.md, learned.md)
-- [ ] All open issues migrated to `docs/issues.md` with mission context
+- [ ] All open issues created as GitHub Issues with mission context
 - [ ] All solved items migrated to `docs/learned.md` with mission context
 - [ ] All lessons migrated to `docs/learned.md` with mission context
 - [ ] Mission files marked as `status: migrated` (not deleted)
@@ -135,7 +137,7 @@ Before claiming knowledge migration is done:
 ## References
 
 - `references/templates.md` - mission tracking file templates (issues.md, solved.md, learned.md)
-- `docs/issues.md` - global issue registry (aggregation target)
+- GitHub Issues - global issue registry (via `gh issue create`)
 - `docs/learned.md` - global lessons learned (aggregation target, internal research source)
 - sc-memory - cross-mission memory conventions (ctx_index/ctx_search wrapping)
 - `.space/missions/<id>/issues.md` - per-mission issue tracking
