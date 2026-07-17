@@ -58,7 +58,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **User doesn't respond** — Do not proceed with implementation. Keep the question open. If session ends, hand off with the open question.
 - **Answer raises new questions** — Classify the new question. Ask one at a time. Record each answer before the next.
-- **Multiple ambiguities found** — Classify all of them. Ask only the most blocking one first. Note the others so they aren't forgotten.
+- **Multiple ambiguities found** — Classify all of them. Ask only the most blocking one first. Note the others.
 - **Answer contradicts spec** — Update `spec.md` to reflect the decision. The user's answer is authoritative.
 - **User defers decision** — Record the deferral in `decisions.md` with: "Deferred: <question>. Proceeding without." Only proceed if the ambiguity is non-blocking.
 

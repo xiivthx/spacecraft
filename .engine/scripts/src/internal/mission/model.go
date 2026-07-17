@@ -34,21 +34,29 @@ type ClarificationBlock struct {
 	LastQuestion      *string `json:"lastQuestion"`
 }
 
+// Schema version constants. Bump when adding fields that need migration.
+const (
+	MissionSchemaVersion = 1
+	PlanSchemaVersion    = 1
+	ReviewSchemaVersion  = 1
+)
+
 // Mission is the root data structure for a Spacecraft mission.
 type Mission struct {
-	ID            string             `json:"id"`
-	Title         string             `json:"title"`
-	Description   string             `json:"description,omitempty"`
-	State         string             `json:"state"`
-	CreatedAt     string             `json:"createdAt"`
-	UpdatedAt     string             `json:"updatedAt"`
-	BaseSha       *string            `json:"baseSha"`
-	HeadSha       *string            `json:"headSha"`
-	Branch        *string            `json:"branch,omitempty"`
-	WorkBranch    *string            `json:"workBranch,omitempty"`
-	Git           GitBlock           `json:"git"`
-	Artifacts     ArtifactsBlock     `json:"artifacts"`
-	Clarification ClarificationBlock `json:"clarification"`
+	SchemaVersion   int                `json:"schemaVersion"`
+	ID              string             `json:"id"`
+	Title           string             `json:"title"`
+	Description     string             `json:"description,omitempty"`
+	State           string             `json:"state"`
+	CreatedAt       string             `json:"createdAt"`
+	UpdatedAt       string             `json:"updatedAt"`
+	BaseSha         *string            `json:"baseSha"`
+	HeadSha         *string            `json:"headSha"`
+	Branch          *string            `json:"branch,omitempty"`
+	WorkBranch      *string            `json:"workBranch,omitempty"`
+	Git             GitBlock           `json:"git"`
+	Artifacts       ArtifactsBlock     `json:"artifacts"`
+	Clarification   ClarificationBlock `json:"clarification"`
 }
 
 // MissionRecord is an in-memory record combining mission data with filesystem state.
@@ -62,28 +70,32 @@ type MissionRecord struct {
 
 // Task represents a single task inside a Plan.
 type Task struct {
-	ID     *string `json:"id"`
-	Title  *string `json:"title"`
-	Status *string `json:"status"`
+	ID        *string  `json:"id"`
+	Title     *string  `json:"title"`
+	Status    *string  `json:"status"`
+	DependsOn []string `json:"dependsOn,omitempty"`
 }
 
 // Plan is the work plan for a mission, containing a list of tasks.
 type Plan struct {
-	MissionId string `json:"missionId"`
-	Tasks     []Task `json:"tasks"`
+	SchemaVersion int    `json:"schemaVersion"`
+	MissionId     string `json:"missionId"`
+	Tasks         []Task `json:"tasks"`
 }
 
 // EvidenceEntry records the result of running a verification command.
 type EvidenceEntry struct {
-	ID        string  `json:"id"`
-	Type      *string `json:"type,omitempty"`
-	Label     string  `json:"label"`
-	Command   string  `json:"command"`
-	ExitCode  int     `json:"exitCode"`
-	Stdout    string  `json:"stdout"`
-	Stderr    string  `json:"stderr"`
-	Compact   *string `json:"compact,omitempty"`
-	CreatedAt string  `json:"createdAt"`
+	ID         string  `json:"id"`
+	Type       *string `json:"type,omitempty"`
+	Label      string  `json:"label"`
+	Command    string  `json:"command"`
+	ExitCode   int     `json:"exitCode"`
+	Stdout     string  `json:"stdout"`
+	Stderr     string  `json:"stderr"`
+	StdoutHash *string `json:"stdoutHash,omitempty"`
+	StderrHash *string `json:"stderrHash,omitempty"`
+	Compact    *string `json:"compact,omitempty"`
+	CreatedAt  string  `json:"createdAt"`
 }
 
 // GitInfoData summarizes git state for the current directory.
@@ -209,6 +221,7 @@ type Finding struct {
 
 // Review is the code review output stored in review.json.
 type Review struct {
+	SchemaVersion    int              `json:"schemaVersion"`
 	Status           *string          `json:"status"`
 	Findings         []Finding        `json:"findings"`
 	ReleaseReadiness ReleaseReadiness `json:"releaseReadiness"`
@@ -238,10 +251,11 @@ type CompactMission struct {
 
 // CompactTask is a task with evidence references for archive.
 type CompactTask struct {
-	ID       *string  `json:"id"`
-	Title    *string  `json:"title"`
-	Status   *string  `json:"status"`
-	Evidence []string `json:"evidence"`
+	ID        *string  `json:"id"`
+	Title     *string  `json:"title"`
+	Status    *string  `json:"status"`
+	DependsOn []string `json:"dependsOn,omitempty"`
+	Evidence  []string `json:"evidence"`
 }
 
 // CompactPlan is the archive version of a Plan.
@@ -269,11 +283,36 @@ func BlockingFindings(review *Review) []Finding {
 	}
 	var blocking []Finding
 	for _, f := range review.Findings {
-		blocks := f.BlocksShip != nil && *f.BlocksShip
-		critical := f.Severity != nil && *f.Severity == "critical"
-		if blocks || critical {
+		if f.BlocksShip != nil && *f.BlocksShip {
 			blocking = append(blocking, f)
 		}
 	}
 	return blocking
+}
+
+// MigrateMission upgrades a Mission loaded from disk to the current schema version.
+func MigrateMission(m *Mission) {
+	if m.SchemaVersion < 1 {
+		m.SchemaVersion = MissionSchemaVersion
+	}
+}
+
+// MigratePlan upgrades a Plan loaded from disk to the current schema version.
+func MigratePlan(p *Plan) {
+	if p.SchemaVersion < 1 {
+		if p.Tasks == nil {
+			p.Tasks = make([]Task, 0)
+		}
+		p.SchemaVersion = PlanSchemaVersion
+	}
+}
+
+// MigrateReview upgrades a Review loaded from disk to the current schema version.
+func MigrateReview(r *Review) {
+	if r.SchemaVersion < 1 {
+		if r.Findings == nil {
+			r.Findings = make([]Finding, 0)
+		}
+		r.SchemaVersion = ReviewSchemaVersion
+	}
 }

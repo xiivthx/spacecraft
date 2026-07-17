@@ -90,6 +90,39 @@ func TestNextTask_allWaiting(t *testing.T) {
 	}
 }
 
+func TestNextTask_skipsUnmetDependency(t *testing.T) {
+	tasks := []mission.Task{
+		{ID: strPtr("T01"), Status: strPtr("pending")},
+		{ID: strPtr("T02"), Status: strPtr("pending"), DependsOn: []string{"T01"}},
+	}
+	nt := NextTask(tasks)
+	if nt == nil || *nt.ID != "T01" {
+		t.Errorf("expected T01 (dep not met for T02), got %v", nt)
+	}
+}
+
+func TestNextTask_respectsMetDependency(t *testing.T) {
+	tasks := []mission.Task{
+		{ID: strPtr("T01"), Status: strPtr("done")},
+		{ID: strPtr("T02"), Status: strPtr("pending"), DependsOn: []string{"T01"}},
+	}
+	nt := NextTask(tasks)
+	if nt == nil || *nt.ID != "T02" {
+		t.Errorf("expected T02 (dep met), got %v", nt)
+	}
+}
+
+func TestNextTask_blockedByDependency(t *testing.T) {
+	tasks := []mission.Task{
+		{ID: strPtr("T01"), Status: strPtr("pending"), DependsOn: []string{"T02"}},
+		{ID: strPtr("T02"), Status: strPtr("pending"), DependsOn: []string{"T01"}},
+	}
+	nt := NextTask(tasks)
+	if nt != nil {
+		t.Errorf("expected nil (circular deps), got %v", nt)
+	}
+}
+
 func TestNextCommand_states(t *testing.T) {
 	tests := []struct {
 		state     string

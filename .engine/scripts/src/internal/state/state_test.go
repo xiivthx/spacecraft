@@ -34,12 +34,17 @@ func writeMission(store mission.MissionStore, id, title, state string) error {
 }
 
 func TestSetState_allowed(t *testing.T) {
-	store, _, cleanup := newTestStore(t)
+	store, cfg, cleanup := newTestStore(t)
 	defer cleanup()
 
 	if err := writeMission(store, "M07ST01", "Test", "draft"); err != nil {
 		t.Fatal(err)
 	}
+
+	// Create required files for planned state
+	dir := cfg.MissionDir("M07ST01")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST01","tasks":[]}`), 0644)
 
 	setter := NewSetter(store)
 	if err := setter.SetState("M07ST01", "planned"); err != nil {
@@ -74,12 +79,17 @@ func TestSetState_invalid(t *testing.T) {
 }
 
 func TestSetState_legacyMapping(t *testing.T) {
-	store, _, cleanup := newTestStore(t)
+	store, cfg, cleanup := newTestStore(t)
 	defer cleanup()
 
 	if err := writeMission(store, "M07ST03", "Test", "draft"); err != nil {
 		t.Fatal(err)
 	}
+
+	// Create required files for planned state
+	dir := cfg.MissionDir("M07ST03")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST03","tasks":[]}`), 0644)
 
 	setter := NewSetter(store)
 
@@ -128,6 +138,212 @@ func TestSetState_missingMission(t *testing.T) {
 	err := setter.SetState("M07ST_GHOST", "planned")
 	if err == nil {
 		t.Fatal("expected error for missing mission")
+	}
+}
+
+func TestSetState_invalidTransition(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST30", "Test", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create required files
+	dir := cfg.MissionDir("M07ST30")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST30","tasks":[]}`), 0644)
+
+	setter := NewSetter(store)
+
+	// Try to skip from draft to built (should fail)
+	err := setter.SetState("M07ST30", "built")
+	if err == nil {
+		t.Fatal("expected error for invalid transition draft -> built")
+	}
+	if !strings.Contains(err.Error(), "invalid state transition") {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	// Try to skip from draft to shipped (should fail)
+	err = setter.SetState("M07ST30", "shipped")
+	if err == nil {
+		t.Fatal("expected error for invalid transition draft -> shipped")
+	}
+	if !strings.Contains(err.Error(), "invalid state transition") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestSetState_prerequisitesPlanned(t *testing.T) {
+	store, _, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST31", "Test", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	setter := NewSetter(store)
+
+	// Try to go to planned without spec.md (should fail)
+	err := setter.SetState("M07ST31", "planned")
+	if err == nil {
+		t.Fatal("expected error for missing spec.md")
+	}
+	if !strings.Contains(err.Error(), "spec.md is missing") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestSetState_prerequisitesBuilt(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST32", "Test", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST32")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST32","tasks":[{"id":"T1","title":"Task 1","status":"pending"}]}`), 0644)
+
+	setter := NewSetter(store)
+
+	// Go to planned first
+	if err := setter.SetState("M07ST32", "planned"); err != nil {
+		t.Fatal(err)
+	}
+
+	// Try to go to built with incomplete task (should fail)
+	err := setter.SetState("M07ST32", "built")
+	if err == nil {
+		t.Fatal("expected error for incomplete task")
+	}
+	if !strings.Contains(err.Error(), "task T1 is not complete") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestSetState_prerequisitesReady(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST33", "Test", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST33")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST33","tasks":[]}`), 0644)
+
+	setter := NewSetter(store)
+
+	// Go to planned
+	if err := setter.SetState("M07ST33", "planned"); err != nil {
+		t.Fatal(err)
+	}
+
+	// Go to built
+	if err := setter.SetState("M07ST33", "built"); err != nil {
+		t.Fatal(err)
+	}
+
+	// Try to go to ready without evidence (should fail)
+	err := setter.SetState("M07ST33", "ready")
+	if err == nil {
+		t.Fatal("expected error for missing evidence.jsonl")
+	}
+	if !strings.Contains(err.Error(), "evidence.jsonl is missing") {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	// Create empty evidence.jsonl
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte{}, 0644)
+
+	// Try to go to ready with empty evidence (should fail)
+	err = setter.SetState("M07ST33", "ready")
+	if err == nil {
+		t.Fatal("expected error for empty evidence.jsonl")
+	}
+	if !strings.Contains(err.Error(), "evidence.jsonl has no entries") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestSetState_prerequisitesShipped(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST34", "Test", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST34")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST34","tasks":[]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte(`{"id":"ev1"}`+"\n"), 0644)
+
+	setter := NewSetter(store)
+
+	// Go through states
+	setter.SetState("M07ST34", "planned")
+	setter.SetState("M07ST34", "built")
+	setter.SetState("M07ST34", "ready")
+
+	// Try to go to shipped without review.json (should fail)
+	err := setter.SetState("M07ST34", "shipped")
+	if err == nil {
+		t.Fatal("expected error for missing review.json")
+	}
+	if !strings.Contains(err.Error(), "review.json is missing") {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	// Create review.json with wrong status
+	os.WriteFile(filepath.Join(dir, "review.json"), []byte(`{"status":"blocked"}`), 0644)
+
+	err = setter.SetState("M07ST34", "shipped")
+	if err == nil {
+		t.Fatal("expected error for review status not ready")
+	}
+	if !strings.Contains(err.Error(), "review status is not ready") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestSetState_validTransitionWithPrerequisites(t *testing.T) {
+	store, cfg, cleanup := newTestStore(t)
+	defer cleanup()
+
+	if err := writeMission(store, "M07ST35", "Test", "draft"); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := cfg.MissionDir("M07ST35")
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+	os.WriteFile(filepath.Join(dir, "plan.json"), []byte(`{"missionId":"M07ST35","tasks":[]}`), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte(`{"id":"ev1"}`+"\n"), 0644)
+	os.WriteFile(filepath.Join(dir, "review.json"), []byte(`{"status":"ready"}`), 0644)
+
+	setter := NewSetter(store)
+
+	// Should succeed through all states
+	if err := setter.SetState("M07ST35", "planned"); err != nil {
+		t.Fatalf("failed to go to planned: %v", err)
+	}
+	if err := setter.SetState("M07ST35", "built"); err != nil {
+		t.Fatalf("failed to go to built: %v", err)
+	}
+	if err := setter.SetState("M07ST35", "ready"); err != nil {
+		t.Fatalf("failed to go to ready: %v", err)
+	}
+	if err := setter.SetState("M07ST35", "shipped"); err != nil {
+		t.Fatalf("failed to go to shipped: %v", err)
+	}
+
+	m, _ := store.Load("M07ST35")
+	if m.State != "shipped" {
+		t.Errorf("expected state=shipped, got %q", m.State)
 	}
 }
 

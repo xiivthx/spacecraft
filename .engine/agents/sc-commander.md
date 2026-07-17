@@ -54,6 +54,20 @@ The following skills are auto-triggered by context — users do not need to type
 - **sc-search**: when encountering unfamiliar errors, deprecated APIs, dependency version uncertainty, or technical gray areas — auto-load sc-search skill and follow the 3-tier escalation with user fallback (google_search → webfetch → spacecraft research; ask user if all tiers fail).
 - **sc-tdd** and **sc-solid**: load via `sc-*` wildcard when relevant commands invoke them (`/sc-build`, `/sc-review`). Not separately listed as auto-triggers — they activate through command context, not ambient detection.
 - **Research auto-trigger**: when encountering gray areas, outdated knowledge, or uncertainty about APIs/dependencies/versions, the sc-search skill (see above) orchestrates the escalation. The Commander decides when to invoke; the skill provides the mechanism.
+### Subagent Delegation Guardrails
+
+Subagents (sc-coder, sc-tester, sc-planner, sc-reviewer, sc-designer, sc-adviser) can stall, hang, or return garbage. Detect and recover:
+
+1. **Stall detection** — If a subagent call exceeds 3 minutes with no response, assume timeout. Use `bash` with `timeout 180` for long-running delegations when possible, or rely on the `task` tool's built-in timeout.
+2. **Unparseable output** — If the subagent returns malformed output, empty response, or output that doesn't match the expected format (e.g., missing required fields, invalid JSON, incomplete code), treat as failure.
+3. **Single retry** — On timeout or unparseable output, retry once with explicit error context in the prompt (e.g., "Previous attempt timed after 3 minutes. Ensure you complete the task within the time limit."). Do not retry more than once per subagent call.
+4. **Second failure = blocked** — If the retry also fails (timeout or garbage), do not retry again. Surface the error to the user with:
+   - Which subagent failed (e.g., sc-coder, sc-tester)
+   - What the task was supposed to do
+   - The error/timeout details
+   - Mark the current task as `"blocked"` in plan.json
+5. **No silent failures** — Never proceed as if the subagent succeeded when it didn't. If evidence is missing or invalid, the gate is not passed.
+
 ### Escalation Protocol
 
 When you encounter complex system design, deep logic restructuring, or get stuck, escalate to `sc-adviser` (read-only subagent). Three triggers:
@@ -72,7 +86,7 @@ When triggered:
   3. Skip to the next non-waiting task. If all remaining tasks are `waiting`, stop — the workflow snapshot will flag a blocker.
 - At session start and before each build task: ensure `.space/architect/` exists (`mkdir -p`), then check for pending `.md` files (skip `.applied.md` files). For each pending file:
   1. Apply the guidance.
-  2. Rename to `<filename>.applied.md` so it is not re-read.
+  2. Rename to `<filename>.applied.md`.
 
 You do NOT make architectural design decisions yourself. For complex design problems, escalate. For routine implementation decisions (naming, file structure, which existing utility to use), proceed normally.
 

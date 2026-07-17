@@ -123,7 +123,8 @@ scripts/spacecraft evidence "<label>" -- <command>
 | `.engine/AGENTS.md` | Project conventions (this file) |
 | `.engine/PERSONA.md` | Commander persona, lane detection, session handoff, release rules — **always read with AGENTS.md** |
 | `.engine/opencode.json` | Agent config, permissions, models |
-| `.engine/DESIGN.md` | UI/visual design discipline |
+
+Design system (DESIGN.md) is loaded conditionally via `sc-design` skill when UI work is detected, not automatically.
 
 Skill details: `.engine/skills/*/sc-*/SKILL.md`
 

@@ -112,7 +112,24 @@ func (r *Resolver) Resolve(selector string) mission.ResolveOutput {
 		}
 	}
 
-	// 3. Branch mission id (extracted from branch name)
+	// 3. .space/current (explicit user action via `spacecraft use`)
+	currentMissionId, _ := r.store.ReadCurrent()
+	if currentMissionId != nil {
+		record := findMissionRecordFn(records, *currentMissionId)
+		if record == nil {
+			r.store.ClearCurrent()
+		} else {
+			signals = append(signals, mission.SignalInfo{
+				Source:            ".space/current",
+				Value:             *currentMissionId,
+				ExpectedMissionId: *currentMissionId,
+				MissionId:         &record.ID,
+			})
+			selectFunc(record, ".space/current")
+		}
+	}
+
+	// 4. Branch mission id (extracted from branch name)
 	git := r.gitInfo()
 	var branchMissionId *string
 	if git.Branch != "" {
@@ -133,7 +150,7 @@ func (r *Resolver) Resolve(selector string) mission.ResolveOutput {
 		selectFunc(record, "branch")
 	}
 
-	// 4. Branch metadata (branch stored in mission.json)
+	// 5. Branch metadata (branch stored in mission.json)
 	var branchMetadataMatches []mission.MissionRecord
 	if git.Branch != "" {
 		for _, r := range records {
@@ -159,23 +176,6 @@ func (r *Resolver) Resolve(selector string) mission.ResolveOutput {
 			Value:      git.Branch,
 			MissionIds: ids,
 		})
-	}
-
-	// 5. .space/current
-	currentMissionId, _ := r.store.ReadCurrent()
-	if currentMissionId != nil {
-		record := findMissionRecordFn(records, *currentMissionId)
-		if record == nil {
-			r.store.ClearCurrent()
-		} else {
-			signals = append(signals, mission.SignalInfo{
-				Source:            ".space/current",
-				Value:             *currentMissionId,
-				ExpectedMissionId: *currentMissionId,
-				MissionId:         &record.ID,
-			})
-			selectFunc(record, ".space/current")
-		}
 	}
 
 	// 6. Single active mission fallback

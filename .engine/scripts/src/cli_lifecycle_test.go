@@ -121,6 +121,10 @@ func makeShippableMission(t *testing.T) string {
 	t.Helper()
 	id := createMission(t, "Shippable Mission")
 
+	// Create spec.md (required for planned state)
+	dir := cfg.MissionDir(id)
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+
 	done := "done"
 	tid := "T01"
 	title := "do the thing"
@@ -131,8 +135,18 @@ func makeShippableMission(t *testing.T) string {
 		t.Fatalf("SavePlan: %v", err)
 	}
 
+	// Transition to planned
+	if code := setStateCmd([]string{"planned"}); code != 0 {
+		t.Fatalf("setStateCmd(planned) = %d, want 0", code)
+	}
+
 	if code := evidenceCmd([]string{"tests pass", "--", "echo", "hello"}); code != 0 {
 		t.Fatalf("evidenceCmd = %d, want 0", code)
+	}
+
+	// Transition to built
+	if code := setStateCmd([]string{"built"}); code != 0 {
+		t.Fatalf("setStateCmd(built) = %d, want 0", code)
 	}
 
 	ready := "ready"
@@ -151,6 +165,11 @@ func makeShippableMission(t *testing.T) string {
 		t.Fatalf("SaveReview: %v", err)
 	}
 
+	// Transition to ready
+	if code := setStateCmd([]string{"ready"}); code != 0 {
+		t.Fatalf("setStateCmd(ready) = %d, want 0", code)
+	}
+
 	if code := clarifyStatusCmd([]string{"clear"}); code != 0 {
 		t.Fatalf("clarifyStatusCmd = %d, want 0", code)
 	}
@@ -165,7 +184,7 @@ func (fakeGitRunner) Run(name string, args ...string) (int, string, string) {
 	case "git rev-parse --is-inside-work-tree":
 		return 0, "true", ""
 	case "git branch --show-current":
-		return 0, "feat/test", ""
+		return 0, "feat/m07test01/test-feature", ""
 	case "git status --short":
 		return 0, "", ""
 	case "git merge-base --is-ancestor main HEAD":

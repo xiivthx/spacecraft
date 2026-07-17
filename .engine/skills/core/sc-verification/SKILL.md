@@ -36,7 +36,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Validation fails** — `scripts/spacecraft validate` returns non-zero. Check which acceptance criteria are unmet. Fix before claiming done.
 - **Check cannot be automated** — State why in the evidence label. Mark as `manual`. Document the manual verification steps.
 - **No plan.json exists** — Cannot map evidence to acceptance checks. Ask user to create a plan first.
-- **Evidence already captured for this check** — Re-run to ensure freshness. Never reuse stale evidence.
+- **Evidence already captured for this check** — Re-run. Never reuse stale evidence.
 
 ## Rules
 

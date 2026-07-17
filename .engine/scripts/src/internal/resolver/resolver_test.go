@@ -256,7 +256,7 @@ func TestResolver_CurrentFallback(t *testing.T) {
 	}
 }
 
-func TestResolver_BranchOverride(t *testing.T) {
+func TestResolver_CurrentOverridesBranch(t *testing.T) {
 	store := newMockStore()
 	addMission(store, "M07TEST60", "Current", "draft")
 	addMission(store, "M07TEST61", "Branch", "draft")
@@ -264,11 +264,11 @@ func TestResolver_BranchOverride(t *testing.T) {
 
 	rr := New(store, fakeGitRunner{branch: "feat/m07test61-feature", repo: true}, noEnv)
 	out := rr.Resolve("")
-	if out.Selected == nil || out.Selected.ID != "M07TEST61" {
-		t.Errorf("expected M07TEST61 (branch override), got %v", out.Selected)
+	if out.Selected == nil || out.Selected.ID != "M07TEST60" {
+		t.Errorf("expected M07TEST60 (current overrides branch), got %v", out.Selected)
 	}
-	if out.Source == nil || *out.Source != "branch" {
-		t.Errorf("expected branch source, got %v", out.Source)
+	if out.Source == nil || *out.Source != ".space/current" {
+		t.Errorf("expected .space/current source, got %v", out.Source)
 	}
 }
 

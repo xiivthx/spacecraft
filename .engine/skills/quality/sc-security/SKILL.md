@@ -6,7 +6,7 @@ description: >
 
 # sc-security
 
-Static security review of source code and dependency manifests. Apply pattern-based heuristics only; never execute dynamic audit tools. Flag findings so the active mission task can address them.
+Static security review of source code and dependency manifests. Apply pattern-based heuristics only; never execute dynamic audit tools. Flag findings.
 
 ## When to use
 
@@ -39,7 +39,7 @@ Emit findings in the output format. Include file path, line, matched pattern, ev
 
 ### 5. Record in mission evidence
 
-Add findings to the task output or `evidence.jsonl` notes so the next build step can prioritize fixes.
+Add findings to the task output or `evidence.jsonl` notes.
 
 ## Rules
 

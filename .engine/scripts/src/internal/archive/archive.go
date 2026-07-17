@@ -280,10 +280,11 @@ func (a *MissionArchiver) Archive(params ArchiveParams) (*ArchiveResult, error) 
 	var compactTasks []mission.CompactTask
 	for _, t := range tasks {
 		compactTasks = append(compactTasks, mission.CompactTask{
-			ID:       t.ID,
-			Title:    t.Title,
-			Status:   t.Status,
-			Evidence: []string{},
+			ID:        t.ID,
+			Title:     t.Title,
+			Status:    t.Status,
+			DependsOn: t.DependsOn,
+			Evidence:  []string{},
 		})
 	}
 

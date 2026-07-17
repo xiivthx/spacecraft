@@ -20,6 +20,17 @@ var AllowedStates = map[string]bool{
 	"ready": true, "shipped": true, "blocked": true,
 }
 
+// ValidTransitions defines allowed state transitions.
+// Key is current state, value is set of allowed next states.
+var ValidTransitions = map[string]map[string]bool{
+	"draft":   {"planned": true, "blocked": true},
+	"planned": {"built": true, "blocked": true},
+	"built":   {"ready": true, "blocked": true},
+	"ready":   {"shipped": true, "blocked": true},
+	"blocked": {"draft": true, "planned": true, "built": true, "ready": true},
+	"shipped": {}, // terminal state
+}
+
 // AllowedClarificationStatuses lists valid clarification statuses.
 var AllowedClarificationStatuses = map[string]bool{
 	"open": true, "clear": true, "deferred": true,
@@ -64,9 +75,123 @@ func (s *StateSetter) SetState(id, newState string) error {
 	if err != nil {
 		return fmt.Errorf("load mission %s: %w", id, err)
 	}
+
+	// Validate state transition
+	currentState := m.State
+	if currentState != "" && currentState != newState {
+		allowed, exists := ValidTransitions[currentState]
+		if !exists {
+			return fmt.Errorf("unknown current state %q", currentState)
+		}
+		if !allowed[newState] {
+			return fmt.Errorf("invalid state transition from %q to %q", currentState, newState)
+		}
+
+		// Validate prerequisites for target state (only when actually transitioning)
+		if err := s.validateStatePrerequisites(id, newState); err != nil {
+			return err
+		}
+	}
+
 	m.State = newState
 	m.UpdatedAt = s.nowFn()
 	return s.store.Save(m)
+}
+
+// validateStatePrerequisites checks that prerequisites are met for a state transition.
+func (s *StateSetter) validateStatePrerequisites(id, targetState string) error {
+	dir := s.store.MissionDir(id)
+
+	switch targetState {
+	case "planned":
+		// Requires spec.md and plan.json
+		if !util.Exists(filepath.Join(dir, "spec.md")) {
+			return fmt.Errorf("cannot transition to planned: spec.md is missing")
+		}
+		if !util.Exists(filepath.Join(dir, "plan.json")) {
+			return fmt.Errorf("cannot transition to planned: plan.json is missing")
+		}
+
+	case "built":
+		// Requires all tasks in plan.json to be done
+		pPath := filepath.Join(dir, "plan.json")
+		if !util.Exists(pPath) {
+			return fmt.Errorf("cannot transition to built: plan.json is missing")
+		}
+		var p mission.Plan
+		if err := util.ReadJson(pPath, &p); err != nil {
+			return fmt.Errorf("cannot transition to built: invalid plan.json: %w", err)
+		}
+		for _, t := range p.Tasks {
+			if !mission.TaskIsComplete(t.Status) {
+				taskID := "unknown"
+				if t.ID != nil {
+					taskID = *t.ID
+				}
+				return fmt.Errorf("cannot transition to built: task %s is not complete", taskID)
+			}
+		}
+
+	case "ready":
+		// Requires evidence.jsonl to have entries
+		evPath := filepath.Join(dir, "evidence.jsonl")
+		if !util.Exists(evPath) {
+			return fmt.Errorf("cannot transition to ready: evidence.jsonl is missing")
+		}
+		content, err := os.ReadFile(evPath)
+		if err != nil {
+			return fmt.Errorf("cannot transition to ready: cannot read evidence.jsonl: %w", err)
+		}
+		lines := strings.Split(strings.TrimSpace(string(content)), "\n")
+		validLines := 0
+		for _, line := range lines {
+			if strings.TrimSpace(line) != "" {
+				validLines++
+			}
+		}
+		if validLines == 0 {
+			return fmt.Errorf("cannot transition to ready: evidence.jsonl has no entries")
+		}
+
+	case "shipped":
+		// Requires review.json with status "ready", all tasks done, evidence exists
+		revPath := filepath.Join(dir, "review.json")
+		if !util.Exists(revPath) {
+			return fmt.Errorf("cannot transition to shipped: review.json is missing")
+		}
+		var r mission.Review
+		if err := util.ReadJson(revPath, &r); err != nil {
+			return fmt.Errorf("cannot transition to shipped: invalid review.json: %w", err)
+		}
+		if r.Status == nil || *r.Status != "ready" {
+			return fmt.Errorf("cannot transition to shipped: review status is not ready")
+		}
+
+		// Check all tasks are done
+		pPath := filepath.Join(dir, "plan.json")
+		if util.Exists(pPath) {
+			var p mission.Plan
+			if err := util.ReadJson(pPath, &p); err == nil {
+				for _, t := range p.Tasks {
+					if !mission.TaskIsComplete(t.Status) {
+						taskID := "unknown"
+						if t.ID != nil {
+							taskID = *t.ID
+						}
+						return fmt.Errorf("cannot transition to shipped: task %s is not complete", taskID)
+					}
+				}
+			}
+		}
+
+		// Check evidence exists
+		evPath := filepath.Join(dir, "evidence.jsonl")
+		if !util.Exists(evPath) {
+			return fmt.Errorf("cannot transition to shipped: evidence.jsonl is missing")
+		}
+	}
+
+	return nil
 }
 
 // SetClarificationStatus updates the clarification status of a mission.

@@ -128,7 +128,7 @@ Use these during code review to spot tests that pass green but don't actually ve
 
 2. **Tautological assertions**
    - Red flag: `expect(result).toBe(a + b)` where `result = add(a, b)`; expected value computed the same way as the implementation.
-   - Fix: Use an independent expected value — literal, worked example, or spec — so the test can disagree with the code.
+   - Fix: Use an independent expected value — literal, worked example, or spec.
 
 3. **Missed edge paths**
    - Red flag: Code contains `if`, `try/catch`, guards, or null/undefined handling, but tests only exercise the happy path.

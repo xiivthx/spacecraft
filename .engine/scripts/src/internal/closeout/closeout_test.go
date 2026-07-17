@@ -70,7 +70,7 @@ func TestChecker_Check_ready(t *testing.T) {
 	store := newMockStore()
 	checker := NewChecker(store, fakeGitRunner{
 		inRepo:   true,
-		branch:   "feat/test-branch",
+		branch:   "feat/m07cl01/test-feature",
 		rebaseOK: true,
 		commits:  []string{"feat: add feature"},
 	})
@@ -98,7 +98,7 @@ func TestChecker_Check_ready(t *testing.T) {
 
 func TestChecker_Check_openClarification(t *testing.T) {
 	store := newMockStore()
-	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/test"})
+	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/m07cl02/test"})
 
 	m := &mission.Mission{
 		Clarification: mission.ClarificationBlock{
@@ -114,7 +114,7 @@ func TestChecker_Check_openClarification(t *testing.T) {
 
 func TestChecker_Check_incompleteTasks(t *testing.T) {
 	store := newMockStore()
-	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/test"})
+	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/m07cl03/test"})
 
 	m := &mission.Mission{Clarification: mission.ClarificationBlock{Status: "clear"}}
 	plan := &mission.Plan{
@@ -131,7 +131,7 @@ func TestChecker_Check_incompleteTasks(t *testing.T) {
 
 func TestChecker_Check_noEvidence(t *testing.T) {
 	store := newMockStore()
-	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/test"})
+	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/m07cl04/test"})
 
 	m := &mission.Mission{Clarification: mission.ClarificationBlock{Status: "clear"}}
 	plan := &mission.Plan{
@@ -147,7 +147,7 @@ func TestChecker_Check_noEvidence(t *testing.T) {
 
 func TestChecker_Check_reviewNotReady(t *testing.T) {
 	store := newMockStore()
-	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/test"})
+	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/m07cl05/test"})
 
 	m := &mission.Mission{Clarification: mission.ClarificationBlock{Status: "clear"}}
 	plan := &mission.Plan{
@@ -173,7 +173,7 @@ func TestChecker_Check_reviewNotReady(t *testing.T) {
 
 func TestChecker_Check_blockingFindings(t *testing.T) {
 	store := newMockStore()
-	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/test"})
+	checker := NewChecker(store, fakeGitRunner{inRepo: true, branch: "feat/m07cl06/test"})
 
 	m := &mission.Mission{Clarification: mission.ClarificationBlock{Status: "clear"}}
 	plan := &mission.Plan{
@@ -184,7 +184,7 @@ func TestChecker_Check_blockingFindings(t *testing.T) {
 	review := &mission.Review{
 		Status: strPtr("ready"),
 		Findings: []mission.Finding{
-			{ID: strPtr("F01"), Summary: strPtr("Critical bug"), Severity: strPtr("critical")},
+			{ID: strPtr("F01"), Summary: strPtr("Critical bug"), Severity: strPtr("critical"), BlocksShip: boolPtr(true)},
 		},
 		ReleaseReadiness: mission.ReleaseReadiness{
 			Version:                &mission.ReleaseGate{Status: strPtr("bumped")},
@@ -226,7 +226,7 @@ func TestChecker_Check_dirtyWorktree(t *testing.T) {
 	store := newMockStore()
 	checker := NewChecker(store, fakeGitRunner{
 		inRepo: true,
-		branch: "feat/test",
+		branch: "feat/m07cl09/test",
 		dirty:  true,
 	})
 
@@ -241,7 +241,7 @@ func TestChecker_Check_rebaseNeeded(t *testing.T) {
 	store := newMockStore()
 	checker := NewChecker(store, fakeGitRunner{
 		inRepo:   true,
-		branch:   "feat/test",
+		branch:   "feat/m07cl10/test",
 		rebaseOK: false,
 	})
 
@@ -256,7 +256,7 @@ func TestChecker_Check_tooManyCommits(t *testing.T) {
 	store := newMockStore()
 	checker := NewChecker(store, fakeGitRunner{
 		inRepo:   true,
-		branch:   "feat/test",
+		branch:   "feat/m07cl11/test",
 		rebaseOK: true,
 		commits:  make([]string, 7), // 7 commits > 5 max
 	})
@@ -312,7 +312,7 @@ func TestChecker_Check_closedStatuses(t *testing.T) {
 	store := newMockStore()
 	checker := NewChecker(store, fakeGitRunner{
 		inRepo:   true,
-		branch:   "feat/test-branch",
+		branch:   "feat/m07cl12/test-feature",
 		rebaseOK: true,
 		commits:  []string{"feat: add feature"},
 	})
@@ -342,11 +342,41 @@ func TestChecker_Check_closedStatuses(t *testing.T) {
 	}
 }
 
+func TestChecker_Check_missingSpec(t *testing.T) {
+	store := &mockStore{specExists: false}
+	checker := NewChecker(store, fakeGitRunner{
+		inRepo:   true,
+		branch:   "feat/m07cl13/test-feature",
+		rebaseOK: true,
+		commits:  []string{"feat: add feature"},
+	})
+
+	m := &mission.Mission{
+		ID:    "M07CL13",
+		Title: "Missing Spec Test",
+		State: "ready",
+		Clarification: mission.ClarificationBlock{
+			Status: "clear",
+		},
+	}
+	plan := &mission.Plan{
+		Tasks: []mission.Task{
+			{ID: strPtr("T01"), Status: strPtr("done")},
+		},
+	}
+	result := checker.Check("M07CL13", m, plan, nil, 5)
+	if !containsStr(result.Errors, "spec.md") {
+		t.Errorf("expected spec.md missing error, got: %v", result.Errors)
+	}
+}
+
 // --- mock store ---
 
-type mockStore struct{}
+type mockStore struct {
+	specExists bool
+}
 
-func newMockStore() *mockStore { return &mockStore{} }
+func newMockStore() *mockStore { return &mockStore{specExists: true} }
 
 func (m *mockStore) ReadCurrent() (*string, error)              { return nil, nil }
 func (m *mockStore) WriteCurrent(id string) error               { return nil }
@@ -372,7 +402,7 @@ func (m *mockStore) AppendEvidence(id string, entry *mission.EvidenceEntry) erro
 func (m *mockStore) ReadEvidenceEntries(id string) ([]mission.EvidenceEntry, error) {
 	return nil, nil
 }
-func (m *mockStore) SpecExists(id string) bool          { return false }
+func (m *mockStore) SpecExists(id string) bool          { return m.specExists }
 func (m *mockStore) PlanExists(id string) bool          { return false }
 func (m *mockStore) QuestionsExists(id string) bool     { return false }
 func (m *mockStore) DecisionsExists(id string) bool     { return false }
@@ -390,6 +420,7 @@ func (m *mockStore) ArchiveMission(id, archiveDir string, compactM mission.Compa
 }
 
 func strPtr(s string) *string { return &s }
+func boolPtr(b bool) *bool   { return &b }
 
 func containsStr(list []string, sub string) bool {
 	for _, s := range list {

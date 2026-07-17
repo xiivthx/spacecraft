@@ -143,7 +143,7 @@ func TestReadinessChecker_blockingFindings(t *testing.T) {
 	review := &mission.Review{
 		Status: strPtr("ready"),
 		Findings: []mission.Finding{
-			{ID: strPtr("F01"), Summary: strPtr("Critical"), Severity: strPtr("critical")},
+			{ID: strPtr("F01"), Summary: strPtr("Critical"), Severity: strPtr("critical"), BlocksShip: boolPtr(true)},
 		},
 	}
 	errs := checker.CheckReadiness("M07AR08", plan, review, []mission.EvidenceEntry{{ID: "E001"}})
@@ -572,6 +572,7 @@ func readyReview() *mission.Review {
 }
 
 func strPtr(s string) *string { return &s }
+func boolPtr(b bool) *bool   { return &b }
 
 func dirExists(path string) bool {
 	info, err := os.Stat(path)
