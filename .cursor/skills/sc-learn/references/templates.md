@@ -8,7 +8,7 @@
 # Issues - <mission-title>
 
 > Mission: <mission-id>. Issues found during development.
-> Migrated to docs/issues.md on ship if unresolved.
+> Created as GitHub Issues on ship if unresolved.
 
 ---
 ```
