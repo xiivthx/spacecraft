@@ -1,9 +1,0 @@
-{
-  "name": "sc-ux-design",
-  "private": true,
-  "type": "module",
-  "description": "Playwright dependency for sc-ux-design visual verification (Tier 3). Installed locally — does not pollute project root.",
-  "dependencies": {
-    "@playwright/test": "^1.61.0"
-  }
-}

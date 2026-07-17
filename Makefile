@@ -1,43 +1,32 @@
-.PHONY: build test clean lint install uninstall dev docs
+.PHONY: build install uninstall clean
 
-GO_SRC := .engine/scripts/src
-GO_OUT := scripts/spacecraft
-LOCAL_BIN := $(HOME)/.local/bin
-GLOBAL_CONFIG := $(HOME)/.config/opencode/opencode.jsonc
-SPACECRAFT_ROOT := $(CURDIR)
+CURSOR_AGENTS := $(HOME)/.cursor/agents
+CURSOR_RULES := $(HOME)/.cursorrules
+CURSOR_MCP   := $(HOME)/.cursor/mcp.json
+LOCAL_BIN    := $(HOME)/.local/bin
+ROOT         := $(CURDIR)
 
 build:
-	cd $(GO_SRC) && go build -o ../../../$(GO_OUT) .
-
-test:
-	cd $(GO_SRC) && go test -coverprofile=coverage.out ./...
-
-clean:
-	rm -f $(GO_OUT)
-
-lint:
-	cd $(GO_SRC) && go vet ./...
+	cd $(ROOT)/cmd/spacecraft && go build -o $(ROOT)/spacecraft .
 
 install: build
-	@mkdir -p $(LOCAL_BIN)
-	@ln -sf $(SPACECRAFT_ROOT)/$(GO_OUT) $(LOCAL_BIN)/spacecraft
-	@mkdir -p $(HOME)/.config/opencode
-	@printf '{\n  "$$schema": "https://opencode.ai/config.json",\n  "default_agent": "sc-commander",\n  "share": "disabled",\n  "lsp": true,\n  "instructions": ["%s/.engine/PERSONA.md", "%s/.engine/AGENTS.md"],\n  "skills": {"paths": ["%s/.engine/skills"]},\n  "plugin": ["%s/.opencode/plugins/engine.js"],\n  "agent": {\n    "sc-commander": {\n      "mode": "primary",\n      "description": "Mission commander — orchestrates mission-driven implementation using lean prompts",\n      "model": "opencode-go/deepseek-v4-pro",\n      "temperature": 0.2,\n      "variant": "high",\n      "color": "#4fc3f7"\n    },\n    "sc-planner": {\n      "mode": "subagent",\n      "description": "Read-only planner that turns a mission spec into a small executable plan",\n      "model": "opencode-go/kimi-k2.7-code",\n      "temperature": 0.1,\n      "variant": "low",\n      "color": "#80cbc4"\n    },\n    "sc-designer": {\n      "mode": "subagent",\n      "description": "Read-only design agent for UI direction, critique, and anti-slop review",\n      "model": "opencode-go/glm-5.2",\n      "temperature": 0.3,\n      "variant": "medium",\n      "color": "#ce93d8"\n    },\n    "sc-reviewer": {\n      "mode": "subagent",\n      "description": "Read-only reviewer for diff, evidence, and release readiness",\n      "model": "opencode-go/deepseek-v4-pro",\n      "temperature": 0.1,\n      "variant": "medium",\n      "color": "#ef9a9a"\n    },\n    "sc-coder": {\n      "mode": "subagent",\n      "description": "Write-capable coder that implements production code to satisfy tasks and tests",\n      "model": "opencode-go/kimi-k2.7-code",\n      "temperature": 0.2,\n      "variant": "low",\n      "color": "#a5d6a7"\n    },\n    "sc-tester": {\n      "mode": "subagent",\n      "description": "Write-capable tester that writes tests and captures verification evidence (TDD)",\n      "model": "opencode-go/deepseek-v4-flash",\n      "temperature": 0.1,\n      "color": "#ffcc80"\n    }\n  }\n}\n' $(SPACECRAFT_ROOT) $(SPACECRAFT_ROOT) $(SPACECRAFT_ROOT) $(SPACECRAFT_ROOT) > $(GLOBAL_CONFIG)
-	@echo "Installed: spacecraft -> $(LOCAL_BIN)/spacecraft"
-	@echo "Config:    $(GLOBAL_CONFIG)"
-	@echo "Restart OpenCode to apply."
+	@mkdir -p $(CURSOR_AGENTS) $(LOCAL_BIN)
+	@cp $(ROOT)/.cursor/agents/sc-*.md $(CURSOR_AGENTS)/
+	@cat $(ROOT)/.cursor/rules/050-style.mdc $(ROOT)/.cursor/rules/000-spacecraft.mdc $(ROOT)/.cursor/rules/100-conventions.mdc > $(CURSOR_RULES)
+	@cp $(ROOT)/.cursor/mcp.json $(CURSOR_MCP)
+	@ln -sf $(ROOT)/spacecraft $(LOCAL_BIN)/spacecraft
+	@echo "Installed:"
+	@echo "  agents  -> $(CURSOR_AGENTS)"
+	@echo "  rules   -> $(CURSOR_RULES)"
+	@echo "  mcp     -> $(CURSOR_MCP)"
+	@echo "  cli     -> $(LOCAL_BIN)/spacecraft"
 
 uninstall:
+	@rm -f $(CURSOR_AGENTS)/sc-*.md
+	@rm -f $(CURSOR_RULES)
+	@rm -f $(CURSOR_MCP)
 	@rm -f $(LOCAL_BIN)/spacecraft
-	@echo "Removed $(LOCAL_BIN)/spacecraft"
-	@echo "Config at $(GLOBAL_CONFIG) left intact."
+	@echo "Removed spacecraft from $(HOME)/.cursor and $(LOCAL_BIN)"
 
-dev: build
-	@echo "Development mode: binary rebuilt at $(GO_OUT)"
-	@echo "Run: scripts/spacecraft help"
-
-docs:
-	@echo "Generating documentation..."
-	@mkdir -p docs/generated
-	@scripts/spacecraft help > docs/generated/cli-reference.txt 2>&1
-	@echo "Documentation generated in docs/generated/"
+clean:
+	rm -f $(ROOT)/spacecraft

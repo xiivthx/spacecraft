@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-.engine/node_modules/
 
 # Local environment and secrets
 .env
@@ -63,8 +62,4 @@ Thumbs.db
 
 # signs
 signs/*
-scripts/spacecraft
-scripts/sc
-scripts/src/spacecraft
-scripts/src/sc
-.codegraph
+.codegraph/spacecraft
