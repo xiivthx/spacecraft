@@ -1,0 +1,506 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+)
+
+func hasHelpFlag(args []string) bool {
+	for _, a := range args {
+		if a == "--help" || a == "-h" {
+			return true
+		}
+	}
+	return false
+}
+
+// resolveActive returns the mission ID from the branch, falling back to .space/current.
+func resolveActive(spaceDir, mid string) string {
+	if mid != "" && missionExists(spaceDir, mid) {
+		return mid
+	}
+	if cur := readCurrent(spaceDir); cur != "" && missionExists(spaceDir, cur) {
+		return cur
+	}
+	return ""
+}
+
+func initCmd(spaceDir string) int {
+	if err := os.MkdirAll(filepath.Join(spaceDir, "missions"), 0755); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft init:", err)
+		return 1
+	}
+	if err := os.MkdirAll(filepath.Join(spaceDir, "roadmaps"), 0755); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft init:", err)
+		return 1
+	}
+	fmt.Println("Spacecraft initialized at .space/")
+	return 0
+}
+
+func newCmd(args []string, spaceDir string) int {
+	title := strings.TrimSpace(strings.Join(args, " "))
+	if title == "" {
+		fmt.Fprintln(os.Stderr, "spacecraft new: missing mission title")
+		return 1
+	}
+
+	id := newMissionID()
+	dir := missionDir(spaceDir, id)
+	if err := os.MkdirAll(filepath.Join(dir, "outputs"), 0755); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft new:", err)
+		return 1
+	}
+
+	now := time.Now().UTC().Format(time.RFC3339)
+	m := map[string]any{
+		"id":        id,
+		"title":     title,
+		"state":     "active",
+		"branches":  []any{},
+		"createdAt": now,
+	}
+	data, _ := json.MarshalIndent(m, "", "  ")
+	if err := os.WriteFile(filepath.Join(dir, "mission.json"), append(data, '\n'), 0644); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft new:", err)
+		return 1
+	}
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# "+title+"\n\n## What\n\n## Why\n"), 0644)
+	plan := map[string]any{"planName": "", "missionId": id, "tasks": []any{}}
+	pdata, _ := json.MarshalIndent(plan, "", "  ")
+	os.WriteFile(filepath.Join(dir, "plan.json"), append(pdata, '\n'), 0644)
+	os.WriteFile(filepath.Join(dir, "evidence.jsonl"), []byte(""), 0644)
+	writeCurrent(spaceDir, id)
+
+	fmt.Printf("Created mission %s\n", id)
+	fmt.Println("Next: /sc-plan")
+	return 0
+}
+
+func missionsCmd(spaceDir string) int {
+	ids := listMissionIDs(spaceDir)
+	if len(ids) == 0 {
+		fmt.Println("No missions.")
+		return 0
+	}
+	current := readCurrent(spaceDir)
+	for i, id := range ids {
+		title, state := "(untitled)", "unknown"
+		if m, err := readMission(spaceDir, id); err == nil {
+			if t, ok := m["title"].(string); ok && t != "" {
+				title = t
+			}
+			if s, ok := m["state"].(string); ok && s != "" {
+				state = s
+			}
+		}
+		marker := ""
+		if id == current {
+			marker = " *"
+		}
+		fmt.Printf("%d. %s (%s) state:%s%s\n", i+1, title, id, state, marker)
+	}
+	return 0
+}
+
+func useCmd(args []string, spaceDir string) int {
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Usage: spacecraft use <number|id|title>")
+		return 1
+	}
+	id := normalizeID(args[0])
+	if !missionExists(spaceDir, id) {
+		fmt.Fprintf(os.Stderr, "spacecraft use: no mission matches %q\n", args[0])
+		return 1
+	}
+	if err := writeCurrent(spaceDir, id); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft use:", err)
+		return 1
+	}
+	fmt.Printf("Selected mission %s\n", id)
+	return 0
+}
+
+func currentCmd(spaceDir string) int {
+	cur := readCurrent(spaceDir)
+	if cur == "" {
+		fmt.Println("No current mission. Start one with /sc-start <title>.")
+		return 0
+	}
+	fmt.Println(cur)
+	return 0
+}
+
+func resolveCmd(args []string, spaceDir, mid string) int {
+	sel := ""
+	for _, a := range args {
+		if !strings.HasPrefix(a, "--") {
+			sel = a
+			break
+		}
+	}
+	if sel != "" {
+		id := normalizeID(sel)
+		if missionExists(spaceDir, id) {
+			fmt.Printf("Mission: %s\n", id)
+			return 0
+		}
+		fmt.Fprintf(os.Stderr, "spacecraft resolve: no mission matches %q\n", sel)
+		return 1
+	}
+	if id := resolveActive(spaceDir, mid); id != "" {
+		fmt.Printf("Mission: %s\n", id)
+		return 0
+	}
+	fmt.Fprintln(os.Stderr, "spacecraft resolve: no mission resolved")
+	return 1
+}
+
+func statusCmd(spaceDir, mid string) int {
+	id := resolveActive(spaceDir, mid)
+	if id == "" {
+		fmt.Println("No selected mission. Start one with /sc-start <title>.")
+		return 0
+	}
+	m, err := readMission(spaceDir, id)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft status:", err)
+		return 1
+	}
+	fmt.Printf("Mission: %s\n", id)
+	if t, ok := m["title"].(string); ok {
+		fmt.Printf("Title: %s\n", t)
+	}
+	if s, ok := m["state"].(string); ok {
+		fmt.Printf("State: %s\n", s)
+	}
+	fmt.Printf("Evidence: %d\n", countEvidence(spaceDir, id))
+	return 0
+}
+
+func flowCmd(spaceDir, mid string) int {
+	id := resolveActive(spaceDir, mid)
+	if id == "" {
+		fmt.Println("No selected mission. Start one with /sc-start <title>.")
+		return 0
+	}
+	m, err := readMission(spaceDir, id)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft flow:", err)
+		return 1
+	}
+	state, _ := m["state"].(string)
+	fmt.Printf("Mission: %s\n", id)
+	fmt.Printf("State: %s\n", state)
+	fmt.Printf("Next: %s\n", nextStep(state))
+	return 0
+}
+
+func nextStep(state string) string {
+	switch state {
+	case "active":
+		return "/sc-plan"
+	case "planned":
+		return "/sc-build"
+	case "in_progress":
+		return "/sc-build (continue) then /sc-review"
+	case "ready":
+		return "/sc-ship"
+	case "blocked":
+		return "resolve blockers"
+	case "shipped":
+		return "archive"
+	default:
+		return "/sc-start"
+	}
+}
+
+func countEvidence(spaceDir, id string) int {
+	data, err := os.ReadFile(filepath.Join(missionDir(spaceDir, id), "evidence.jsonl"))
+	if err != nil {
+		return 0
+	}
+	n := 0
+	for _, line := range strings.Split(string(data), "\n") {
+		if strings.TrimSpace(line) != "" {
+			n++
+		}
+	}
+	return n
+}
+
+func bindBranchCmd(args []string, spaceDir, cwd, mid string) int {
+	if hasHelpFlag(args) {
+		fmt.Println("Usage: spacecraft bind-branch [selector]")
+		return 0
+	}
+	id := mid
+	if len(args) > 0 {
+		id = normalizeID(args[0])
+	}
+	if id == "" {
+		id = resolveActive(spaceDir, mid)
+	}
+	if id == "" || !missionExists(spaceDir, id) {
+		fmt.Fprintln(os.Stderr, "spacecraft bind-branch: no mission to bind")
+		return 1
+	}
+	out, err := runCmd(cwd, "git", "branch", "--show-current")
+	branch := strings.TrimSpace(out)
+	if err != nil || branch == "" {
+		fmt.Fprintln(os.Stderr, "spacecraft bind-branch: not a git worktree or no current branch")
+		return 1
+	}
+	m, err := readMission(spaceDir, id)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft bind-branch:", err)
+		return 1
+	}
+	branches, _ := m["branches"].([]any)
+	found := false
+	for _, b := range branches {
+		if s, ok := b.(string); ok && s == branch {
+			found = true
+			break
+		}
+	}
+	if !found {
+		branches = append(branches, branch)
+	}
+	m["branches"] = branches
+	data, _ := json.MarshalIndent(m, "", "  ")
+	if err := os.WriteFile(filepath.Join(missionDir(spaceDir, id), "mission.json"), append(data, '\n'), 0644); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft bind-branch:", err)
+		return 1
+	}
+	fmt.Printf("Bound branch %s to mission %s\n", branch, id)
+	return 0
+}
+
+func gitInfoCmd(cwd string) int {
+	out, err := runCmd(cwd, "git", "rev-parse", "--is-inside-work-tree")
+	if err != nil || strings.TrimSpace(out) != "true" {
+		fmt.Println("Git: not a git worktree")
+		return 0
+	}
+	fmt.Println("Git: worktree detected")
+	if root, err := runCmd(cwd, "git", "rev-parse", "--show-toplevel"); err == nil {
+		fmt.Printf("Root: %s\n", strings.TrimSpace(root))
+	}
+	branch, _ := runCmd(cwd, "git", "branch", "--show-current")
+	b := strings.TrimSpace(branch)
+	if b == "" {
+		b = "(detached)"
+	}
+	fmt.Printf("Branch: %s\n", b)
+	if sha, err := runCmd(cwd, "git", "rev-parse", "HEAD"); err == nil {
+		fmt.Printf("HEAD: %s\n", strings.TrimSpace(sha))
+	}
+	status, _ := runCmd(cwd, "git", "status", "--porcelain")
+	if strings.TrimSpace(status) == "" {
+		fmt.Println("Status: clean")
+	} else {
+		fmt.Printf("Status: dirty (%d files)\n", len(strings.Split(strings.TrimSpace(status), "\n")))
+	}
+	return 0
+}
+
+func gitSuggestCmd(args []string, mid string) int {
+	if hasHelpFlag(args) {
+		fmt.Println("Usage: spacecraft git-suggest [type] [slug]")
+		return 0
+	}
+	branchTypes := map[string]bool{
+		"feat": true, "fix": true, "docs": true, "refactor": true,
+		"test": true, "build": true, "ci": true, "chore": true,
+		"perf": true, "style": true,
+	}
+	typ := "feat"
+	var slugParts []string
+	if len(args) > 0 && branchTypes[strings.ToLower(args[0])] {
+		typ = strings.ToLower(args[0])
+		slugParts = args[1:]
+	} else {
+		slugParts = args
+	}
+	slug := slugify(strings.Join(slugParts, " "))
+	if slug == "" {
+		slug = "mission"
+	}
+	id := mid
+	if id == "" {
+		id = "M0000000"
+	}
+	fmt.Printf("Branch: %s/%s/%s\n", typ, id, slug)
+	fmt.Println("Commit: Conventional Commits (feat:, fix:, chore:, docs:, test:, refactor:)")
+	fmt.Println("Merge: git merge --no-ff <branch>")
+	return 0
+}
+
+func slugify(value string) string {
+	value = strings.ToLower(strings.TrimSpace(value))
+	var sb strings.Builder
+	for _, r := range value {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			sb.WriteRune(r)
+		} else {
+			sb.WriteRune('-')
+		}
+	}
+	parts := strings.FieldsFunc(sb.String(), func(r rune) bool { return r == '-' })
+	return strings.Join(parts, "-")
+}
+
+func clarifyStatusCmd(args []string, spaceDir, mid string) int {
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Usage: spacecraft clarify-status <open|clear|deferred>")
+		return 1
+	}
+	status := args[0]
+	valid := map[string]bool{"open": true, "clear": true, "deferred": true}
+	if !valid[status] {
+		fmt.Fprintf(os.Stderr, "spacecraft clarify-status: invalid status %q (open|clear|deferred)\n", status)
+		return 1
+	}
+	id := resolveActive(spaceDir, mid)
+	if id == "" {
+		fmt.Fprintln(os.Stderr, "spacecraft clarify-status: no active mission - pass a mission via branch or 'use'")
+		return 1
+	}
+	path := filepath.Join(missionDir(spaceDir, id), "clarify-status")
+	if err := os.WriteFile(path, []byte(status+"\n"), 0644); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft clarify-status:", err)
+		return 1
+	}
+	fmt.Printf("Mission %s clarification: %s\n", id, status)
+	return 0
+}
+
+func closeoutCmd(spaceDir, mid string) int {
+	id := resolveActive(spaceDir, mid)
+	if id == "" {
+		fmt.Fprintln(os.Stderr, "spacecraft closeout-check: no active mission")
+		return 1
+	}
+	m, err := readMission(spaceDir, id)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft closeout-check:", err)
+		return 1
+	}
+	var problems []string
+	for _, f := range []string{"spec.md", "plan.json", "evidence.jsonl"} {
+		if _, err := os.Stat(filepath.Join(missionDir(spaceDir, id), f)); err != nil {
+			problems = append(problems, "missing "+f)
+		}
+	}
+	if countEvidence(spaceDir, id) == 0 {
+		problems = append(problems, "no evidence captured")
+	}
+	state, _ := m["state"].(string)
+	if state != "ready" && state != "shipped" {
+		problems = append(problems, "state is "+state+", expected ready")
+	}
+	if len(problems) > 0 {
+		fmt.Printf("Closeout blocked for %s:\n", id)
+		for _, p := range problems {
+			fmt.Printf("- %s\n", p)
+		}
+		return 1
+	}
+	fmt.Printf("Closeout ready for %s.\n", id)
+	return 0
+}
+
+func archiveCmd(args []string, spaceDir, mid string) int {
+	if hasHelpFlag(args) {
+		fmt.Println("Usage: spacecraft archive [selector]")
+		return 0
+	}
+	id := mid
+	for _, a := range args {
+		if !strings.HasPrefix(a, "--") {
+			id = normalizeID(a)
+			break
+		}
+	}
+	if id == "" {
+		id = resolveActive(spaceDir, mid)
+	}
+	if id == "" || !missionExists(spaceDir, id) {
+		fmt.Fprintln(os.Stderr, "spacecraft archive: no mission to archive")
+		return 1
+	}
+	m, err := readMission(spaceDir, id)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft archive:", err)
+		return 1
+	}
+	if state, _ := m["state"].(string); state != "shipped" {
+		fmt.Fprintf(os.Stderr, "spacecraft archive: mission %s state is %s; archive only shipped missions\n", id, state)
+		return 1
+	}
+	archiveDir := filepath.Join(spaceDir, "archive")
+	if err := os.MkdirAll(archiveDir, 0755); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft archive:", err)
+		return 1
+	}
+	if err := os.Rename(missionDir(spaceDir, id), filepath.Join(archiveDir, id)); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft archive:", err)
+		return 1
+	}
+	fmt.Printf("Archived mission %s\n", id)
+	return 0
+}
+
+func researchCmd(args []string) int {
+	if len(args) == 0 || hasHelpFlag(args) {
+		fmt.Print(`spacecraft research <query> [flags]
+
+Flags:
+  --scope <name>   Force a search scope
+  --results <n>    Number of results (default 5)
+  --json           JSON output
+`)
+		if len(args) == 0 {
+			return 1
+		}
+		return 0
+	}
+	if os.Getenv("SPACECRAFT_BRAVE_API_KEY") == "" {
+		fmt.Fprintln(os.Stderr, "spacecraft research: SPACECRAFT_BRAVE_API_KEY is not set. Get a key at https://brave.com/search/api/")
+		return 1
+	}
+	fmt.Fprintln(os.Stderr, "spacecraft research: online search is not available in this build")
+	return 1
+}
+
+func checkDepsCmd(args []string, cwd string) int {
+	if hasHelpFlag(args) {
+		fmt.Print(`spacecraft check-deps [flags]
+
+Flags:
+  --registry <ecosystem>  Limit to one ecosystem (go, npm, pypi, crates)
+  --json                  JSON output
+`)
+		return 0
+	}
+	manifests := []string{"go.mod", "package.json", "requirements.txt", "pyproject.toml", "Cargo.toml"}
+	var found []string
+	for _, name := range manifests {
+		if _, err := os.Stat(filepath.Join(cwd, name)); err == nil {
+			found = append(found, name)
+		}
+	}
+	if len(found) == 0 {
+		fmt.Println("No supported dependency manifest files found.")
+		fmt.Println("Supported: " + strings.Join(manifests, ", "))
+		return 0
+	}
+	fmt.Println("Found manifests: " + strings.Join(found, ", "))
+	fmt.Fprintln(os.Stderr, "spacecraft check-deps: registry lookups are not available in this build")
+	return 1
+}

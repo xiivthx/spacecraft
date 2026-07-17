@@ -1,156 +1,131 @@
-# Installation Guide
+# Installation
 
-This guide covers all supported installation methods for Spacecraft.
+Spacecraft is installed as Cursor project configuration plus a local CLI. Install it into each project where you want the mission workflow available.
 
-## Requirements
+## Prerequisites
 
-- **Go 1.21 or later** (for building from source)
-- **macOS or Linux** (Windows not yet supported)
-- **OpenCode CLI** installed and configured
-- **Git** for version control operations
+- Cursor
+- Git
+- `curl`
+- macOS or Linux
+- Go 1.21 or newer when building the CLI from source
 
-## Method 1: Build from Source
+## Install with bootstrap
 
-Recommended for developers who want the latest version or plan to contribute. This method builds from source using the Go toolchain.
+From a Spacecraft checkout, pass the target project directory:
 
 ```sh
-# Clone the repository
-git clone <repo-url>
+./bootstrap.sh /path/to/project
+```
+
+To bootstrap the current directory:
+
+```sh
+./bootstrap.sh
+```
+
+The bootstrap installer prepares project-local `.cursor/` and `.space/` content and installs the repository CLI when a compatible prebuilt binary is available.
+
+You can also run the published bootstrap script from the target project:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/xiivthx/spacecraft/main/bootstrap.sh | sh
+```
+
+Restart Cursor after installation so it refreshes the project's Cursor configuration.
+
+## Build and install from source
+
+Clone the repository, then use the Makefile:
+
+```sh
+git clone https://github.com/xiivthx/spacecraft.git
 cd spacecraft
-
-# Build the Go binary
-make build
-
-# Verify the build
-scripts/spacecraft help
-
-# Optional: Install globally
 make install
 ```
 
-The `make build` command compiles the Go helper binary to `scripts/spacecraft`. When you build from source, you get the latest changes. The `make install` command creates a symlink in `~/.local/bin/` and generates the OpenCode configuration.
-
-After running `make install`, restart OpenCode to load the new configuration.
-
-## Method 2: Binary Download
-
-Pre-built binaries are available for macOS and Linux.
-
-1. Download the latest release from the releases page
-2. Extract the archive
-3. Move the `spacecraft` binary to a directory in your PATH:
+`make install` builds the Go CLI from `cmd/spacecraft/` and installs Spacecraft for use from Cursor and your shell. Ensure `~/.local/bin` is on `PATH` if your shell cannot find `spacecraft`:
 
 ```sh
-# macOS / Linux
-chmod +x spacecraft
-sudo mv spacecraft /usr/local/bin/
-
-# Or to user-local bin
-mkdir -p ~/.local/bin
-mv spacecraft ~/.local/bin/
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-Verify the installation:
+To build without installing:
+
+```sh
+make build
+./spacecraft help
+```
+
+## Verify the installation
+
+In the target project, confirm the Cursor-native files:
+
+```sh
+test -d .cursor/rules
+test -d .cursor/agents
+test -d .cursor/skills
+test -f .cursor/mcp.json
+test -f .cursor/hooks.json
+test -d .space
+```
+
+Confirm the CLI:
 
 ```sh
 spacecraft help
 ```
 
-## Method 3: Homebrew (macOS/Linux)
-
-Homebrew installation provides automatic updates and dependency management.
+When using the repository binary directly:
 
 ```sh
-# Add the tap (if using a custom tap)
-brew tap <org>/spacecraft
-
-# Install
-brew install spacecraft
-
-# Verify
-spacecraft help
+./spacecraft help
 ```
 
-Update to the latest version:
+The help output should begin with `Spacecraft mission helper` and list the mission, evidence, validation, research, dependency, and roadmap commands.
+
+## Verify Cursor discovery
+
+After restarting Cursor:
+
+1. Open the installed project.
+2. Confirm `/sc-start`, `/sc-plan`, `/sc-build`, and `/sc-ship` are available as skills.
+3. Confirm the seven agents are discoverable: `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, and `sc-firmware`.
+4. Approve the project MCP server if Cursor asks for confirmation.
+
+Workflow prompts are skills under `.cursor/skills/`. No `.cursor/commands/` directory is required.
+
+## Start a project
+
+If the target does not have mission state yet:
 
 ```sh
-brew upgrade spacecraft
-```
-
-## Post-Installation Setup
-
-After installing, initialize Spacecraft in your project:
-
-```sh
-cd your-project
 spacecraft init
 ```
 
-This creates the `.space/` directory structure for mission state, artifacts, and evidence.
+Then begin in Cursor:
 
-### Verify Installation
-
-Run these commands to verify everything is working:
-
-```sh
-# Check CLI is accessible
-spacecraft help
-
-# Initialize in a test project
-mkdir test-project && cd test-project
-spacecraft init
-
-# Create a test mission
-spacecraft new "Test mission"
-
-# List missions
-spacecraft missions
-
-# Check status
-spacecraft status
+```text
+/sc-start
+/sc-plan
+/sc-build
+/sc-ship
 ```
 
-If all commands succeed, Spacecraft is installed correctly.
+## Installed layout
 
-## Troubleshooting
-
-### "command not found: spacecraft"
-
-- Verify the binary is in your PATH: `which spacecraft`
-- If built from source, ensure `scripts/spacecraft` exists and is executable
-- If installed via `make install`, check `~/.local/bin/` is in your PATH
-
-### "permission denied" when running scripts
-
-```sh
-chmod +x scripts/spacecraft
+```text
+.cursor/
+  rules/
+  agents/
+  skills/
+  mcp.json
+  hooks.json
+  hooks/
+.space/
+  missions/
+  archive/
+  roadmaps/
 ```
 
-### Build fails with Go errors
-
-- Verify Go version: `go version` (requires 1.21+)
-- Clear Go cache: `go clean -cache`
-- Rebuild: `make build`
-
-### OpenCode doesn't recognize slash commands
-
-- Restart OpenCode after running `make install`
-- Verify config exists: `cat ~/.config/opencode/opencode.jsonc`
-- Check that `.engine/` directory is present in your project
-
-## Uninstallation
-
-```sh
-# If installed via make install
-make uninstall
-
-# Or manually
-rm ~/.local/bin/spacecraft
-rm -rf ~/.config/opencode
-
-# Remove from project
-rm -rf .space/
-```
-
-The `make uninstall` command removes the symlink but leaves the config file intact. Delete it manually if you want a complete removal.
+The Spacecraft repository also contains the CLI source at `cmd/spacecraft/`.

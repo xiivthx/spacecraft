@@ -1,0 +1,67 @@
+---
+description: Security review — OWASP, secrets, injection, auth, input validation
+alwaysApply: false
+globs:
+  - "**/*auth*/**"
+  - "**/*login*/**"
+  - "**/*api*/**"
+  - "**/*middleware*/**"
+  - "**/*.env*"
+  - "**/*secret*"
+  - "**/package.json"
+  - "**/Dockerfile"
+---
+
+## Security Review
+
+When reviewing or implementing code touching auth, API endpoints, database queries, or user input, systematically check:
+
+### Injection (Critical)
+- SQL/NoSQL: raw string interpolation into queries → use parameterized queries / ORM
+- Command injection: `exec()`, `spawn()`, `subprocess` with user input → never concatenate
+- Path traversal: user input in file paths → resolve and verify against root
+- Template injection: raw user input in `render()`, `eval()` → sanitize or escape
+
+### Authentication (Critical)
+- JWT without expiry or with weak secret → set `expiresIn`, use strong secret from env
+- Session tokens in URLs or logs → use secure httpOnly cookies
+- Password hashing: use bcrypt/argon2 only — never SHA/MD5 for passwords
+- MFA bypass in test/staging routes → gate behind env check, never ship open
+
+### Secrets (Critical)
+- Hardcoded API keys, tokens, passwords, private keys → use env vars
+- `.env` committed to git → check `.gitignore`, verify not staged
+- Secrets in logs, error messages, or stack traces → strip before logging
+- Default credentials (admin/admin, root/toor) → enforce change on first login
+
+### Authorization (High)
+- Missing ownership checks: can user A access user B's data by changing an ID?
+- Role escalation: is admin-only route gated by role check or just auth check?
+- Direct object reference: numeric IDs that expose enumeration → use UUID or add ownership
+
+### Input Validation (High)
+- Missing sanitization on user-controlled input → validate type, length, charset
+- File upload: type/size not validated, stored in webroot → check MIME, limit size, store outside docroot
+- Unsafe deserialization: `eval()`, `unserialize()`, `yaml.load()` on user data → use safe parsers
+- Regex DoS: exponential backtracking on user input → limit input length, use atomic groups
+
+### Data Exposure (Medium)
+- PII in logs: emails, phone numbers, addresses → mask or hash
+- Verbose error messages: stack traces in API responses → catch and return generic error
+- Sensitive data in GET query strings → use POST body or headers
+- CORS misconfiguration: `Access-Control-Allow-Origin: *` with credentials → restrict origin
+
+### Dependency Audit (Medium)
+- Known CVEs: check `npm audit`, `pip audit`, `cargo audit` for critical/high
+- Supply chain: newly added dependencies with low downloads or no maintenance
+- Unpinned versions: `^` or `~` without lockfile → prefer exact versions for production
+
+## Finding Format
+
+For every finding, report:
+- File path and line number
+- Severity: Critical / High / Medium / Low
+- The attack vector in plain English
+- A specific code fix, not just a description
+
+Only report confirmed findings. Do not speculate.

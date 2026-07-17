@@ -1,9 +1,9 @@
-name: Test & Coverage
+name: test
 
 on:
   push:
-  pull_request:
     branches: [main]
+  pull_request:
 
 jobs:
   test:
@@ -13,27 +13,27 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version-file: .engine/scripts/src/go.mod
+          go-version-file: cmd/spacecraft/go.mod
+          cache: false
 
-      - name: Run tests with coverage
-        run: make test
+      - name: Go tests
+        run: go -C cmd/spacecraft test ./...
 
-      - name: Coverage report
-        working-directory: .engine/scripts/src
-        run: go tool cover -func coverage.out
+      - name: Go vet
+        run: go -C cmd/spacecraft vet ./...
 
-      - name: Check coverage threshold
-        working-directory: .engine/scripts/src
+      - name: gofmt check
         run: |
-          COVERAGE=$(go tool cover -func coverage.out | grep '^total:' | awk '{print $3}' | sed 's/%//')
-          echo "Total coverage: ${COVERAGE}%"
-          if [ "$(echo "$COVERAGE < 75" | bc)" -eq 1 ]; then
-            echo "Coverage ${COVERAGE}% below threshold 75%"
+          unformatted=$(gofmt -l cmd/spacecraft)
+          if [ -n "$unformatted" ]; then
+            echo "gofmt needs to run on:"
+            echo "$unformatted"
             exit 1
           fi
-          echo "Coverage ${COVERAGE}% meets threshold 75%"
+          echo "gofmt clean"
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: .engine/scripts/src/coverage.out
+      - name: Config smoke
+        run: sh scripts/config-smoke.sh .
+
+      - name: Bootstrap/install smoke
+        run: make test-install

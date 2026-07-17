@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.34.0 - 2026-07-17
+
+- Feat: complete Cursor-native spacecraft migration - rules, agents, skills, hooks, MCP
+- Feat: restore mission CLI with aliases, evidence exit codes, and validation
+- Feat: safe project/global install with MCP and hooks merge (no ~/.cursorrules clobber)
+- Fix: installer no longer overwrites existing Cursor hooks (#50)
+- Docs: rewrite README and installation guide for Cursor runtime
+- Ci: restore make test and GitHub Actions verification
+
 ## 0.33.1 - 2026-07-17
 
 - Feat: add schema versioning for Mission/Plan/Review artifacts

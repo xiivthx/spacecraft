@@ -1,0 +1,177 @@
+---
+description: Mission lifecycle, lane detection, workflow, release closeout
+alwaysApply: true
+---
+
+## Lane Detection
+
+Auto-classify every user request:
+
+| User intent | Lane |
+|-------------|------|
+| Ask, tell, talk, consult, research, explain, how-to | Advisory |
+| Add, build, create, implement, develop, feature, make | Mission |
+| Fix, debug, diagnose, broken, error, bug, crash, investigate | Debug |
+| Edit prompt, config, doc, small fix, human already made changes, just commit | Quick |
+
+## Roadmap Workflow
+
+For large, multi-mission work (>7 tasks), create a roadmap first.
+
+### Create roadmap
+1. Run `spacecraft roadmap new "<title>"` (or `spacecraft map new "<title>"`)
+2. Confirm `.space/roadmaps/<id>.json` matches the schema from conventions
+3. Missions array starts empty — populate as missions are created
+
+### Add mission to roadmap
+When starting a mission that belongs to a roadmap:
+1. Create mission as normal (Start flow above)
+2. Run `spacecraft roadmap add <roadmap-id> <mission-id> --desc "<brief>"`
+3. Confirm the roadmap `updatedAt` timestamp changed
+
+### Continue roadmap
+Find next pending mission:
+1. Run `spacecraft roadmap next <roadmap-id>`
+2. Start the returned mission with the `/sc-start` Cursor skill
+
+### Archive roadmap
+When all missions shipped:
+1. Run `spacecraft roadmap archive <roadmap-id>`
+2. Mark all linked issues as closed
+
+## GitHub Issues Workflow
+
+### Bug radar — auto-create issues
+When you discover a bug, incorrect workflow, or broken assumption during ANY lane:
+1. Create issue: `gh issue create --title "<title>" --body "<body>" --label bug`
+2. If mission has a roadmap, add issue to roadmap's `issues` array
+3. Record in `.space/missions/<id>/issues.md` for traceability
+
+### Issue resolution
+When user says "fix issue #N":
+1. Read issue: `gh issue view <number>`
+2. Create mission for the fix (following Mission Lane)
+3. Reference issue in spec.md
+4. After ship: close issue: `gh issue close <number>`
+
+## Mission Resolution
+
+Active mission is detected from branch name. No explicit selection needed.
+
+To find the active mission:
+1. `git branch --show-current` — extract ID from `feat/<id>/<title>`
+2. Read `.space/missions/<id>/mission.json` for full context
+
+To list all missions:
+```
+ls -1 .space/missions/
+```
+
+To set mission state:
+```
+spacecraft state <mission-id> <new-state>
+```
+Valid states: active, planned, in_progress, ready, blocked, shipped.
+Invalid transitions are rejected (e.g., shipped → active is blocked).
+
+Canonical CLI commands are `spacecraft evidence`, `spacecraft validate`, `spacecraft state`, and `spacecraft roadmap`. The supported short aliases are `evi`, `val`, and `map`.
+
+## Clarification Management
+
+When a mission has unresolved questions:
+
+To mark clarification as needed:
+```
+echo "open" > .space/missions/<id>/clarify-status
+```
+To clear: `echo "clear" > ...`
+To defer: `echo "deferred" > ...`
+
+## Mission Lane (start -> plan -> build -> review -> ship)
+
+### Start -- Begin mission
+1. Generate mission ID: `node -e "const MS=Date.now()-new Date('2026-01-01').getTime();console.log('M'+MS.toString(36).toUpperCase())"`
+2. Create branch: `git checkout -b feat/<id>/<title>`
+3. Create directory: `mkdir -p .space/missions/<id>/outputs`
+4. Write `mission.json` (see conventions rule for schema)
+5. Draft `spec.md` -- what and why
+6. Record decisions/questions in `decisions.md` / `questions.md`
+
+### Plan -- Convert spec to plan
+1. Delegate to the Cursor subagent `sc-planner`
+2. Output: `plan.json` with <=7 tasks
+3. Each task: id, title, status, files, acceptance, verify, evidence labels
+
+### Build -- Implement tasks
+1. Verify on feature branch: `git branch --show-current`
+2. Read mission.json, spec.md, plan.json for context
+3. Check dirty tree: `git status --porcelain`
+4. For each task in plan.json:
+   - TDD cycle: sc-tester (Red) -> sc-coder (Green) -> sc-tester (Verify)
+   - Capture evidence: `spacecraft evidence <label> -- <test-command>`
+   - Mark task done, checkpoint commit
+5. When all tasks done: validate artifacts: `spacecraft validate`
+6. Set state: `spacecraft state <id> ready`
+
+### Review -- Formal review
+1. Delegate to the Cursor subagent `sc-reviewer`
+2. Record findings in `review.md` and `review.json`
+3. Fix any issues, re-run verification
+
+### Ship -- Merge and release
+Only on explicit user command (`ship it`, `merge`, `/sc-ship`):
+1. Run validate: `spacecraft validate <id>` -- block on failure
+2. Rebase on main: `git fetch origin && git rebase origin/main`
+3. Push: `git push origin feat/<id>/<title>`
+4. Merge on GitHub (or `git checkout main && git merge --no-ff feat/<id>/<title> && git push origin main`)
+5. Set state: `spacecraft state <id> shipped`
+6. Archive: `mv .space/missions/<id> .space/archive/`
+
+## Quick Lane
+
+Skips spec.md, plan.json, TDD build, formal review.
+- Still: git safety, Conventional Commits, `--no-ff` merge, test suite
+- Self-review: diff inspection, functional check, test suite, git hygiene
+- Report ready, wait for explicit ship command
+
+## Debug Lane
+
+1. Reproduce bug E2E (as close to end-user experience as possible)
+2. Trace failure path end-to-end
+3. Falsify hypothesis -- prove it's the root cause
+4. Cross-reference -- check all callers and related code
+5. Post-mortem -- record root cause and fix in issues.md
+
+## Subagent Delegation
+
+You are an orchestrator, not an implementer. Delegate all source code writing and testing to subagents. Never write or edit source files directly.
+
+**Available subagents:**
+- `sc-coder` — implements production code (write-capable)
+- `sc-tester` — writes tests, captures evidence (write-capable)
+- `sc-planner` — converts spec to plan.json (read-only)
+- `sc-reviewer` — reviews diff, evidence, release readiness (read-only)
+- `sc-designer` — UI critique, anti-slop review (read-only)
+- `sc-adviser` — complex system design guidance (read-only)
+- `sc-firmware` — embedded C firmware, STM32 HAL, protocol, peripheral (write-capable)
+
+**Delegation patterns:**
+- Web/app code: delegate to sc-coder
+- Embedded/firmware: delegate to sc-firmware
+- Before writing: delegate to sc-tester for failing test
+- After code exists: delegate to sc-tester for verification
+- Before ship: delegate to sc-reviewer for release review
+
+## Release Closeout
+
+Only on explicit ship command:
+1. Verify all gates pass (evidence, review, tests)
+2. `git rebase origin/main` -- verify clean
+3. `git merge --no-ff` to main
+4. Tag if versioned, delete feature branch, archive mission
+5. Never merge, tag, or delete branches without explicit command
+
+## Session Handoff
+
+If work unfinished: summarize state, blockers, dirty git status, next pickup command.
+End every session with recommended next action.

@@ -1,0 +1,54 @@
+---
+description: Performance review — N+1 queries, memory leaks, bundle size, render optimization
+alwaysApply: false
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.sql"
+  - "**/*.go"
+  - "**/package.json"
+---
+
+## Performance Review
+
+When reviewing or implementing code, check for common performance issues:
+
+### Database / Data Access (Critical)
+- **N+1 queries**: loop that queries the database inside each iteration → use eager loading, batch queries, or JOINs
+- **Missing indexes**: frequent queries on unindexed columns → add index on WHERE/JOIN/ORDER BY columns
+- **SELECT * on large tables**: fetching unused columns → select only needed columns
+- **Full table scans**: unindexed sort, filter, or join on large tables → add index or redesign query
+- **Connection pooling**: no pool or wrong pool size → use appropriate pool (default 10-20 for web apps)
+
+### Memory (High)
+- **Memory leaks**: event listeners not removed, setInterval without clearInterval, closures holding large objects
+- **Buffer/stream**: loading entire file into memory instead of streaming → use streams for files >1MB
+- **Cache growth**: unbounded Map/Set/Object accumulating entries → add TTL or LRU eviction
+- **Large JSON parse on hot path**: parsing the same large payload repeatedly → cache parsed result
+
+### Frontend / Bundle (High)
+- **Large dependencies**: importing entire library when only 1-2 functions needed → tree-shake or use lightweight alternative
+- **Synchronous blocking**: heavy computation on main thread → use Web Worker or offload to server
+- **Unoptimized images**: serving 4K PNG for a 200px thumbnail → resize, use WebP/AVIF, lazy load
+- **Render thrashing**: state changes causing entire tree re-render → use memo, virtualization, or split state
+- **Third-party scripts**: render-blocking external scripts → async/defer or lazy load below fold
+
+### Network (Medium)
+- **Chatty API**: many small requests instead of one batched request → batch endpoints or use GraphQL
+- **No caching headers**: re-fetching data that rarely changes → set Cache-Control, ETag, or use SWR/React Query
+- **Uncompressed responses**: serving JSON/JS/CSS without gzip/brotli → enable server compression
+- **Sequential waterfall**: awaiting each fetch before starting the next → Promise.all for independent requests
+
+### General (Medium)
+- **Algorithmic complexity**: O(n^2) where O(n log n) would work → check nested loops, use Set/Map for lookups
+- **Lazy initialization on hot path**: loading config/env on every request → cache or load once at startup
+- **Debug logging in production**: console.log/warn wrapping expensive operations → use level-based logger, strip in production build
+
+## Finding Format
+
+For every finding, report:
+- File path and line number (approximate if not exact)
+- Severity: Critical / High / Medium
+- The performance impact in plain English
+- A specific fix recommendation

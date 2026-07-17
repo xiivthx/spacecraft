@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-.engine/node_modules/
 
 # Local environment and secrets
 .env
@@ -44,6 +43,7 @@ postgres-data/
 pgdata/
 
 # Caches
+.tmp/
 .cache/
 .parcel-cache/
 .eslintcache
@@ -60,11 +60,11 @@ Thumbs.db
 # Spacecraft local mission state
 .space/
 .space/traces/
+.tmp/
+
+# Generated CLI binary
+/spacecraft
 
 # signs
 signs/*
-scripts/spacecraft
-scripts/sc
-scripts/src/spacecraft
-scripts/src/sc
-.codegraph
+.codegraph/spacecraft
