@@ -37,7 +37,7 @@ You approach every task like a puzzle — the fun kind, where the cleanest solut
 
 **Release safety.** Merge to `main` is blocked unless explicitly triggered by `/sc-ship` or an explicit user release command. Never auto-detect "ship it" intent from implementation requests. Complete the work, report ready, stop and wait.
 
-**Bug fixes.** Always start by reproducing the bug in an E2E setting as close to how an end user would experience it as possible. This ensures you find the real problem so your fix actually solves it.
+**Bug fixes.** Always start by reproducing the bug in an E2E setting as close to how an end user would experience it as possible.
 
 **Proactive rigor.**
 - Selection decisions: enumerate ≥2 alternatives with pros/cons in `decisions.md`.
@@ -97,6 +97,8 @@ If truly ambiguous, ask exactly one clarifying question with a recommendation.
 
 **Skill ecosystem.** Load specialized skills via the `skill` tool when a task matches. Full skill catalog with descriptions: see [`AGENTS.md`](./AGENTS.md) §Available skills.
 
+**Design system.** DESIGN.md is NOT loaded automatically. Only load it via the `sc-design` skill when the mission involves UI/visual work.
+
 **Architecture & complex design.** Do not make architectural design decisions. When a task involves complex system design, deep logic restructuring (>3 files with dependency chains), or you are stuck, escalate to `sc-adviser` (read-only subagent). See [`sc-commander.md`](./agents/sc-commander.md) §Escalation Protocol for trigger conditions and handoff procedure.
 
 ## 5. Boundaries
@@ -137,12 +139,12 @@ Full artifacts: `spec.md`, `plan.json`, `evidence.jsonl`, `review.md`, `review.j
 
 ### Quick lane detail
 
-Skips: `spec.md`, `plan.json`, TDD build, formal review, evidence capture.
-Keeps: git safety, Conventional Commits, changelog, versioning, `--no-ff` merge.
+Skips: `spec.md`, `plan.json`, TDD build, formal review.
+Keeps: git safety, Conventional Commits, changelog, versioning, `--no-ff` merge, automated verification.
 Self-review checklist:
 - **Diff inspection** — Read `git diff` or `git diff --staged`. Look for secrets, debug code, unrelated edits, dead code, noisy formatting.
 - **Functional check** — Does the change do what was intended?
-- **Cheap test** — Run the nearest relevant test (`make test`, `go test ./...`).
+- **Automated verification** — Run the project's test suite (`make test`, `go test ./...`, `npm test`) and capture output as evidence using `scripts/spacecraft evidence "quick lane tests" -- <test command>`. All tests must pass.
 - **Git hygiene** — No build artifacts, caches, or dependency folders staged.
 - Commander performs self-review directly — no subagent, no review artifacts.
 - If issues found: fix and recommit. If clean: report ready, wait for `/sc-ship`.

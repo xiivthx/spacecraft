@@ -42,11 +42,12 @@ Use this exact sequence unless the user specifies otherwise:
    Each task:
    - `id` — use the mission's compact sortable ID scheme (`T1`, `T2`, ... or match existing task numbering in the plan)
    - `title` — imperative, specific (e.g., "Add health check endpoint" not "Implement health")
-   - `status` — start all as `pending`
-   - `files` — exact file paths when known. List only files directly touched. Use map.json touchpoints if available.
-   - `acceptance` — 1–3 concrete checks per task. Verifiable statements, not abstract goals.
-   - `verify` — exact command or description of verification step (e.g., `npm test`, `curl localhost:3000/healthz`)
-   - `evidence` — `scripts/spacecraft evidence "<label>" -- <command>`
+    - `status` — start all as `pending`
+    - `dependsOn` — optional array of task IDs this task depends on. Build loop skips tasks whose deps aren't `done`.
+    - `files` — exact file paths when known. List only files directly touched. Use map.json touchpoints if available.
+    - `acceptance` — 1–3 concrete checks per task. Verifiable statements, not abstract goals.
+    - `verify` — exact command or description of verification step (e.g., `npm test`, `curl localhost:3000/healthz`)
+    - `evidence` — `scripts/spacecraft evidence "<label>" -- <command>`
 
 4. **Write plan.json** — Produce `.space/missions/<mission-id>/plan.json`:
    ```json
@@ -75,7 +76,7 @@ If `map.json` is missing, proceed without it — it's optional input, not a hard
 - **Blocking question open** — Stop and route to sc-clarify. Do not produce `plan.json` with hidden assumptions.
 - **File paths uncertain** — Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
 - **Spec is incomplete** — Flag gaps in `decisions.md`. Plan only what's specified.
-- **Task depends on another task** — Document in task description. Process them in dependency order during build.
+- **Task depends on another task** — Use `dependsOn: ["T01"]` field. Build loop mechanically skips tasks whose deps aren't `done`.
 
 ## Rules
 

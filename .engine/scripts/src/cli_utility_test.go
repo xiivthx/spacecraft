@@ -806,9 +806,64 @@ func writeArchiveMission(t *testing.T, id, title, state string) {
 	}
 }
 
+// createMissionWithPlan creates a mission with spec.md, plan.json (with done tasks), evidence, and review
+// This allows the mission to transition through all states to "shipped"
+func createMissionWithPlan(t *testing.T, title string) string {
+	t.Helper()
+	id := createMission(t, title)
+
+	// Create spec.md
+	dir := filepath.Join(cfg.MissionDir(id))
+	os.WriteFile(filepath.Join(dir, "spec.md"), []byte("# Spec"), 0644)
+
+	// Create plan.json with done tasks
+	done := "done"
+	tid := "T01"
+	ttitle := "test task"
+	if err := store.SavePlan(id, &mission.Plan{
+		MissionId: id,
+		Tasks:     []mission.Task{{ID: &tid, Title: &ttitle, Status: &done}},
+	}); err != nil {
+		t.Fatalf("SavePlan: %v", err)
+	}
+
+	// Create evidence
+	if code := evidenceCmd([]string{"test evidence", "--", "echo", "test"}); code != 0 {
+		t.Fatalf("evidenceCmd = %d, want 0", code)
+	}
+
+	// Create review.json with ready status
+	ready := "ready"
+	doneStatus := "done"
+	if err := store.SaveReview(id, &mission.Review{
+		Status: &ready,
+		ReleaseReadiness: mission.ReleaseReadiness{
+			Version:                &mission.ReleaseGate{Status: &doneStatus},
+			Changelog:              &mission.ReleaseGate{Status: &doneStatus},
+			SpecNote:               &mission.ReleaseGate{Status: &doneStatus},
+			TagPlan:                &mission.ReleaseGate{Status: &doneStatus},
+			PostRebaseVerification: &mission.ReleaseGate{Status: &doneStatus},
+			EvalCoverage:           &mission.ReleaseGate{Status: &doneStatus},
+		},
+	}); err != nil {
+		t.Fatalf("SaveReview: %v", err)
+	}
+
+	return id
+}
+
 func TestRoadmapShowWithArchivedMission(t *testing.T) {
 	defer setupLifecycleTest(t)()
-	mid := createMission(t, "Live Shipped")
+	mid := createMissionWithPlan(t, "Live Shipped")
+	if e := setStateCmd([]string{"planned"}); e != 0 {
+		t.Fatalf("setStateCmd(planned) = %d", e)
+	}
+	if e := setStateCmd([]string{"built"}); e != 0 {
+		t.Fatalf("setStateCmd(built) = %d", e)
+	}
+	if e := setStateCmd([]string{"ready"}); e != 0 {
+		t.Fatalf("setStateCmd(ready) = %d", e)
+	}
 	if e := setStateCmd([]string{"shipped"}); e != 0 {
 		t.Fatalf("setStateCmd = %d", e)
 	}
@@ -836,7 +891,16 @@ func TestRoadmapShowWithArchivedMission(t *testing.T) {
 
 func TestRoadmapListCountsArchived(t *testing.T) {
 	defer setupLifecycleTest(t)()
-	mid := createMission(t, "Live Shipped")
+	mid := createMissionWithPlan(t, "Live Shipped")
+	if e := setStateCmd([]string{"planned"}); e != 0 {
+		t.Fatalf("setStateCmd(planned) = %d", e)
+	}
+	if e := setStateCmd([]string{"built"}); e != 0 {
+		t.Fatalf("setStateCmd(built) = %d", e)
+	}
+	if e := setStateCmd([]string{"ready"}); e != 0 {
+		t.Fatalf("setStateCmd(ready) = %d", e)
+	}
 	if e := setStateCmd([]string{"shipped"}); e != 0 {
 		t.Fatalf("setStateCmd = %d", e)
 	}
@@ -930,7 +994,16 @@ func TestRoadmapAddArchivedMission(t *testing.T) {
 
 func TestRoadmapPrefersLiveOverArchived(t *testing.T) {
 	defer setupLifecycleTest(t)()
-	mid := createMission(t, "Live Shipped Title")
+	mid := createMissionWithPlan(t, "Live Shipped Title")
+	if e := setStateCmd([]string{"planned"}); e != 0 {
+		t.Fatalf("setStateCmd(planned) = %d", e)
+	}
+	if e := setStateCmd([]string{"built"}); e != 0 {
+		t.Fatalf("setStateCmd(built) = %d", e)
+	}
+	if e := setStateCmd([]string{"ready"}); e != 0 {
+		t.Fatalf("setStateCmd(ready) = %d", e)
+	}
 	if e := setStateCmd([]string{"shipped"}); e != 0 {
 		t.Fatalf("setStateCmd = %d", e)
 	}
@@ -962,7 +1035,16 @@ func TestRoadmapPrefersLiveOverArchived(t *testing.T) {
 
 func TestRoadmapCorruptArchiveTreatedAsNotFound(t *testing.T) {
 	defer setupLifecycleTest(t)()
-	mid := createMission(t, "Only Live")
+	mid := createMissionWithPlan(t, "Only Live")
+	if e := setStateCmd([]string{"planned"}); e != 0 {
+		t.Fatalf("setStateCmd(planned) = %d", e)
+	}
+	if e := setStateCmd([]string{"built"}); e != 0 {
+		t.Fatalf("setStateCmd(built) = %d", e)
+	}
+	if e := setStateCmd([]string{"ready"}); e != 0 {
+		t.Fatalf("setStateCmd(ready) = %d", e)
+	}
 	if e := setStateCmd([]string{"shipped"}); e != 0 {
 		t.Fatalf("setStateCmd = %d", e)
 	}

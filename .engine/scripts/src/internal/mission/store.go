@@ -3,6 +3,7 @@ package mission
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -209,6 +210,7 @@ func (s *FSStore) List() ([]MissionRecord, error) {
 		if err := util.ReadJson(mPath, &m); err != nil {
 			continue
 		}
+		MigrateMission(&m)
 		records = append(records, MissionRecord{
 			ID:       id,
 			Mission:  &m,
@@ -231,10 +233,12 @@ func (s *FSStore) Load(id string) (*Mission, error) {
 	if err := util.ReadJson(path, &m); err != nil {
 		return nil, err
 	}
+	MigrateMission(&m)
 	return &m, nil
 }
 
 func (s *FSStore) Save(m *Mission) error {
+	m.SchemaVersion = MissionSchemaVersion
 	path := filepath.Join(s.MissionDir(m.ID), "mission.json")
 	return util.WriteJson(path, m)
 }
@@ -261,10 +265,12 @@ func (s *FSStore) LoadPlan(id string) (*Plan, error) {
 	if err := util.ReadJson(path, &p); err != nil {
 		return nil, err
 	}
+	MigratePlan(&p)
 	return &p, nil
 }
 
 func (s *FSStore) SavePlan(id string, p *Plan) error {
+	p.SchemaVersion = PlanSchemaVersion
 	path := filepath.Join(s.MissionDir(id), "plan.json")
 	return util.WriteJson(path, p)
 }
@@ -277,10 +283,12 @@ func (s *FSStore) LoadReview(id string) (*Review, error) {
 	if err := util.ReadJson(path, &r); err != nil {
 		return nil, err
 	}
+	MigrateReview(&r)
 	return &r, nil
 }
 
 func (s *FSStore) SaveReview(id string, r *Review) error {
+	r.SchemaVersion = ReviewSchemaVersion
 	path := filepath.Join(s.MissionDir(id), "review.json")
 	return util.WriteJson(path, r)
 }
@@ -379,6 +387,48 @@ func (s *FSStore) ReadEvidenceEntries(id string) ([]EvidenceEntry, error) {
 		entries = append(entries, entry)
 	}
 	return entries, nil
+}
+
+// VerifyEvidenceIntegrity checks that evidence file contents match their recorded hashes.
+// Returns a list of verification errors. Entries without hashes are skipped.
+func (s *FSStore) VerifyEvidenceIntegrity(id string) []error {
+	entries, err := s.ReadEvidenceEntries(id)
+	if err != nil {
+		return []error{fmt.Errorf("failed to read evidence: %w", err)}
+	}
+
+	var errors []error
+	root := s.cfg.Root()
+
+	for _, entry := range entries {
+		if entry.StdoutHash != nil {
+			stdoutPath := filepath.Join(root, entry.Stdout)
+			content, err := os.ReadFile(stdoutPath)
+			if err != nil {
+				errors = append(errors, fmt.Errorf("evidence %s: failed to read stdout file: %w", entry.ID, err))
+				continue
+			}
+			hash := fmt.Sprintf("%x", sha256.Sum256(content))
+			if hash != *entry.StdoutHash {
+				errors = append(errors, fmt.Errorf("evidence %s: stdout hash mismatch (expected %s, got %s)", entry.ID, *entry.StdoutHash, hash))
+			}
+		}
+
+		if entry.StderrHash != nil {
+			stderrPath := filepath.Join(root, entry.Stderr)
+			content, err := os.ReadFile(stderrPath)
+			if err != nil {
+				errors = append(errors, fmt.Errorf("evidence %s: failed to read stderr file: %w", entry.ID, err))
+				continue
+			}
+			hash := fmt.Sprintf("%x", sha256.Sum256(content))
+			if hash != *entry.StderrHash {
+				errors = append(errors, fmt.Errorf("evidence %s: stderr hash mismatch (expected %s, got %s)", entry.ID, *entry.StderrHash, hash))
+			}
+		}
+	}
+
+	return errors
 }
 
 // --- artifact checks ---

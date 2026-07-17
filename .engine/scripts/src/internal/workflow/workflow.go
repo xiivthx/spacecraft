@@ -10,10 +10,26 @@ import (
 	"spacecraft/internal/mission"
 )
 
-// NextTask returns the first open task in a plan, or nil.
+// NextTask returns the first open task in a plan whose dependencies are all done, or nil.
 func NextTask(tasks []mission.Task) *mission.Task {
+	done := make(map[string]bool)
+	for _, t := range tasks {
+		if t.ID != nil && t.Status != nil && *t.Status == "done" {
+			done[*t.ID] = true
+		}
+	}
 	for _, task := range tasks {
-		if taskIsOpen(task) {
+		if !taskIsOpen(task) {
+			continue
+		}
+		depsReady := true
+		for _, dep := range task.DependsOn {
+			if !done[dep] {
+				depsReady = false
+				break
+			}
+		}
+		if depsReady {
 			t := task
 			return &t
 		}

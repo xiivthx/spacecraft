@@ -61,8 +61,6 @@ Before merge, combine knowledge migration with version bump and changelog in one
 
 4. Commit all three together: knowledge migration + changelog + version bump.
 
-This ensures internal research (`spacecraft research`) can draw on accumulated mission knowledge, and all release artifacts are in one atomic commit.
-
 ### 3. Prepare merge
 
 If all gates pass, use sc-git to prepare merge to main:

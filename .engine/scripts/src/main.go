@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -236,11 +237,11 @@ func newCmd(args []string) int {
 	}
 
 	ctx := context.Background()
-	if hooks.Fire(ctx, hooksCfg, "mission.created") != nil {
-		return 1
+	if err := hooks.Fire(ctx, hooksCfg, "mission.created"); err != nil {
+		return printErr("Hook failed:", err)
 	}
-	if hooks.Fire(ctx, hooksCfg, "mission.state.changed") != nil {
-		return 1
+	if err := hooks.Fire(ctx, hooksCfg, "mission.state.changed"); err != nil {
+		return printErr("Hook failed:", err)
 	}
 
 	// Write stubs
@@ -687,9 +688,9 @@ func setStateCmd(args []string) int {
 	if err := ss.SetState(res.Selected.ID, state); err != nil {
 		return printErr(err)
 	}
-		if hooks.Fire(context.Background(), hooksCfg, "mission.state.changed") != nil {
-			return 1
-		}
+	if err := hooks.Fire(context.Background(), hooksCfg, "mission.state.changed"); err != nil {
+		return printErr("Hook failed:", err)
+	}
 		fmt.Printf("Spacecraft mission %s state: %s\n", res.Selected.ID, stateDisplay(state))
 		if state == "shipped" {
 			autoArchive(res.Selected.ID)
@@ -759,14 +760,18 @@ func evidenceCmd(args []string) int {
 
 	os.WriteFile(stdoutP, []byte(result.stdout), 0644)
 	os.WriteFile(stderrP, []byte(result.stderr), 0644)
+	stdoutHash := hashSHA256(result.stdout)
+	stderrHash := hashSHA256(result.stderr)
 	entry := mission.EvidenceEntry{
-		ID:        eid,
-		Label:     label,
-		Command:   cmdToStr(cmdParts),
-		ExitCode:  result.code,
-		Stdout:    rel(stdoutP),
-		Stderr:    rel(stderrP),
-		CreatedAt: isoNow(),
+		ID:         eid,
+		Label:      label,
+		Command:    cmdToStr(cmdParts),
+		ExitCode:   result.code,
+		Stdout:     rel(stdoutP),
+		Stderr:     rel(stderrP),
+		StdoutHash: &stdoutHash,
+		StderrHash: &stderrHash,
+		CreatedAt:  isoNow(),
 	}
 
 	fmt.Printf("Evidence: %s\n", eid)
@@ -775,7 +780,9 @@ func evidenceCmd(args []string) int {
 	if err := store.AppendEvidence(id, &entry); err != nil {
 		return printErr("Failed to append evidence:", err)
 	}
-	_ = hooks.Fire(context.Background(), hooksCfg, "mission.evidence.appended")
+	if err := hooks.Fire(context.Background(), hooksCfg, "mission.evidence.appended"); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: hook failed: %v\n", err)
+	}
 	return 0
 }
 
@@ -808,10 +815,17 @@ func execCmd(parts []string) execResult {
 	return execResult{code: code, stdout: outB.String(), stderr: errB.String()}
 }
 
+func hashSHA256(content string) string {
+	h := sha256.Sum256([]byte(content))
+	return fmt.Sprintf("%x", h)
+}
+
 func validateCmd() int {
 	res := requireResolved("validate")
 	errs := ss.ValidateMission(res.Selected.ID)
-	_ = hooks.Fire(context.Background(), hooksCfg, "mission.validated")
+	if err := hooks.Fire(context.Background(), hooksCfg, "mission.validated"); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: hook failed: %v\n", err)
+	}
 	if errs != nil {
 		fmt.Fprintf(os.Stderr, "Spacecraft mission %s is invalid:\n", res.Selected.ID)
 		for _, e := range errs.Errors {
@@ -840,6 +854,12 @@ func closeoutCmd() int {
 	}
 	evCount, _ := store.CountEvidence(id)
 	result := cc.Check(id, m, plan, review, evCount)
+	
+	integrityErrors := store.VerifyEvidenceIntegrity(id)
+	for _, e := range integrityErrors {
+		result.Errors = append(result.Errors, e.Error())
+	}
+	
 	if len(result.Errors) > 0 {
 		fmt.Printf("Spacecraft closeout blocked for %s:\n", id)
 		for _, e := range result.Errors {
@@ -889,7 +909,9 @@ func autoArchive(id string) {
 	}
 	fmt.Printf("Archived mission %s\n", id)
 	fmt.Printf("Archive: %s\n", rel(result.ArchiveDir))
-	_ = hooks.Fire(context.Background(), hooksCfg, "mission.archived")
+	if err := hooks.Fire(context.Background(), hooksCfg, "mission.archived"); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: hook failed: %v\n", err)
+	}
 	if next, err := store.ReadCurrent(); err == nil && next != nil && *next != id {
 		fmt.Printf("\nNext mission in roadmap: %s\n", *next)
 		fmt.Println("Run: /sc-start")
@@ -985,7 +1007,9 @@ func archiveCmd(args []string) int {
 		return printErr(errMsg)
 	}
 
-	_ = hooks.Fire(context.Background(), hooksCfg, "deploy.before")
+	if err := hooks.Fire(context.Background(), hooksCfg, "deploy.before"); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: hook failed: %v\n", err)
+	}
 
 		result, err := ar.Archive(archive.ArchiveParams{
 			ID: id, Mission: m, Plan: plan, Review: review, EvidenceEntries: entries,
@@ -1000,8 +1024,12 @@ func archiveCmd(args []string) int {
 		}
 		return printErr(err)
 	}
-	_ = hooks.Fire(context.Background(), hooksCfg, "deploy.after")
-	_ = hooks.Fire(context.Background(), hooksCfg, "mission.archived")
+	if err := hooks.Fire(context.Background(), hooksCfg, "deploy.after"); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: hook failed: %v\n", err)
+	}
+	if err := hooks.Fire(context.Background(), hooksCfg, "mission.archived"); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: hook failed: %v\n", err)
+	}
 
 	if ciMode {
 		output := map[string]interface{}{

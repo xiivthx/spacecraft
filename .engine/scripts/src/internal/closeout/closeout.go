@@ -107,7 +107,11 @@ func (c *Checker) Check(id string, m *mission.Mission, plan *mission.Plan, revie
 			errors = append(errors, fmt.Sprintf("Fix blocking review findings: %s.", strings.Join(names, ", ")))
 		}
 
-		errors = append(errors, releaseReadinessErrors(review.ReleaseReadiness)...)
+	}
+
+	// Mechanical spec check - replaces review.json self-reported specNote gate
+	if !c.store.SpecExists(id) {
+		errors = append(errors, "Mission spec.md not found.")
 	}
 
 	// Git checks
@@ -122,6 +126,12 @@ func (c *Checker) Check(id string, m *mission.Mission, plan *mission.Plan, revie
 
 		if branch == "" || branch == "main" {
 			errors = append(errors, "Closeout must run from a non-main work branch.")
+		}
+
+		// Check branch naming convention: <type>/<id>/<title>
+		branchPattern := regexp.MustCompile(`^[a-z]+/m[a-z0-9]+/[a-z0-9-]+$`)
+		if branch != "" && branch != "main" && !branchPattern.MatchString(branch) {
+			errors = append(errors, fmt.Sprintf("Branch name %q must follow convention: <type>/<id>/<title> (e.g., feat/m07abc123/add-feature).", branch))
 		}
 
 		// Check dirty

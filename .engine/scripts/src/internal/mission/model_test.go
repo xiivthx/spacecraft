@@ -297,8 +297,88 @@ func TestBlockingFindings(t *testing.T) {
 			{Summary: &summary, Severity: &critical},
 		},
 	}
-	if got := BlockingFindings(r3); len(got) != 1 {
-		t.Errorf("expected 1 blocking finding (critical), got %d", len(got))
+	if got := BlockingFindings(r3); len(got) != 0 {
+		t.Errorf("expected 0 blocking findings (critical without blocksShip), got %d", len(got))
+	}
+}
+
+func TestMigrateMissionFromV0(t *testing.T) {
+	oldJSON := `{"id":"M07OLD","title":"Old Mission","state":"draft","createdAt":"2026-01-01T00:00:00Z","updatedAt":"2026-01-01T00:00:00Z"}`
+	var m Mission
+	if err := json.Unmarshal([]byte(oldJSON), &m); err != nil {
+		t.Fatal(err)
+	}
+	if m.SchemaVersion != 0 {
+		t.Fatalf("expected SchemaVersion 0 before migration, got %d", m.SchemaVersion)
+	}
+	MigrateMission(&m)
+	if m.SchemaVersion != MissionSchemaVersion {
+		t.Errorf("SchemaVersion = %d, want %d", m.SchemaVersion, MissionSchemaVersion)
+	}
+	if m.ID != "M07OLD" {
+		t.Errorf("ID corrupted: %q", m.ID)
+	}
+}
+
+func TestMigrateMissionCurrentVersionNoop(t *testing.T) {
+	m := &Mission{SchemaVersion: MissionSchemaVersion, ID: "M07CUR"}
+	MigrateMission(m)
+	if m.SchemaVersion != MissionSchemaVersion {
+		t.Errorf("SchemaVersion changed: %d", m.SchemaVersion)
+	}
+}
+
+func TestMigratePlanFromV0(t *testing.T) {
+	oldJSON := `{"missionId":"M07OLD","tasks":[]}`
+	var p Plan
+	if err := json.Unmarshal([]byte(oldJSON), &p); err != nil {
+		t.Fatal(err)
+	}
+	if p.SchemaVersion != 0 {
+		t.Fatalf("expected SchemaVersion 0, got %d", p.SchemaVersion)
+	}
+	MigratePlan(&p)
+	if p.SchemaVersion != PlanSchemaVersion {
+		t.Errorf("SchemaVersion = %d, want %d", p.SchemaVersion, PlanSchemaVersion)
+	}
+}
+
+func TestMigratePlanNilTasks(t *testing.T) {
+	oldJSON := `{"missionId":"M07OLD"}`
+	var p Plan
+	if err := json.Unmarshal([]byte(oldJSON), &p); err != nil {
+		t.Fatal(err)
+	}
+	MigratePlan(&p)
+	if p.Tasks == nil {
+		t.Error("Tasks should be initialized to non-nil slice")
+	}
+}
+
+func TestMigrateReviewFromV0(t *testing.T) {
+	oldJSON := `{"status":"ready","findings":[]}`
+	var r Review
+	if err := json.Unmarshal([]byte(oldJSON), &r); err != nil {
+		t.Fatal(err)
+	}
+	if r.SchemaVersion != 0 {
+		t.Fatalf("expected SchemaVersion 0, got %d", r.SchemaVersion)
+	}
+	MigrateReview(&r)
+	if r.SchemaVersion != ReviewSchemaVersion {
+		t.Errorf("SchemaVersion = %d, want %d", r.SchemaVersion, ReviewSchemaVersion)
+	}
+}
+
+func TestMigrateReviewNilFindings(t *testing.T) {
+	oldJSON := `{"status":"ready"}`
+	var r Review
+	if err := json.Unmarshal([]byte(oldJSON), &r); err != nil {
+		t.Fatal(err)
+	}
+	MigrateReview(&r)
+	if r.Findings == nil {
+		t.Error("Findings should be initialized to non-nil slice")
 	}
 }
 

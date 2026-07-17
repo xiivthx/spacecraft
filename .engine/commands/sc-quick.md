@@ -61,16 +61,31 @@ scripts/spacecraft bind-branch
 
 - No TDD cycle required — implement directly
 - No acceptance checks required
-- No evidence capture required
 - Conventional Commits still expected
 - Checkpoint commits allowed on work branch
 - `.gitignore` must stay current; no secrets staged
 
-### 4. Fast self-review
+### 4. Automated verification (required)
+
+Before self-review, run the project's test suite and capture output as evidence:
+
+```bash
+# For Go projects:
+scripts/spacecraft evidence "quick lane tests" -- make test
+
+# For Node.js projects:
+scripts/spacecraft evidence "quick lane tests" -- npm test
+
+# For other projects, use the appropriate test command
+```
+
+If no test suite exists, skip this step but note it in decisions.md as a limitation.
+
+### 5. Fast self-review
 
 Before ship, commander performs a lightweight self-review (see PERSONA.md fast self-review section):
-- Inspect `git diff` — check for secrets, debug code, unrelated edits, dead code
-- Run nearest cheap test if available
+- Inspect `git diff` — check for secrets, debug code, unrelated edits, dead code, noisy formatting
+- Review test output from evidence capture — all tests must pass
 - Verify the change does what was intended
 - No subagent reviewer — commander reviews directly
 - No review.md or review.json required

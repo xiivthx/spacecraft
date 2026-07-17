@@ -61,7 +61,7 @@ Use this exact sequence unless the user specifies otherwise:
 ### Reference scouting
 
 - **Must**: Use reference scouting when the design feels weak, generic, hard to imagine, or the user asks for references.
-- **Must**: Reference scouting usually happens before deep design config so the team can calibrate taste early.
+- **Must**: Reference scouting usually happens before deep design config.
 - **Must**: Reference review happens after UI exists, using the chosen references to check quality and drift.
 - **Must not**: Create a separate command for reference scouting unless the user explicitly asks. Keep it inside sc-design.
 - **Must**: When scouting references, browse current public sources if needed and separate them by purpose: layout/template, mood/art, interaction/motion.
@@ -82,7 +82,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Apply a Feynman explanation pass before showing any HTML artifact: name the choice in plain Thai first (with simple-English label when useful), explain as if teaching a smart friend, use one familiar analogy (map, notebook, counter, timeline, tray, or studio), show the idea with a labeled visual that makes the explanation obvious, say what the user gains and gives up, rewrite jargon until it uses everyday words.
 - **Must**: Keep user-facing artifact copy short: one question per artifact, one main sentence, no more than 3 bullets in any visible list, no paragraph longer than 2 short lines, no theory dump in the main reading path. Move extra rationale into a small "เหตุผลสั้น ๆ (Why)" or omit it.
 - **Must**: Every option card should answer: what this means in plain language, when to choose it, what changes on screen, what risk or tradeoff matters.
-- **Must**: Visuals must teach the difference: label the important parts directly in the visual, make the visual demonstrate the config being chosen, keep fixed elements visually quiet so the changing part is obvious, avoid abstract composition unless labels make the decision clear.
+- **Must**: Visuals must teach the difference: label the important parts directly in the visual, make the visual demonstrate the config being chosen, keep fixed elements visually quiet, avoid abstract composition unless labels make the decision clear.
 - **Must**: Before showing an artifact, run the clarity gate: can the user understand the question in 10 seconds? Can the user tell how options differ without reading long text? Does each visual match the explanation beside it? Would any caption fit every option (if yes, rewrite)? Did you remove adjectives that do not point to concrete UI behavior?
 
 ### Options and divergence
