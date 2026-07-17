@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.33.1 - 2026-07-17
+
+- Feat: add schema versioning for Mission/Plan/Review artifacts
+- Fix: surface hook errors instead of silently discarding them
+- Fix: add subagent stall detection and retry guardrails
+- Fix: add task dependency enforcement for subagent workflows
+- Fix: SHA-256 integrity verification for evidence files
+- Fix: replace review.json self-reported release gates with machine-readable checks
+- Fix: decouple severity from ship-blocking gate
+- Fix: enforce state machine transitions with prerequisite validation
+- Fix: require automated verification in quick lane
+- Fix: validate branch naming convention in closeout-check
+- Fix: prioritize .space/current over branch signals in resolver
+- Fix: align sc-planner model with sc-coder to prevent plan-code drift
+- Fix: grant sc-reviewer bash access to verify evidence
+- Fix: conditionally load DESIGN.md only for UI work
+- Docs: remove explanatory filler from prompts
+
 ## 0.33.0 - 2026-07-16
 
 - Feat: enrich roadmap missions with descriptions - add MissionEntry data model with ID and Description fields, backward compatible with old string array format
