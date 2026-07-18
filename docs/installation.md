@@ -50,6 +50,14 @@ make install
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
+For Cursor-wide agents **and** slash skills (`/sc-run`, `/sc-ship`, and other `sc-*` skills):
+
+```sh
+make install-global
+```
+
+That copies `~/.cursor/agents/sc-*.md` and `~/.cursor/skills/sc-*/`, merges MCP into `~/.cursor/mcp.json`, and links the CLI. Restart Cursor afterward. Unrelated skills (for example personal ones) are left alone.
+
 To build without installing:
 
 ```sh
