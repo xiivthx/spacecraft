@@ -79,7 +79,7 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 - Git operations - use sc-git
 - Implementation - use `/sc-run` (AFK) or agents; ship with `/sc-ship` only
 
-After clarify is clear for roadmap work, recommend `/sc-run <roadmap-id>` rather than legacy slash commands.
+After clarify is clear for roadmap work, recommend `/sc-run <roadmap-id>`.
 
 ## Output format
 
@@ -103,7 +103,7 @@ After clarify is clear for roadmap work, recommend `/sc-run <roadmap-id>` rather
 - [ ] Answer recorded in `questions.md`
 - [ ] Decision recorded in `decisions.md`
 - [ ] No blocking question remains open before planning or implementation
-- [ ] After clarify clear on roadmap work: recommend `/sc-run` (not legacy slash skills)
+- [ ] After clarify clear on roadmap work: recommend `/sc-run`
 
 ## References
 

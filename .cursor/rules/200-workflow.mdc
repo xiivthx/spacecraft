@@ -14,8 +14,6 @@ alwaysApply: true
 
 ## Cursor Mode Bridge
 
-User-facing slash skills: `/sc-run` and `/sc-ship` only. Plan/build/review are internal under `/sc-run`. Detail: `.cursor/skills/sc-run`, `sc-ship`, `sc-mission`.
-
 | User intent | Lane | Cursor mode / action |
 |---|---|---|
 | Ask / explain | Advisory | Ask Mode (or Agent, no writes) |
@@ -24,7 +22,7 @@ User-facing slash skills: `/sc-run` and `/sc-ship` only. Plan/build/review are i
 | Ship | Ship | Agent + `/sc-ship` |
 | Small edit / commit | Quick | Agent (no full mission gates) |
 
-Commander: after clarify clear, prefer `/sc-run`; no non-blocking questions mid-AFK. Ship only via `/sc-ship`.
+After clarify clear, prefer `/sc-run`; no non-blocking questions mid-AFK. Ship only via `/sc-ship`. Detail: `.cursor/skills/sc-run`, `sc-ship`, `sc-mission`.
 
 ## AFK flow
 
@@ -34,7 +32,7 @@ clarify (human) → /sc-run <roadmap-id> → human check → /sc-ship
 
 `spacecraft map use|current|next` select and advance the roadmap.
 
-## Roadmap / issues (short)
+## Roadmap / issues
 
 - Large work (>7 tasks): `spacecraft map new`, then add missions; AFK with `/sc-run`.
 - Bug radar any lane: `gh issue create` + record in mission `issues.md` / roadmap `issues`.
@@ -44,18 +42,18 @@ clarify (human) → /sc-run <roadmap-id> → human check → /sc-ship
 
 Branch `feat/<id>/…` → `.space/missions/<id>/mission.json`. List: `ls .space/missions/`. State: `spacecraft set-state [id] <state>` (`state` alias). CLI: `evidence`/`evi`, `validate`/`val`, `roadmap`/`map`.
 
-Clarify status file: `open` | `clear` | `deferred` under mission dir.
+Clarify status: `open` | `clear` | `deferred` under mission dir.
 
 ## Lanes (pointers)
 
-- **Mission:** follow `/sc-run` (start/plan/build/review via agents). Full steps in `sc-mission` / `sc-run` / `sc-planning` / `sc-tdd` / `sc-verification`.
-- **Ship:** only `/sc-ship` - validate, rebase, merge `--no-ff`, archive. Never merge/tag/delete without explicit ship.
+- **Mission:** `/sc-run` (plan/build/review via agents). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`.
+- **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive.
 - **Quick:** skips spec/plan/TDD/formal review; still git safety + tests; report ready, wait for ship.
 - **Debug:** reproduce E2E → falsify root cause → record in `issues.md`. Prefer Cursor Debug Mode for runtime evidence.
 
 ## Subagent Delegation
 
-Orchestrator, not implementer. Never write/edit product source or tests in Commander - Task-delegate:
+Orchestrator, not implementer. Task-delegate:
 
 | Agent | Role |
 |---|---|

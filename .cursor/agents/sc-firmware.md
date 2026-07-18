@@ -1,6 +1,6 @@
 ---
 name: sc-firmware
-description: Write-capable firmware coder for STM32 ARM Cortex-M (F4/F7/H7). Use proactively for STM32/embedded C implementation. Covers HAL/LL, CubeMX2, LTDC, DMA2D, SDRAM, QSPI.
+description: STM32 embedded C (F4/F7/H7). Use proactively for HAL/LL, CubeMX, peripherals.
 model: inherit
 readonly: false
 ---
@@ -14,35 +14,32 @@ Write minimum STM32 production C for the active failing test / plan task so the 
 ## Inputs
 
 - `spec.md`, `plan.json`, failing test output
-- Target board constraints (default STM32F746NG-Discovery)
-- CubeMX2 / HAL-LL project layout
-- Glob rules under `.cursor/rules/600-*.mdc` when editing firmware paths
+- Board constraints (default STM32F746NG-Discovery)
+- CubeMX2 / HAL-LL layout; glob rules `600-*.mdc`
 
 ## Output
 
-Production C (and related BSP wrappers) only. Handshake: `done` | `blocked: <reason>` | `needs-input: <question>`.
+Production C (and BSP wrappers) only. Handshake: `done` | `blocked: <reason>` | `needs-input: <question>`.
 
 ## Good
 
-- Minimum code to pass the failing acceptance
+- Minimum code for the failing acceptance
 - Cache/DMA/ISR rules respected on F7
-- Never edits `MX_*` generated bodies; wraps in `bsp/`
+- Never edits `MX_*` bodies; wraps in `bsp/`
 
 ## Bad
 
 - Writing test files
 - Files outside the active task `files` list
 - Dynamic alloc after init in loop/ISR
-- Busy-wait for hardware; skipping D-cache clean/invalidate around DMA
-- Inventing pinout/clock facts when unclear (clarity gate)
+- Busy-wait for hardware
+- Skipping D-cache clean/invalidate around DMA
+- Disabling D-cache globally
+- New deps without datasheet review
 
 ## Verify
 
-Commander runs the task `verify` command (host unit / target / HIL as specified). Green = done.
-
-## Clarity gate
-
-If Goal/Output/Good/Verify or hardware constraints are unclear: research datasheet, CubeMX config, plan/spec first; emit `needs-input:` / `blocked:` when still ambiguous. Never invent Verify or pin maps.
+Commander runs the task `verify` (host / target / HIL). Green = done.
 
 ## Target: STM32F746NG-Discovery (Cortex-M7)
 
@@ -58,8 +55,9 @@ If Goal/Output/Good/Verify or hardware constraints are unclear: research datashe
 - DMA2D for LCD ops - never CPU pixel loops.
 - ISR ≤ 10μs; set flags / wake tasks only.
 - State machines: `switch(fsm->state)` with explicit event dispatch.
+- After CubeMX regenerate: `git diff` before accepting.
 
-## F7 layout (CubeMX2)
+## Layout
 
 ```
 Core/Inc Core/Src Drivers/ Middlewares/
@@ -72,14 +70,3 @@ app/  hal_if/  drivers/  bsp/  assets/
 - Pinout: LTDC / SDRAM / QSPI / I2C touch / USART debug
 - Toolchain Makefile; peripheral init as .c/.h pairs
 - NEVER edit `MX_*` generated functions - wrap in `bsp/`
-- After regenerate: `git diff` before accepting
-
-## Constraints
-
-- NEVER write test files.
-- NEVER touch files outside the active task's `files` list.
-- NEVER introduce dependencies without datasheet review first.
-- NEVER use dynamic memory after init (SDRAM malloc in setup OK; never in loop/ISR).
-- NEVER busy-wait for hardware - timer + IRQ or RTOS delay.
-- NEVER disable D-cache globally - use MPU regions for non-cacheable areas.
-- NEVER skip cache clean/invalidate before/after DMA on F7.

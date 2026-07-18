@@ -1,6 +1,6 @@
 ---
 name: sc-ship
-description: "Prepares and executes mission delivery when review gates pass and the user explicitly requests shipping."
+description: "Close out a ready mission on explicit /sc-ship: validate, merge --no-ff, archive."
 disable-model-invocation: true
 ---
 
@@ -15,139 +15,80 @@ Shipped mission on `main` (or blocked with exact missing gates). Never infer shi
 ## Good / Bad
 
 - Good: `validate --strict` + `closeout-check` pass; CHANGELOG + version bump committed; `SPACECRAFT_SHIP=1` for gated git
-- Bad: shipping without evidence/review; deferring changelog; inventing Verify
+- Bad: shipping without evidence/review; deferring changelog
 
 ## Verify
 
-`spacecraft validate --strict` and `spacecraft closeout-check` (alias `ship-check`) both exit 0 before merge.
+`spacecraft validate --strict` and `spacecraft closeout-check` (`ship-check`) both exit 0 before merge.
 
-AFK to `ready` is `/sc-run`; ship is human-only via this skill.
+Use sc-mission, sc-verification, sc-git, sc-learn. Resolve the mission. Block if unsafe.
 
-Use sc-mission, sc-verification, sc-git, and sc-learn.
-Resolve the mission. Block if unsafe.
+## Pre-flight
 
-## Pre-flight checks
-
-Read the resolved mission's spec.md, plan.json, evidence.jsonl, review.md, review.json, questions.md, decisions.md, and git diff when git is available.
-
-Run these in order. Each must pass before the next:
+Read resolved mission artifacts + git diff when available. Run in order:
 
 ```
 spacecraft validate --strict
 spacecraft git-info
-# Hard gate: changelog and version bump. Both mandatory - never defer.
-# Checks that the work branch has a commit touching CHANGELOG.md since fork.
-git log main..HEAD --oneline | grep -q 'CHANGELOG' || { echo "FAIL: CHANGELOG.md not updated. Add a version bump + changelog commit before merge."; exit 1; }
+git log main..HEAD --oneline -- CHANGELOG.md | grep -q . || { echo "FAIL: CHANGELOG.md not updated"; exit 1; }
 spacecraft closeout-check
-# Alias: spacecraft ship-check
 ```
 
-Changelog update and version bump are **never deferrable**. sc-git requires even docs/chore changes to tag the next patch version. Do not proceed with merge until these commits exist on the work branch.
+Changelog + version bump are mandatory before merge (sc-git tags next patch even for chores).
 
-When `SPACECRAFT_SHIP=1`, the Cursor ship hook re-runs `closeout-check` (or `SPACECRAFT_CLOSEOUT_CMD` in tests) before allowing `git merge` / `git push` / `git tag`. Preflight closeout does not replace that hook re-check.
+With `SPACECRAFT_SHIP=1`, the ship hook re-runs closeout before allow. Preflight does not replace that.
 
 ## Workflow
 
-Treat "ship", "release", "merge", "finish mission", and "close branch" as release closeout requests. Do not treat ordinary session handoff or "continue in a new session" as release closeout.
+Treat ship/release/merge/finish-mission/close-branch as closeout. Do not treat session handoff as ship.
 
-### 1. Check closeout gates
+### 1. Gates
 
-Only close/ship/merge if:
-- blocking clarification questions are resolved
-- acceptance checks have evidence
-- important verification commands have passing evidence
-- review.json status is ready
-- there are no critical findings
-- sc-git gates pass: branch hygiene, commit style, rebase status, merge plan
-- changelog updated with this merge's changes (mandatory - never defer)
-- version bump committed (mandatory - never defer. sc-git tags next patch even for chores)
-- tag plan for the bumped version
-- if UI files changed, review.md or review.json includes a design review result
-- UI work has no unresolved critical design findings
-- if UI files changed, art direction decisions are recorded in decisions.md
+Only merge if: clarify clear; acceptance has evidence; `review.json` status `ready`; no critical/`blocksShip` findings; sc-git hygiene OK; CHANGELOG + version bump committed; tag plan set; UI changes have design review + art direction in `decisions.md` when applicable.
 
-If any gate fails, block closeout. List exact missing actions and next command.
+If any fail: block with exact missing actions.
 
-### 2. Migrate mission knowledge and prepare release commit
+### 2. Release commit
 
-Before merge, combine knowledge migration with version bump and changelog in one commit:
+Before merge, one commit: sc-learn migration + CHANGELOG + version bump.
 
-1. Use sc-learn to preserve what was learned:
-   - Read `.space/missions/<id>/issues.md`, `solved.md`, `learned.md`.
-   - For unresolved issues: create GitHub Issues with mission context.
-   - Migrate solved items and lessons to `docs/learned.md` with mission context.
-   - Mark mission files as migrated. Do not delete them - they archive with the mission.
+1. Read `issues.md` / `solved.md` / `learned.md`; open GitHub issues for unresolved; migrate solved/learned to `docs/learned.md`; mark migrated (do not delete).
+2. Update CHANGELOG.md.
+3. Bump version.
+4. Commit.
 
-2. Update CHANGELOG.md with this merge's changes.
+### 3. Merge
 
-3. Bump version (sc-git tags next patch even for chores).
+- Rebase on latest `main` after confirming fork point.
+- Merge `--no-ff` only (no squash).
+- Tag annotated `vX.Y.Z`; delete local branch unless asked to keep.
+- `spacecraft archive` unless user keeps the live mission folder.
+- No push unless explicitly requested.
 
-4. Commit all three together: knowledge migration + changelog + version bump.
+#### SPACECRAFT_SHIP
 
-### 3. Prepare merge
-
-If all gates pass, use sc-git to prepare merge to main:
-- confirm fork point and rebase target: `git log --oneline main..HEAD | head -1` to identify fork point, then rebase on `main` only after confirming `main` HEAD matches expected base
-- never squash - merge with `--no-ff` preserving all granular commits
-- tag, branch cleanup
-- compact shipped mission artifacts with `spacecraft archive` unless the user asks to keep the full live mission folder
-- no push unless explicitly requested
-
-#### SPACECRAFT_SHIP gate (required)
-
-Cursor hooks deny `git merge`, `git push`, and `git tag` unless `SPACECRAFT_SHIP=1` **and** closeout-check passes. With `SPACECRAFT_SHIP=1`, the hook runs closeout again before allow. Set the env only for those gated ship commands, then unset immediately:
+Hooks deny `git merge` / `push` / `tag` unless `SPACECRAFT_SHIP=1` and closeout passes. Prefer per-command env:
 
 ```
-# Prefer per-command env (auto-clears):
 SPACECRAFT_SHIP=1 git merge --no-ff feat/<id>/<title>
 SPACECRAFT_SHIP=1 git push origin main
-SPACECRAFT_SHIP=1 git tag vX.Y.Z
-
-# Or export for a short block, then unset:
-export SPACECRAFT_SHIP=1
-git merge --no-ff feat/<id>/<title>
-git push origin main
-git tag vX.Y.Z
-unset SPACECRAFT_SHIP
+SPACECRAFT_SHIP=1 git tag -a vX.Y.Z -m "vX.Y.Z"
 ```
 
-Never leave `SPACECRAFT_SHIP=1` exported in the shell after ship ops. Do not set it for ordinary non-ship git work.
+Unset after ship ops. Never set for ordinary git work.
 
-### 4. Produce summary
+### 4. Summary
 
-- Mission id
-- What changed
-- Evidence ids
-- Review status
-- Git branch or rollback status
-- Suggested Conventional Commit message if the user intends to commit
-- Design evidence or manual visual verification notes when applicable
-- Important confirmed decisions and assumptions when relevant
-- Known limitations
-- Suggested next step
+Mission id, what changed, evidence, review status, git/tag state, limitations, next step. Then `set-state shipped` and archive if not already.
 
-Then set state to shipped if appropriate. After state is shipped and release closeout is complete, run `spacecraft archive` to move the mission from `.space/missions/` to `.space/archive/` with compact durable artifacts, unless the user asks to keep the full live mission folder.
+## Hard stops
 
-## Research auto-trigger
+Resolver conflict; clarify open; missing evidence; review not ready; critical findings; sc-git fail; no CHANGELOG/version commit; UI without design review.
 
-sc-ship gates are verification gates - research should have happened during `/sc-run`. If a gate check reveals unexpected behavior or version conflicts, use sc-search (WebSearch/WebFetch) for `"<topic>"` before blocking.
+## Errors
 
-## Hard stop gates
+- No push unless user asks.
+- Conventional Commits: `<type>: <description>`; body `- ` bullets, lowercase start.
+- On gate fail: list exact missing actions.
 
-- Resolver conflict or ambiguity
-- Blocking clarification unresolved
-- Missing evidence for any acceptance check
-- review.json status not `ready`
-- Critical findings unresolved
-- sc-git gates fail (branch hygiene, commit style, rebase, merge plan)
-- Changelog not updated (mandatory - never defer)
-- Version bump not committed (mandatory - never defer)
-- UI changes without design review recorded
-
-## Error handling
-
-- Do not git push unless the user explicitly asks.
-- Suggested commit messages must follow Conventional Commits: `<type>: <description>` - no scope by default; body uses `- ` bullet points with lowercase first character.
-- If gates fail, block closeout with exact missing actions listed.
-
-End with session advice. Usually recommend a new session after a shipped mission or major phase boundary, with sc-mission status as pickup.
+After ship, recommend a new session; pickup via `spacecraft status`.

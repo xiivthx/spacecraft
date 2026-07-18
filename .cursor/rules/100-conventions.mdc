@@ -43,7 +43,6 @@ Alias: `evi`. Output in evidence.jsonl must be real captured stdout - never fabr
 ## Standards
 
 - ASCII hyphen-minus (`-`) only; never Unicode em dash.
-- Never hand-edit CHANGELOG.md or other auto-generated files.
 - Bug fixes: reproduce E2E before fixing.
 - Fix lint/test failures and flakiness even if unrelated to current work.
 

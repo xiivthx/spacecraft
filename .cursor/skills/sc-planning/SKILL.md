@@ -16,13 +16,11 @@ Writable `plan.json` (schema in `docs/mission-artifacts.md`). Each task needs ac
 ## Good / Bad
 
 - Good: concrete acceptance, exact verify commands, no hidden assumptions
-- Bad: vague titles, missing verify, inventing success criteria when unclear (clarity gate → research then ask / stop)
+- Bad: vague titles, missing verify, filling gray areas silently
 
 ## Verify
 
 Every acceptance is testable; ≤7 tasks per phase; file paths real; no open blocking clarify.
-
-Convert a mission spec into a small executable plan. When scope exceeds 7 tasks, split into Phase 1, Phase 2, ... each with its own plan.json.
 
 ## When to use
 
@@ -31,6 +29,8 @@ Activate when:
 - `/sc-run` needs a plan (or Task `sc-planner`)
 - User asks to plan / break the spec into tasks
 - Scope work before implementation
+
+When scope exceeds 7 tasks, split into Phase 1, Phase 2, ... each with its own plan.json.
 
 ## Workflow
 

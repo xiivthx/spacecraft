@@ -54,10 +54,10 @@ Roadmap selection helpers:
 ```sh
 spacecraft map use <roadmap-id>   # set current roadmap
 spacecraft map current            # print current roadmap id
-spacecraft map next               # next incomplete mission on current/named roadmap
+spacecraft map next <roadmap-id>  # next incomplete mission on named roadmap
 ```
 
-Skills live under `.cursor/skills/`. Legacy slash skills (`/sc-start`, `/sc-plan`, `/sc-build`, and others) are archived under `.deleted/skills/` and are not primary UX. Spacecraft does not use `.cursor/commands/`.
+Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-run` and `/sc-ship` only. Spacecraft does not use `.cursor/commands/`.
 
 ## Cursor modes
 
@@ -178,11 +178,10 @@ User-facing slash skills: **`/sc-run`** and **`/sc-ship` only**.
 - **HIL:** clarify gray areas, then final check + `/sc-ship`
 - **AFK:** `/sc-run` loops `map next` until missions are `ready` or blocked
 - **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, …)
-- **Archived** under `.deleted/skills/`: old slash entry points (`sc-start`, `sc-plan`, `sc-build`, …) and niche skills (eval, pathfinder, memory, …)
 - **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design` - glob rules still apply
 
 Project behavior and policy are defined by the always-on files in `.cursor/rules/`.
 
 ## How we instruct agents
 
-Clarity over tricks (Wharton Prompting Science + Cursor agent practices). Agents use a **Spec Contract**: Goal, Output, Good vs Bad, Verify. If unclear, research then ask - never invent Verify. Details: [docs/prompting.md](docs/prompting.md). Artifact schemas: [docs/mission-artifacts.md](docs/mission-artifacts.md).
+Clarity over tricks. Agents use Goal, Output, Good vs Bad, Verify. If unclear, research then ask - never invent Verify. Details: [docs/prompting.md](docs/prompting.md). Artifact schemas: [docs/mission-artifacts.md](docs/mission-artifacts.md).
