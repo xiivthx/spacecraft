@@ -12,18 +12,18 @@ globs:
   - "**/.ioc"
 ---
 
-## Firmware Architecture — STM32 ARM Cortex-M
+## Firmware Architecture - STM32 ARM Cortex-M
 
 ### Target: STM32F746NG-Discovery (Cortex-M7)
 
 The F7 series adds L1 cache, SDRAM controller, LTDC, DMA2D, and double-precision FPU. The Discovery kit has 4.3" 480×272 LCD with capacitive touch.
 
 Key differences from F4 (Cortex-M4):
-- **L1 Cache**: 4KB I-cache + 4KB D-cache — must flush/invalidate before/after DMA
-- **SDRAM**: 128 Mbit external — framebuffer, heap, large buffers live here
-- **LTDC**: hardware LCD controller — replaces SPI bit-bang for display
-- **DMA2D**: Chrom-Art 2D accelerator — hardware blit, fill, blend, color convert
-- **QSPI**: Quad-SPI Flash 128 Mbit — memory-mapped for execute-in-place or asset storage
+- **L1 Cache**: 4KB I-cache + 4KB D-cache - must flush/invalidate before/after DMA
+- **SDRAM**: 128 Mbit external - framebuffer, heap, large buffers live here
+- **LTDC**: hardware LCD controller - replaces SPI bit-bang for display
+- **DMA2D**: Chrom-Art 2D accelerator - hardware blit, fill, blend, color convert
+- **QSPI**: Quad-SPI Flash 128 Mbit - memory-mapped for execute-in-place or asset storage
 - **MPU**: must configure regions: Flash (cacheable), SRAM (non-cacheable), SDRAM (write-through), peripherals (strongly-ordered)
 
 ### CubeMX2 Setup (STM32F746NG-Discovery)
@@ -71,7 +71,7 @@ Rules:
 - **DMA source buffer**: `cache_clean()` before DMA TX
 - **DMA dest buffer**: `cache_clean_invalidate()` after DMA RX, before reading
 - **Framebuffer in SDRAM**: mark as write-through (MPU) or clean manually before LTDC refresh
-- **Never disable cache globally**: `SCB_DisableDCache()` kills performance — manage per-region via MPU
+- **Never disable cache globally**: `SCB_DisableDCache()` kills performance - manage per-region via MPU
 - **Cache coherency in ISR**: DMA buffer touched by ISR → must clean/invalidate before main loop reads
 
 ### MPU Configuration
@@ -79,19 +79,19 @@ Rules:
 ```c
 // Configure regions at init (before any peripheral use)
 void mpu_init(void) {
-    // Region 0: Flash (0x0800_0000) — normal memory, cacheable, not shareable
+    // Region 0: Flash (0x0800_0000) - normal memory, cacheable, not shareable
     mpu_config_region(0, 0x08000000,
         MPU_RASR_ATTR_CACHEABLE_WB | MPU_RASR_SIZE_1MB);
 
-    // Region 1: SRAM1 (0x2001_0000) — normal, non-cacheable (DMA buffers live here)
+    // Region 1: SRAM1 (0x2001_0000) - normal, non-cacheable (DMA buffers live here)
     mpu_config_region(1, 0x20010000,
         MPU_RASR_ATTR_NON_CACHEABLE | MPU_RASR_SIZE_256KB);
 
-    // Region 2: SDRAM (0xC000_0000) — normal, write-through (framebuffer)
+    // Region 2: SDRAM (0xC000_0000) - normal, write-through (framebuffer)
     mpu_config_region(2, 0xC0000000,
         MPU_RASR_ATTR_CACHEABLE_WT | MPU_RASR_SIZE_8MB);
 
-    // Region 3: Peripherals (0x4000_0000) — device memory, strongly-ordered
+    // Region 3: Peripherals (0x4000_0000) - device memory, strongly-ordered
     mpu_config_region(3, 0x40000000,
         MPU_RASR_ATTR_DEVICE | MPU_RASR_SIZE_512MB);
 
@@ -164,7 +164,7 @@ __attribute__((section(".sdram"))) uint8_t asset_pool[4 * 1024 * 1024];
 0x2000_0000  SRAM1 (320KB)
 0x6000_0000  FMC Bank 1 (QSPI)
 0x9000_0000  QSPI memory-mapped (16MB)
-0xC000_0000  FMC Bank 2 — SDRAM (8MB)
+0xC000_0000  FMC Bank 2 - SDRAM (8MB)
 0xE000_0000  Cortex-M7 system control
 ```
 
@@ -183,7 +183,7 @@ drivers/        Peripheral drivers (thin wrappers around HAL)
   ├── lcd/      LCD driver (ILI9341, ST7789, etc)
   ├── radio/    LF/UHF transceiver driver
   └── sensor/   Sensor drivers
-bsp/            Board Support Package — pin mappings, clock config
+bsp/            Board Support Package - pin mappings, clock config
   ├── bsp.h     Board-specific #defines (SPI1_CS_PORT, LCD_RST_PIN, etc)
   └── board.c   MX_* init functions from CubeMX
 third_party/    STM32 HAL, CMSIS, FreeRTOS, middleware
@@ -191,9 +191,9 @@ third_party/    STM32 HAL, CMSIS, FreeRTOS, middleware
 
 ### Dependency Rule
 
-- `app/` includes only `hal_if/` — never touches HAL directly
-- `hal_if/` includes `drivers/` — wraps HAL in portable interfaces
-- `drivers/` includes `bsp/` + CMSIS — thin, replaceable
+- `app/` includes only `hal_if/` - never touches HAL directly
+- `hal_if/` includes `drivers/` - wraps HAL in portable interfaces
+- `drivers/` includes `bsp/` + CMSIS - thin, replaceable
 - `bsp/` includes STM32 HAL headers
 - Never: `app/` → `drivers/` (skip the interface layer)
 - Never: circular includes
@@ -202,10 +202,10 @@ third_party/    STM32 HAL, CMSIS, FreeRTOS, middleware
 
 Prefer LL (Low-Layer) over HAL for performance-critical paths:
 ```c
-// HAL — bloated, stateful, blocking
+// HAL - bloated, stateful, blocking
 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
-// LL — lean, stateless, fast
+// LL - lean, stateless, fast
 LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_5);
 ```
 
@@ -216,7 +216,7 @@ HAL is acceptable for:
 
 Always wrap in your own interface:
 ```c
-// hal_if/gpio.h — never expose HAL handle to app code
+// hal_if/gpio.h - never expose HAL handle to app code
 void gpio_set(uint8_t pin);
 bool gpio_read(uint8_t pin);
 ```
@@ -269,13 +269,13 @@ Nested state machine (HSM) for complex protocols:
 ### Coding Standards (MISRA C inspired)
 
 **Types**
-- Use `stdint.h`: `uint8_t`, `uint16_t`, `uint32_t` — never `int`, `short`, `long`
+- Use `stdint.h`: `uint8_t`, `uint16_t`, `uint32_t` - never `int`, `short`, `long`
 - `volatile` for: memory-mapped registers, variables shared with ISRs
 - `static` for file-local functions and variables
 - `const` for immutable data to place in Flash (`.rodata`)
 
 **Functions**
-- Max 40 lines (embedded pragmatism — HSM needs room)
+- Max 40 lines (embedded pragmatism - HSM needs room)
 - Single return at the end (MISRA 15.5)
 - No recursion (stack overflow risk)
 - No dynamic memory after init (`malloc` only in setup, never in loop)
@@ -294,7 +294,7 @@ Nested state machine (HSM) for complex protocols:
 ### Interrupt Safety
 
 ```c
-// ISR — minimal, no blocking, flag-setting only
+// ISR - minimal, no blocking, flag-setting only
 void USART1_IRQHandler(void) {
     if (USART1->SR & USART_SR_RXNE) {
         uint8_t byte = USART1->DR;
@@ -306,10 +306,10 @@ void USART1_IRQHandler(void) {
 ```
 
 Rules:
-- ISR < 10μs — set a flag, wake a task, do real work in task context
+- ISR < 10μs - set a flag, wake a task, do real work in task context
 - Shared variables: `volatile` + atomic access (LDREX/STREX or critical section)
 - Disabled interrupts: measure max disable time, keep < 5μs
-- Priority: assign carefully — protocol timing (highest), UI updates (lower), debug (lowest)
+- Priority: assign carefully - protocol timing (highest), UI updates (lower), debug (lowest)
 
 ### Memory
 

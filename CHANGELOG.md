@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.35.0 - 2026-07-18
+
+- Feat: user-facing slash UX is `/sc-run` (AFK to ready) and `/sc-ship` only
+- Feat: roadmap AFK helpers - `spacecraft map use` / `current` / `next`
+- Feat: Cursor lane-to-mode bridge in workflow rules and README
+- Feat: hard Cursor hooks - deny mutating git on main; deny merge/push/tag unless `SPACECRAFT_SHIP=1` and closeout-check passes
+- Feat: `validate --strict` requires evidence `exitCode` and passing labels for every done plan task
+- Feat: harden `closeout-check` review.json gates (status ready, no critical/blocksShip, releaseReadiness objects)
+- Feat: add `sc-firmware` skill; polish agent proactive descriptions
+- Fix: remove `research` and `check-deps` CLI stubs; `set-state`/`state` auto-resolve when mission-id omitted
+- Fix: strip skills/rules/agents to lean CLI truth
+- Docs: trim redundant prompt fluff; Goal/Output/Good/Bad/Verify without duplicated clarity gates
+- Docs: README and mission-artifact docs for AFK/ship flow
+
 ## 0.34.1 - 2026-07-17
 
 - Docs: replace the retired docs issue registry with GitHub Issues in sc-learn

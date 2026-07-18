@@ -21,9 +21,9 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** - `spacecraft resolve --json`. Block if safety ≠ `safe`.
+1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 
-2. **Choose stack** - Default: Node.js + TypeScript + Fastify + Vitest. If the user specifies a different stack, adapt accordingly. Run `spacecraft research "fastify v5 typescript setup"` before scaffolding if versions are uncertain.
+2. **Choose stack** - Default: Node.js + TypeScript + Fastify + Vitest. If the user specifies a different stack, adapt accordingly. Use sc-search (WebSearch/WebFetch) for `"fastify v5 typescript setup"` before scaffolding if versions are uncertain.
 
 3. **Scaffold (new project)** - If no project exists:
    - `package.json` - scripts: `dev`, `test`, `build`, `start`
@@ -52,7 +52,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 ## Rules
 
-- **Must**: Resolve mission with `spacecraft resolve --json` before mutating work.
+- **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Default to Node.js + TypeScript + Fastify + Vitest when no stack is specified.
 - **Must**: First milestone for new projects: `dev`/`test`/`build` scripts, `GET /healthz`, `GET /version`, passing tests, passing build.
 - **Must**: Verify with `spacecraft evidence` after each milestone.

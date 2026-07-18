@@ -49,21 +49,17 @@ func main() {
 	case "git-suggest":
 		os.Exit(gitSuggestCmd(args, mid))
 	case "state", "set-state":
-		os.Exit(stateCmd(args, spaceDir))
+		os.Exit(stateCmd(args, spaceDir, mid))
 	case "clarify-status":
 		os.Exit(clarifyStatusCmd(args, spaceDir, mid))
 	case "evi", "evidence":
 		os.Exit(eviCmd(args, spaceDir, mid))
 	case "val", "validate":
 		os.Exit(valCmd(args, spaceDir))
-	case "closeout-check":
+	case "closeout-check", "ship-check":
 		os.Exit(closeoutCmd(spaceDir, mid))
 	case "archive":
 		os.Exit(archiveCmd(args, spaceDir, mid))
-	case "research":
-		os.Exit(researchCmd(args))
-	case "check-deps":
-		os.Exit(checkDepsCmd(args, cwd))
 	case "map", "roadmap":
 		os.Exit(mapCmd(args, spaceDir, cwd))
 	case "-h", "--help", "help":
@@ -100,22 +96,22 @@ Usage:
       Show git worktree status.
   spacecraft git-suggest [type] [slug]
       Suggest a branch name and commit conventions.
-  spacecraft set-state <mission-id> <new-state>
+  spacecraft set-state [mission-id] <new-state>
       Set mission state (alias: state).
   spacecraft clarify-status <open|clear|deferred>
       Set clarification status for the resolved mission.
   spacecraft evidence [--mission <id>] <label> -- <command...>
       Capture evidence; propagates the command exit code (alias: evi).
-  spacecraft validate [mission-id]
-      Validate mission artifacts and evidence (alias: val).
-  spacecraft closeout-check
-      Check whether a mission is ready to close out.
+	  spacecraft validate [--strict] [mission-id]
+	      Validate mission artifacts and evidence (alias: val).
+	      --strict also requires exitCode on every evidence entry and
+	      matching exitCode 0 evidence for each done plan task.
+	  spacecraft closeout-check
+	      Check whether a mission is ready to close out (alias: ship-check).
+	  spacecraft ship-check
+	      Alias for closeout-check.
   spacecraft archive [selector]
       Archive a shipped mission.
-  spacecraft research <query> [flags]
-      Search registries and the web for a query.
-  spacecraft check-deps [flags]
-      Check project dependencies against registries.
   spacecraft roadmap <new|add|rm|ls|show|next|archive> [...]
       Manage roadmaps in .space/roadmaps/ (alias: map).
   spacecraft help

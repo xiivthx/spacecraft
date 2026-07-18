@@ -45,8 +45,16 @@ type cliResult struct {
 
 func runCLI(t *testing.T, dir string, args ...string) cliResult {
 	t.Helper()
+	return runCLIWithEnv(t, dir, nil, args...)
+}
+
+func runCLIWithEnv(t *testing.T, dir string, env []string, args ...string) cliResult {
+	t.Helper()
 	cmd := exec.Command(spacecraftBin, args...)
 	cmd.Dir = dir
+	if env != nil {
+		cmd.Env = append(os.Environ(), env...)
+	}
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -115,20 +123,31 @@ func writeMission(t *testing.T, root, id, state string) {
 
 func initGitRepo(t *testing.T, dir, branch string) {
 	t.Helper()
+	globalCfg := filepath.Join(dir, ".gitconfig")
+	if err := os.WriteFile(globalCfg, []byte(""), 0644); err != nil {
+		t.Fatal(err)
+	}
+	xdgConfig := filepath.Join(dir, ".config")
+	if err := os.MkdirAll(xdgConfig, 0755); err != nil {
+		t.Fatal(err)
+	}
 	run := func(args ...string) {
 		t.Helper()
 		cmd := exec.Command("git", args...)
 		cmd.Dir = dir
 		cmd.Env = append(os.Environ(),
+			"HOME="+dir,
+			"GIT_CONFIG_GLOBAL="+globalCfg,
 			"GIT_CONFIG_NOSYSTEM=1",
 			"GIT_TERMINAL_PROMPT=0",
+			"XDG_CONFIG_HOME="+xdgConfig,
 		)
 		if out, err := cmd.CombinedOutput(); err != nil {
 			t.Fatalf("git %v: %v\n%s", args, err, out)
 		}
 	}
 	// Empty template avoids writing default hooks (works under sandbox).
-	run("init", "--template=")
+	run("-c", "init.defaultBranch=main", "init", "--template=")
 	run("config", "user.email", "test@example.com")
 	run("config", "user.name", "Test")
 	keep := filepath.Join(dir, ".gitkeep")
@@ -142,7 +161,7 @@ func initGitRepo(t *testing.T, dir, branch string) {
 	}
 }
 
-// Restored public command surface from plan / main.
+// Public command surface from plan / main (lean CLI — no research/check-deps stubs).
 var restoredCommands = []string{
 	"init",
 	"new",
@@ -160,12 +179,14 @@ var restoredCommands = []string{
 	"evidence",
 	"validate",
 	"closeout-check",
+	"ship-check",
 	"archive",
-	"research",
-	"check-deps",
 	"roadmap",
 	"help",
 }
+
+// Removed stubs that must not appear in help or dispatch.
+var removedCommands = []string{"research", "check-deps"}
 
 func TestHelpListsRestoredCommands(t *testing.T) {
 	dir := spaceRoot(t)
@@ -187,6 +208,16 @@ func TestHelpListsRestoredCommands(t *testing.T) {
 	}
 	if len(missing) > 0 {
 		t.Fatalf("help missing restored commands %v\noutput:\n%s", missing, out)
+	}
+	var present []string
+	for _, cmd := range removedCommands {
+		needle := "spacecraft " + cmd
+		if strings.Contains(out, needle) {
+			present = append(present, cmd)
+		}
+	}
+	if len(present) > 0 {
+		t.Fatalf("help must not list removed commands %v\noutput:\n%s", present, out)
 	}
 }
 
@@ -212,10 +243,9 @@ func TestDispatchAcceptsRestoredCommands(t *testing.T) {
 		{"validate", []string{"validate", "M07TEST01"}, true},
 		{"roadmap", []string{"roadmap", "ls"}, true},
 		{"closeout-check", []string{"closeout-check"}, true},
+		{"ship-check", []string{"ship-check"}, true},
 		{"git-info", []string{"git-info"}, true},
 		{"clarify-status", []string{"clarify-status", "clear"}, true},
-		{"check-deps", []string{"check-deps", "--help"}, true},
-		{"research", []string{"research", "--help"}, true},
 		{"archive", []string{"archive", "--help"}, true},
 		{"bind-branch", []string{"bind-branch", "--help"}, true},
 		{"git-suggest", []string{"git-suggest", "--help"}, true},
@@ -235,6 +265,22 @@ func TestDispatchAcceptsRestoredCommands(t *testing.T) {
 	}
 }
 
+func TestDispatchRejectsRemovedCommands(t *testing.T) {
+	dir := spaceRoot(t)
+
+	for _, cmd := range removedCommands {
+		t.Run(cmd, func(t *testing.T) {
+			res := runCLI(t, dir, cmd)
+			if res.code == 0 {
+				t.Fatalf("%s must exit non-zero", cmd)
+			}
+			if !strings.Contains(res.stderr, "unknown command") {
+				t.Fatalf("%s must be unknown command\nstderr=%s", cmd, res.stderr)
+			}
+		})
+	}
+}
+
 func TestAliasesDispatchToRestoredCommands(t *testing.T) {
 	dir := spaceRoot(t)
 	writeMission(t, dir, "M07ALIAS1", "active")
@@ -248,6 +294,7 @@ func TestAliasesDispatchToRestoredCommands(t *testing.T) {
 		{"val", "validate", []string{"val", "M07ALIAS1"}},
 		{"state", "set-state", []string{"state", "M07ALIAS1", "planned"}},
 		{"map", "roadmap", []string{"map", "ls"}},
+		{"ship-check", "closeout-check", []string{"ship-check"}},
 	}
 
 	for _, tt := range tests {

@@ -20,9 +20,9 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** - `spacecraft resolve --json`. Block if safety ≠ `safe`.
+1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 
-2. **Choose stack** - Default: React + TypeScript + Vite + Tailwind CSS + Vitest. If the project already has a frontend stack, match it. Run `spacecraft research "react latest hooks api"` before using unfamiliar APIs.
+2. **Choose stack** - Default: React + TypeScript + Vite + Tailwind CSS + Vitest. If the project already has a frontend stack, match it. Use sc-search (WebSearch/WebFetch) for `"react latest hooks api"` before using unfamiliar APIs.
 
 3. **Build by slice** - Implement one vertical feature slice at a time:
    - Component with its styles (co-located or Tailwind classes)
@@ -45,7 +45,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 ## Rules
 
-- **Must**: Resolve mission with `spacecraft resolve --json` before mutating work.
+- **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Default to React + TypeScript + Vite + Tailwind CSS + Vitest when no stack is specified.
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
 - **Must**: Prefer small vertical slices over broad horizontal scaffolding.

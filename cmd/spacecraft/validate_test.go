@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -74,5 +76,121 @@ func TestValidateRejectsMissingArtifacts(t *testing.T) {
 	res := runCLI(t, dir, "val", id)
 	if res.code == 0 {
 		t.Fatal("val must fail when spec.md missing")
+	}
+}
+
+func TestValidateAcceptsEvidenceWithoutExitCodeNonStrict(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07VAL05"
+	writeMission(t, dir, id, "active")
+
+	evidencePath := filepath.Join(dir, ".space", "missions", id, "evidence.jsonl")
+	noExit := `{"label":"unit","command":"echo hi","output":"hi\n","ts":"2026-01-01T00:00:00Z"}` + "\n"
+	if err := os.WriteFile(evidencePath, []byte(noExit), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	res := runCLI(t, dir, "val", id)
+	if res.code != 0 {
+		t.Fatalf("non-strict must accept evidence without exitCode; exit=%d\nstdout=%s\nstderr=%s",
+			res.code, res.stdout, res.stderr)
+	}
+}
+
+func writePlanWithTasks(t *testing.T, root, id string, tasks []any) {
+	t.Helper()
+	plan := map[string]any{
+		"planName":  "test",
+		"missionId": id,
+		"tasks":     tasks,
+	}
+	data, err := json.MarshalIndent(plan, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(root, ".space", "missions", id, "plan.json")
+	if err := os.WriteFile(path, append(data, '\n'), 0644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestValidateStrictFailsEmptyEvidence(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07VAL06"
+	writeMission(t, dir, id, "active")
+
+	res := runCLI(t, dir, "validate", "--strict", id)
+	if res.code == 0 {
+		t.Fatalf("strict must fail empty evidence\nstdout=%s", res.stdout)
+	}
+	if !strings.Contains(strings.ToLower(res.stdout+res.stderr), "evidence") {
+		t.Fatalf("want evidence mention\nstdout=%s\nstderr=%s", res.stdout, res.stderr)
+	}
+}
+
+func TestValidateStrictFailsMissingExitCode(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07VAL07"
+	writeMission(t, dir, id, "active")
+	path := filepath.Join(dir, ".space", "missions", id, "evidence.jsonl")
+	line := `{"label":"unit","command":"echo","output":"x","ts":"2026-01-01T00:00:00Z"}` + "\n"
+	if err := os.WriteFile(path, []byte(line), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	res := runCLI(t, dir, "validate", "--strict", id)
+	if res.code == 0 {
+		t.Fatalf("strict must fail missing exitCode\nstdout=%s", res.stdout)
+	}
+	if !strings.Contains(res.stdout+res.stderr, "exitCode") {
+		t.Fatalf("want exitCode mention\nstdout=%s\nstderr=%s", res.stdout, res.stderr)
+	}
+}
+
+func TestValidateStrictFailsDoneTaskWithoutMatchingEvidence(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07VAL08"
+	writeMission(t, dir, id, "active")
+	writePlanWithTasks(t, dir, id, []any{
+		map[string]any{
+			"id":       "T1",
+			"title":    "Do thing",
+			"status":   "done",
+			"evidence": []string{"t1-pass"},
+		},
+	})
+	path := filepath.Join(dir, ".space", "missions", id, "evidence.jsonl")
+	line := `{"label":"other","command":"echo","output":"x","ts":"2026-01-01T00:00:00Z","exitCode":0}` + "\n"
+	if err := os.WriteFile(path, []byte(line), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	res := runCLI(t, dir, "validate", "--strict", id)
+	if res.code == 0 {
+		t.Fatalf("strict must fail done task without matching evidence\nstdout=%s", res.stdout)
+	}
+}
+
+func TestValidateStrictPassesDoneTaskWithMatchingEvidence(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07VAL09"
+	writeMission(t, dir, id, "active")
+	writePlanWithTasks(t, dir, id, []any{
+		map[string]any{
+			"id":       "T1",
+			"title":    "Do thing",
+			"status":   "done",
+			"evidence": []string{"t1-pass"},
+		},
+	})
+	path := filepath.Join(dir, ".space", "missions", id, "evidence.jsonl")
+	line := `{"label":"t1-pass","command":"echo","output":"x","ts":"2026-01-01T00:00:00Z","exitCode":0}` + "\n"
+	if err := os.WriteFile(path, []byte(line), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	res := runCLI(t, dir, "validate", "--strict", id)
+	if res.code != 0 {
+		t.Fatalf("strict pass exit=%d\nstdout=%s\nstderr=%s", res.code, res.stdout, res.stderr)
 	}
 }

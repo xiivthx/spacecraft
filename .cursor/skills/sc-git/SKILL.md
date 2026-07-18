@@ -20,7 +20,7 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** - Before git work, resolve mission with `spacecraft resolve --json`. If safety ≠ `safe`, block until user selects.
+1. **Resolve mission** - Before git work, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 2. **Check git state** - Run `spacecraft git-info` before committing/merging/releasing.
 3. **Branch** - Create a non-main work branch from latest `main` before mutating. Never write product changes on `main`.
 4. **Commit (implementation)** - Use Conventional Commits. Target 1–3 final commits per branch, max 5 unless justified in decisions.md.
@@ -35,7 +35,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: Treat git as the rollback and release boundary for mutating work.
 - **May**: Discovery, clarification, design, planning, and review may run without git.
-- **Must**: Before git work, resolve mission with `spacecraft resolve --json`. If safety ≠ `safe`, block until user selects with `spacecraft use <number|id|title>` or `SPACECRAFT_MISSION`.
+- **Must**: Before git work, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <number|id|title>` or `SPACECRAFT_MISSION`.
 - **Must**: Before committing/merging/releasing, run `spacecraft git-info`.
 - **Must not**: Write product changes on `main`. If on `main` when mutation is requested, create a work branch.
 - **Must not**: Auto-run `git init`, create worktrees, rebase, merge, tag, or push unless asked.
@@ -79,8 +79,9 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: User "ship/release/merge/finish/close branch" → release closeout.
 - **Must**: "stop/close/end session" → session handoff (no merge/tag/branch delete).
 - **Must**: If ambiguous, recommend ship; don't auto-merge.
-- **Must**: Run `spacecraft closeout-check` before claiming readiness. It requires `review.json.releaseReadiness` object entries (string/boolean gates invalid).
+- **Must**: Run `spacecraft closeout-check` (alias: `ship-check`) before claiming readiness. The CLI machine-enforces: required artifacts present; mission state `ready` or `shipped`; clarify-status not `open`; evidence.jsonl non-empty with `label`/`command`/`output`/`ts`/`exitCode`; `review.json` status `ready`; no critical or `blocksShip` findings; `releaseReadiness.changelog` and `releaseReadiness.specNote` objects with status `ready` (string/boolean gates invalid); at least one commit touching `CHANGELOG.md` since `main`/`origin/main`.
 - **Must**: If any gate is incomplete, block and list missing actions.
+- **Must**: Cursor ship hooks re-run closeout when `SPACECRAFT_SHIP=1` before allowing merge/push/tag.
 - **Must**: Bump version by impact: breaking=major, feature=minor, fix/patch=patch, docs/chore=no bump unless part of a release (record in decisions.md).
 - **Must**: Update changelog and spec/release note when behavior changed.
 

@@ -21,7 +21,7 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** - `spacecraft resolve --json`. Block if safety ≠ `safe`.
+1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 
 2. **Understand context** - Read the mission `spec.md`, existing `decisions.md`, and any architecture artifacts. Identify the decision scope and constraints.
 
@@ -55,7 +55,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 ## Rules
 
-- **Must**: Resolve mission with `spacecraft resolve --json` before documenting architecture.
+- **Must**: Resolve mission with `spacecraft resolve` before documenting architecture. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Record non-trivial architectural decisions in ADRs. If it affects system structure, technology choice, or cross-cutting concern, write it down.
 - **Must**: Enumerate ≥2 alternatives with pros and cons for each significant decision.
 - **Must**: Use C4 model for diagrams. Start at Level 1; drill down only where needed.

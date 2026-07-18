@@ -1,7 +1,17 @@
 {
   "version": 1,
   "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/session-start.sh"
+      }
+    ],
     "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/check-main-write.sh",
+        "matcher": "git\\s+",
+        "failClosed": true
+      },
       {
         "command": ".cursor/hooks/check-ship-commands.sh",
         "matcher": "git\\s+(merge|push|tag)\\b",

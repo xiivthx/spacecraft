@@ -21,7 +21,7 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** - `spacecraft resolve --json`. Block if safety ≠ `safe`.
+1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 
 2. **Choose engine** - Default: PostgreSQL. If the project already uses a different engine (MySQL, SQLite), match it. Engine-specific details are in `references/<engine>.md`.
 
@@ -55,7 +55,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 ## Rules
 
-- **Must**: Resolve mission with `spacecraft resolve --json` before mutating work.
+- **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Default to PostgreSQL when no engine is specified.
 - **Must**: Every schema change goes through a versioned migration file.
 - **Must**: Migrations must be reversible - every `up` has a corresponding `down`.

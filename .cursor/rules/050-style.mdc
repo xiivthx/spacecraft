@@ -52,7 +52,7 @@ alwaysApply: true
 - Explain WHY, not WHAT. The code says what.
 - Delete dead code, don't comment it out.
 - No TODOs without a ticket reference: `TODO(#123): add retry logic`.
-- Update or remove comments when code changes — stale comments are worse than none.
+- Update or remove comments when code changes - stale comments are worse than none.
 
 ### Console
 - No `console.log` in production code. Use a logger.

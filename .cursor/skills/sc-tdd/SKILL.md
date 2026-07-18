@@ -75,7 +75,7 @@ Record skipped-TDD decisions for a task in the task output or plan.json notes.
 
 2. **Functional test gate** - Run the full test suite (unit + integration + functional). All old tests must pass alongside new tests. If anything breaks, fix the refactor, not the old tests. Capture evidence: `spacecraft evidence "<label>-functional" -- <full-test-suite>`.
 
-3. **Review** - Self-review the diff. Then move to formal review for code review, design review (if UI), release readiness checks, and the Kalama Sutta gate before shipping.
+3. **Review** - Self-review the diff. Then move to formal review for code review, design review (if UI), and release readiness before shipping.
 
 ## Rules
 
@@ -182,7 +182,7 @@ Cycle 1/3: <acceptance check description>
 ### Edge cases
 
 - **Test passes without implementation** - The test is not testing the right thing. Reject and re-write.
-- **Test framework unfamiliar** - Run `spacecraft research "<framework> assertion API"` before writing tests. Wrong assertions produce false confidence.
+- **Test framework unfamiliar** - Use sc-search (WebSearch/WebFetch) for `"<framework> assertion API"` before writing tests. Wrong assertions produce false confidence.
 - **No acceptance checks in plan.json** - Cannot verify against acceptance criteria. Ask for a plan first.
 
 ## References

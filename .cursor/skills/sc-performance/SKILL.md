@@ -1,6 +1,7 @@
 ---
 name: sc-performance
 description: "Performance review discipline. Activate on N+1 detection, memory leak check, bundle size analysis, render optimization, or performance bottleneck review."
+disable-model-invocation: true
 ---
 
 # sc-performance

@@ -52,6 +52,80 @@ func TestSetStateAliasMatchesState(t *testing.T) {
 	}
 }
 
+func TestSetStateSingleArgUsesCurrentMission(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07STAR1"
+	writeMission(t, dir, id, "active")
+
+	use := runCLI(t, dir, "use", id)
+	if use.code != 0 {
+		t.Fatalf("use exit=%d stderr=%s", use.code, use.stderr)
+	}
+
+	res := runCLI(t, dir, "set-state", "planned")
+	if res.code != 0 {
+		t.Fatalf("set-state planned (single arg) exit=%d stderr=%s", res.code, res.stderr)
+	}
+	if got := readMissionState(t, dir, id); got != "planned" {
+		t.Fatalf("state=%q, want planned", got)
+	}
+}
+
+func TestStateSingleArgUsesCurrentMission(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07STAR2"
+	writeMission(t, dir, id, "active")
+
+	use := runCLI(t, dir, "use", id)
+	if use.code != 0 {
+		t.Fatalf("use exit=%d stderr=%s", use.code, use.stderr)
+	}
+
+	res := runCLI(t, dir, "state", "planned")
+	if res.code != 0 {
+		t.Fatalf("state planned (single arg) exit=%d stderr=%s", res.code, res.stderr)
+	}
+	if got := readMissionState(t, dir, id); got != "planned" {
+		t.Fatalf("state=%q, want planned", got)
+	}
+}
+
+func TestSetStateExplicitTwoArgStillWorks(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07STAR3"
+	writeMission(t, dir, id, "active")
+
+	res := runCLI(t, dir, "set-state", id, "planned")
+	if res.code != 0 {
+		t.Fatalf("set-state %s planned exit=%d stderr=%s", id, res.code, res.stderr)
+	}
+	if got := readMissionState(t, dir, id); got != "planned" {
+		t.Fatalf("state=%q, want planned", got)
+	}
+}
+
+func TestSetStateInvalidSingleArgFailsClearly(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07STAR4"
+	writeMission(t, dir, id, "active")
+	use := runCLI(t, dir, "use", id)
+	if use.code != 0 {
+		t.Fatalf("use exit=%d stderr=%s", use.code, use.stderr)
+	}
+
+	res := runCLI(t, dir, "set-state", "not-a-state")
+	if res.code == 0 {
+		t.Fatal("invalid single-arg state must be rejected")
+	}
+	errOut := strings.ToLower(res.stderr)
+	if !strings.Contains(errOut, "invalid state") {
+		t.Fatalf("expected clear invalid-state error, got stderr=%s", res.stderr)
+	}
+	if got := readMissionState(t, dir, id); got != "active" {
+		t.Fatalf("state mutated to %q after rejected single-arg", got)
+	}
+}
+
 func TestInvalidStateRejected(t *testing.T) {
 	dir := spaceRoot(t)
 	id := "M07STI01"

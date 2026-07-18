@@ -1,5 +1,5 @@
 ---
-description: Performance review — N+1 queries, memory leaks, bundle size, render optimization
+description: Performance review - N+1 queries, memory leaks, bundle size, render optimization
 alwaysApply: false
 globs:
   - "**/*.ts"

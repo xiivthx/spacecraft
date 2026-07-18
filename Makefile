@@ -1,5 +1,5 @@
 .PHONY: build install install-cli install-project install-global smoke uninstall clean help \
-        test test-go test-config test-install
+        test test-go test-config test-install gate
 
 ROOT      := $(CURDIR)
 BIN       := $(ROOT)/spacecraft
@@ -14,6 +14,7 @@ help:
 	@echo "  test-go         Go unit tests, go vet, gofmt check (cmd/spacecraft)"
 	@echo "  test-config     Static config smoke (mcp/hooks JSON, frontmatter, no commands/)"
 	@echo "  test-install    Bootstrap/install smoke into a throwaway temp dir"
+	@echo "  gate            Go tests + Cursor hook unit tests (hooks_test.sh)"
 	@echo "  install         build + link CLI into ~/.local/bin + smoke check"
 	@echo "  install-project Install full .cursor surface into PROJECT=<dir> (default .)"
 	@echo "  install-global  Merge agents + MCP into ~/.cursor and link CLI (careful)"
@@ -24,6 +25,10 @@ help:
 # Full verification suite. Runs everything CI runs; humans use `make test`.
 test: test-go test-config test-install
 	@echo "All tests passed."
+
+# Local pre-ship / PR gate: Go unit tests plus Cursor hook assertions.
+gate: test-go
+	bash $(ROOT)/.cursor/hooks/hooks_test.sh
 
 test-go:
 	go -C $(ROOT)/cmd/spacecraft test ./...

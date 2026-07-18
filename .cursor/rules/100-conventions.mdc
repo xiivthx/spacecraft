@@ -6,118 +6,49 @@ alwaysApply: true
 ## Project Structure
 
 ```
-.cursor/            # Cursor-native config: agents/, rules/, mcp.json
-.space/             # Mission state
-  missions/<id>/    # spec.md, plan.json, mission.json, evidence.jsonl
-  archive/          # Shipped missions
-  roadmaps/         # Roadmap files (*.json)
+.cursor/   # agents/, rules/, skills/, hooks/, mcp.json
+.space/    # missions/<id>/, archive/, roadmaps/
 ```
 
-## Branches
+Schemas: `docs/mission-artifacts.md`.
 
-`feat/<id>/<title>` -- one branch per feature. Never write on `main`.
+## Branches / Commits
 
-## Commits
-
-Conventional Commits (feat:, fix:, chore:, docs:, test:, refactor:). Target 1-3 per branch, max 5. Squash WIP before merge. Rebase on `main` -> verify -> `git merge --no-ff`.
+- Branch: `feat/<id>/<title>`. Never write on `main`.
+- Conventional Commits. Target 1-3 per branch, max 5. Rebase on `main` → verify → `git merge --no-ff`.
 
 ## Mission IDs
 
-`M07FYB5W5` -- compact sortable (prefix + base36 ms since 2026-01-01).
+`M` + base36 ms since 2026-01-01. Generate:
 
-Generate with: `node -e "const MS=Date.now()-new Date('2026-01-01').getTime();console.log('M'+MS.toString(36).toUpperCase())"`
-
-## Mission Artifacts
-
-### mission.json
-```json
-{
-  "id": "<mission-id>",
-  "title": "<title>",
-  "state": "active|planned|in_progress|ready|blocked|shipped",
-  "branches": ["<branch-name>"],
-  "createdAt": "<iso-date>"
-}
+```
+node -e "const MS=Date.now()-new Date('2026-01-01').getTime();console.log('M'+MS.toString(36).toUpperCase())"
 ```
 
-### plan.json
-```json
-{
-  "planName": "<short-name>",
-  "missionId": "<mission-id>",
-  "tasks": [
-    {
-      "id": "T1",
-      "title": "<imperative>",
-      "status": "pending|in_progress|done|blocked",
-      "files": ["<path>"],
-      "acceptance": ["<check>"],
-      "verify": "<command>",
-      "evidence": ["<label>"]
-    }
-  ]
-}
-```
+## Artifacts
 
-### spec.md
-Markdown file describing what and why. Free-form.
+Per mission under `.space/missions/<id>/`: `mission.json`, `spec.md`, `plan.json`, `evidence.jsonl`, optional `decisions.md` / `questions.md` / `review.json`. Roadmaps: `.space/roadmaps/<id>.json` via `spacecraft map`.
 
-### evidence.jsonl
-JSON Lines file. Each line is one evidence entry:
-```json
-{"label":"<label>","command":"<command>","output":"<output>","ts":"<iso-timestamp>"}
-```
+Bug radar: `gh issue create --title "..." --body "..." --label bug`, then append to roadmap `issues` if linked.
 
-### Roadmap (.space/roadmaps/<id>.json)
-```json
-{
-  "id": "<uuid-or-slug>",
-  "title": "<title>",
-  "description": "<description>",
-  "missions": [
-    {"id": "<mission-id>", "description": "<brief>"}
-  ],
-  "issues": [
-    {"number": 1, "title": "...", "url": "https://...", "state": "open", "phase": "mvp|polish|ship"}
-  ],
-  "createdAt": "<iso-date>",
-  "updatedAt": "<iso-date>"
-}
-```
-Roadmap ID format: lowercase kebab-case slug derived from title (e.g. "add-user-auth").
-Manage roadmaps with `spacecraft roadmap` (short alias: `spacecraft map`).
+## Evidence
 
-### GitHub Issue Reference
-When creating issues from roadmap, link them by adding to the roadmap's `issues` array.
-When discovering bugs during any lane, create a GitHub issue with `gh issue create`:
-```
-gh issue create --title "<title>" --body "<body>" --label bug
-```
-Then append issue to roadmap: read roadmap JSON, add to `issues` array, write back.
-
-## Evidence Capture
-
-Capture evidence with `spacecraft evidence` (short alias: `spacecraft evi`):
 ```
 spacecraft evidence <label> -- <command>
-# or with explicit mission:
 spacecraft evidence --mission <id> <label> -- <command>
 ```
 
-This runs the command, captures stdout, and appends a properly-escaped JSONL line to `.space/missions/<id>/evidence.jsonl`.
-
-Command output in evidence.jsonl must be actual captured output -- never fabricated.
+Alias: `evi`. Output in evidence.jsonl must be real captured stdout - never fabricated.
 
 ## Standards
 
-- Never use the em dash ("-"). Use plain dash instead.
-- Never manually modify CHANGELOG.md or any auto-generated files.
-- Bug fixes: reproduce in E2E setting as close to end-user experience as possible before fixing.
-- Lint, test failures, and test flakiness get fixed even if not caused by current work.
+- ASCII hyphen-minus (`-`) only; never Unicode em dash.
+- Bug fixes: reproduce E2E before fixing.
+- Fix lint/test failures and flakiness even if unrelated to current work.
 
 ## Git Safety
 
-- Check dirty tree before edits. Work with user changes; do not revert unrelated changes.
-- If workspace is not a git worktree, stop before editing product files unless user has accepted no-git risk.
-- Before code or dependency changes, check official current docs/registry/releases.
-- Run `git branch --show-current` to verify you are on a feature branch before any code edits.
+- Check dirty tree; do not revert unrelated user changes.
+- No git worktree → stop before product edits unless user accepts risk.
+- Check official docs before dependency changes.
+- `git branch --show-current` must be a feature branch before code edits.

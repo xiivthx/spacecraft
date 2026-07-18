@@ -35,25 +35,41 @@ See the [installation guide](docs/installation.md) for setup and verification de
 
 ## Quick start
 
-Open the project in Cursor and run the workflow skills in chat:
+Open the project in Cursor. User-facing slash skills are only `/sc-run` and `/sc-ship`:
 
 ```text
-/sc-start
-/sc-plan
-/sc-build
+/sc-run <roadmap-id>
 /sc-ship
 ```
 
-These are explicit Cursor skills stored under `.cursor/skills/`. Spacecraft does not use `.cursor/commands/`.
+Flow:
 
-The core lifecycle is:
+1. Clarify first (human) - answer blocking questions; clear clarify-status.
+2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (plan/build/review via agents).
+3. Human checks the ready work.
+4. `/sc-ship` validates and closes out only when explicitly requested.
 
-1. `/sc-start` creates a feature branch and mission artifacts.
-2. `/sc-plan` turns the mission spec into a small, verifiable plan.
-3. `/sc-build` delegates implementation and testing, then captures evidence.
-4. `/sc-ship` validates and closes out the mission only when explicitly requested.
+Roadmap selection helpers:
 
-Additional workflow skills include `/sc-design`, `/sc-review`, `/sc-quick`, `/sc-research`, `/sc-resume`, and `/sc-debug`.
+```sh
+spacecraft map use <roadmap-id>   # set current roadmap
+spacecraft map current            # print current roadmap id
+spacecraft map next <roadmap-id>  # next incomplete mission on named roadmap
+```
+
+Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-run` and `/sc-ship` only. Spacecraft does not use `.cursor/commands/`.
+
+## Cursor modes
+
+Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workflow.mdc`.
+
+| User intent | Spacecraft lane | Cursor mode / action |
+|---|---|---|
+| Ask / explain | Advisory | Ask Mode (or Agent with no writes) |
+| Roadmap mission work | Mission | Agent + `/sc-run` (orchestrates plan/build/review) |
+| Bug hunt | Debug | Cursor Debug Mode (no slash skill) |
+| Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
+| Small edit / commit | Quick | Agent (no full mission gates) |
 
 ## Agents
 
@@ -86,15 +102,14 @@ Run the repository binary as `./spacecraft`, or use `spacecraft` after installat
 | `spacecraft bind-branch [selector]` | Bind the current branch to a mission |
 | `spacecraft git-info` | Show Git worktree status |
 | `spacecraft git-suggest [type] [slug]` | Suggest branch and commit conventions |
-| `spacecraft set-state <mission-id> <new-state>` | Set mission state, alias: `state` |
+| `spacecraft set-state [mission-id] <new-state>` | Set mission state (mission-id optional when resolved from branch or current), alias: `state` |
 | `spacecraft clarify-status <open\|clear\|deferred>` | Set clarification status |
 | `spacecraft evidence [--mission <id>] <label> -- <command...>` | Run a command and capture evidence, alias: `evi` |
-| `spacecraft validate [mission-id]` | Validate mission artifacts and evidence, alias: `val` |
-| `spacecraft closeout-check` | Check whether a mission is ready to close out |
+| `spacecraft validate [--strict] [mission-id]` | Validate mission artifacts and evidence, alias: `val`. `--strict` also requires `exitCode` on every evidence entry and evidence for each done plan task |
+| `spacecraft closeout-check` | Check whether a mission is ready to close out, alias: `ship-check` |
+| `spacecraft ship-check` | Alias for `closeout-check` |
 | `spacecraft archive [selector]` | Archive a shipped mission |
-| `spacecraft research <query> [flags]` | Search registries and the web |
-| `spacecraft check-deps [flags]` | Check project dependencies against registries |
-| `spacecraft roadmap <new\|add\|rm\|ls\|show\|next\|archive> [...]` | Manage roadmaps, alias: `map` |
+| `spacecraft roadmap <new\|add\|rm\|ls\|show\|next\|archive\|use\|current> [...]` | Manage roadmaps, alias: `map`. `map use` / `map current` / `map next` support `/sc-run` |
 | `spacecraft help` | Show live CLI help |
 
 Mission states progress as:
@@ -146,4 +161,27 @@ Each mission lives at `.space/missions/<id>/`. The primary files are:
 
 Spacecraft work belongs on `feat/<mission-id>/<title>`, not directly on `main`. Shipping is never inferred. `/sc-ship` runs only after an explicit request to merge or release, validates the mission, and applies the repository's release gates.
 
+Before claiming build complete, prefer `spacecraft validate --strict`. Before merge, run `spacecraft closeout-check` (or `ship-check`). With `SPACECRAFT_SHIP=1`, the Cursor ship hook re-runs closeout before allowing `git merge` / `git push` / `git tag`.
+
+Local gate (Go tests + hook unit tests):
+
+```sh
+make gate
+```
+
+On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft status` (or `No active spacecraft mission.`) so the agent gets mission context.
+
+## Lean profile
+
+User-facing slash skills: **`/sc-run`** and **`/sc-ship` only**.
+
+- **HIL:** clarify gray areas, then final check + `/sc-ship`
+- **AFK:** `/sc-run` loops `map next` until missions are `ready` or blocked
+- **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, …)
+- **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design` - glob rules still apply
+
 Project behavior and policy are defined by the always-on files in `.cursor/rules/`.
+
+## How we instruct agents
+
+Clarity over tricks. Agents use Goal, Output, Good vs Bad, Verify. If unclear, research then ask - never invent Verify. Details: [docs/prompting.md](docs/prompting.md). Artifact schemas: [docs/mission-artifacts.md](docs/mission-artifacts.md).

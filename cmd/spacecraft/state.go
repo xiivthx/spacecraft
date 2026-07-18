@@ -25,24 +25,38 @@ var validTransitions = map[string][]string{
 	"shipped":     {},
 }
 
-func stateCmd(args []string, spaceDir string) int {
-	if len(args) < 2 {
-		fmt.Fprintln(os.Stderr, "Usage: spacecraft state <mission-id> <new-state>")
+func stateCmd(args []string, spaceDir, mid string) int {
+	var missionID, newState string
+
+	switch len(args) {
+	case 1:
+		newState = args[0]
+		if !validStates[newState] {
+			fmt.Fprintf(os.Stderr, "spacecraft state: invalid state %q\n", newState)
+			return 1
+		}
+		missionID = resolveActive(spaceDir, mid)
+		if missionID == "" {
+			fmt.Fprintln(os.Stderr, "spacecraft state: no active mission - provide mission-id or select one with 'spacecraft use'")
+			return 1
+		}
+	case 2:
+		missionID, newState = args[0], args[1]
+	default:
+		fmt.Fprintln(os.Stderr, "Usage: spacecraft set-state [mission-id] <new-state>")
 		fmt.Fprintln(os.Stderr, "Valid states: active → planned → in_progress → ready → shipped")
 		return 1
 	}
-
-	mid, newState := args[0], args[1]
 
 	if !validStates[newState] {
 		fmt.Fprintf(os.Stderr, "spacecraft state: invalid state %q\n", newState)
 		return 1
 	}
 
-	missionPath := filepath.Join(missionDir(spaceDir, mid), "mission.json")
+	missionPath := filepath.Join(missionDir(spaceDir, missionID), "mission.json")
 	data, err := os.ReadFile(missionPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "spacecraft state: mission not found: %s\n", mid)
+		fmt.Fprintf(os.Stderr, "spacecraft state: mission not found: %s\n", missionID)
 		return 1
 	}
 
@@ -54,7 +68,7 @@ func stateCmd(args []string, spaceDir string) int {
 
 	oldState, _ := m["state"].(string)
 	if oldState == newState {
-		fmt.Printf("%s already %s — no change\n", mid, newState)
+		fmt.Printf("%s already %s — no change\n", missionID, newState)
 		return 0
 	}
 
@@ -86,6 +100,6 @@ func stateCmd(args []string, spaceDir string) int {
 		return 1
 	}
 
-	fmt.Printf("%s: %s → %s\n", mid, oldState, newState)
+	fmt.Printf("%s: %s → %s\n", missionID, oldState, newState)
 	return 0
 }
