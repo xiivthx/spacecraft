@@ -109,6 +109,9 @@ assert_perm "ship: allows hooks_test.sh" "allow" "$(extract_perm "$out")"
 out=$(run_ship "" '{"command":"printf %s \"{\\\"command\\\":\\\"git push\\\"}\" | .cursor/hooks/check-ship-commands.sh"}')
 assert_perm "ship: allows check-ship-commands.sh self-test" "allow" "$(extract_perm "$out")"
 
+out=$(run_ship "" '{"command":"git push origin main; bash .cursor/hooks/hooks_test.sh"}')
+assert_perm "ship: compound push+hooks_test without env denies" "deny" "$(extract_perm "$out")"
+
 out=$(run_ship "" 'not-json')
 assert_perm "ship: bad json denies" "deny" "$(extract_perm "$out")"
 
@@ -118,6 +121,18 @@ assert_perm "main-write: allows hooks_test.sh on main" "allow" "$(extract_perm "
 
 out=$(run_main "main" '{"command":"printf %s \"{\\\"command\\\":\\\"git commit -m x\\\"}\" | .cursor/hooks/check-main-write.sh"}')
 assert_perm "main-write: allows check-main-write.sh self-test on main" "allow" "$(extract_perm "$out")"
+
+out=$(run_main "main" '{"command":"git push; bash .cursor/hooks/hooks_test.sh"}')
+assert_perm "main-write: compound push+hooks_test denies" "deny" "$(extract_perm "$out")"
+
+out=$(run_main "" '{"command":"git commit -m x"}')
+assert_perm "main-write: empty branch denies commit" "deny" "$(extract_perm "$out")"
+
+out=$(run_main "main" '{"command":"env git commit -m x"}')
+assert_perm "main-write: env git commit denies" "deny" "$(extract_perm "$out")"
+
+out=$(run_main "main" '{"command":"git -C . commit -m x"}')
+assert_perm "main-write: git -C commit denies" "deny" "$(extract_perm "$out")"
 
 if [ "$FAIL" -ne 0 ]; then
   printf 'hooks_test.sh: FAILED\n'

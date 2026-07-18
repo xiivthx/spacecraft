@@ -4,6 +4,8 @@ description: "Prepares and executes mission delivery when review gates pass and 
 disable-model-invocation: true
 ---
 
+AFK mission work to `ready` comes from `/sc-run`; ship remains human-only via this skill.
+
 Use sc-mission, sc-verification, sc-git, and sc-learn.
 Resolve the mission. Block if unsafe.
 
@@ -111,7 +113,7 @@ Then set state to shipped if appropriate. After state is shipped and release clo
 
 ## Research auto-trigger
 
-sc-ship gates are verification gates - research should have happened during sc-plan and sc-build. If a gate check reveals unexpected behavior or version conflicts, use sc-search (WebSearch/WebFetch) for `"<topic>"` before blocking.
+sc-ship gates are verification gates - research should have happened during `/sc-run`. If a gate check reveals unexpected behavior or version conflicts, use sc-search (WebSearch/WebFetch) for `"<topic>"` before blocking.
 
 ## Hard stop gates
 

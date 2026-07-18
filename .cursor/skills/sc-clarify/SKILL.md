@@ -56,6 +56,10 @@ Use this exact sequence unless the user specifies otherwise:
 - **Answer contradicts spec** - Update `spec.md` to reflect the decision. The user's answer is authoritative.
 - **User defers decision** - Record the deferral in `decisions.md` with: "Deferred: <question>. Proceeding without." Only proceed if the ambiguity is non-blocking.
 
+## AFK mode
+
+During `/sc-run` (mission `in_progress` with clarify-status clear): **do not auto-trigger**. Only ask if the Commander hits a true hard blocker (missing secret, impossible acceptance). Otherwise write assumptions to `decisions.md`.
+
 ## Rules
 
 - **Must**: Exhaust all context sources before asking the user. Never ask a question answerable from files or research.
@@ -64,15 +68,18 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Every question includes: the question, why it matters, a recommendation, and what happens if accepted.
 - **Must not**: Ask multiple questions in one message.
 - **Must not**: Implement, plan, or finalize design while a blocking question is open.
+- **Must not**: Auto-trigger mid-AFK (`/sc-run`) unless a hard blocker.
 - **Must**: Record answered questions in `questions.md`. Record decisions in `decisions.md`.
 - **Must**: Prefer user clarity over agent cleverness. If the user's answer seems suboptimal, state your concern once and accept their decision.
 
 ## Out of scope
 
-- Planning - use sc-planning
-- Visual design - use sc-design
+- Planning - use sc-planning (via `/sc-run` for roadmap work)
+- Visual design - Task(`sc-designer`) / sc-ux-design when needed
 - Git operations - use sc-git
-- Implementation - use the build command
+- Implementation - use `/sc-run` (AFK) or agents; ship with `/sc-ship` only
+
+After clarify is clear for roadmap work, recommend `/sc-run <roadmap-id>` rather than legacy slash commands.
 
 ## Output format
 
@@ -96,9 +103,12 @@ Use this exact sequence unless the user specifies otherwise:
 - [ ] Answer recorded in `questions.md`
 - [ ] Decision recorded in `decisions.md`
 - [ ] No blocking question remains open before planning or implementation
+- [ ] After clarify clear on roadmap work: recommend `/sc-run` (not legacy slash skills)
 
 ## References
 
 - `questions.md` - open and answered questions per mission
 - `decisions.md` - confirmed choices, assumptions, and deferrals
 - sc-search - WebSearch/WebFetch escalation for researchable questions
+- `/sc-run` - AFK roadmap runner after clarify is clear
+- `/sc-ship` - explicit human-only ship

@@ -18,20 +18,30 @@ Auto-classify every user request:
 
 Spacecraft lanes map to Cursor modes and skills. Use both together - do not treat them as separate systems.
 
+User-facing slash skills are only `/sc-run` and `/sc-ship`. Plan/build/review are internal steps under `/sc-run` (agents + detail skills). Legacy slash skills live in `.deleted/skills/`.
+
 | User intent | Spacecraft lane | Cursor mode / action |
 |---|---|---|
 | Ask / explain | Advisory | Ask Mode (or Agent with no writes) |
-| Spec / design / plan | Mission (pre-build) | Plan Mode + `/sc-plan` |
-| Implement | Mission (build) | Agent + Task(`sc-coder` / `sc-tester`) |
-| Bug hunt | Debug | Debug Mode + `/sc-debug` |
-| Formal review | Review | Agent Review / Task(`sc-reviewer`) + `/sc-review` |
+| Roadmap mission work | Mission | Agent + `/sc-run` (orchestrates plan/build/review) |
+| Bug hunt | Debug | Cursor Debug Mode (no slash skill) |
 | Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
 | Small edit / commit | Quick | Agent (no full mission gates) |
 
 Rules for the Commander:
-- Before Mission build, if `plan.json` is missing or empty tasks: SwitchMode to Plan (or invoke `/sc-plan`) and do not implement yet.
+- After clarify clear, prefer `/sc-run` for roadmap work; do not ask non-blocking questions mid-AFK.
 - Debug lane: prefer Cursor Debug Mode when runtime evidence is needed.
-- Review gate: use Task(`sc-reviewer`) and/or Agent Review before ready→shipped.
+- Review gate: `/sc-run` uses Task(`sc-reviewer`) and/or Agent Review before ready; ship only via `/sc-ship`.
+
+## AFK runner
+
+Human-in-the-loop clarify first. Then AFK with `/sc-run` until missions are `ready`. Human checks the ready work. Ship only with explicit `/sc-ship`.
+
+```
+clarify (human) → /sc-run <roadmap-id> → human check → /sc-ship
+```
+
+`spacecraft map use|current|next` select and advance the active roadmap for `/sc-run`.
 
 ## Roadmap Workflow
 
@@ -50,8 +60,8 @@ When starting a mission that belongs to a roadmap:
 
 ### Continue roadmap
 Find next pending mission:
-1. Run `spacecraft roadmap next <roadmap-id>`
-2. Start the returned mission with the `/sc-start` Cursor skill
+1. Run `spacecraft roadmap next <roadmap-id>` (or `spacecraft map next`)
+2. Prefer `/sc-run <roadmap-id>` to AFK through incomplete missions to `ready`
 
 ### Archive roadmap
 When all missions shipped:
@@ -110,6 +120,8 @@ To defer: `echo "deferred" > ...`
 
 ## Mission Lane (start -> plan -> build -> review -> ship)
 
+`/sc-run` orchestrates plan, build, and review via agents and detail skills. Humans clarify first and ship with `/sc-ship` only.
+
 ### Start -- Begin mission
 1. Generate mission ID: `node -e "const MS=Date.now()-new Date('2026-01-01').getTime();console.log('M'+MS.toString(36).toUpperCase())"`
 2. Create branch: `git checkout -b feat/<id>/<title>`
@@ -119,11 +131,13 @@ To defer: `echo "deferred" > ...`
 6. Record decisions/questions in `decisions.md` / `questions.md`
 
 ### Plan -- Convert spec to plan
+(Internal under `/sc-run`; or Task `sc-planner` / sc-planning detail skill.)
 1. Delegate to the Cursor subagent `sc-planner`
 2. Output: `plan.json` with <=7 tasks
 3. Each task: id, title, status, files, acceptance, verify, evidence labels
 
 ### Build -- Implement tasks
+(Internal under `/sc-run`.)
 1. Verify on feature branch: `git branch --show-current`
 2. Read mission.json, spec.md, plan.json for context
 3. Check dirty tree: `git status --porcelain`
@@ -135,12 +149,13 @@ To defer: `echo "deferred" > ...`
 6. Set state: `spacecraft set-state ready`
 
 ### Review -- Formal review
+(Internal under `/sc-run`.)
 1. Delegate to the Cursor subagent `sc-reviewer`
 2. Record findings in `review.md` and `review.json`
 3. Fix any issues, re-run verification
 
 ### Ship -- Merge and release
-Only on explicit user command (`ship it`, `merge`, `/sc-ship`):
+Only on explicit `/sc-ship` (never inferred from AFK or handoff):
 1. Run validate: `spacecraft validate <id>` -- block on failure
 2. Rebase on main: `git fetch origin && git rebase origin/main`
 3. Push: `git push origin feat/<id>/<title>`

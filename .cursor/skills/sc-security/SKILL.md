@@ -1,6 +1,7 @@
 ---
 name: sc-security
 description: "Static security review of source and manifests. Activate on \"security review\", \"check for secrets\", \"OWASP check\", \"injection scan\", \"audit dependencies\", or hardcoded credentials."
+disable-model-invocation: true
 ---
 
 # sc-security

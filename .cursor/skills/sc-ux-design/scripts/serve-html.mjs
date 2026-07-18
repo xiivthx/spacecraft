@@ -32,7 +32,7 @@ function usage() {
   return `Design HTML server
 
 Usage:
-  node .cursor/skills/sc-design/scripts/serve-html.mjs [html-file-or-dir] [options]
+  node .cursor/skills/sc-ux-design/scripts/serve-html.mjs [html-file-or-dir] [options]
 
 Options:
   --open             Open the preview URL in the default browser.
@@ -41,9 +41,9 @@ Options:
   -h, --help         Show this help.
 
 Examples:
-  node .cursor/skills/sc-design/scripts/serve-html.mjs --open
-  node .cursor/skills/sc-design/scripts/serve-html.mjs okinawa-ui-directions.html --open
-  node .cursor/skills/sc-design/scripts/serve-html.mjs .space/missions/M-123/design/example.html --port 4330
+  node .cursor/skills/sc-ux-design/scripts/serve-html.mjs --open
+  node .cursor/skills/sc-ux-design/scripts/serve-html.mjs okinawa-ui-directions.html --open
+  node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/M-123/design/example.html --port 4330
 `;
 }
 
@@ -123,7 +123,7 @@ async function currentMissionId() {
 async function currentDesignDir() {
   const id = await currentMissionId();
   if (!id) {
-    fail("No current mission. Pass an HTML file or run /sc-start first.");
+    fail("No current mission. Pass an HTML file or use /sc-run after roadmap.");
   }
   return path.join(ROOT, ".space", "missions", id, "design");
 }

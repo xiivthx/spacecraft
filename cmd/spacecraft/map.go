@@ -12,7 +12,7 @@ import (
 
 func mapCmd(args []string, spaceDir, _ string) int {
 	if len(args) < 1 {
-		fmt.Fprintln(os.Stderr, "Usage: spacecraft map <new|add|rm|ls|show|next|archive> [...]")
+		fmt.Fprintln(os.Stderr, "Usage: spacecraft map <new|add|rm|ls|show|next|use|current|archive> [...]")
 		return 1
 	}
 
@@ -32,6 +32,10 @@ func mapCmd(args []string, spaceDir, _ string) int {
 		return mapShow(args[1:], roadmapsDir)
 	case "next":
 		return mapNext(args[1:], roadmapsDir)
+	case "use":
+		return mapUse(args[1:], spaceDir, roadmapsDir)
+	case "current":
+		return mapCurrent(spaceDir)
 	case "archive":
 		return mapArchive(args[1:], roadmapsDir, spaceDir)
 	default:
@@ -178,12 +182,80 @@ func mapNext(args []string, dir string) int {
 	missions, _ := r["missions"].([]interface{})
 	for _, m := range missions {
 		entry, _ := m.(map[string]interface{})
-		if _, err := os.Stat(filepath.Join(dir, "..", "archive", entry["id"].(string))); os.IsNotExist(err) {
-			fmt.Printf("%s: %s\n", entry["id"], entry["description"])
-			return 0
+		id, _ := entry["id"].(string)
+		desc, _ := entry["description"].(string)
+		if id == "" {
+			continue
 		}
+		if _, err := os.Stat(filepath.Join(dir, "..", "archive", id)); err == nil {
+			continue
+		}
+		state := missionIncompleteState(filepath.Join(dir, "..", "missions", id))
+		if state == "" {
+			continue
+		}
+		fmt.Printf("%s: %s (state=%s)\n", id, desc, state)
+		return 0
 	}
-	fmt.Println("All missions shipped.")
+	fmt.Println("All missions complete.")
+	return 0
+}
+
+// missionIncompleteState returns the display state for an incomplete mission, or "" if complete.
+// Missing mission dir / mission.json → "pending". ready/shipped → complete ("").
+func missionIncompleteState(missionPath string) string {
+	data, err := os.ReadFile(filepath.Join(missionPath, "mission.json"))
+	if err != nil {
+		return "pending"
+	}
+	var mj map[string]interface{}
+	if err := json.Unmarshal(data, &mj); err != nil {
+		return "pending"
+	}
+	state, _ := mj["state"].(string)
+	if state == "" {
+		return "pending"
+	}
+	if state == "ready" || state == "shipped" {
+		return ""
+	}
+	return state
+}
+
+func mapUse(args []string, spaceDir, roadmapsDir string) int {
+	if len(args) < 1 {
+		fmt.Fprintln(os.Stderr, "Usage: spacecraft map use <roadmap-id>")
+		return 1
+	}
+	id := args[0]
+	if _, err := loadRoadmap(roadmapsDir, id); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft map:", err)
+		return 1
+	}
+	if err := os.MkdirAll(spaceDir, 0755); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft map:", err)
+		return 1
+	}
+	if err := os.WriteFile(filepath.Join(spaceDir, "current-roadmap"), []byte(id+"\n"), 0644); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft map:", err)
+		return 1
+	}
+	fmt.Printf("Selected roadmap %s\n", id)
+	return 0
+}
+
+func mapCurrent(spaceDir string) int {
+	data, err := os.ReadFile(filepath.Join(spaceDir, "current-roadmap"))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft map: no current roadmap")
+		return 1
+	}
+	id := strings.TrimSpace(string(data))
+	if id == "" {
+		fmt.Fprintln(os.Stderr, "spacecraft map: no current roadmap")
+		return 1
+	}
+	fmt.Println(id)
 	return 0
 }
 

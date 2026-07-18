@@ -39,7 +39,7 @@ You are the Planner. Convert mission specs into small, executable `plan.json` fi
       "files": ["<exact paths when known>"],
       "acceptance": ["<verifiable check>"],
       "verify": "<exact verification command>",
-      "evidence": "<label>"
+      "evidence": ["<label>"]
     }
   ]
 }

@@ -43,29 +43,40 @@ print(cmd)
   "hook could not parse command" \
   "The ship gate hook could not parse the shell command JSON from stdin. Fix the hook input or retry."
 
-# Hook self-tests: allow even if the command string mentions git push/merge/tag.
-# Must run before closeout so self-tests never hit live closeout-check.
-printf '%s' "$command" | python3 -c '
-import sys
-cmd = sys.stdin.read()
-for p in (
-    ".cursor/hooks/hooks_test.sh",
-    ".cursor/hooks/check-ship-commands.sh",
-    ".cursor/hooks/check-main-write.sh",
-):
-    if p in cmd:
-        sys.exit(0)
-sys.exit(1)
-' && allow
-
-# Only gate real ship invocations (not matcher false positives like `ls`).
-printf '%s' "$command" | python3 -c '
+# Classify: real ship git first (never allowlist-bypass), then strict self-test.
+ship_class=$(printf '%s' "$command" | python3 -c '
 import re, sys
+
 cmd = sys.stdin.read()
-if re.search(r"(^|[;&|]|&&|\|\|)\s*git\s+(merge|push|tag)\b", cmd):
-    sys.exit(3)
-sys.exit(0)
-' && allow
+GIT_PREFIX = r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*"
+SEP = r"(?:^|[;&|]|&&|\|\|)\s*"
+REAL_SHIP = re.compile(SEP + GIT_PREFIX + r"\s+(merge|push|tag)\b")
+
+PRIMARY_SELF = re.compile(
+    r"^\s*(bash|sh)\s+\.?/?\.cursor/hooks/(hooks_test|check-ship-commands|check-main-write)\.sh(\s|$)"
+)
+PIPE_SELF = re.compile(
+    r"^\s*.+\|\s*\.?/?\.cursor/hooks/check-(ship-commands|main-write)\.sh\s*$"
+)
+
+if REAL_SHIP.search(cmd):
+    print("ship")
+    sys.exit(0)
+if PRIMARY_SELF.search(cmd):
+    print("selftest")
+    sys.exit(0)
+if PIPE_SELF.search(cmd) and not REAL_SHIP.search(cmd):
+    print("selftest")
+    sys.exit(0)
+print("other")
+')
+
+case "$ship_class" in
+  selftest) allow ;;
+  other) allow ;;
+  ship) ;;
+  *) allow ;;
+esac
 
 # Real git merge|push|tag: require SPACECRAFT_SHIP=1, then closeout.
 if [ "${SPACECRAFT_SHIP:-}" != "1" ]; then

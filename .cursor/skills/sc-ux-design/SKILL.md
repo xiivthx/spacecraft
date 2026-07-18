@@ -1,6 +1,7 @@
 ---
 name: sc-ux-design
 description: "UI quality control: anti-slop enforcement, HTML draft previews, animation quality rules, browser visual verification. Activate on slop check, draft preview, visual verify, or UI quality review."
+disable-model-invocation: true
 ---
 
 # sc-ux-design
@@ -40,7 +41,7 @@ After design brief approval, before real implementation:
 
 2. **Every draft MUST include**: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`).
 
-3. **Serve for review**: `node .cursor/skills/sc-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
+3. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
 4. **Iterate** until approved (max 3 rounds - if still unapproved, escalate to user for direction). Only then begin real implementation.
 5. **Before approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
@@ -158,6 +159,7 @@ Before claiming UI implementation is ready:
 
 - `references/anti-slop-catalog.md` - all 46 impeccable.style patterns with detection methods and fixes
 - `references/animation-guidelines.md` - duration standards, easing rules, reduced-motion, anti-patterns
+- `scripts/serve-html.mjs` - local HTML draft preview server
 - `scripts/visual-verify.mjs` - Playwright browser visual verification script
 - `test/fixture-slop.html` - test fixture with known slop patterns for script validation
 - [impeccable.style/slop](https://impeccable.style/slop) - source catalog (2026-07-10)

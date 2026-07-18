@@ -35,25 +35,29 @@ See the [installation guide](docs/installation.md) for setup and verification de
 
 ## Quick start
 
-Open the project in Cursor and run the workflow skills in chat:
+Open the project in Cursor. User-facing slash skills are only `/sc-run` and `/sc-ship`:
 
 ```text
-/sc-start
-/sc-plan
-/sc-build
+/sc-run <roadmap-id>
 /sc-ship
 ```
 
-These are explicit Cursor skills stored under `.cursor/skills/`. Spacecraft does not use `.cursor/commands/`.
+Flow:
 
-The core lifecycle is:
+1. Clarify first (human) - answer blocking questions; clear clarify-status.
+2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (plan/build/review via agents).
+3. Human checks the ready work.
+4. `/sc-ship` validates and closes out only when explicitly requested.
 
-1. `/sc-start` creates a feature branch and mission artifacts.
-2. `/sc-plan` turns the mission spec into a small, verifiable plan.
-3. `/sc-build` delegates implementation and testing, then captures evidence.
-4. `/sc-ship` validates and closes out the mission only when explicitly requested.
+Roadmap selection helpers:
 
-Additional workflow skills include `/sc-design`, `/sc-review`, `/sc-quick`, `/sc-research`, `/sc-resume`, and `/sc-debug`.
+```sh
+spacecraft map use <roadmap-id>   # set current roadmap
+spacecraft map current            # print current roadmap id
+spacecraft map next               # next incomplete mission on current/named roadmap
+```
+
+Skills live under `.cursor/skills/`. Legacy slash skills (`/sc-start`, `/sc-plan`, `/sc-build`, and others) are archived under `.deleted/skills/` and are not primary UX. Spacecraft does not use `.cursor/commands/`.
 
 ## Cursor modes
 
@@ -62,10 +66,8 @@ Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workfl
 | User intent | Spacecraft lane | Cursor mode / action |
 |---|---|---|
 | Ask / explain | Advisory | Ask Mode (or Agent with no writes) |
-| Spec / design / plan | Mission (pre-build) | Plan Mode + `/sc-plan` |
-| Implement | Mission (build) | Agent + Task(`sc-coder` / `sc-tester`) |
-| Bug hunt | Debug | Debug Mode + `/sc-debug` |
-| Formal review | Review | Agent Review / Task(`sc-reviewer`) + `/sc-review` |
+| Roadmap mission work | Mission | Agent + `/sc-run` (orchestrates plan/build/review) |
+| Bug hunt | Debug | Cursor Debug Mode (no slash skill) |
 | Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
 | Small edit / commit | Quick | Agent (no full mission gates) |
 
@@ -107,7 +109,7 @@ Run the repository binary as `./spacecraft`, or use `spacecraft` after installat
 | `spacecraft closeout-check` | Check whether a mission is ready to close out, alias: `ship-check` |
 | `spacecraft ship-check` | Alias for `closeout-check` |
 | `spacecraft archive [selector]` | Archive a shipped mission |
-| `spacecraft roadmap <new\|add\|rm\|ls\|show\|next\|archive> [...]` | Manage roadmaps, alias: `map` |
+| `spacecraft roadmap <new\|add\|rm\|ls\|show\|next\|archive\|use\|current> [...]` | Manage roadmaps, alias: `map`. `map use` / `map current` / `map next` support `/sc-run` |
 | `spacecraft help` | Show live CLI help |
 
 Mission states progress as:
@@ -168,5 +170,15 @@ make gate
 ```
 
 On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft status` (or `No active spacecraft mission.`) so the agent gets mission context.
+
+## Lean profile
+
+User-facing slash skills: **`/sc-run`** and **`/sc-ship` only**.
+
+- **HIL:** clarify gray areas, then final check + `/sc-ship`
+- **AFK:** `/sc-run` loops `map next` until missions are `ready` or blocked
+- **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, …)
+- **Archived** under `.deleted/skills/`: old slash entry points (`sc-start`, `sc-plan`, `sc-build`, …) and niche skills (eval, pathfinder, memory, …)
+- **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design` - glob rules still apply
 
 Project behavior and policy are defined by the always-on files in `.cursor/rules/`.

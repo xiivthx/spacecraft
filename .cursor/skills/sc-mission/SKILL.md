@@ -1,6 +1,6 @@
 ---
 name: sc-mission
-description: "Manage mission artifacts and lifecycle. Activate on /sc-start, mission creation, status check, or lifecycle management."
+description: "Manage mission artifacts and lifecycle. Activate on /sc-run mission work, mission creation, status check, or lifecycle management."
 ---
 
 # sc-mission
@@ -25,8 +25,8 @@ Use this exact sequence unless the user specifies otherwise:
 2. **Read artifacts** - Read `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
 3. **Index artifacts** - After creating or updating spec.md, plan.json, decisions.md, or questions.md, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort: warn on failure, never block). See sc-memory for conventions.
 4. **Route ambiguity** - If intent, scope, or acceptance criteria is ambiguous, route to sc-clarify before proceeding.
-5. **Enforce lifecycle** - Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Repeat build -> verify -> checkpoint commit for successive tasks.
-6. **Release or handoff** - On ship intent, run release closeout. On session end, give handoff summary.
+5. **Enforce lifecycle** - Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. For roadmap AFK, `/sc-run` orchestrates plan/build/review. Repeat build -> verify -> checkpoint commit for successive tasks.
+6. **Release or handoff** - On ship intent, run `/sc-ship` closeout. On session end, give handoff summary.
 
 ### Edge cases
 

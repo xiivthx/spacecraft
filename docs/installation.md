@@ -89,7 +89,7 @@ The help output should begin with `Spacecraft mission helper` and list the missi
 After restarting Cursor:
 
 1. Open the installed project.
-2. Confirm `/sc-start`, `/sc-plan`, `/sc-build`, and `/sc-ship` are available as skills.
+2. Confirm `/sc-run` and `/sc-ship` are available as skills.
 3. Confirm the seven agents are discoverable: `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, and `sc-firmware`.
 4. Approve the project MCP server if Cursor asks for confirmation.
 
@@ -106,9 +106,7 @@ spacecraft init
 Then begin in Cursor:
 
 ```text
-/sc-start
-/sc-plan
-/sc-build
+/sc-run
 /sc-ship
 ```
 

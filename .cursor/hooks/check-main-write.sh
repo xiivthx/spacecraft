@@ -33,51 +33,72 @@ print(cmd)
   "hook could not parse command" \
   "The main-write hook could not parse the shell command JSON from stdin. Fix the hook input or retry."
 
-# Hook self-tests: allow before branch/mutation checks (JSON may mention git verbs).
-printf '%s' "$command" | python3 -c '
-import sys
-cmd = sys.stdin.read()
-for p in (
-    ".cursor/hooks/hooks_test.sh",
-    ".cursor/hooks/check-ship-commands.sh",
-    ".cursor/hooks/check-main-write.sh",
-):
-    if p in cmd:
-        sys.exit(0)
-sys.exit(1)
-' && allow
-
-if [ -n "${SPACECRAFT_HOOK_BRANCH_OVERRIDE:-}" ]; then
+# Override may be explicitly empty (detached HEAD simulation); treat set-even-if-empty.
+if [ "${SPACECRAFT_HOOK_BRANCH_OVERRIDE+set}" = "set" ]; then
   branch="$SPACECRAFT_HOOK_BRANCH_OVERRIDE"
 else
   branch=$(git branch --show-current 2>/dev/null || true)
 fi
 
+# Detached HEAD / empty branch: fail closed. Optionally map HEAD to main/master tip name.
 case "$branch" in
   main|master) ;;
+  "")
+    head=$(git rev-parse HEAD 2>/dev/null || true)
+    if [ -n "$head" ]; then
+      main_tip=$(git rev-parse main 2>/dev/null || true)
+      master_tip=$(git rev-parse master 2>/dev/null || true)
+      if [ -n "$main_tip" ] && [ "$head" = "$main_tip" ]; then
+        branch=main
+      elif [ -n "$master_tip" ] && [ "$head" = "$master_tip" ]; then
+        branch=master
+      fi
+    fi
+    ;;
   *) allow ;;
 esac
 
-# Mutating git on main/master (real invocations, not mere mention in strings)
-printf '%s' "$command" | python3 -c '
+# On main/master (or unknown empty): mutate first, then strict self-test only.
+mw_class=$(printf '%s' "$command" | python3 -c '
 import re, sys
+
 cmd = sys.stdin.read()
-patterns = [
-    r"(^|[;&|]|&&|\|\|)\s*git\s+commit\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+merge\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+rebase\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+cherry-pick\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+reset\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+push\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+am\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+pull\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+tag\b",
-    r"(^|[;&|]|&&|\|\|)\s*git\s+branch\s+(-D|--delete\s+-f|--force\s+-d)\b",
-]
-for p in patterns:
-    if re.search(p, cmd):
-        sys.exit(3)
-sys.exit(0)
-' && allow || deny \
-  "Mutating git on main/master is blocked. Use a feature branch (feat/<id>/<title>). Never write on main." \
-  "You are on main/master. Do not run mutating git commands here. Checkout a feature branch first: git checkout -b feat/<id>/<title>"
+GIT_PREFIX = r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*"
+SEP = r"(?:^|[;&|]|&&|\|\|)\s*"
+
+MUTATE = re.compile(
+    SEP + GIT_PREFIX + r"\s+(commit|merge|rebase|cherry-pick|reset|push|am|pull|tag)\b"
+)
+BRANCH_DEL = re.compile(
+    SEP + GIT_PREFIX + r"\s+branch\s+(-D|--delete\s+-f|--force\s+-d)\b"
+)
+
+PRIMARY_SELF = re.compile(
+    r"^\s*(bash|sh)\s+\.?/?\.cursor/hooks/(hooks_test|check-ship-commands|check-main-write)\.sh(\s|$)"
+)
+PIPE_SELF = re.compile(
+    r"^\s*.+\|\s*\.?/?\.cursor/hooks/check-(ship-commands|main-write)\.sh\s*$"
+)
+
+has_mutate = bool(MUTATE.search(cmd) or BRANCH_DEL.search(cmd))
+if has_mutate:
+    print("mutate")
+    sys.exit(0)
+if PRIMARY_SELF.search(cmd):
+    print("selftest")
+    sys.exit(0)
+if PIPE_SELF.search(cmd):
+    print("selftest")
+    sys.exit(0)
+print("other")
+')
+
+case "$mw_class" in
+  mutate)
+    deny \
+      "Mutating git on main/master is blocked. Use a feature branch (feat/<id>/<title>). Never write on main." \
+      "You are on main/master. Do not run mutating git commands here. Checkout a feature branch first: git checkout -b feat/<id>/<title>"
+    ;;
+  selftest|other) allow ;;
+  *) allow ;;
+esac

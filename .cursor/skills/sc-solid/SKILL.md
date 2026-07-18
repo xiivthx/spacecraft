@@ -1,6 +1,7 @@
 ---
 name: sc-solid
 description: "Code quality discipline. Activate on SOLID, clean code, refactoring, architecture decisions, or code review."
+disable-model-invocation: true
 ---
 
 # sc-solid

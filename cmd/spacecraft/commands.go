@@ -77,7 +77,7 @@ func newCmd(args []string, spaceDir string) int {
 	writeCurrent(spaceDir, id)
 
 	fmt.Printf("Created mission %s\n", id)
-	fmt.Println("Next: /sc-plan")
+	fmt.Println("Next: /sc-run")
 	return 0
 }
 
@@ -128,7 +128,7 @@ func useCmd(args []string, spaceDir string) int {
 func currentCmd(spaceDir string) int {
 	cur := readCurrent(spaceDir)
 	if cur == "" {
-		fmt.Println("No current mission. Start one with /sc-start <title>.")
+		fmt.Println("No current mission. Use spacecraft new then /sc-run.")
 		return 0
 	}
 	fmt.Println(cur)
@@ -163,7 +163,7 @@ func resolveCmd(args []string, spaceDir, mid string) int {
 func statusCmd(spaceDir, mid string) int {
 	id := resolveActive(spaceDir, mid)
 	if id == "" {
-		fmt.Println("No selected mission. Start one with /sc-start <title>.")
+		fmt.Println("No selected mission. Use spacecraft new then /sc-run.")
 		return 0
 	}
 	m, err := readMission(spaceDir, id)
@@ -185,7 +185,7 @@ func statusCmd(spaceDir, mid string) int {
 func flowCmd(spaceDir, mid string) int {
 	id := resolveActive(spaceDir, mid)
 	if id == "" {
-		fmt.Println("No selected mission. Start one with /sc-start <title>.")
+		fmt.Println("No selected mission. Use spacecraft new then /sc-run.")
 		return 0
 	}
 	m, err := readMission(spaceDir, id)
@@ -202,12 +202,10 @@ func flowCmd(spaceDir, mid string) int {
 
 func nextStep(state string) string {
 	switch state {
-	case "active":
-		return "/sc-plan"
-	case "planned":
-		return "/sc-build"
+	case "active", "planned":
+		return "/sc-run"
 	case "in_progress":
-		return "/sc-build (continue) then /sc-review"
+		return "/sc-run (continue)"
 	case "ready":
 		return "/sc-ship"
 	case "blocked":
@@ -215,7 +213,7 @@ func nextStep(state string) string {
 	case "shipped":
 		return "archive"
 	default:
-		return "/sc-start"
+		return "/sc-run or spacecraft new"
 	}
 }
 
