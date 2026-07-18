@@ -19,29 +19,28 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** - `spacecraft resolve --json`. Block if safety ≠ `safe`.
+1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 
 2. **Inspect context** - Before asking the user ANY question, exhaust these sources:
    - Mission `spec.md` - is the answer already stated?
    - `questions.md` - was this already asked?
    - `decisions.md` - was a decision already recorded?
    - Repo files - can the answer be found by reading code?
-   - If the question is about ecosystem conventions or API usage, run `spacecraft research "<query>"` first.
+   - If the question is about ecosystem conventions or API usage, use sc-search (WebSearch/WebFetch) first.
    - **If the answer exists in any of these sources, do not ask the user.**
 
 3. **Classify** - Categorize the ambiguity:
    - **blocking** - cannot safely plan, design, or implement without user input
    - **non-blocking** - can proceed with an explicit assumption written to `decisions.md`
-   - **researchable** - answer by reading files, code, or running `spacecraft research`
+   - **researchable** - answer by reading files, code, or sc-search (WebSearch/WebFetch)
 
-4. **Ask one question** - If blocking: ask exactly one question. Format:
+4. **Ask one question** - If blocking: ask exactly one question. Present it directly in the chat. Format:
    ```
    **Question:** <one clear sentence>
    **Why it matters:** <one sentence on impact>
    **Recommendation:** <your suggested answer with brief rationale>
    **If accepted:** <what happens next - one sentence>
    ```
-   Use `spacecraft ask` if available, otherwise present directly.
 
 5. **Record** - After the user answers:
    - Record the question and answer in `questions.md` under `### Answered`
@@ -90,7 +89,7 @@ Use this exact sequence unless the user specifies otherwise:
 ## Checklist
 
 - [ ] Mission resolved, context inspected
-- [ ] Research auto-trigger checked (if applicable)
+- [ ] Research auto-trigger checked via sc-search (if applicable)
 - [ ] Ambiguity classified (blocking / non-blocking / researchable)
 - [ ] One blocking question asked at a time (if needed)
 - [ ] Question includes: question + why + recommendation + what-if-accepted
@@ -102,4 +101,4 @@ Use this exact sequence unless the user specifies otherwise:
 
 - `questions.md` - open and answered questions per mission
 - `decisions.md` - confirmed choices, assumptions, and deferrals
-- `spacecraft research --help` - research subcommand
+- sc-search - WebSearch/WebFetch escalation for researchable questions

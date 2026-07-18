@@ -1,5 +1,5 @@
 ---
-description: Database design — schema, migrations, queries, indexes (PostgreSQL default)
+description: Database design - schema, migrations, queries, indexes (PostgreSQL default)
 alwaysApply: false
 globs:
   - "**/migrations/**"
@@ -27,11 +27,11 @@ When designing schemas, writing migrations, or optimizing queries:
 - **Reversible**: every `up` migration should have a corresponding `down`
 - **Atomic**: one migration = one logical change (add table, add column, add index)
 - **No data in schema migrations**: data seeding goes in seed files, not migrations
-- **Test migrations**: run `up`, verify schema, run `down`, verify clean — before committing
+- **Test migrations**: run `up`, verify schema, run `down`, verify clean - before committing
 - **Lock-aware**: avoid `ALTER TABLE ... ADD COLUMN DEFAULT ...` on large tables without batching
 
 ### Indexes
-- **Primary key**: always — UUID or BIGSERIAL
+- **Primary key**: always - UUID or BIGSERIAL
 - **Foreign keys**: always index FK columns
 - **Query patterns**: index columns used in WHERE, JOIN, ORDER BY, DISTINCT
 - **Composite indexes**: most selective column first. For `WHERE a=1 AND b=2` use `(a, b)` if a is more selective
@@ -45,11 +45,11 @@ When designing schemas, writing migrations, or optimizing queries:
 - **Batching**: use `INSERT INTO ... VALUES (...), (...), (...)` for bulk inserts
 - **Connection pooling**: configure pool size = (2 * CPU cores) + effective disk count
 - **Prepared statements**: use parameterized queries for repeated calls
-- **Avoid in-app joins**: let the database do JOINs — it's faster than looping in code
+- **Avoid in-app joins**: let the database do JOINs - it's faster than looping in code
 
 ### PostgreSQL-Specific
 - **VACUUM**: understand autovacuum behavior for tables with heavy UPDATE/DELETE
-- **Connection limits**: default max_connections=100, but each connection costs ~10MB — pool accordingly
+- **Connection limits**: default max_connections=100, but each connection costs ~10MB - pool accordingly
 - **Extensions**: `pg_stat_statements` for query analysis, `uuid-ossp` for UUID generation, `pgcrypto` for hashing
 - **JSONB**: use for flexible/dynamic attributes. Index with GIN. Don't use for relational data.
 

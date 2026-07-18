@@ -17,7 +17,7 @@ Check mission state and design decisions to determine the phase:
 
 | Condition | Phase | Behavior |
 |-----------|-------|----------|
-| State is `draft`, or no design decisions exist | **Design** | Shape UI direction, record decisions, update spec/plan |
+| State is `active`, or no design decisions exist | **Design** | Shape UI direction, record decisions, update spec/plan |
 | State is `planned` or later, AND design decisions exist | **Polish** | Small UI fixes before ship |
 
 If ambiguous (e.g. `planned` but no design decisions), ask the user which phase and stop. Do not assume.
@@ -36,7 +36,7 @@ Goal: clear the main design image before planning or implementation.
 4. Record chosen direction, rejected directions, assumptions, and open design risks in decisions.md.
 5. When enough configs are chosen, synthesize into one design brief instead of keeping earlier options as packages.
 6. **Review gate** - Invoke /sc-reviewer as a read-only subagent to review the design decisions against DESIGN.md. The reviewer checks: anti-slop, option diversity (not same-y), Feynman clarity, Thai-first where applicable, art direction consistency. If the reviewer flags issues, fix them.
-7. Set mission state to draft/planned depending on progress.
+7. Set mission state with `spacecraft set-state [mission-id] active|planned` depending on progress.
 
 ### Constraints
 
@@ -78,7 +78,7 @@ End with session advice. Prefer continuing this chat for immediate verification,
 
 ## Research auto-trigger
 
-When design decisions involve unfamiliar UI patterns, accessibility standards, or CSS framework capabilities, run `spacecraft research "<topic>"` before committing to a design direction.
+When design decisions involve unfamiliar UI patterns, accessibility standards, or CSS framework capabilities, use sc-search (WebSearch/WebFetch) for `"<topic>"` before committing to a design direction.
 
 ## Hard stop gates
 

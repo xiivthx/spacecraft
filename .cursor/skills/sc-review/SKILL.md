@@ -120,7 +120,7 @@ Then transition state:
 
 ## Research auto-trigger
 
-When review findings involve unfamiliar code patterns, security concerns, or framework-specific anti-patterns, run `spacecraft research "<topic>"` before flagging as critical. Informed review beats pattern-matching.
+When review findings involve unfamiliar code patterns, security concerns, or framework-specific anti-patterns, use sc-search (WebSearch/WebFetch) for `"<topic>"` before flagging as critical. Informed review beats pattern-matching.
 
 ## Hard stop gates
 

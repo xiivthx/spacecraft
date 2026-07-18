@@ -110,7 +110,7 @@ Command output in evidence.jsonl must be actual captured output -- never fabrica
 
 ## Standards
 
-- Never use the em dash ("-"). Use plain dash instead.
+- Never use the Unicode em dash (U+2014). Use plain ASCII hyphen-minus (`-`) instead.
 - Never manually modify CHANGELOG.md or any auto-generated files.
 - Bug fixes: reproduce in E2E setting as close to end-user experience as possible before fixing.
 - Lint, test failures, and test flakiness get fixed even if not caused by current work.

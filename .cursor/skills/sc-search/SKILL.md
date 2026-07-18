@@ -35,13 +35,13 @@ When Tier 1 returns a specific relevant URL.
 - Timeout: ~10s. If the page doesn't resolve the question, escalate.
 - Alternative: use `ctx_fetch_and_index` to fetch + index, then `ctx_search` to query - useful when you need to cross-reference multiple sources or re-query the same page.
 
-### Tier 3 - Systematic research (`spacecraft research`)
+### Tier 3 - Multi-source synthesis (deeper WebSearch / WebFetch)
 
-When Tiers 1–2 are insufficient, or the topic matches a known scope.
-- Run `spacecraft research "<query>"` with relevant flags.
-- If the topic matches a known scope (React, Go, PostgreSQL, Tailwind, etc.), use `--scope`.
-- For deep investigation, use `--deep true`.
-- Timeout: ~10s. `spacecraft research` uses Brave Search for scoped, versioned results.
+When Tiers 1–2 are insufficient.
+- Run additional `WebSearch` queries with refined terms (version pins, migration guides, changelogs).
+- `WebFetch` 2–4 high-signal sources (official docs, release notes, issue trackers).
+- Synthesize: prefer primary docs over secondary blogs; note contradictions; record the concrete answer and sources.
+- For explicit systematic research sessions, the user may invoke `/sc-research`, which wraps these same tiers.
 
 ### Tier 4 - Ask user
 
@@ -57,7 +57,7 @@ When all tiers fail to resolve the question.
 - **Must**: Record findings in mission context (decisions.md, questions.md, or session notes). Don't just stash them.
 - **Must**: If all tiers fail, ask the user exactly one question with the context gathered so far.
 - **Must not**: Skip tiers in the general case - even obvious answers deserve a quick search for confirmation. The only exceptions are the shortcuts in the table below.
-- **Must not**: Use this skill for systematic literature reviews or multi-source synthesis - use `/sc-research` or `spacecraft research` directly.
+- **Must not**: Use this skill for long systematic literature reviews - use `/sc-research` for that wrapper.
 - **Must not**: Use for casual browsing or curiosity - only for blocking technical questions.
 
 ## Tier shortcuts
@@ -68,20 +68,20 @@ When the topic is immediately recognizable, shortcut to the appropriate tier:
 |----------|----------|
 | Exact error message | Tier 1 (WebSearch) |
 | Known package, need latest version | Tier 2 (WebFetch npm/pypi/crates.io, or ctx_fetch_and_index → ctx_search) |
-| Framework best practice (React, Go, etc.) | Tier 3 (spacecraft research --scope) |
+| Framework best practice (React, Go, etc.) | Tier 3 (multi-source WebSearch/WebFetch) |
 | "How do I...?" with no specific docs | Tier 1 → escalate as needed |
 
 ## Out of scope
 
-- Systematic literature review - use `/sc-research` or `spacecraft research` directly
+- Systematic literature review sessions - use `/sc-research`
 - Debugging discipline - use sc-debug
 - Requirement clarification - use sc-clarify
 - Architectural decisions - use sc-architect
 
 ## References
 
-- `spacecraft research --help` - research subcommand flags and usage
 - `WebSearch` tool - Cursor built-in web search
 - `WebFetch` tool - Cursor built-in page fetcher
+- `/sc-research` - explicit systematic research wrapper around these tiers
 - `decisions.md` - record findings that affect mission direction
 - `questions.md` - record open questions escalated to the user

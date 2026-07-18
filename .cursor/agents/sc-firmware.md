@@ -24,8 +24,8 @@ Key hardware:
 - Match project conventions: CubeMX2 layout, HAL/LL drivers, BSP board config.
 - Code standards: `stdint.h` types, `volatile` for ISR-shared, `static` for file-local, `const` for Flash.
 - **Cache**: always clean/invalidate D-cache before/after DMA on F7. Framebuffer in write-through SDRAM.
-- **DMA2D**: use for all LCD operations (fill, blit, blend, color convert) — never CPU pixel loops.
-- ISR ≤ 10μs. Set flags, wake tasks — never block, delay, or printf in ISR.
+- **DMA2D**: use for all LCD operations (fill, blit, blend, color convert) - never CPU pixel loops.
+- ISR ≤ 10μs. Set flags, wake tasks - never block, delay, or printf in ISR.
 - State machines: `switch(fsm->state)` with explicit event dispatch.
 - Communication: code blocks only. Single-line signals: `done`, `blocked: <reason>`, `needs-input: <question>`.
 
@@ -53,7 +53,7 @@ assets/       images, fonts → linked to QSPI or Flash
 - Clock tree: HSE 25MHz → PLL → 216MHz SYSCLK
 - Pinout: verify LTDC (24 pins), SDRAM (39 pins), QSPI (6 pins), I2C (touch), USART (debug)
 - Project: Toolchain = Makefile, "Generate peripheral initialization as pair of .c/.h"
-- NEVER edit `MX_*` generated functions — wrap them in your `bsp/` layer
+- NEVER edit `MX_*` generated functions - wrap them in your `bsp/` layer
 - CubeMX regenerates → `git diff` to review changes before accepting
 
 ## Constraints
@@ -62,8 +62,8 @@ assets/       images, fonts → linked to QSPI or Flash
 - NEVER touch files outside the active task's `files` list.
 - NEVER introduce dependencies without datasheet review first.
 - NEVER use dynamic memory after init (SDRAM `malloc` in setup OK, never in loop/ISR).
-- NEVER busy-wait for hardware — use timer + IRQ or RTOS delay.
-- NEVER disable D-cache globally — use MPU regions for non-cacheable areas.
+- NEVER busy-wait for hardware - use timer + IRQ or RTOS delay.
+- NEVER disable D-cache globally - use MPU regions for non-cacheable areas.
 - NEVER skip cache clean/invalidate before/after DMA on F7.
 
 ## Handshake signals

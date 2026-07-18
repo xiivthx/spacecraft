@@ -27,11 +27,11 @@ If the user wants an existing mission instead of a new one, run `spacecraft miss
 7. Identify gray areas before planning or implementation.
 8. If there is a blocking ambiguity, ask exactly one question and stop. Include your recommended answer.
 9. If no blocking ambiguity exists, record assumptions in decisions.md and set clarification status to clear.
-10. Set state to draft (default) when the mission has enough clarity for the initial spec.
+10. Keep state `active` (default) when the mission has enough clarity for the initial spec. Use `spacecraft set-state [mission-id] <new-state>` when a later transition is needed.
 
 ## Research auto-trigger
 
-When mission scope involves unfamiliar tools, frameworks, or APIs, run `spacecraft research "<topic>"` before drafting the initial spec. A well-informed spec eliminates downstream replanning.
+When mission scope involves unfamiliar tools, frameworks, or APIs, use sc-search (WebSearch/WebFetch) for `"<topic>"` before drafting the initial spec. A well-informed spec eliminates downstream replanning.
 
 ## Hard stop gates
 

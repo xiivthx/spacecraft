@@ -128,7 +128,7 @@ Produce a summary: mission id, what changed, git branch/merge info, suggested co
 
 ## Research auto-trigger
 
-When quick-lane changes touch unfamiliar tooling, configuration, or dependency APIs, run `spacecraft research "<topic>"` before committing. Fast lane is not skip-research lane.
+When quick-lane changes touch unfamiliar tooling, configuration, or dependency APIs, use sc-search (WebSearch/WebFetch) for `"<topic>"` before committing. Fast lane is not skip-research lane.
 
 ## Hard Stop Gates
 

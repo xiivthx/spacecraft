@@ -21,7 +21,7 @@ For large, multi-mission work (>7 tasks), create a roadmap first.
 ### Create roadmap
 1. Run `spacecraft roadmap new "<title>"` (or `spacecraft map new "<title>"`)
 2. Confirm `.space/roadmaps/<id>.json` matches the schema from conventions
-3. Missions array starts empty — populate as missions are created
+3. Missions array starts empty - populate as missions are created
 
 ### Add mission to roadmap
 When starting a mission that belongs to a roadmap:
@@ -41,7 +41,7 @@ When all missions shipped:
 
 ## GitHub Issues Workflow
 
-### Bug radar — auto-create issues
+### Bug radar - auto-create issues
 When you discover a bug, incorrect workflow, or broken assumption during ANY lane:
 1. Create issue: `gh issue create --title "<title>" --body "<body>" --label bug`
 2. If mission has a roadmap, add issue to roadmap's `issues` array
@@ -59,7 +59,7 @@ When user says "fix issue #N":
 Active mission is detected from branch name. No explicit selection needed.
 
 To find the active mission:
-1. `git branch --show-current` — extract ID from `feat/<id>/<title>`
+1. `git branch --show-current` - extract ID from `feat/<id>/<title>`
 2. Read `.space/missions/<id>/mission.json` for full context
 
 To list all missions:
@@ -67,14 +67,16 @@ To list all missions:
 ls -1 .space/missions/
 ```
 
-To set mission state:
+To set mission state (mission-id optional when resolved from branch/current):
 ```
-spacecraft state <mission-id> <new-state>
+spacecraft set-state [mission-id] <state>
+# or
+spacecraft state [mission-id] <state>
 ```
-Valid states: active, planned, in_progress, ready, blocked, shipped.
+State machine: active → planned → in_progress → ready → shipped (+ blocked).
 Invalid transitions are rejected (e.g., shipped → active is blocked).
 
-Canonical CLI commands are `spacecraft evidence`, `spacecraft validate`, `spacecraft state`, and `spacecraft roadmap`. The supported short aliases are `evi`, `val`, and `map`.
+Canonical CLI commands are `spacecraft evidence`, `spacecraft validate`, `spacecraft set-state` / `spacecraft state`, and `spacecraft roadmap`. The supported short aliases are `evi`, `val`, and `map`.
 
 ## Clarification Management
 
@@ -111,7 +113,7 @@ To defer: `echo "deferred" > ...`
    - Capture evidence: `spacecraft evidence <label> -- <test-command>`
    - Mark task done, checkpoint commit
 5. When all tasks done: validate artifacts: `spacecraft validate`
-6. Set state: `spacecraft state <id> ready`
+6. Set state: `spacecraft set-state ready`
 
 ### Review -- Formal review
 1. Delegate to the Cursor subagent `sc-reviewer`
@@ -124,7 +126,7 @@ Only on explicit user command (`ship it`, `merge`, `/sc-ship`):
 2. Rebase on main: `git fetch origin && git rebase origin/main`
 3. Push: `git push origin feat/<id>/<title>`
 4. Merge on GitHub (or `git checkout main && git merge --no-ff feat/<id>/<title> && git push origin main`)
-5. Set state: `spacecraft state <id> shipped`
+5. Set state: `spacecraft set-state shipped`
 6. Archive: `mv .space/missions/<id> .space/archive/`
 
 ## Quick Lane
@@ -147,13 +149,13 @@ Skips spec.md, plan.json, TDD build, formal review.
 You are an orchestrator, not an implementer. Delegate all source code writing and testing to subagents. Never write or edit source files directly.
 
 **Available subagents:**
-- `sc-coder` — implements production code (write-capable)
-- `sc-tester` — writes tests, captures evidence (write-capable)
-- `sc-planner` — converts spec to plan.json (read-only)
-- `sc-reviewer` — reviews diff, evidence, release readiness (read-only)
-- `sc-designer` — UI critique, anti-slop review (read-only)
-- `sc-adviser` — complex system design guidance (read-only)
-- `sc-firmware` — embedded C firmware, STM32 HAL, protocol, peripheral (write-capable)
+- `sc-coder` - implements production code (write-capable)
+- `sc-tester` - writes tests, captures evidence (write-capable)
+- `sc-planner` - converts spec to plan.json (read-only)
+- `sc-reviewer` - reviews diff, evidence, release readiness (read-only)
+- `sc-designer` - UI critique, anti-slop review (read-only)
+- `sc-adviser` - complex system design guidance (read-only)
+- `sc-firmware` - embedded C firmware, STM32 HAL, protocol, peripheral (write-capable)
 
 **Delegation patterns:**
 - Web/app code: delegate to sc-coder

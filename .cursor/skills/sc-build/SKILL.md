@@ -30,7 +30,7 @@ sc-git hygiene checks auto-trigger silently during pre-flight: `git-info`, branc
 
 Before code or dependency changes, check official current docs/registry/releases for direct dependencies and framework APIs. Use latest stable direct versions unless a deep dependency, ecosystem pin, or explicit user instruction says otherwise. Record source/version/date when it affects implementation.
 
-When versions or APIs are uncertain, run `spacecraft research "<package> latest version"` before installing. Do not guess dependency versions.
+When versions or APIs are uncertain, use sc-search (WebSearch/WebFetch) for `"<package> latest version"` before installing. Do not guess dependency versions.
 
 ## Per-task loop
 
@@ -96,7 +96,7 @@ If implementing UI:
 
 ## Research auto-trigger
 
-When versions or APIs are uncertain, run `spacecraft research "<package> latest version"` before installing. Do not guess dependency versions. This applies to direct dependencies, framework APIs, and breaking-change migrations.
+When versions or APIs are uncertain, use sc-search (WebSearch/WebFetch) for `"<package> latest version"` before installing. Do not guess dependency versions. This applies to direct dependencies, framework APIs, and breaking-change migrations.
 
 ## Hard stop gates
 

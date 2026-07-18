@@ -86,14 +86,12 @@ Run the repository binary as `./spacecraft`, or use `spacecraft` after installat
 | `spacecraft bind-branch [selector]` | Bind the current branch to a mission |
 | `spacecraft git-info` | Show Git worktree status |
 | `spacecraft git-suggest [type] [slug]` | Suggest branch and commit conventions |
-| `spacecraft set-state <mission-id> <new-state>` | Set mission state, alias: `state` |
+| `spacecraft set-state [mission-id] <new-state>` | Set mission state (mission-id optional when resolved from branch or current), alias: `state` |
 | `spacecraft clarify-status <open\|clear\|deferred>` | Set clarification status |
 | `spacecraft evidence [--mission <id>] <label> -- <command...>` | Run a command and capture evidence, alias: `evi` |
 | `spacecraft validate [mission-id]` | Validate mission artifacts and evidence, alias: `val` |
 | `spacecraft closeout-check` | Check whether a mission is ready to close out |
 | `spacecraft archive [selector]` | Archive a shipped mission |
-| `spacecraft research <query> [flags]` | Search registries and the web |
-| `spacecraft check-deps [flags]` | Check project dependencies against registries |
 | `spacecraft roadmap <new\|add\|rm\|ls\|show\|next\|archive> [...]` | Manage roadmaps, alias: `map` |
 | `spacecraft help` | Show live CLI help |
 

@@ -49,7 +49,7 @@ func main() {
 	case "git-suggest":
 		os.Exit(gitSuggestCmd(args, mid))
 	case "state", "set-state":
-		os.Exit(stateCmd(args, spaceDir))
+		os.Exit(stateCmd(args, spaceDir, mid))
 	case "clarify-status":
 		os.Exit(clarifyStatusCmd(args, spaceDir, mid))
 	case "evi", "evidence":
@@ -60,10 +60,6 @@ func main() {
 		os.Exit(closeoutCmd(spaceDir, mid))
 	case "archive":
 		os.Exit(archiveCmd(args, spaceDir, mid))
-	case "research":
-		os.Exit(researchCmd(args))
-	case "check-deps":
-		os.Exit(checkDepsCmd(args, cwd))
 	case "map", "roadmap":
 		os.Exit(mapCmd(args, spaceDir, cwd))
 	case "-h", "--help", "help":
@@ -100,7 +96,7 @@ Usage:
       Show git worktree status.
   spacecraft git-suggest [type] [slug]
       Suggest a branch name and commit conventions.
-  spacecraft set-state <mission-id> <new-state>
+  spacecraft set-state [mission-id] <new-state>
       Set mission state (alias: state).
   spacecraft clarify-status <open|clear|deferred>
       Set clarification status for the resolved mission.
@@ -112,10 +108,6 @@ Usage:
       Check whether a mission is ready to close out.
   spacecraft archive [selector]
       Archive a shipped mission.
-  spacecraft research <query> [flags]
-      Search registries and the web for a query.
-  spacecraft check-deps [flags]
-      Check project dependencies against registries.
   spacecraft roadmap <new|add|rm|ls|show|next|archive> [...]
       Manage roadmaps in .space/roadmaps/ (alias: map).
   spacecraft help

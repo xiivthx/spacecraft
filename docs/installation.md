@@ -82,7 +82,7 @@ When using the repository binary directly:
 ./spacecraft help
 ```
 
-The help output should begin with `Spacecraft mission helper` and list the mission, evidence, validation, research, dependency, and roadmap commands.
+The help output should begin with `Spacecraft mission helper` and list the mission, evidence, validation, and roadmap commands.
 
 ## Verify Cursor discovery
 

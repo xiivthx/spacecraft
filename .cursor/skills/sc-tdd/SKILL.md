@@ -182,7 +182,7 @@ Cycle 1/3: <acceptance check description>
 ### Edge cases
 
 - **Test passes without implementation** - The test is not testing the right thing. Reject and re-write.
-- **Test framework unfamiliar** - Run `spacecraft research "<framework> assertion API"` before writing tests. Wrong assertions produce false confidence.
+- **Test framework unfamiliar** - Use sc-search (WebSearch/WebFetch) for `"<framework> assertion API"` before writing tests. Wrong assertions produce false confidence.
 - **No acceptance checks in plan.json** - Cannot verify against acceptance criteria. Ask for a plan first.
 
 ## References

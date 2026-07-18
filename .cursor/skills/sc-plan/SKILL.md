@@ -49,6 +49,6 @@ If the mission includes UI, use sc-design and read DESIGN.md. If UI art directio
 
 ## Research auto-trigger
 
-When planning tasks that involve unfamiliar APIs, frameworks, or dependency versions, run `spacecraft research "<query>"` before committing to task acceptance criteria that depend on that knowledge.
+When planning tasks that involve unfamiliar APIs, frameworks, or dependency versions, use sc-search (WebSearch/WebFetch) for `"<query>"` before committing to task acceptance criteria that depend on that knowledge.
 
 End with the recommended next action, issues/assumptions recorded, and session advice. Recommend `/sc-build` when implementation can begin (sc-git hygiene checks auto-trigger within sc-build). Recommend a new session if implementation is the next large phase and the plan is fully captured in plan.json.

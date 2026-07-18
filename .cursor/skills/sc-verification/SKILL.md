@@ -20,24 +20,23 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve the mission** - Run `spacecraft resolve --json`. Ensure safety is `safe` before proceeding.
+1. **Resolve the mission** - Run `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 2. **Capture evidence** - Run `spacecraft evidence "<label>" -- <command>` for each acceptance check.
 3. **Validate** - Run `spacecraft validate` after evidence capture.
 4. **Map to acceptance** - Record evidence ids in final summaries, referencing each acceptance check from `plan.json`.
 
 ### Edge cases
 
-- **Evidence command fails** - Capture the failure as evidence. Do not skip. Fix the issue and re-capture. After re-capture, clean up the failed entry: delete the failed evidence file or use `spacecraft evidence --force <label> -- <command>` to overwrite.
+- **Evidence command fails** - Capture the failure as evidence. Do not skip. Fix the issue and re-capture by appending a new evidence entry with the same or a clearer label. To discard a bad line, delete that line from `evidence.jsonl` manually (there is no overwrite flag).
 - **Validation fails** - `spacecraft validate` returns non-zero. Check which acceptance criteria are unmet. Fix before claiming done.
 - **Check cannot be automated** - State why in the evidence label. Mark as `manual`. Document the manual verification steps.
 - **No plan.json exists** - Cannot map evidence to acceptance checks. Ask user to create a plan first.
-- **Evidence already captured for this check** - Re-run. Never reuse stale evidence.
+- **Evidence already captured for this check** - Re-run and append fresh evidence. Never reuse stale evidence.
 
 ## Rules
 
 - **Must**: No done/pass/verified/ready claim without evidence.
-- **Must**: Resolve the mission with `spacecraft resolve --json`; `.space/current` is fallback state, not sole authority.
-- **Must**: If resolver safety is not `safe`, stop before evidence capture and ask the user to choose with `spacecraft use <number|id|title>` or an explicit `SPACECRAFT_MISSION`.
+- **Must**: Resolve the mission with `spacecraft resolve`; `.space/current` is fallback state, not sole authority. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Use `spacecraft evidence "<label>" -- <command>`.
 - **Must**: Capture failures too.
 - **Must**: Map acceptance checks to evidence ids in final summaries.
@@ -69,7 +68,7 @@ Evidence entries are appended to `evidence.jsonl` in the mission directory. Each
 
 Before claiming verification passed:
 
-- [ ] Mission resolved with `spacecraft resolve --json` (safety = `safe`)
+- [ ] Mission resolved with `spacecraft resolve` (on conflict/ambiguity: `spacecraft use <selector>`)
 - [ ] Evidence captured for every acceptance check
 - [ ] Failures captured as evidence too
 - [ ] Validation passed with `spacecraft validate`

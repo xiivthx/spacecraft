@@ -11,17 +11,17 @@ Resolve the mission. If no mission resolves, say so and stop - do not create a n
 
 Run:
 ```
-spacecraft resolve --json
+spacecraft resolve
 ```
 
-If resolver safety is not `safe` or no mission is selected, state the issue and stop. Run `spacecraft missions` and `spacecraft use <number|id|title>` to resolve.
+On conflict or ambiguity, or if no mission is selected, state the issue and stop. Run `spacecraft missions` and `spacecraft use <number|id|title>` to resolve.
 
 Run:
 ```
 spacecraft git-info
 ```
 
-If git is dirty and the mission state is not `draft`, flag it prominently in the resume output.
+If git is dirty and the mission state is not `active`, flag it prominently in the resume output.
 
 ## Context memory
 
@@ -53,7 +53,7 @@ Dirty files (if any):
 !`git diff --stat 2>/dev/null; git diff --cached --stat 2>/dev/null || echo "(clean or not a repo)"`
 
 Last evidence entry:
-!`mid=$(spacecraft resolve --json 2>/dev/null | sed -n 's/.*"currentMissionId":"\([^"]*\)".*/\1/p'); [ -n "$mid" ] && [ -f ".space/missions/$mid/evidence.jsonl" ] && tail -1 ".space/missions/$mid/evidence.jsonl" || echo "(no evidence)"`
+!`mid=$(spacecraft current 2>/dev/null); [ -n "$mid" ] && [ -f ".space/missions/$mid/evidence.jsonl" ] && tail -1 ".space/missions/$mid/evidence.jsonl" || echo "(no evidence)"`
 
 ## Handoff resume
 
@@ -75,7 +75,7 @@ Based on the live state above, present a concise handoff resume:
 - Do NOT start implementing, designing, planning, or mutating anything.
 - Do NOT ask the user what they want to do - the resume output IS the answer.
 - This command is strictly read-only.
-- If git is dirty and the state is not `draft`, flag it prominently.
+- If git is dirty and the state is not `active`, flag it prominently.
 - If no mission resolves, say: "No active mission. Start one with `/sc-start <title>`."
 
 ## Research auto-trigger
@@ -86,14 +86,14 @@ sc-resume is read-only - no research trigger needed during resume. Research deci
 
 - No mission resolves
 - Resolver conflict or ambiguity
-- Git dirty with non-draft state (warn prominently before proceeding with mutations)
+- Git dirty with non-active state (warn prominently before proceeding with mutations)
 
 ## Error handling
 
 - No mission resolves → stop and tell user: "No active mission. Start one with `/sc-start <title>`."
 - Resolver conflict or ambiguity → display candidates and tell user to run `spacecraft missions` then `spacecraft use <number|id|title>`
 - Git not available → still display mission state but flag git as unavailable
-- Dirty workspace with non-draft mission → warn prominently in resume output
+- Dirty workspace with non-active mission → warn prominently in resume output
 - Cannot read evidence → display "(no evidence)" and continue
 
 End with the **next action** line only - no pleasantries, no filler.

@@ -88,7 +88,7 @@ Then set state to shipped if appropriate. After state is shipped and release clo
 
 ## Research auto-trigger
 
-sc-ship gates are verification gates - research should have happened during sc-plan and sc-build. If a gate check reveals unexpected behavior or version conflicts, run `spacecraft research "<topic>"` before blocking.
+sc-ship gates are verification gates - research should have happened during sc-plan and sc-build. If a gate check reveals unexpected behavior or version conflicts, use sc-search (WebSearch/WebFetch) for `"<topic>"` before blocking.
 
 ## Hard stop gates
 

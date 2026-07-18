@@ -29,7 +29,7 @@ Execute the phases in order unless the user specifies otherwise.
 
 ### Phase 1: Gather
 
-1. **Identify datasource** - User provides content (`.space/temp/` files, a URL, a description) or research internally. If domain knowledge is missing, run `spacecraft research "<topic>"` before proceeding.
+1. **Identify datasource** - User provides content (`.space/temp/` files, a URL, a description) or research internally. If domain knowledge is missing, use sc-search (WebSearch/WebFetch) for `"<topic>"` before proceeding.
 
 2. **Read template** - Based on artifact type:
    - **Skill**: `templates/skill.md` - canonical skill structure

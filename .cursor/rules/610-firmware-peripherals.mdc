@@ -1,5 +1,5 @@
 ---
-description: Firmware peripherals — GPIO, IRQ, LCD, UART, SPI, LF/UHF protocol, DMA
+description: Firmware peripherals - GPIO, IRQ, LCD, UART, SPI, LF/UHF protocol, DMA
 alwaysApply: false
 globs:
   - "**/drivers/**"
@@ -28,16 +28,16 @@ void led_init(void) {
     LL_GPIO_SetPinSpeed(LED_PORT, LED_PIN, LL_GPIO_SPEED_FREQ_LOW);
 }
 
-// Read-modify-write — atomic where possible (BSRR register)
+// Read-modify-write - atomic where possible (BSRR register)
 void led_on(void)  { LED_PORT->BSRR = LED_PIN; }       // atomic set
 void led_off(void) { LED_PORT->BSRR = (LED_PIN << 16); } // atomic reset
-void led_toggle(void) { LED_PORT->ODR ^= LED_PIN; }     // non-atomic — OK for simple toggles
+void led_toggle(void) { LED_PORT->ODR ^= LED_PIN; }     // non-atomic - OK for simple toggles
 ```
 
 Rules:
-- Never busy-wait on GPIO: `while(button) {}` — use timer + IRQ or RTOS delay
+- Never busy-wait on GPIO: `while(button) {}` - use timer + IRQ or RTOS delay
 - Debounce: 5-20ms in software, or RC filter in hardware
-- Pull-up/down: enable internal when input — floats = noise = random wakeups
+- Pull-up/down: enable internal when input - floats = noise = random wakeups
 
 ### UART / Serial Protocol
 
@@ -55,7 +55,7 @@ typedef struct {
 
 void uart_rx_isr(uint8_t byte) {
     if (ticks_since(rx.last_byte_ticks) > FRAME_TIMEOUT_MS) {
-        rx_head = 0;  // new frame — reset ring
+        rx_head = 0;  // new frame - reset ring
     }
     rx_buf[rx_head++] = byte;
     rx.last_byte_ticks = HAL_GetTick();
@@ -66,21 +66,21 @@ void uart_rx_isr(uint8_t byte) {
 ```
 
 Protocol rules:
-- Always CRC check before processing — reject silently on mismatch
+- Always CRC check before processing - reject silently on mismatch
 - Timeout: 100ms inter-byte = reset parser (don't accumulate garbage)
 - Max payload: bounded, reject oversized frames
-- State machine per protocol instance — never process in ISR
+- State machine per protocol instance - never process in ISR
 
 ### SPI Bus
 
 ```
-Modes: 0 (CPOL=0,CPHA=0) — most common, 1, 2, 3
+Modes: 0 (CPOL=0,CPHA=0) - most common, 1, 2, 3
 Speed: 100kHz-50MHz (peripheral-dependent)
 Pins: SCK, MOSI, MISO, NSS (CS)
 ```
 
 ```c
-// Master transmit — blocking (register reads, config writes)
+// Master transmit - blocking (register reads, config writes)
 void spi_write_reg(uint8_t addr, uint8_t value) {
     CS_LOW();
     HAL_SPI_Transmit(&hspi1, &addr, 1, HAL_MAX_DELAY);
@@ -88,7 +88,7 @@ void spi_write_reg(uint8_t addr, uint8_t value) {
     CS_HIGH();
 }
 
-// Master read — send dummy byte to clock out data
+// Master read - send dummy byte to clock out data
 uint8_t spi_read_reg(uint8_t addr) {
     uint8_t tx = addr | 0x80; // R/W bit: 1=read
     uint8_t rx = 0;
@@ -120,7 +120,7 @@ void spi_dma_transfer(spi_dma_t* dev, uint8_t* tx, uint8_t* rx, uint16_t len) {
     }
 }
 
-// Full-duplex DMA — send and receive simultaneously
+// Full-duplex DMA - send and receive simultaneously
 void spi_dma_full_duplex(spi_dma_t* dev, uint8_t* tx, uint8_t* rx, uint16_t len) {
     dev->rx_complete = false;
     HAL_SPI_TransmitReceive_DMA(dev->hspi, tx, rx, len);
@@ -142,22 +142,22 @@ Rules:
 - Chip select timing: CS low → 1μs → transfer → 1μs → CS high
 - Multi-byte: keep CS low across entire burst, raise only at end
 - Duplex/Simplex: read+write simultaneous on full-duplex (MISO+MOSI), half-duplex on 3-wire
-- Clock polarity/phase: read datasheet — wrong mode = silent failure (garbage reads)
+- Clock polarity/phase: read datasheet - wrong mode = silent failure (garbage reads)
 - Speed: start at 1MHz, test, increase. Max = min(CPU/2, peripheral max)
 - DMA priority: SPI > UART (bulk data), round-robin if multiple SPI ports
 - CS pin: hardware NSS preferred; if GPIO, use BSRR for atomic toggle
-- NEVER bit-bang SPI — hardware peripheral is there, use it
+- NEVER bit-bang SPI - hardware peripheral is there, use it
 
 ### I2C Bus
 
 ```
 Speed: Standard 100kHz, Fast 400kHz, Fast+ 1MHz
-Pins: SCL, SDA (open-drain — requires external pull-up 2.2-4.7kΩ)
+Pins: SCL, SDA (open-drain - requires external pull-up 2.2-4.7kΩ)
 Addressing: 7-bit (most common) or 10-bit
 ```
 
 ```c
-// I2C device context — one per bus participant
+// I2C device context - one per bus participant
 typedef struct {
     I2C_HandleTypeDef* hi2c;
     uint8_t  addr;           // 7-bit address (left-shifted to 8-bit by HAL)
@@ -195,20 +195,20 @@ bool i2c_write_regs(i2c_dev_t* dev, uint8_t reg, uint8_t* data, uint16_t len) {
                              I2C_MEMADD_SIZE_8BIT, data, len, dev->timeout_ms) == HAL_OK;
 }
 
-// ISR callback — handle completion and errors
+// ISR callback - handle completion and errors
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef* hi2c) {
     i2c_dev.busy = false;
 }
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef* hi2c) {
     uint32_t err = HAL_I2C_GetError(hi2c);
-    if (err & HAL_I2C_ERROR_AF)  { /* NACK — device not responding */ }
-    if (err & HAL_I2C_ERROR_BERR) { /* bus error — noise or short */ }
-    if (err & HAL_I2C_ERROR_ARLO) { /* arbitration lost — multi-master */ }
+    if (err & HAL_I2C_ERROR_AF)  { /* NACK - device not responding */ }
+    if (err & HAL_I2C_ERROR_BERR) { /* bus error - noise or short */ }
+    if (err & HAL_I2C_ERROR_ARLO) { /* arbitration lost - multi-master */ }
     i2c_dev.error = true;
     i2c_dev.busy = false;
 }
 
-// I2C bus scan — detect all devices on bus
+// I2C bus scan - detect all devices on bus
 void i2c_scan(I2C_HandleTypeDef* hi2c) {
     for (uint8_t addr = 1; addr < 127; addr++) {
         if (HAL_I2C_IsDeviceReady(hi2c, addr << 1, 1, 10) == HAL_OK) {
@@ -219,15 +219,15 @@ void i2c_scan(I2C_HandleTypeDef* hi2c) {
 ```
 
 Rules:
-- **Pull-up resistors**: mandatory — 2.2k-4.7kΩ on both SCL and SDA. Omitting = random NACKs
+- **Pull-up resistors**: mandatory - 2.2k-4.7kΩ on both SCL and SDA. Omitting = random NACKs
 - **Bus capacitance**: max 400pF at 100kHz, 200pF at 400kHz. Long traces/cables → lower speed
-- **NACK handling**: device may NACK if busy (e.g., EEPROM write in progress) — retry with backoff
-- **Clock stretching**: some devices stretch SCL low while processing — enable in I2C init if needed
-- **Multi-master**: STM32 supports but complex — prefer single master unless necessary
+- **NACK handling**: device may NACK if busy (e.g., EEPROM write in progress) - retry with backoff
+- **Clock stretching**: some devices stretch SCL low while processing - enable in I2C init if needed
+- **Multi-master**: STM32 supports but complex - prefer single master unless necessary
 - **Address conflicts**: two identical sensors on same bus → use I2C mux or address pin straps
-- **Timeout**: always set per-device timeout — I2C can hang if device is unresponsive
+- **Timeout**: always set per-device timeout - I2C can hang if device is unresponsive
 - **DMA for bulk**: EEPROM pages, sensor FIFO dumps → DMA-driven, non-blocking
-- **Never in ISR**: I2C transactions are slow (1ms for 10 bytes at 100kHz) — always in task context
+- **Never in ISR**: I2C transactions are slow (1ms for 10 bytes at 100kHz) - always in task context
 - **Bus recovery**: if SDA stuck low → toggle SCL 9 times to release slave. Reset peripheral after
 
 ### Common I2C Devices
@@ -242,7 +242,7 @@ Rules:
 | Accelerometer (MPU6050) | 0x68/0x69 | 6-axis, FIFO buffer, interrupt pin |
 
 
-### LCD Display (LTDC + DMA2D — STM32F7/F4-Discovery)
+### LCD Display (LTDC + DMA2D - STM32F7/F4-Discovery)
 
 ```
 Layer: app/ → hal_if/lcd.h → drivers/lcd/ltdc_stm32f7.c → bsp/board.c
@@ -260,10 +260,10 @@ hal_if/lcd.h:
 // LTDC configuration: 480×272 RGB565, 2 layers (background + foreground)
 // CubeMX2 generates MX_LTDC_Init() with timing from panel datasheet
 
-// Framebuffer in SDRAM — LTDC reads directly via DMA
+// Framebuffer in SDRAM - LTDC reads directly via DMA
 __attribute__((section(".lcd_fb"))) uint16_t lcd_fb[2][480*272];  // double-buffered
 
-// DMA2D fill — hardware accelerated rectangle fill
+// DMA2D fill - hardware accelerated rectangle fill
 void lcd_fill(uint16_t color) {
     DMA2D->CR = 0;  // register-to-memory mode
     DMA2D->OPFCCR = DMA2D_OUTPUT_RGB565;
@@ -275,7 +275,7 @@ void lcd_fill(uint16_t color) {
     while (DMA2D->CR & DMA2D_CR_START);  // wait complete
 }
 
-// DMA2D blit — hardware copy with optional pixel format conversion
+// DMA2D blit - hardware copy with optional pixel format conversion
 void lcd_draw_bitmap(uint16_t x, uint16_t y, uint8_t* src, uint16_t w, uint16_t h) {
     DMA2D->CR = DMA2D_CR_MODE_M2M_PFC;  // memory-to-memory with PFC
     DMA2D->FGPFCCR = DMA2D_INPUT_ARGB8888;  // source format
@@ -289,7 +289,7 @@ void lcd_draw_bitmap(uint16_t x, uint16_t y, uint8_t* src, uint16_t w, uint16_t 
     while (DMA2D->CR & DMA2D_CR_START);
 }
 
-// DMA2D blend — two-layer composition with alpha
+// DMA2D blend - two-layer composition with alpha
 void lcd_blend_layer(uint8_t* fg, uint8_t* bg, uint16_t alpha) {
     DMA2D->CR = DMA2D_CR_MODE_M2M_BLEND;
     DMA2D->FGPFCCR = DMA2D_INPUT_ARGB8888 | (alpha << 24);  // foreground
@@ -303,7 +303,7 @@ void lcd_blend_layer(uint8_t* fg, uint8_t* bg, uint16_t alpha) {
     while (DMA2D->CR & DMA2D_CR_START);
 }
 
-// LTDC reload — vertical blanking ISR for tear-free swap
+// LTDC reload - vertical blanking ISR for tear-free swap
 void LTDC_IRQHandler(void) {
     if (LTDC->ISR & LTDC_ISR_LIF) {  // line interrupt (vblank)
         LTDC->ISR = LTDC_ISR_LIF;
@@ -316,17 +316,17 @@ void LTDC_IRQHandler(void) {
 
 Rules:
 - **Double-buffered always**: draw to back buffer, LTDC reads front buffer, swap on vblank
-- **DMA2D for everything**: fill, blit, blend, color convert — never CPU pixel loops
+- **DMA2D for everything**: fill, blit, blend, color convert - never CPU pixel loops
 - **SDRAM bandwidth**: LTDC @ 9MHz pixel clock ≈ 18 MB/s. Leave headroom for DMA2D operations
 - **Layer 1**: background (static). **Layer 2**: foreground (animations, UI). Blend with alpha
 - **Pixel format**: RGB565 (16bpp) native. ARGB8888 for images, DMA2D PFC converts on-the-fly
 - **Cache**: framebuffer in write-through SDRAM (via MPU) or `cache_clean()` before LTDC reload
-- **Touch**: FT5336 I2C touch controller at 0x38 — poll at 20-30Hz in low-priority task
+- **Touch**: FT5336 I2C touch controller at 0x38 - poll at 20-30Hz in low-priority task
 
 ### QSPI Flash (128Mbit on Discovery)
 
 ```c
-// Memory-mapped mode — read assets directly (execute-in-place for read-only data)
+// Memory-mapped mode - read assets directly (execute-in-place for read-only data)
 void qspi_init(void) {
     QSPI_CommandTypeDef cmd = {
         .InstructionMode   = QSPI_INSTRUCTION_1_LINE,
@@ -357,10 +357,10 @@ void qspi_write_page(uint32_t addr, uint8_t* data, uint16_t len) {
 ```
 
 Rules:
-- QSPI is **read-only** in production — write only during firmware update
-- Memory-mapped reads are cached (via MPU) — fast enough for asset streaming
+- QSPI is **read-only** in production - write only during firmware update
+- Memory-mapped reads are cached (via MPU) - fast enough for asset streaming
 - Erase before write: 4KB sector erase (45ms typical), 256B page program (0.5ms)
-- Wear leveling: QSPI flash ≈ 100K erase cycles — don't use for frequently-updated data
+- Wear leveling: QSPI flash ≈ 100K erase cycles - don't use for frequently-updated data
 - Asset pipeline: PNG at build time → C array via `xxd -i` → link to `.qspi` section
 
 ### LF Protocol (125-134 kHz)
@@ -377,7 +377,7 @@ typedef enum {
     LF_IDLE, LF_CARRIER_ON, LF_BIT_SAMPLE, LF_FRAME_END
 } lf_rx_state_t;
 
-// Timer capture ISR — measure pulse width
+// Timer capture ISR - measure pulse width
 void lf_timer_capture_isr(uint16_t capture_val) {
     uint16_t width = capture_val - last_capture;
     last_capture = capture_val;
@@ -389,7 +389,7 @@ void lf_timer_capture_isr(uint16_t capture_val) {
     } else if (width > 10 && width < 16) {
         lf_shift_bit(0);
     } else {
-        lf_reset();  // noise — reset parser
+        lf_reset();  // noise - reset parser
     }
 }
 ```
@@ -422,19 +422,19 @@ typedef struct {
 
 // SPI command + DMA for packet transfers
 void uhf_tx_packet(uhf_radio_t* radio, uint8_t* data, uint8_t len) {
-    // 1. Set TX mode — SPI write register
-    // 2. Write FIFO — SPI burst via DMA
-    // 3. Issue TX command — SPI strobe
+    // 1. Set TX mode - SPI write register
+    // 2. Write FIFO - SPI burst via DMA
+    // 3. Issue TX command - SPI strobe
     // 4. Wait for GDO0 pin IRQ (packet sent)
 }
 ```
 
 Rules:
-- Always wait for GDO pin (packet ready) — never poll register
+- Always wait for GDO pin (packet ready) - never poll register
 - Preamble: ≥4 bytes for AGC settling
 - CRC: hardware CRC on CC1101, software CRC16-CCITT for custom protocol
 - Retry: max 3 retransmits with exponential backoff (50ms, 100ms, 200ms)
-- RSSI/LQI: check signal quality — reject packets below threshold
+- RSSI/LQI: check signal quality - reject packets below threshold
 
 ### DMA Best Practices
 
@@ -454,5 +454,5 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 Rules:
 - DMA priority: highest for audio/ADC, medium for SPI/UART, low for memory
 - Cache coherency: flush/invalidate D-cache before/after DMA on Cortex-M7
-- Circular mode: for continuous streaming — never stop/restart DMA mid-stream
+- Circular mode: for continuous streaming - never stop/restart DMA mid-stream
 - Error handling: DMA transfer error ISR → log error, reset peripheral
