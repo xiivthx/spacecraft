@@ -17,9 +17,9 @@ help:
 	@echo "  gate            Go tests + Cursor hook unit tests (hooks_test.sh)"
 	@echo "  install         build + link CLI into ~/.local/bin + smoke check"
 	@echo "  install-project Install full .cursor surface into PROJECT=<dir> (default .)"
-	@echo "  install-global  Merge agents + MCP into ~/.cursor and link CLI (careful)"
+	@echo "  install-global  Install agents + skills + MCP into ~/.cursor and link CLI (careful)"
 	@echo "  smoke           Run post-install smoke checks (PROJECT=<dir>)"
-	@echo "  uninstall       Remove CLI link + spacecraft MCP servers + global agents"
+	@echo "  uninstall       Remove CLI link + spacecraft MCP/agents/skills from ~/.cursor"
 	@echo "  clean           Remove built binary"
 
 # Full verification suite. Runs everything CI runs; humans use `make test`.
@@ -72,7 +72,12 @@ test-install: build
 		echo "FAIL: install wrote legacy ~/.cursorrules"; \
 		exit 1; \
 	fi; \
-	echo "  ok   no legacy ~/.cursorrules"
+	echo "  ok   no legacy ~/.cursorrules"; \
+	mkdir -p "$$fake_home/.cursor"; \
+	HOME="$$fake_home" $(MAKE) -C "$(ROOT)" install-global GLOBAL="$$fake_home/.cursor" LOCAL_BIN="$$fake_home/.local/bin" BIN="$(BIN)"; \
+	test -f "$$fake_home/.cursor/skills/sc-run/SKILL.md" || { echo "FAIL: install-global missing sc-run skill"; exit 1; }; \
+	test -f "$$fake_home/.cursor/skills/sc-ship/SKILL.md" || { echo "FAIL: install-global missing sc-ship skill"; exit 1; }; \
+	echo "  ok   install-global installs sc-run and sc-ship"
 
 build:
 	cd $(ROOT)/cmd/spacecraft && go build -o $(BIN) .
@@ -91,14 +96,23 @@ install-project:
 	@sh $(ROOT)/scripts/install-cursor.sh "$(PROJECT)" "$(ROOT)"
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"
 
-# Global Cursor install. Never writes ~/.cursorrules. Merges MCP servers and
-# copies agents; leaves unrelated global config untouched.
+# Global Cursor install. Never writes ~/.cursorrules. Copies agents + skills,
+# merges MCP servers; leaves unrelated global config untouched.
 install-global: build install-cli
-	@mkdir -p $(GLOBAL)/agents
+	@mkdir -p $(GLOBAL)/agents $(GLOBAL)/skills
 	@cp $(ROOT)/.cursor/agents/sc-*.md $(GLOBAL)/agents/
 	@echo "agents -> $(GLOBAL)/agents"
+	@for d in $(ROOT)/.cursor/skills/sc-*; do \
+		[ -d "$$d" ] || continue; \
+		name=$$(basename "$$d"); \
+		rm -rf "$(GLOBAL)/skills/$$name"; \
+		cp -R "$$d" "$(GLOBAL)/skills/$$name"; \
+	done
+	@echo "skills -> $(GLOBAL)/skills (sc-*)"
+	@test -f $(GLOBAL)/skills/sc-run/SKILL.md
+	@test -f $(GLOBAL)/skills/sc-ship/SKILL.md
 	@python3 $(ROOT)/scripts/mcp-merge.py merge $(GLOBAL)/mcp.json $(ROOT)/.cursor/mcp.json
-	@echo "Global install complete. Restart Cursor to pick up config."
+	@echo "Global install complete. Restart Cursor to pick up /sc-run and /sc-ship."
 
 smoke:
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"
@@ -108,6 +122,11 @@ uninstall:
 	@if [ -L $(LOCAL_BIN)/spacecraft ]; then rm -f $(LOCAL_BIN)/spacecraft && echo "removed $(LOCAL_BIN)/spacecraft"; fi
 	@for a in $(ROOT)/.cursor/agents/sc-*.md; do rm -f $(GLOBAL)/agents/$$(basename $$a); done
 	@echo "removed spacecraft agents from $(GLOBAL)/agents"
+	@for d in $(ROOT)/.cursor/skills/sc-*; do \
+		[ -d "$$d" ] || continue; \
+		rm -rf "$(GLOBAL)/skills/$$(basename $$d)"; \
+	done
+	@echo "removed spacecraft skills from $(GLOBAL)/skills"
 	@if [ -f $(GLOBAL)/mcp.json ]; then python3 $(ROOT)/scripts/mcp-merge.py unmerge $(GLOBAL)/mcp.json $(ROOT)/.cursor/mcp.json; fi
 	@echo "Uninstall complete. Project-local .cursor/ and .space/ left untouched."
 
