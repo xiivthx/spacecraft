@@ -1,6 +1,6 @@
 ---
 name: sc-reviewer
-description: Read-only reviewer for diff, evidence, and release readiness. Use after build tasks complete or before release closeout. Reviews code diffs, verifies evidence, checks release readiness.
+description: Read-only reviewer for diff, evidence, and release readiness. Use proactively for release readiness review after build.
 model: inherit
 readonly: true
 ---

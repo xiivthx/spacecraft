@@ -71,6 +71,26 @@ If all gates pass, use sc-git to prepare merge to main:
 - compact shipped mission artifacts with `spacecraft archive` unless the user asks to keep the full live mission folder
 - no push unless explicitly requested
 
+#### SPACECRAFT_SHIP gate (required)
+
+Cursor hooks deny `git merge`, `git push`, and `git tag` unless `SPACECRAFT_SHIP=1`. Set it only for those gated ship commands, then unset immediately:
+
+```
+# Prefer per-command env (auto-clears):
+SPACECRAFT_SHIP=1 git merge --no-ff feat/<id>/<title>
+SPACECRAFT_SHIP=1 git push origin main
+SPACECRAFT_SHIP=1 git tag vX.Y.Z
+
+# Or export for a short block, then unset:
+export SPACECRAFT_SHIP=1
+git merge --no-ff feat/<id>/<title>
+git push origin main
+git tag vX.Y.Z
+unset SPACECRAFT_SHIP
+```
+
+Never leave `SPACECRAFT_SHIP=1` exported in the shell after ship ops. Do not set it for ordinary non-ship git work.
+
 ### 4. Produce summary
 
 - Mission id

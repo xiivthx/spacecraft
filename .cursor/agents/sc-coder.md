@@ -1,6 +1,6 @@
 ---
 name: sc-coder
-description: Write-capable coder that implements production code. Use when tasks require writing or modifying production source files. Proactive delegation for implementation work.
+description: Write-capable coder that implements production code. Use proactively for production code implementation after failing tests exist.
 model: inherit
 readonly: false
 ---

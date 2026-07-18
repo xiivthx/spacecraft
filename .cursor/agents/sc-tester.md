@@ -1,6 +1,6 @@
 ---
 name: sc-tester
-description: Write-capable tester that writes tests and captures verification evidence. Use when tasks require test creation, test execution, or evidence capture. Proactive delegation for TDD cycles.
+description: Write-capable tester that writes tests and captures verification evidence. Use proactively for writing failing tests and capturing evidence.
 model: inherit
 readonly: false
 ---

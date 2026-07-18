@@ -72,57 +72,26 @@ spacecraft bind-branch
 Before self-review, run the project's test suite and capture output as evidence:
 
 ```bash
-# For Go projects:
-spacecraft evidence "quick lane tests" -- make test
-
-# For Node.js projects:
-spacecraft evidence "quick lane tests" -- npm test
-
-# For other projects, use the appropriate test command
+# Go:    spacecraft evidence "quick lane tests" -- make test
+# Node:  spacecraft evidence "quick lane tests" -- npm test
+# Other: use the appropriate test command
 ```
 
 If no test suite exists, skip this step but note it in decisions.md as a limitation.
 
 ### 5. Fast self-review
 
-Before ship, commander performs a lightweight self-review (commander identity: `.cursor/rules/000-spacecraft.mdc`; Quick Lane: `.cursor/rules/200-workflow.mdc`):
-- Inspect `git diff` - check for secrets, debug code, unrelated edits, dead code, noisy formatting
-- Review test output from evidence capture - all tests must pass
+Before ship, commander performs a lightweight self-review (commander: `.cursor/rules/000-spacecraft.mdc`; Quick Lane: `.cursor/rules/200-workflow.mdc`):
+- Inspect `git diff` - secrets, debug code, unrelated edits, dead code, noisy formatting
+- Review test output from evidence - all tests must pass
 - Verify the change does what was intended
-- No subagent reviewer - commander reviews directly
-- No review.md or review.json required
+- No subagent reviewer; no review.md or review.json required
 
 If self-review finds issues, fix them and recommit.
 
-### 5. Ship
+### 6. Ship
 
-When ready to ship, do release closeout with streamlined gates:
-
-**Required (same as normal flow):**
-- Version bump (or defer with rationale in decisions.md)
-- Changelog update (mandatory - never defer)
-- Rebase work branch on latest `main`
-- Verify after rebase (run tests if available)
-- `git merge --no-ff <branch>` into `main`
-- Annotated tag: `git tag -a v<version> -m "v<version>"`
-- Delete merged local branch
-- `spacecraft archive` to compact shipped artifacts
-
-**Skipped (fast lane only):**
-- No evidence.jsonl requirement
-- No review.md or review.json requirement
-- No `spacecraft closeout-check` (requires evidence + review gates)
-- No /sc-reviewer subagent
-
-**Ship checklist:**
-- [ ] Version bumped (or deferred with rationale)
-- [ ] Changelog updated
-- [ ] Rebased on latest main
-- [ ] Tests pass after rebase (if applicable)
-- [ ] `git merge --no-ff` completed
-- [ ] Tag created
-- [ ] Branch deleted
-- [ ] Mission archived
+When ready to ship, do release closeout with streamlined gates. Full required/skipped lists, ship checklist, hard-stop gates, and error handling: `references/ship-gates.md`.
 
 Produce a summary: mission id, what changed, git branch/merge info, suggested commit message, known limitations, next step.
 
@@ -130,23 +99,8 @@ Produce a summary: mission id, what changed, git branch/merge info, suggested co
 
 When quick-lane changes touch unfamiliar tooling, configuration, or dependency APIs, use sc-search (WebSearch/WebFetch) for `"<topic>"` before committing. Fast lane is not skip-research lane.
 
-## Hard Stop Gates
-
-- Resolver conflict or ambiguity
-- Write attempt on `main`
-- Dirty/untracked files that cannot be safely attributed to the current task
-- Unsafe files or secrets before staging
-- Self-review finding critical issues
-- Release actions requiring `/sc-ship`
-- Context is too heavy for safe continuation; give handoff instead
-
-## Error handling
-
-- Do not push unless explicitly asked
-- Do not write on `main` - always create branch first
-- If git worktree is dirty with unrelated changes, warn before staging
-- If self-review finds issues, fix before ship
-- Conventional Commits format: `<type>: <description>`
-- After post-merge cleanup, you are on `main` - next mutation requires new branch
-
 End with session advice. Recommend new session after shipped mission.
+
+## References
+
+- `references/ship-gates.md` - ship required/skipped gates, checklist, hard stops, error handling

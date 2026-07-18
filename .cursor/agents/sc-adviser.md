@@ -1,6 +1,6 @@
 ---
 name: sc-adviser
-description: Read-only senior adviser for complex system design and deep logic restructuring. Use when changes span >3 files with dependency chains, architectural decisions needed, or Commander is stuck. Not for routine implementation questions.
+description: Read-only senior adviser for complex system design and deep logic restructuring. Use proactively for complex architecture and multi-file design decisions. Not for routine implementation questions.
 model: inherit
 readonly: true
 ---

@@ -16,6 +16,21 @@ Activate when the user asks to:
 - **"Build from this datasource"** - content from files, research, or internal knowledge
 - When a new sc-* capability needs to be codified into the system
 
+## Command skill vs detail skill
+
+Spacecraft uses intentional layering, not duplication:
+
+- **Command skills** - thin slash skills with `disable-model-invocation: true` (`sc-start`, `sc-plan`, `sc-build`, `sc-ship`, `sc-review`, `sc-design`, `sc-quick`, `sc-debug`, `sc-research`). User-invoked entry points; they orchestrate and delegate.
+- **Detail skills** - auto-triggered skills (`sc-mission`, `sc-planning`, `sc-tdd`, `sc-git`, domain skills, etc.). Model may invoke these when context matches; they hold the operational depth.
+
+When creating new skills, choose deliberately:
+
+1. **Command-only** - slash entry, `disable-model-invocation: true`, delegates to existing detail skills
+2. **Auto detail** - no slash; description triggers on domain phrases; holds workflow/rules/checklist
+3. **Both** - thin command skill that points at a detail skill (same domain, different invocation path)
+
+Do not copy full procedures into both layers. Command skills stay thin; detail skills own the depth (and `references/` when needed).
+
 ## Workflow
 
 Execute the phases in order unless the user specifies otherwise.

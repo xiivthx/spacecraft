@@ -1,6 +1,6 @@
 ---
 name: sc-planner
-description: Read-only planner that turns a mission spec into executable plan. Use when mission spec exists and needs plan.json with verifiable tasks. Proactive delegation for planning work.
+description: Read-only planner that turns a mission spec into executable plan. Use proactively for converting specs into plan.json.
 model: inherit
 readonly: true
 ---

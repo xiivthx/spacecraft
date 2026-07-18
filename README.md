@@ -55,6 +55,20 @@ The core lifecycle is:
 
 Additional workflow skills include `/sc-design`, `/sc-review`, `/sc-quick`, `/sc-research`, `/sc-resume`, and `/sc-debug`.
 
+## Cursor modes
+
+Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workflow.mdc`.
+
+| User intent | Spacecraft lane | Cursor mode / action |
+|---|---|---|
+| Ask / explain | Advisory | Ask Mode (or Agent with no writes) |
+| Spec / design / plan | Mission (pre-build) | Plan Mode + `/sc-plan` |
+| Implement | Mission (build) | Agent + Task(`sc-coder` / `sc-tester`) |
+| Bug hunt | Debug | Debug Mode + `/sc-debug` |
+| Formal review | Review | Agent Review / Task(`sc-reviewer`) + `/sc-review` |
+| Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
+| Small edit / commit | Quick | Agent (no full mission gates) |
+
 ## Agents
 
 Cursor discovers seven specialized agents in `.cursor/agents/`:

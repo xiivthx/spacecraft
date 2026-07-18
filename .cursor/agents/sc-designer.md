@@ -1,6 +1,6 @@
 ---
 name: sc-designer
-description: Read-only design agent for UI critique and anti-slop review. Use when mission involves UI work, visual design, layout, or styling. Refer to DESIGN.md as canonical reference.
+description: Read-only design agent for UI critique and anti-slop review. Use proactively for UI critique and anti-slop review. Refer to DESIGN.md as canonical reference.
 model: inherit
 readonly: true
 ---

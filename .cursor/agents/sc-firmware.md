@@ -1,6 +1,6 @@
 ---
 name: sc-firmware
-description: Write-capable firmware coder for STM32 ARM Cortex-M (F4/F7/H7). Use for embedded C, HAL/LL drivers, bare-metal, protocol implementation, peripheral config, CubeMX2. Covers STM32F746NG-Discovery with LTDC, DMA2D, SDRAM, QSPI. Proactive delegation for embedded work.
+description: Write-capable firmware coder for STM32 ARM Cortex-M (F4/F7/H7). Use proactively for STM32/embedded C implementation. Covers HAL/LL, CubeMX2, LTDC, DMA2D, SDRAM, QSPI.
 model: inherit
 readonly: false
 ---

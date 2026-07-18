@@ -14,6 +14,25 @@ Auto-classify every user request:
 | Fix, debug, diagnose, broken, error, bug, crash, investigate | Debug |
 | Edit prompt, config, doc, small fix, human already made changes, just commit | Quick |
 
+## Cursor Mode Bridge
+
+Spacecraft lanes map to Cursor modes and skills. Use both together - do not treat them as separate systems.
+
+| User intent | Spacecraft lane | Cursor mode / action |
+|---|---|---|
+| Ask / explain | Advisory | Ask Mode (or Agent with no writes) |
+| Spec / design / plan | Mission (pre-build) | Plan Mode + `/sc-plan` |
+| Implement | Mission (build) | Agent + Task(`sc-coder` / `sc-tester`) |
+| Bug hunt | Debug | Debug Mode + `/sc-debug` |
+| Formal review | Review | Agent Review / Task(`sc-reviewer`) + `/sc-review` |
+| Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
+| Small edit / commit | Quick | Agent (no full mission gates) |
+
+Rules for the Commander:
+- Before Mission build, if `plan.json` is missing or empty tasks: SwitchMode to Plan (or invoke `/sc-plan`) and do not implement yet.
+- Debug lane: prefer Cursor Debug Mode when runtime evidence is needed.
+- Review gate: use Task(`sc-reviewer`) and/or Agent Review before ready→shipped.
+
 ## Roadmap Workflow
 
 For large, multi-mission work (>7 tasks), create a roadmap first.
