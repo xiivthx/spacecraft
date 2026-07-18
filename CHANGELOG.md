@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.35.1 - 2026-07-18
+
+- Fix: `make install-global` copies `sc-*` skills into `~/.cursor/skills` (including `/sc-run` and `/sc-ship`)
+- Docs: installation guide covers global skills install
+
 ## 0.35.0 - 2026-07-18
 
 - Feat: user-facing slash UX is `/sc-run` (AFK to ready) and `/sc-ship` only
