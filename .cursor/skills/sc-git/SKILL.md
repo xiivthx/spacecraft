@@ -79,8 +79,9 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: User "ship/release/merge/finish/close branch" → release closeout.
 - **Must**: "stop/close/end session" → session handoff (no merge/tag/branch delete).
 - **Must**: If ambiguous, recommend ship; don't auto-merge.
-- **Must**: Run `spacecraft closeout-check` before claiming readiness. It requires `review.json.releaseReadiness` object entries (string/boolean gates invalid).
+- **Must**: Run `spacecraft closeout-check` (alias: `ship-check`) before claiming readiness. The CLI machine-enforces: required artifacts present; mission state `ready` or `shipped`; clarify-status not `open`; evidence.jsonl non-empty with `label`/`command`/`output`/`ts`/`exitCode`; `review.json` status `ready`; no critical or `blocksShip` findings; `releaseReadiness.changelog` and `releaseReadiness.specNote` objects with status `ready` (string/boolean gates invalid); at least one commit touching `CHANGELOG.md` since `main`/`origin/main`.
 - **Must**: If any gate is incomplete, block and list missing actions.
+- **Must**: Cursor ship hooks re-run closeout when `SPACECRAFT_SHIP=1` before allowing merge/push/tag.
 - **Must**: Bump version by impact: breaking=major, feature=minor, fix/patch=patch, docs/chore=no bump unless part of a release (record in decisions.md).
 - **Must**: Update changelog and spec/release note when behavior changed.
 

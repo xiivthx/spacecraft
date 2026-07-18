@@ -22,13 +22,13 @@ Use this exact sequence unless the user specifies otherwise:
 
 1. **Resolve the mission** - Run `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 2. **Capture evidence** - Run `spacecraft evidence "<label>" -- <command>` for each acceptance check.
-3. **Validate** - Run `spacecraft validate` after evidence capture.
+3. **Validate** - Run `spacecraft validate` after evidence capture. Prefer `spacecraft validate --strict` before claiming a build task or mission build is complete (`--strict` requires `exitCode` on every evidence entry, ≥1 evidence entry, and matching evidence for each done plan task).
 4. **Map to acceptance** - Record evidence ids in final summaries, referencing each acceptance check from `plan.json`.
 
 ### Edge cases
 
 - **Evidence command fails** - Capture the failure as evidence. Do not skip. Fix the issue and re-capture by appending a new evidence entry with the same or a clearer label. To discard a bad line, delete that line from `evidence.jsonl` manually (there is no overwrite flag).
-- **Validation fails** - `spacecraft validate` returns non-zero. Check which acceptance criteria are unmet. Fix before claiming done.
+- **Validation fails** - `spacecraft validate` (or `validate --strict`) returns non-zero. Check which acceptance criteria are unmet. Fix before claiming done.
 - **Check cannot be automated** - State why in the evidence label. Mark as `manual`. Document the manual verification steps.
 - **No plan.json exists** - Cannot map evidence to acceptance checks. Ask user to create a plan first.
 - **Evidence already captured for this check** - Re-run and append fresh evidence. Never reuse stale evidence.
@@ -71,7 +71,7 @@ Before claiming verification passed:
 - [ ] Mission resolved with `spacecraft resolve` (on conflict/ambiguity: `spacecraft use <selector>`)
 - [ ] Evidence captured for every acceptance check
 - [ ] Failures captured as evidence too
-- [ ] Validation passed with `spacecraft validate`
+- [ ] Validation passed with `spacecraft validate --strict` before claiming build complete
 - [ ] Evidence ids mapped to acceptance checks in summary
 
 ---
@@ -79,5 +79,5 @@ Before claiming verification passed:
 ## References
 
 - `spacecraft evidence --help` - evidence subcommand reference
-- `spacecraft validate --help` - validation reference
+- `spacecraft validate --help` - validation reference (`--strict` for ship/build claims)
 - `evidence.jsonl` in the active mission directory

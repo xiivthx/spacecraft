@@ -391,19 +391,40 @@ func closeoutCmd(spaceDir, mid string) int {
 		fmt.Fprintln(os.Stderr, "spacecraft closeout-check:", err)
 		return 1
 	}
+
+	dir := missionDir(spaceDir, id)
 	var problems []string
-	for _, f := range []string{"spec.md", "plan.json", "evidence.jsonl"} {
-		if _, err := os.Stat(filepath.Join(missionDir(spaceDir, id), f)); err != nil {
+
+	for _, f := range []string{"spec.md", "plan.json", "evidence.jsonl", "review.json"} {
+		if _, err := os.Stat(filepath.Join(dir, f)); err != nil {
 			problems = append(problems, "missing "+f)
 		}
 	}
-	if countEvidence(spaceDir, id) == 0 {
-		problems = append(problems, "no evidence captured")
-	}
+
 	state, _ := m["state"].(string)
 	if state != "ready" && state != "shipped" {
-		problems = append(problems, "state is "+state+", expected ready")
+		problems = append(problems, "state is "+state+", expected ready or shipped")
 	}
+
+	if data, err := os.ReadFile(filepath.Join(dir, "clarify-status")); err == nil {
+		if strings.TrimSpace(string(data)) == "open" {
+			problems = append(problems, "clarify-status is open")
+		}
+	}
+
+	if _, err := os.Stat(filepath.Join(dir, "evidence.jsonl")); err == nil {
+		problems = append(problems, closeoutEvidenceProblems(filepath.Join(dir, "evidence.jsonl"))...)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "review.json")); err == nil {
+		problems = append(problems, closeoutReviewProblems(filepath.Join(dir, "review.json"))...)
+	}
+
+	// SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG=1 is for unit tests in temp dirs without
+	// git history only. Production never sets this.
+	if os.Getenv("SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG") != "1" {
+		problems = append(problems, closeoutChangelogProblems(filepath.Dir(spaceDir))...)
+	}
+
 	if len(problems) > 0 {
 		fmt.Printf("Closeout blocked for %s:\n", id)
 		for _, p := range problems {
@@ -413,6 +434,120 @@ func closeoutCmd(spaceDir, mid string) int {
 	}
 	fmt.Printf("Closeout ready for %s.\n", id)
 	return 0
+}
+
+func closeoutEvidenceProblems(path string) []string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return []string{"missing evidence.jsonl"}
+	}
+	required := []string{"label", "command", "output", "ts"}
+	entries := 0
+	var problems []string
+	for i, line := range strings.Split(string(data), "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		var entry map[string]any
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			problems = append(problems, fmt.Sprintf("evidence line %d not valid JSON", i+1))
+			continue
+		}
+		for _, field := range required {
+			if _, ok := entry[field]; !ok {
+				problems = append(problems, fmt.Sprintf("evidence line %d missing %s", i+1, field))
+			}
+		}
+		if !isJSONNumber(entry["exitCode"]) {
+			problems = append(problems, fmt.Sprintf("evidence line %d missing exitCode (number)", i+1))
+		}
+		entries++
+	}
+	if entries == 0 {
+		problems = append(problems, "no evidence captured")
+	}
+	return problems
+}
+
+func isJSONNumber(v any) bool {
+	switch v.(type) {
+	case float64, json.Number:
+		return true
+	default:
+		return false
+	}
+}
+
+func closeoutReviewProblems(path string) []string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil // missing file already reported
+	}
+	var review map[string]any
+	if err := json.Unmarshal(data, &review); err != nil {
+		return []string{"review.json invalid JSON"}
+	}
+	var problems []string
+	status, _ := review["status"].(string)
+	if status != "ready" {
+		problems = append(problems, fmt.Sprintf("review.json status is %q, expected \"ready\"", status))
+	}
+	if findings, ok := review["findings"].([]any); ok {
+		for i, raw := range findings {
+			f, ok := raw.(map[string]any)
+			if !ok {
+				continue
+			}
+			sev, _ := f["severity"].(string)
+			if sev == "critical" {
+				problems = append(problems, fmt.Sprintf("review finding %d has severity critical", i+1))
+			}
+			if blocks, ok := f["blocksShip"].(bool); ok && blocks {
+				problems = append(problems, fmt.Sprintf("review finding %d has blocksShip=true", i+1))
+			}
+		}
+	}
+	rr, ok := review["releaseReadiness"].(map[string]any)
+	if !ok {
+		problems = append(problems, "review.json releaseReadiness must be an object")
+		return problems
+	}
+	for _, key := range []string{"changelog", "specNote"} {
+		item, ok := rr[key].(map[string]any)
+		if !ok {
+			problems = append(problems, fmt.Sprintf("releaseReadiness.%s must be an object with status", key))
+			continue
+		}
+		st, _ := item["status"].(string)
+		if st != "ready" {
+			problems = append(problems, fmt.Sprintf("releaseReadiness.%s status is %q, expected \"ready\"", key, st))
+		}
+	}
+	return problems
+}
+
+func closeoutChangelogProblems(cwd string) []string {
+	bases := []string{"main", "origin/main"}
+	var lastErr error
+	for _, base := range bases {
+		if _, err := runCmd(cwd, "git", "rev-parse", "--verify", base); err != nil {
+			lastErr = err
+			continue
+		}
+		out, err := runCmd(cwd, "git", "log", base+"..HEAD", "--", "CHANGELOG.md")
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		if strings.TrimSpace(out) == "" {
+			return []string{"no commits touch CHANGELOG.md since " + base}
+		}
+		return nil
+	}
+	if lastErr != nil {
+		return []string{"CHANGELOG check failed: neither main nor origin/main usable (or git unavailable)"}
+	}
+	return []string{"no commits touch CHANGELOG.md"}
 }
 
 func archiveCmd(args []string, spaceDir, mid string) int {

@@ -56,7 +56,7 @@ func main() {
 		os.Exit(eviCmd(args, spaceDir, mid))
 	case "val", "validate":
 		os.Exit(valCmd(args, spaceDir))
-	case "closeout-check":
+	case "closeout-check", "ship-check":
 		os.Exit(closeoutCmd(spaceDir, mid))
 	case "archive":
 		os.Exit(archiveCmd(args, spaceDir, mid))
@@ -102,10 +102,14 @@ Usage:
       Set clarification status for the resolved mission.
   spacecraft evidence [--mission <id>] <label> -- <command...>
       Capture evidence; propagates the command exit code (alias: evi).
-  spacecraft validate [mission-id]
-      Validate mission artifacts and evidence (alias: val).
-  spacecraft closeout-check
-      Check whether a mission is ready to close out.
+	  spacecraft validate [--strict] [mission-id]
+	      Validate mission artifacts and evidence (alias: val).
+	      --strict also requires exitCode on every evidence entry and
+	      matching exitCode 0 evidence for each done plan task.
+	  spacecraft closeout-check
+	      Check whether a mission is ready to close out (alias: ship-check).
+	  spacecraft ship-check
+	      Alias for closeout-check.
   spacecraft archive [selector]
       Archive a shipped mission.
   spacecraft roadmap <new|add|rm|ls|show|next|archive> [...]

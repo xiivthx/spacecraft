@@ -14,15 +14,18 @@ Read the resolved mission's spec.md, plan.json, evidence.jsonl, review.md, revie
 Run these in order. Each must pass before the next:
 
 ```
-spacecraft validate
+spacecraft validate --strict
 spacecraft git-info
 # Hard gate: changelog and version bump. Both mandatory - never defer.
 # Checks that the work branch has a commit touching CHANGELOG.md since fork.
 git log main..HEAD --oneline | grep -q 'CHANGELOG' || { echo "FAIL: CHANGELOG.md not updated. Add a version bump + changelog commit before merge."; exit 1; }
 spacecraft closeout-check
+# Alias: spacecraft ship-check
 ```
 
 Changelog update and version bump are **never deferrable**. sc-git requires even docs/chore changes to tag the next patch version. Do not proceed with merge until these commits exist on the work branch.
+
+When `SPACECRAFT_SHIP=1`, the Cursor ship hook re-runs `closeout-check` (or `SPACECRAFT_CLOSEOUT_CMD` in tests) before allowing `git merge` / `git push` / `git tag`. Preflight closeout does not replace that hook re-check.
 
 ## Workflow
 
@@ -73,7 +76,7 @@ If all gates pass, use sc-git to prepare merge to main:
 
 #### SPACECRAFT_SHIP gate (required)
 
-Cursor hooks deny `git merge`, `git push`, and `git tag` unless `SPACECRAFT_SHIP=1`. Set it only for those gated ship commands, then unset immediately:
+Cursor hooks deny `git merge`, `git push`, and `git tag` unless `SPACECRAFT_SHIP=1` **and** closeout-check passes. With `SPACECRAFT_SHIP=1`, the hook runs closeout again before allow. Set the env only for those gated ship commands, then unset immediately:
 
 ```
 # Prefer per-command env (auto-clears):

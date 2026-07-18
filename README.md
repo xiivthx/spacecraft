@@ -103,8 +103,9 @@ Run the repository binary as `./spacecraft`, or use `spacecraft` after installat
 | `spacecraft set-state [mission-id] <new-state>` | Set mission state (mission-id optional when resolved from branch or current), alias: `state` |
 | `spacecraft clarify-status <open\|clear\|deferred>` | Set clarification status |
 | `spacecraft evidence [--mission <id>] <label> -- <command...>` | Run a command and capture evidence, alias: `evi` |
-| `spacecraft validate [mission-id]` | Validate mission artifacts and evidence, alias: `val` |
-| `spacecraft closeout-check` | Check whether a mission is ready to close out |
+| `spacecraft validate [--strict] [mission-id]` | Validate mission artifacts and evidence, alias: `val`. `--strict` also requires `exitCode` on every evidence entry and evidence for each done plan task |
+| `spacecraft closeout-check` | Check whether a mission is ready to close out, alias: `ship-check` |
+| `spacecraft ship-check` | Alias for `closeout-check` |
 | `spacecraft archive [selector]` | Archive a shipped mission |
 | `spacecraft roadmap <new\|add\|rm\|ls\|show\|next\|archive> [...]` | Manage roadmaps, alias: `map` |
 | `spacecraft help` | Show live CLI help |
@@ -157,5 +158,15 @@ Each mission lives at `.space/missions/<id>/`. The primary files are:
 ## Git and shipping
 
 Spacecraft work belongs on `feat/<mission-id>/<title>`, not directly on `main`. Shipping is never inferred. `/sc-ship` runs only after an explicit request to merge or release, validates the mission, and applies the repository's release gates.
+
+Before claiming build complete, prefer `spacecraft validate --strict`. Before merge, run `spacecraft closeout-check` (or `ship-check`). With `SPACECRAFT_SHIP=1`, the Cursor ship hook re-runs closeout before allowing `git merge` / `git push` / `git tag`.
+
+Local gate (Go tests + hook unit tests):
+
+```sh
+make gate
+```
+
+On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft status` (or `No active spacecraft mission.`) so the agent gets mission context.
 
 Project behavior and policy are defined by the always-on files in `.cursor/rules/`.

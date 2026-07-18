@@ -45,8 +45,16 @@ type cliResult struct {
 
 func runCLI(t *testing.T, dir string, args ...string) cliResult {
 	t.Helper()
+	return runCLIWithEnv(t, dir, nil, args...)
+}
+
+func runCLIWithEnv(t *testing.T, dir string, env []string, args ...string) cliResult {
+	t.Helper()
 	cmd := exec.Command(spacecraftBin, args...)
 	cmd.Dir = dir
+	if env != nil {
+		cmd.Env = append(os.Environ(), env...)
+	}
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -115,20 +123,31 @@ func writeMission(t *testing.T, root, id, state string) {
 
 func initGitRepo(t *testing.T, dir, branch string) {
 	t.Helper()
+	globalCfg := filepath.Join(dir, ".gitconfig")
+	if err := os.WriteFile(globalCfg, []byte(""), 0644); err != nil {
+		t.Fatal(err)
+	}
+	xdgConfig := filepath.Join(dir, ".config")
+	if err := os.MkdirAll(xdgConfig, 0755); err != nil {
+		t.Fatal(err)
+	}
 	run := func(args ...string) {
 		t.Helper()
 		cmd := exec.Command("git", args...)
 		cmd.Dir = dir
 		cmd.Env = append(os.Environ(),
+			"HOME="+dir,
+			"GIT_CONFIG_GLOBAL="+globalCfg,
 			"GIT_CONFIG_NOSYSTEM=1",
 			"GIT_TERMINAL_PROMPT=0",
+			"XDG_CONFIG_HOME="+xdgConfig,
 		)
 		if out, err := cmd.CombinedOutput(); err != nil {
 			t.Fatalf("git %v: %v\n%s", args, err, out)
 		}
 	}
 	// Empty template avoids writing default hooks (works under sandbox).
-	run("init", "--template=")
+	run("-c", "init.defaultBranch=main", "init", "--template=")
 	run("config", "user.email", "test@example.com")
 	run("config", "user.name", "Test")
 	keep := filepath.Join(dir, ".gitkeep")
@@ -160,6 +179,7 @@ var restoredCommands = []string{
 	"evidence",
 	"validate",
 	"closeout-check",
+	"ship-check",
 	"archive",
 	"roadmap",
 	"help",
@@ -223,6 +243,7 @@ func TestDispatchAcceptsRestoredCommands(t *testing.T) {
 		{"validate", []string{"validate", "M07TEST01"}, true},
 		{"roadmap", []string{"roadmap", "ls"}, true},
 		{"closeout-check", []string{"closeout-check"}, true},
+		{"ship-check", []string{"ship-check"}, true},
 		{"git-info", []string{"git-info"}, true},
 		{"clarify-status", []string{"clarify-status", "clear"}, true},
 		{"archive", []string{"archive", "--help"}, true},
@@ -273,6 +294,7 @@ func TestAliasesDispatchToRestoredCommands(t *testing.T) {
 		{"val", "validate", []string{"val", "M07ALIAS1"}},
 		{"state", "set-state", []string{"state", "M07ALIAS1", "planned"}},
 		{"map", "roadmap", []string{"map", "ls"}},
+		{"ship-check", "closeout-check", []string{"ship-check"}},
 	}
 
 	for _, tt := range tests {

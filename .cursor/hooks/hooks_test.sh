@@ -31,15 +31,23 @@ $cmd_json
 EOF
 }
 
+# run_ship <SPACECRAFT_SHIP|empty> <cmd_json> [SPACECRAFT_CLOSEOUT_CMD]
 run_ship() {
   env_ship="$1"
   cmd_json="$2"
+  closeout_cmd="${3-}"
   if [ -n "$env_ship" ]; then
-    SPACECRAFT_SHIP="$env_ship" "$SHIP" <<EOF
+    if [ -n "$closeout_cmd" ]; then
+      SPACECRAFT_SHIP="$env_ship" SPACECRAFT_CLOSEOUT_CMD="$closeout_cmd" "$SHIP" <<EOF
 $cmd_json
 EOF
+    else
+      env -u SPACECRAFT_CLOSEOUT_CMD SPACECRAFT_SHIP="$env_ship" "$SHIP" <<EOF
+$cmd_json
+EOF
+    fi
   else
-    env -u SPACECRAFT_SHIP "$SHIP" <<EOF
+    env -u SPACECRAFT_SHIP -u SPACECRAFT_CLOSEOUT_CMD "$SHIP" <<EOF
 $cmd_json
 EOF
   fi
@@ -77,11 +85,17 @@ assert_perm "ship: without env denies merge" "deny" "$(extract_perm "$out")"
 out=$(run_ship "" '{"command":"git tag v1.0.0"}')
 assert_perm "ship: without env denies tag" "deny" "$(extract_perm "$out")"
 
-out=$(run_ship "1" '{"command":"git push"}')
-assert_perm "ship: SPACECRAFT_SHIP=1 allows push" "allow" "$(extract_perm "$out")"
+out=$(run_ship "1" '{"command":"git push"}' "true")
+assert_perm "ship: SPACECRAFT_SHIP=1 closeout ok allows push" "allow" "$(extract_perm "$out")"
 
-out=$(run_ship "1" '{"command":"git tag v1.0.0"}')
-assert_perm "ship: SPACECRAFT_SHIP=1 allows tag" "allow" "$(extract_perm "$out")"
+out=$(run_ship "1" '{"command":"git tag v1.0.0"}' "exit 0")
+assert_perm "ship: SPACECRAFT_SHIP=1 closeout ok allows tag" "allow" "$(extract_perm "$out")"
+
+out=$(run_ship "1" '{"command":"git push"}' "false")
+assert_perm "ship: SPACECRAFT_SHIP=1 closeout fail denies push" "deny" "$(extract_perm "$out")"
+
+out=$(run_ship "1" '{"command":"git merge --no-ff feat/x"}' "exit 1")
+assert_perm "ship: SPACECRAFT_SHIP=1 closeout fail denies merge" "deny" "$(extract_perm "$out")"
 
 out=$(run_ship "" '{"command":"ls"}')
 assert_perm "ship: allows unrelated ls" "allow" "$(extract_perm "$out")"
