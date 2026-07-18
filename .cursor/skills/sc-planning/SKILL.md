@@ -1,19 +1,36 @@
 ---
 name: sc-planning
-description: "Convert a mission spec into a small executable plan with verifiable tasks. Activate on /sc-plan, task planning, or spec decomposition."
+description: "Convert a mission spec into a small executable plan with verifiable tasks. Activate during /sc-run planning, Task(sc-planner), task planning, or spec decomposition."
 ---
 
 # sc-planning
 
-Convert a mission spec into a small executable plan. Output is `plan.json` with ≤7 verifiable tasks per phase. When scope exceeds 7 tasks, split into Phase 1, Phase 2, ... each with its own plan.json.
+## Goal
+
+Turn `spec.md` into `plan.json` with ≤7 verifiable tasks per phase so `/sc-run` / sc-tester / sc-coder can execute.
+
+## Output
+
+Writable `plan.json` (schema in `docs/mission-artifacts.md`). Each task needs acceptance + verify + evidence.
+
+## Good / Bad
+
+- Good: concrete acceptance, exact verify commands, no hidden assumptions
+- Bad: vague titles, missing verify, inventing success criteria when unclear (clarity gate → research then ask / stop)
+
+## Verify
+
+Every acceptance is testable; ≤7 tasks per phase; file paths real; no open blocking clarify.
+
+Convert a mission spec into a small executable plan. When scope exceeds 7 tasks, split into Phase 1, Phase 2, ... each with its own plan.json.
 
 ## When to use
 
-Activate when the user asks to:
+Activate when:
 
-- **Plan next steps / "create a plan" / "/sc-plan"** - explicit planning
-- **Break the spec into tasks** - task decomposition from `spec.md`
-- **Scope work before implementation** - pre-build task definition
+- `/sc-run` needs a plan (or Task `sc-planner`)
+- User asks to plan / break the spec into tasks
+- Scope work before implementation
 
 ## Workflow
 
@@ -88,8 +105,8 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 ## Out of scope
 
-- Design or UI work - use sc-design
-- Implementation - use the build command
+- Design or UI work - use sc-ux-design / sc-designer
+- Implementation - Task `sc-coder` / `sc-firmware` under `/sc-run`
 - Verification - use sc-verification
 - Clarification - use sc-clarify
 

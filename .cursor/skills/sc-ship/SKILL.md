@@ -4,7 +4,24 @@ description: "Prepares and executes mission delivery when review gates pass and 
 disable-model-invocation: true
 ---
 
-AFK mission work to `ready` comes from `/sc-run`; ship remains human-only via this skill.
+## Goal
+
+Close out a `ready` mission only after explicit human `/sc-ship`: validate, merge `--no-ff`, archive.
+
+## Output
+
+Shipped mission on `main` (or blocked with exact missing gates). Never infer ship from AFK or handoff.
+
+## Good / Bad
+
+- Good: `validate --strict` + `closeout-check` pass; CHANGELOG + version bump committed; `SPACECRAFT_SHIP=1` for gated git
+- Bad: shipping without evidence/review; deferring changelog; inventing Verify
+
+## Verify
+
+`spacecraft validate --strict` and `spacecraft closeout-check` (alias `ship-check`) both exit 0 before merge.
+
+AFK to `ready` is `/sc-run`; ship is human-only via this skill.
 
 Use sc-mission, sc-verification, sc-git, and sc-learn.
 Resolve the mission. Block if unsafe.

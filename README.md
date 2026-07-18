@@ -182,3 +182,7 @@ User-facing slash skills: **`/sc-run`** and **`/sc-ship` only**.
 - **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design` - glob rules still apply
 
 Project behavior and policy are defined by the always-on files in `.cursor/rules/`.
+
+## How we instruct agents
+
+Clarity over tricks (Wharton Prompting Science + Cursor agent practices). Agents use a **Spec Contract**: Goal, Output, Good vs Bad, Verify. If unclear, research then ask - never invent Verify. Details: [docs/prompting.md](docs/prompting.md). Artifact schemas: [docs/mission-artifacts.md](docs/mission-artifacts.md).

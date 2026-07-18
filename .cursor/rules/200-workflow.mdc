@@ -5,8 +5,6 @@ alwaysApply: true
 
 ## Lane Detection
 
-Auto-classify every user request:
-
 | User intent | Lane |
 |-------------|------|
 | Ask, tell, talk, consult, research, explain, how-to | Advisory |
@@ -16,198 +14,61 @@ Auto-classify every user request:
 
 ## Cursor Mode Bridge
 
-Spacecraft lanes map to Cursor modes and skills. Use both together - do not treat them as separate systems.
+User-facing slash skills: `/sc-run` and `/sc-ship` only. Plan/build/review are internal under `/sc-run`. Detail: `.cursor/skills/sc-run`, `sc-ship`, `sc-mission`.
 
-User-facing slash skills are only `/sc-run` and `/sc-ship`. Plan/build/review are internal steps under `/sc-run` (agents + detail skills). Legacy slash skills live in `.deleted/skills/`.
-
-| User intent | Spacecraft lane | Cursor mode / action |
+| User intent | Lane | Cursor mode / action |
 |---|---|---|
-| Ask / explain | Advisory | Ask Mode (or Agent with no writes) |
-| Roadmap mission work | Mission | Agent + `/sc-run` (orchestrates plan/build/review) |
-| Bug hunt | Debug | Cursor Debug Mode (no slash skill) |
-| Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
+| Ask / explain | Advisory | Ask Mode (or Agent, no writes) |
+| Roadmap work | Mission | Agent + `/sc-run` |
+| Bug hunt | Debug | Cursor Debug Mode |
+| Ship | Ship | Agent + `/sc-ship` |
 | Small edit / commit | Quick | Agent (no full mission gates) |
 
-Rules for the Commander:
-- After clarify clear, prefer `/sc-run` for roadmap work; do not ask non-blocking questions mid-AFK.
-- Debug lane: prefer Cursor Debug Mode when runtime evidence is needed.
-- Review gate: `/sc-run` uses Task(`sc-reviewer`) and/or Agent Review before ready; ship only via `/sc-ship`.
+Commander: after clarify clear, prefer `/sc-run`; no non-blocking questions mid-AFK. Ship only via `/sc-ship`.
 
-## AFK runner
-
-Human-in-the-loop clarify first. Then AFK with `/sc-run` until missions are `ready`. Human checks the ready work. Ship only with explicit `/sc-ship`.
+## AFK flow
 
 ```
 clarify (human) → /sc-run <roadmap-id> → human check → /sc-ship
 ```
 
-`spacecraft map use|current|next` select and advance the active roadmap for `/sc-run`.
+`spacecraft map use|current|next` select and advance the roadmap.
 
-## Roadmap Workflow
+## Roadmap / issues (short)
 
-For large, multi-mission work (>7 tasks), create a roadmap first.
+- Large work (>7 tasks): `spacecraft map new`, then add missions; AFK with `/sc-run`.
+- Bug radar any lane: `gh issue create` + record in mission `issues.md` / roadmap `issues`.
+- Fix issue #N: view issue → mission → reference in spec → close after ship.
 
-### Create roadmap
-1. Run `spacecraft roadmap new "<title>"` (or `spacecraft map new "<title>"`)
-2. Confirm `.space/roadmaps/<id>.json` matches the schema from conventions
-3. Missions array starts empty - populate as missions are created
+## Mission resolution
 
-### Add mission to roadmap
-When starting a mission that belongs to a roadmap:
-1. Create mission as normal (Start flow above)
-2. Run `spacecraft roadmap add <roadmap-id> <mission-id> --desc "<brief>"`
-3. Confirm the roadmap `updatedAt` timestamp changed
+Branch `feat/<id>/…` → `.space/missions/<id>/mission.json`. List: `ls .space/missions/`. State: `spacecraft set-state [id] <state>` (`state` alias). CLI: `evidence`/`evi`, `validate`/`val`, `roadmap`/`map`.
 
-### Continue roadmap
-Find next pending mission:
-1. Run `spacecraft roadmap next <roadmap-id>` (or `spacecraft map next`)
-2. Prefer `/sc-run <roadmap-id>` to AFK through incomplete missions to `ready`
+Clarify status file: `open` | `clear` | `deferred` under mission dir.
 
-### Archive roadmap
-When all missions shipped:
-1. Run `spacecraft roadmap archive <roadmap-id>`
-2. Mark all linked issues as closed
+## Lanes (pointers)
 
-## GitHub Issues Workflow
-
-### Bug radar - auto-create issues
-When you discover a bug, incorrect workflow, or broken assumption during ANY lane:
-1. Create issue: `gh issue create --title "<title>" --body "<body>" --label bug`
-2. If mission has a roadmap, add issue to roadmap's `issues` array
-3. Record in `.space/missions/<id>/issues.md` for traceability
-
-### Issue resolution
-When user says "fix issue #N":
-1. Read issue: `gh issue view <number>`
-2. Create mission for the fix (following Mission Lane)
-3. Reference issue in spec.md
-4. After ship: close issue: `gh issue close <number>`
-
-## Mission Resolution
-
-Active mission is detected from branch name. No explicit selection needed.
-
-To find the active mission:
-1. `git branch --show-current` - extract ID from `feat/<id>/<title>`
-2. Read `.space/missions/<id>/mission.json` for full context
-
-To list all missions:
-```
-ls -1 .space/missions/
-```
-
-To set mission state (mission-id optional when resolved from branch/current):
-```
-spacecraft set-state [mission-id] <state>
-# or
-spacecraft state [mission-id] <state>
-```
-State machine: active → planned → in_progress → ready → shipped (+ blocked).
-Invalid transitions are rejected (e.g., shipped → active is blocked).
-
-Canonical CLI commands are `spacecraft evidence`, `spacecraft validate`, `spacecraft set-state` / `spacecraft state`, and `spacecraft roadmap`. The supported short aliases are `evi`, `val`, and `map`.
-
-## Clarification Management
-
-When a mission has unresolved questions:
-
-To mark clarification as needed:
-```
-echo "open" > .space/missions/<id>/clarify-status
-```
-To clear: `echo "clear" > ...`
-To defer: `echo "deferred" > ...`
-
-## Mission Lane (start -> plan -> build -> review -> ship)
-
-`/sc-run` orchestrates plan, build, and review via agents and detail skills. Humans clarify first and ship with `/sc-ship` only.
-
-### Start -- Begin mission
-1. Generate mission ID: `node -e "const MS=Date.now()-new Date('2026-01-01').getTime();console.log('M'+MS.toString(36).toUpperCase())"`
-2. Create branch: `git checkout -b feat/<id>/<title>`
-3. Create directory: `mkdir -p .space/missions/<id>/outputs`
-4. Write `mission.json` (see conventions rule for schema)
-5. Draft `spec.md` -- what and why
-6. Record decisions/questions in `decisions.md` / `questions.md`
-
-### Plan -- Convert spec to plan
-(Internal under `/sc-run`; or Task `sc-planner` / sc-planning detail skill.)
-1. Delegate to the Cursor subagent `sc-planner`
-2. Output: `plan.json` with <=7 tasks
-3. Each task: id, title, status, files, acceptance, verify, evidence labels
-
-### Build -- Implement tasks
-(Internal under `/sc-run`.)
-1. Verify on feature branch: `git branch --show-current`
-2. Read mission.json, spec.md, plan.json for context
-3. Check dirty tree: `git status --porcelain`
-4. For each task in plan.json:
-   - TDD cycle: sc-tester (Red) -> sc-coder (Green) -> sc-tester (Verify)
-   - Capture evidence: `spacecraft evidence <label> -- <test-command>`
-   - Mark task done, checkpoint commit
-5. When all tasks done: validate artifacts: `spacecraft validate`
-6. Set state: `spacecraft set-state ready`
-
-### Review -- Formal review
-(Internal under `/sc-run`.)
-1. Delegate to the Cursor subagent `sc-reviewer`
-2. Record findings in `review.md` and `review.json`
-3. Fix any issues, re-run verification
-
-### Ship -- Merge and release
-Only on explicit `/sc-ship` (never inferred from AFK or handoff):
-1. Run validate: `spacecraft validate <id>` -- block on failure
-2. Rebase on main: `git fetch origin && git rebase origin/main`
-3. Push: `git push origin feat/<id>/<title>`
-4. Merge on GitHub (or `git checkout main && git merge --no-ff feat/<id>/<title> && git push origin main`)
-5. Set state: `spacecraft set-state shipped`
-6. Archive: `mv .space/missions/<id> .space/archive/`
-
-## Quick Lane
-
-Skips spec.md, plan.json, TDD build, formal review.
-- Still: git safety, Conventional Commits, `--no-ff` merge, test suite
-- Self-review: diff inspection, functional check, test suite, git hygiene
-- Report ready, wait for explicit ship command
-
-## Debug Lane
-
-1. Reproduce bug E2E (as close to end-user experience as possible)
-2. Trace failure path end-to-end
-3. Falsify hypothesis -- prove it's the root cause
-4. Cross-reference -- check all callers and related code
-5. Post-mortem -- record root cause and fix in issues.md
+- **Mission:** follow `/sc-run` (start/plan/build/review via agents). Full steps in `sc-mission` / `sc-run` / `sc-planning` / `sc-tdd` / `sc-verification`.
+- **Ship:** only `/sc-ship` - validate, rebase, merge `--no-ff`, archive. Never merge/tag/delete without explicit ship.
+- **Quick:** skips spec/plan/TDD/formal review; still git safety + tests; report ready, wait for ship.
+- **Debug:** reproduce E2E → falsify root cause → record in `issues.md`. Prefer Cursor Debug Mode for runtime evidence.
 
 ## Subagent Delegation
 
-You are an orchestrator, not an implementer. Delegate all source code writing and testing to subagents. Never write or edit source files directly.
+Orchestrator, not implementer. Never write/edit product source or tests in Commander - Task-delegate:
 
-**Available subagents:**
-- `sc-coder` - implements production code (write-capable)
-- `sc-tester` - writes tests, captures evidence (write-capable)
-- `sc-planner` - converts spec to plan.json (read-only)
-- `sc-reviewer` - reviews diff, evidence, release readiness (read-only)
-- `sc-designer` - UI critique, anti-slop review (read-only)
-- `sc-adviser` - complex system design guidance (read-only)
-- `sc-firmware` - embedded C firmware, STM32 HAL, protocol, peripheral (write-capable)
+| Agent | Role |
+|---|---|
+| `sc-coder` | production code |
+| `sc-tester` | tests + evidence |
+| `sc-planner` | plan.json |
+| `sc-reviewer` | release readiness |
+| `sc-designer` | UI critique |
+| `sc-adviser` | complex design |
+| `sc-firmware` | STM32 C |
 
-**Delegation patterns:**
-- Web/app code: delegate to sc-coder
-- Embedded/firmware: delegate to sc-firmware
-- Before writing: delegate to sc-tester for failing test
-- After code exists: delegate to sc-tester for verification
-- Before ship: delegate to sc-reviewer for release review
-
-## Release Closeout
-
-Only on explicit ship command:
-1. Verify all gates pass (evidence, review, tests)
-2. `git rebase origin/main` -- verify clean
-3. `git merge --no-ff` to main
-4. Tag if versioned, delete feature branch, archive mission
-5. Never merge, tag, or delete branches without explicit command
+Patterns: tester before coder; firmware for embedded; reviewer before ship.
 
 ## Session Handoff
 
-If work unfinished: summarize state, blockers, dirty git status, next pickup command.
-End every session with recommended next action.
+Unfinished work: state, blockers, dirty git, next pickup. End with recommended next action.

@@ -6,6 +6,23 @@ disable-model-invocation: true
 
 # sc-run
 
+## Goal
+
+After human clarify, AFK incomplete roadmap missions to `ready` so a human can check and then `/sc-ship`.
+
+## Output
+
+Missions at `state=ready` (or stop on blocked / clarify). Print handoff: **AFK done. Human check, then /sc-ship.** Never merge/push/tag.
+
+## Good / Bad
+
+- Good: one branch per mission; plan has acceptance+verify; evidence real; review recorded; soft assumptions in `decisions.md`
+- Bad: shipping; mid-loop non-blocking questions; inventing Verify; stacking many missions on one branch
+
+## Verify
+
+`spacecraft validate --strict` per mission; `map next` until `All missions complete.` or blocked tip.
+
 Human clarifies gray areas first. Then AFK through the roadmap. Stop for human check. Never ship - that is `/sc-ship` only.
 
 ## Arguments

@@ -1,6 +1,6 @@
 # Code Smells
 
-> Consult when: reviewing a diff, doing self-review during `/sc-build`, or feeling that code is "fighting you." Not all smells need fixing - confirm with a test before refactoring.
+> Consult when: reviewing a diff, doing self-review during `/sc-run` build, or feeling that code is "fighting you." Not all smells need fixing - confirm with a test before refactoring.
 
 ## The 7 That Matter Most
 
