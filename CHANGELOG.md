@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.36.0 - 2026-07-19
 
 - Feat: `/sc-run` AFK build uses jigsaw plan tasks and per-acceptance RED-GREEN via Task agents with auto checkpoint commits
 - Feat: `/sc-ship` squashes AFK checkpoints to ≤5 Conventional Commits before merge
