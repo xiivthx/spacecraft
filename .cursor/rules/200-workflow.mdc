@@ -30,6 +30,8 @@ After clarify clear, prefer `/sc-run`; no non-blocking questions mid-AFK. Ship o
 clarify (human) → /sc-run <roadmap-id> → human check → /sc-ship
 ```
 
+`/sc-run` build: jigsaw plan tasks → per-acceptance RED (sc-tester) → GREEN (sc-coder) with auto checkpoint commits → combine/refactor + integration gate → review → `ready`. `/sc-ship` squashes checkpoints to ≤5 commits, then merges.
+
 `spacecraft map use|current|next` select and advance the roadmap.
 
 ## Roadmap / issues
@@ -65,7 +67,7 @@ Orchestrator, not implementer. Task-delegate:
 | `sc-adviser` | complex design |
 | `sc-firmware` | STM32 C |
 
-Patterns: tester before coder; firmware for embedded; reviewer before ship.
+Patterns: tester before coder (one acceptance per pair); firmware for embedded; refactor after all slices; reviewer before ship.
 
 ## Session Handoff
 
