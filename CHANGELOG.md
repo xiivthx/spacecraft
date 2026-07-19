@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Feat: UI HTML-first HIL gate - draft HTML (layout/style/components) must be approved before visual FE implementation under `/sc-run`
+- Feat: after UI build, require screenshots/visual verify plus functional test evidence before `ready`
+- Docs: sc-web-frontend, sc-ux-design, sc-designer, and workflow describe draft stop + visual recheck
+
 ## 0.36.0 - 2026-07-19
 
 - Feat: `/sc-run` AFK build uses jigsaw plan tasks and per-acceptance RED-GREEN via Task agents with auto checkpoint commits

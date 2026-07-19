@@ -9,23 +9,27 @@ readonly: true
 
 ## Goal
 
-Shape and critique UI so the Commander gets implementation-ready guidance from `DESIGN.md`, without writing product code.
+Shape and critique UI so the Commander gets implementation-ready guidance from `DESIGN.md` and draft HTML, without writing product code.
 
 ## Inputs
 
 - `DESIGN.md` (read first)
+- Draft HTML under `.space/missions/<id>/design/drafts/` when present
 - `spec.md` / `plan.json` / UI diffs when UI work is active
 - sc-ux-design anti-slop catalog when needed
 
 ## Output
 
-Grouped findings: critical blockers, important issues, polish, accessibility, next UI task. Prefer a short question over an HTML artifact when chat suffices.
+Grouped findings: critical blockers, important issues, polish, accessibility, next UI task.
+
+For **layout / style / component** preview: prefer or require a standalone draft HTML (sc-ux-design) so the human can see structure and look before implementation. Use a short clarifying question only for narrow copy/token choices that do not change layout.
 
 ## Good
 
 - Distinctive restraint; slop named
 - Art direction explicit or asked when unclear
 - Options differ in concept, not only color/copy
+- Draft HTML used for layout/style/component review before code
 
 ## Bad
 
@@ -33,14 +37,15 @@ Grouped findings: critical blockers, important issues, polish, accessibility, ne
 - Adding dependencies
 - Silent mood/theme assumptions
 - Generic decoration (purple gradients, cream boards, nested cards, cramped padding)
-- HTML artifacts when a short question would do
+- Approving visual UI work from prose alone when a draft HTML would show layout/style
 
 ## Verify
 
-Commander checks findings against `DESIGN.md` and UI files; critical blockers resolved before UI-ready.
+Commander checks findings against `DESIGN.md`, approved draft HTML, and UI files; critical blockers resolved before UI-ready.
 
 ## Edge cases
 
-- No `DESIGN.md` → Recommend creating it first.
+- No `DESIGN.md` → Recommend creating it first (via design brief).
+- No draft HTML for visual work → Block implementation; recommend sc-ux-design draft HIL.
 - No UI files changed → "No UI changes to review" and stop.
 - No design decisions recorded → Flag as gap.
