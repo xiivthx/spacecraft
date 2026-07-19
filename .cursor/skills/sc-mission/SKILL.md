@@ -25,7 +25,7 @@ Use this exact sequence unless the user specifies otherwise:
 2. **Read artifacts** - Read `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
 3. **Index artifacts** - After creating or updating spec.md, plan.json, decisions.md, or questions.md, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort: warn on failure, never block). See sc-memory for conventions.
 4. **Route ambiguity** - If intent, scope, or acceptance criteria is ambiguous, route to sc-clarify before proceeding.
-5. **Enforce lifecycle** - Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. For roadmap AFK, `/sc-run` orchestrates plan/build/review. Repeat build -> verify -> checkpoint commit for successive tasks.
+5. **Enforce lifecycle** - Follow: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. For roadmap AFK, `/sc-run` orchestrates jigsaw plan → per-acceptance RED-GREEN (checkpoint commits) → combine/refactor → review.
 6. **Release or handoff** - On ship intent, run `/sc-ship` closeout. On session end, give handoff summary.
 
 ### Edge cases
@@ -64,7 +64,7 @@ Set state with `spacecraft set-state [mission-id] <new-state>` (mission-id optio
 - **Must**: New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.
 - **Must**: Read the resolved mission's `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
 - **Must**: sc-mission owns lifecycle but must route ambiguity to sc-clarify.
-- **Must**: Enforce order: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. Build may repeat build -> verify -> checkpoint commit for successive tasks until a gate blocks.
+- **Must**: Enforce order: mission -> clarify -> spec -> visual design if needed -> plan -> build -> verify -> review -> ship. AFK build repeats RED → checkpoint → GREEN → evidence → checkpoint per acceptance, then combine/refactor checkpoint, until a gate blocks.
 - **Must not**: Skip clarification when user intent, scope, acceptance criteria, or visual design direction is materially ambiguous.
 - **Must**: If clear mutating work is requested and no suitable mission or branch exists, create the mission and non-main branch without another blocking question when policy permits it.
 - **Must not**: Implement if spec or plan is missing.

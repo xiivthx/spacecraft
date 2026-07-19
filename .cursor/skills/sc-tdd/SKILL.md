@@ -7,6 +7,8 @@ description: "Test-driven development discipline. Activate on \"TDD\", \"Plan-Re
 
 Plan → Red → Green → Verify → Repeat. Then Refactor → Review when the feature is complete. Plan what to test before writing. Skip TDD when the test would be a trivial tautology - just code and review. Every cycle produces one vertical slice.
 
+Under `/sc-run`, the Commander drives each `plan.json` acceptance as one cycle via Task(`sc-tester`) then Task(`sc-coder`), auto-commits after RED and GREEN, then runs a combine/refactor + functional gate before review.
+
 ## Principles
 
 Distilled from common testing anti-patterns. Apply silently; surface violations.
@@ -71,9 +73,9 @@ Record skipped-TDD decisions for a task in the task output or plan.json notes.
 
 ### After all checks pass for a feature
 
-1. **Refactor** - Now you have the full picture. Extract helpers, improve names, remove duplication (Rule of Three), simplify logic. The tests protect you - refactor with confidence.
+1. **Refactor** - Now you have the full picture. Extract helpers, improve names, remove duplication (Rule of Three), simplify logic. The tests protect you - refactor with confidence. Under `/sc-run`, Commander auto-commits this step (`refactor:`).
 
-2. **Functional test gate** - Run the full test suite (unit + integration + functional). All old tests must pass alongside new tests. If anything breaks, fix the refactor, not the old tests. Capture evidence: `spacecraft evidence "<label>-functional" -- <full-test-suite>`.
+2. **Functional test gate** - Run the full test suite (unit + integration + functional). All old tests must pass alongside new tests. If anything breaks, fix the refactor, not the old tests. Capture evidence: `spacecraft evidence "<label>-functional" -- <full-test-suite>`. Auto-commit if the gate adds tests or fixes (`test:` / `fix:`).
 
 3. **Review** - Self-review the diff. Then move to formal review for code review, design review (if UI), and release readiness before shipping.
 
@@ -98,8 +100,9 @@ Record skipped-TDD decisions for a task in the task output or plan.json notes.
 
 - **Must**: Plan before red. No test without a confirmed seam and expected behavior written down.
 - **Must**: Red before green. No production code without a failing test (or explicit triage skip).
-- **Must**: One slice per cycle. One plan → one test → one implementation.
+- **Must**: One slice per cycle. One acceptance → one test → one implementation. Plan tasks are jigsaw pieces; acceptances are cycles inside them.
 - **Must**: Refactor after all acceptance checks pass - not mid-cycle. You need the full picture.
+- **Must** (AFK): Checkpoint-commit after RED, GREEN, and post-feature refactor (Commander; see sc-git).
 - **Must**: Run functional test suite after refactor. Old tests must pass alongside new tests.
 - **Must not**: Horizontal slice - bulk tests before bulk implementation.
 

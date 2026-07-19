@@ -14,8 +14,8 @@ Shipped mission on `main` (or blocked with exact missing gates). Never infer shi
 
 ## Good / Bad
 
-- Good: `validate --strict` + `closeout-check` pass; CHANGELOG + version bump committed; `SPACECRAFT_SHIP=1` for gated git
-- Bad: shipping without evidence/review; deferring changelog
+- Good: AFK checkpoints squashed to ≤5 Conventional Commits; `validate --strict` + `closeout-check` pass; CHANGELOG + version bump committed; `SPACECRAFT_SHIP=1` for gated git
+- Bad: shipping with unsquashed WIP checkpoints; shipping without evidence/review; deferring changelog
 
 ## Verify
 
@@ -48,7 +48,18 @@ Only merge if: clarify clear; acceptance has evidence; `review.json` status `rea
 
 If any fail: block with exact missing actions.
 
-### 2. Release commit
+### 2. Squash AFK checkpoints
+
+Before release commit / merge, rewrite the work-branch history into ≤5 logical Conventional Commits (target 1–3 + separate changelog commit):
+
+1. Inspect `git log main..HEAD --oneline`. If already ≤5 logical commits and no `wip checkpoint` noise, skip.
+2. Soft-reset or equivalent non-interactive squash/fixup of RED/GREEN/refactor checkpoints into coherent `feat:` / `fix:` / `test:` / `refactor:` commits. Prefer `git reset --soft $(git merge-base HEAD main)` then re-commit logical groups - never interactive rebase (`-i`).
+3. Re-run mission verify / tests after squash; capture fresh evidence if history rewrite dropped nothing but reaffirm suite green.
+4. Record squash summary in the ship handoff (how many checkpoints → how many final commits).
+
+Do not push rewritten history unless the user explicitly asks.
+
+### 3. Release commit
 
 Before merge, one commit: sc-learn migration + CHANGELOG + version bump.
 
@@ -57,7 +68,7 @@ Before merge, one commit: sc-learn migration + CHANGELOG + version bump.
 3. Bump version.
 4. Commit.
 
-### 3. Merge
+### 4. Merge
 
 - Rebase on latest `main` after confirming fork point.
 - Merge `--no-ff` only (no squash).
@@ -77,7 +88,7 @@ SPACECRAFT_SHIP=1 git tag -a vX.Y.Z -m "vX.Y.Z"
 
 Unset after ship ops. Never set for ordinary git work.
 
-### 4. Summary
+### 5. Summary
 
 Mission id, what changed, evidence, review status, git/tag state, limitations, next step. Then `set-state shipped` and archive if not already.
 

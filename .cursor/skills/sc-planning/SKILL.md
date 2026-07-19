@@ -7,20 +7,20 @@ description: "Convert a mission spec into a small executable plan with verifiabl
 
 ## Goal
 
-Turn `spec.md` into `plan.json` with ≤7 verifiable tasks per phase so `/sc-run` / sc-tester / sc-coder can execute.
+Turn `spec.md` into a jigsaw `plan.json` with ≤7 verifiable tasks per phase so `/sc-run` can execute per-acceptance RED-GREEN cycles via sc-tester / sc-coder.
 
 ## Output
 
-Writable `plan.json` (schema in `docs/mission-artifacts.md`). Each task needs acceptance + verify + evidence.
+Writable `plan.json` (schema in `docs/mission-artifacts.md`). Each task needs acceptance + verify + evidence. Each acceptance item is one RED-GREEN cycle.
 
 ## Good / Bad
 
-- Good: concrete acceptance, exact verify commands, no hidden assumptions
-- Bad: vague titles, missing verify, filling gray areas silently
+- Good: atomic jigsaw slices; concrete acceptance (1-3 per task); exact verify; no hidden assumptions
+- Bad: one coarse "implement feature" task; vague titles; missing verify; filling gray areas silently
 
 ## Verify
 
-Every acceptance is testable; ≤7 tasks per phase; file paths real; no open blocking clarify.
+Every acceptance is testable and maps to one cycle; ≤7 tasks per phase; file paths real; no open blocking clarify.
 
 ## When to use
 
@@ -45,19 +45,21 @@ Use this exact sequence unless the user specifies otherwise:
    - `outputs/map.json` - project structure survey (if present, see Map integration below)
    - If a blocking clarification question is open, stop - route to sc-clarify.
 
-3. **Decompose into tasks** - Break the spec into tasks, ≤7 per phase. When scope demands more:
+3. **Decompose into jigsaw tasks** - Break the feature into atomic behavioral vertical slices (puzzle pieces that combine into the full capability). ≤7 tasks per phase. When scope demands more:
    - Split into Phase 1, Phase 2, ... each with its own `plan.json` (`plan-phase1.json`, `plan-phase2.json`, ...)
    - Phase 1 covers the highest-priority, blocking, or foundational work
    - Each phase is independently buildable and verifiable
    - Record the split rationale in `decisions.md`
 
+   **Jigsaw rule:** prefer one plan task per independently testable slice (form fields, remember-me, submit, API, errors, theme), not one task for the whole feature. `/sc-run` runs RED then GREEN once per acceptance item.
+
    Each task:
    - `id` - use the mission's compact sortable ID scheme (`T1`, `T2`, ... or match existing task numbering in the plan)
-   - `title` - imperative, specific (e.g., "Add health check endpoint" not "Implement health")
+   - `title` - imperative, names the slice (e.g., "Bind username and password inputs with validation" not "Implement login")
     - `status` - start all as `pending`
     - `dependsOn` - optional array of task IDs this task depends on. Build loop skips tasks whose deps aren't `done`.
     - `files` - exact file paths when known. List only files directly touched. Use map.json touchpoints if available.
-    - `acceptance` - 1–3 concrete checks per task. Verifiable statements, not abstract goals.
+    - `acceptance` - 1–3 concrete checks per task. **Each item = one RED-GREEN cycle.** Split the task if you need more than 3.
     - `verify` - exact command or description of verification step (e.g., `npm test`, `curl localhost:3000/healthz`)
     - `evidence` - `spacecraft evidence "<label>" -- <command>`
 
@@ -99,9 +101,10 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - **Must**: Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`.
 - **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
 - **Must**: File paths are real - verify with `ls` or glob before writing.
-- **Must not**: Use vague tasks like "improve code" or "add features". Be specific.
+- **Must not**: Use vague tasks like "improve code", "add features", or one task that swallows the whole feature.
 - **Must not**: Fill gray areas with hidden assumptions. Record assumptions explicitly.
 - **Must not**: Create broad architecture plans unless the spec requires it.
+- **Must**: Treat each `acceptance[]` item as one RED-GREEN cycle for `/sc-run`.
 
 ## Out of scope
 
@@ -138,9 +141,10 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - [ ] Mission resolved
 - [ ] `spec.md`, `questions.md`, `decisions.md`, `map.json` (if present) read
 - [ ] No blocking clarification open
-- [ ] Plan has ≤7 tasks per phase (split if needed)
-- [ ] Each task has all 7 required fields
-- [ ] Every acceptance check is verifiable
+- [ ] Plan has ≤7 jigsaw tasks per phase (split if needed)
+- [ ] Each task is a behavioral slice (not the whole feature)
+- [ ] Each task has all required fields
+- [ ] Every acceptance check is verifiable and sized as one RED-GREEN cycle
 - [ ] File paths verified real (not guessed)
 - [ ] Assumptions recorded in `decisions.md` if any
 

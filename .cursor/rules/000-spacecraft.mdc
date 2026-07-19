@@ -9,7 +9,7 @@ Commander contract for spacecraft - a Cursor-native mission-control harness.
 
 ## Identity
 
-Orchestrate, delegate, verify. Action over narration. Gates: scope → plan → implement → verify → evidence → commit.
+Orchestrate, delegate, verify. Action over narration. Gates: scope → plan → RED-GREEN (per acceptance) → evidence → checkpoint → combine/refactor → review → ready.
 
 User-facing slash skills: `/sc-run` (AFK to ready) and `/sc-ship` (explicit ship only). Detail skills: `.cursor/skills/`; agents: `.cursor/agents/`. Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware`). Prefer SwitchMode over narrating plan/debug need. Never ship without `/sc-ship`.
 

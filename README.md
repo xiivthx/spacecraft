@@ -45,7 +45,7 @@ Open the project in Cursor. User-facing slash skills are only `/sc-run` and `/sc
 Flow:
 
 1. Clarify first (human) - answer blocking questions; clear clarify-status.
-2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (plan/build/review via agents).
+2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review). `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
 3. Human checks the ready work.
 4. `/sc-ship` validates and closes out only when explicitly requested.
 
@@ -176,7 +176,7 @@ On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft st
 User-facing slash skills: **`/sc-run`** and **`/sc-ship` only**.
 
 - **HIL:** clarify gray areas, then final check + `/sc-ship`
-- **AFK:** `/sc-run` loops `map next` until missions are `ready` or blocked
+- **AFK:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits
 - **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, …)
 - **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design` - glob rules still apply
 

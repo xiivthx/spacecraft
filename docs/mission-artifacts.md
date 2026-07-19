@@ -16,6 +16,8 @@ Canonical shapes for `.space/` artifacts. Always-on rules point here; do not pas
 
 ## plan.json
 
+Jigsaw tasks: each task is one behavioral slice of the feature. Each `acceptance[]` item is one RED-GREEN cycle under `/sc-run`.
+
 ```json
 {
   "planName": "<short-name>",
@@ -23,10 +25,11 @@ Canonical shapes for `.space/` artifacts. Always-on rules point here; do not pas
   "tasks": [
     {
       "id": "T1",
-      "title": "<imperative>",
+      "title": "<imperative jigsaw slice>",
       "status": "pending|in_progress|done|blocked",
+      "dependsOn": [],
       "files": ["<path>"],
-      "acceptance": ["<check>"],
+      "acceptance": ["<one check per RED-GREEN cycle>"],
       "verify": "<command>",
       "evidence": ["<label>"]
     }
