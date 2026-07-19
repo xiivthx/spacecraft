@@ -24,22 +24,30 @@ Use this exact sequence unless the user specifies otherwise:
 
 2. **Choose stack** - Default: React + TypeScript + Vite + Tailwind CSS + Vitest. If the project already has a frontend stack, match it. Use sc-search (WebSearch/WebFetch) for `"react latest hooks api"` before using unfamiliar APIs.
 
-3. **Build by slice** - Implement one vertical feature slice at a time:
+3. **UI draft gate (hard)** - For any visual layout/style/component work, follow sc-ux-design **before** product code:
+   - Design brief → standalone draft HTML under `.space/missions/<id>/design/drafts/` showing **layout, style tokens, and key components**
+   - Serve for human review; obtain explicit approval recorded in `decisions.md`
+   - **Must not** implement until approved
+   - Skip only for non-visual FE (pure logic/hooks, no UI surface); record skip in `decisions.md`
+
+4. **Build by slice** - Implement one vertical feature slice at a time (RED-GREEN under `/sc-run`):
    - Component with its styles (co-located or Tailwind classes)
    - TypeScript types for props, state, and data
    - Test for the component's behavior via Vitest + React Testing Library
    - Wire into the app's routing or parent component
    Prefer small, focused components. Extract shared patterns to `references/components.md` patterns.
 
-4. **Verify** - `spacecraft evidence "<label>" -- npx vitest run`. Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
+5. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
 
-5. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
+6. **Verify (visual)** - After visual UI work: sc-ux-design Tier 3 (`visual-verify.mjs`) when Playwright is available; otherwise browser screenshots. Record screenshot paths in evidence / `decisions.md`. Fix visual issues before ready.
+
+7. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
 
 ### Edge cases
 
 - **User specifies a different stack** - Adapt patterns. Still require component tests and build verification.
 - **Project has no frontend yet** - Scaffold with `npm create vite@latest`, install Tailwind CSS, set up Vitest.
-- **Design direction missing** - Stop and recommend running the design workflow before implementing UI.
+- **Design direction missing / draft not approved** - Stop. Run sc-ux-design draft HIL; do not implement UI.
 - **Accessibility concern** - Check against Tailwind's accessibility utilities and React Testing Library's accessibility queries.
 - **Build fails** - Fix before proceeding. Never skip build verification.
 
@@ -47,11 +55,14 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Default to React + TypeScript + Vite + Tailwind CSS + Vitest when no stack is specified.
+- **Must**: For visual UI work, obtain approved draft HTML (sc-ux-design) before writing product UI code.
+- **Must**: After visual UI implementation, capture visual verification (screenshots / `visual-verify.mjs`) and functional test evidence before claiming done.
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
 - **Must**: Prefer small vertical slices over broad horizontal scaffolding.
 - **Must**: Component tests cover behavior via public interfaces - render output and user interactions, not internal state.
 - **Must**: TypeScript strict mode. All props, state, and event handlers typed.
 - **Must**: Styles scoped to component or Tailwind utility classes. No global CSS churn.
+- **Must not**: Implement visual layout/style/components without an approved draft (unless non-visual skip is recorded).
 - **Must not**: Add state management (Redux, Zustand) unless the component tree exceeds simple prop drilling.
 - **Must not**: Add router unless the feature requires multiple views or URL state.
 - **Must not**: Install UI libraries or component frameworks without user approval.
@@ -89,13 +100,14 @@ Use this checklist when reviewing frontend code:
 - API design, server logic, or backend architecture - separate concern
 - Database schema, migrations, or query optimization - separate concern
 - System architecture decisions or ADR writing - separate concern
-- UI design direction and visual critique - use sc-design before code when needed
+- UI design direction and draft HIL - use sc-ux-design (draft HTML approval) before code
 - TDD discipline - use sc-tdd for test-first workflow
 
 ## Output format
 
 ```
 Stack: React + TypeScript + Vite + Tailwind CSS + Vitest
+Draft: approved <path> | skip non-visual: <reason>
 Component: <name>
   Props: <typed interface>
   Styles: Tailwind classes (co-located in JSX)
@@ -103,6 +115,7 @@ Component: <name>
 Verify:
   npx vitest run → PASS
   npm run build → PASS
+  visual-verify / screenshots → PASS
 Evidence: <label>
 ```
 
@@ -112,9 +125,11 @@ Before claiming frontend work done:
 
 - [ ] Mission resolved, branch created
 - [ ] Stack confirmed: React + TypeScript + Vite + Tailwind CSS + Vitest (or approved alternative)
+- [ ] Draft HTML approved (or non-visual skip recorded in `decisions.md`)
 - [ ] Components typed with TypeScript interfaces
 - [ ] Styles applied via Tailwind utility classes, scoped to component
-- [ ] Component tests pass (`npx vitest run`)
+- [ ] Component / functional tests pass (`npx vitest run` or project suite)
+- [ ] Visual recheck: screenshots or `visual-verify.mjs` captured
 - [ ] Build passes (`npm run build`)
 - [ ] Evidence captured with `spacecraft evidence`
 - [ ] No unapproved dependencies

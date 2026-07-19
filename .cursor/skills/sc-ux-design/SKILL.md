@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # sc-ux-design
 
-Quality-control companion for UI implementation: anti-slop enforcement, draft previews before code, animation quality, browser visual verification. Works alongside sc-design - sc-design owns design direction; sc-ux-design enforces quality during implementation.
+Quality-control companion for UI implementation: anti-slop enforcement, draft previews before code, animation quality, browser visual verification. Enforces the HTML-first HIL gate used by `/sc-run` and sc-web-frontend.
 
 ## When to use
 
@@ -15,7 +15,8 @@ Activate on:
 - **"Preview draft" / "create draft" / "draft HTML"** - pre-implementation draft workflow
 - **"Visual verify" / "visual test" / "browser check"** - Playwright visual verification
 - **"UI quality check"** - comprehensive UX quality review
-- Before UI implementation begins - design brief checkpoint
+- Before UI implementation begins - design brief + draft checkpoint
+- When `/sc-run` detects visual UI/FE work
 
 ## Workflow
 
@@ -37,14 +38,16 @@ Before writing any UI implementation code:
 
 After design brief approval, before real implementation:
 
-1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` showing layout structure, typography, color scheme, component arrangement, and spacing rhythm.
+1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), and key components** - enough for the human to judge look and structure. Not a wireframe-only sketch.
 
 2. **Every draft MUST include**: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`).
 
 3. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
-4. **Iterate** until approved (max 3 rounds - if still unapproved, escalate to user for direction). Only then begin real implementation.
-5. **Before approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
+4. **Under `/sc-run`**: after serving the draft, **stop AFK**. Set `spacecraft clarify-status open` (or handoff: approve draft then clear). Record pending approval in `decisions.md`. Do not start RED-GREEN for visual tasks until approval is recorded (e.g. `UI draft approved: <draft-file>`).
+
+5. **Iterate** until approved (max 3 rounds - if still unapproved, escalate to user for direction). Only then begin real implementation.
+6. **Before approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
 
 ### DESIGN.md integration
 
@@ -68,13 +71,13 @@ Run after implementation:
 - **Hero metric layout**: Big number + small label + three supporting stats in a row? If not real data → flag.
 - **Identical card grids**: Same-sized cards repeated with icon + heading + text? If no differentiation → flag.
 
-**Tier 3 - Browser visual check** (optional, needs Playwright):
-`node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <html-file>`
+**Tier 3 - Browser visual check** (**required** after visual UI implementation):
+`node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <html-file-or-url>`
 - 3 viewports (375/768/1280px), full-page screenshots
 - Audits: horizontal overflow, clipped content, text touching viewport edge, cramped padding
 - JSON report: `breakpoint`, `issues` (selector, kind, severity), `screenshots`
 - Install: `cd .cursor/skills/sc-ux-design && npm install`
-- Skill functions without Tier 3 if Playwright is unavailable.
+- **When Playwright is unavailable**: Commander must still capture browser screenshots (e.g. Cursor browser tools), record paths in evidence / `decisions.md`, and fix blocking visual issues before `ready`.
 
 ## Rules
 
@@ -93,11 +96,17 @@ Run after implementation:
 
 ### Draft preview
 
-- **Must**: Generate a draft HTML preview and obtain user approval before writing implementation code.
+- **Must**: Generate a draft HTML preview showing layout + style tokens + key components; obtain user approval before writing implementation code.
 - **Must**: Every draft HTML file includes: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename.
 - **Must**: Check draft layout at 375px viewport width before asking for approval.
+- **Must**: Under `/sc-run`, stop AFK after draft is ready until approval is recorded in `decisions.md`.
 - **Must not**: Use draft HTML as the basis for production implementation. Drafts are throwaway mockups.
 - **Must**: After 3 draft rounds without approval, escalate to the user for direction instead of iterating indefinitely.
+
+### Visual recheck
+
+- **Must**: After visual UI implementation, run Tier 3 visual verify when Playwright is available; otherwise capture browser screenshots and record paths.
+- **Must**: Pair visual recheck with functional tests (Vitest/RTL or project suite) via `spacecraft evidence` before claiming UI ready.
 
 ### Animation
 
@@ -153,7 +162,8 @@ Before claiming UI implementation is ready:
 - [ ] 5 LLM-only patterns reviewed with concrete heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids)
 - [ ] Animation: durations in range, easing rules followed, reduced-motion respected
 - [ ] No banned fonts (Inter/Geist/Space Grotesk) without deliberate pairing
-- [ ] Tier 3 visual verification run if Playwright available
+- [ ] Tier 3 visual verification run (or browser screenshots if Playwright unavailable); paths recorded
+- [ ] Functional tests passed with `spacecraft evidence`
 
 ## References
 
