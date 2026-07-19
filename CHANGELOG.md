@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.37.0 - 2026-07-19
 
 - Feat: UI HTML-first HIL gate - draft HTML (layout/style/components) must be approved before visual FE implementation under `/sc-run`
 - Feat: after UI build, require screenshots/visual verify plus functional test evidence before `ready`
