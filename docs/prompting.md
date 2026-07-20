@@ -22,7 +22,7 @@ Agents and skills state:
 3. **Good vs Bad** - success bar
 4. **Verify** - how correctness is checked
 
-If unclear: research first; ask for preferences or unverifiable bars; never invent Verify. Mid `/sc-run`: soft → `decisions.md`; hard → clarify. Ship needs machine-checkable Verify.
+If unclear: research first; ask for preferences or unverifiable bars via `/sc-discuss`; never invent Verify. Mid `/sc-run`: soft → `decisions.md`; hard → stop and `/sc-discuss`. Ship needs machine-checkable Verify.
 
 ## Avoid
 

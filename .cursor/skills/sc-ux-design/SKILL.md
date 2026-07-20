@@ -1,28 +1,28 @@
 ---
 name: sc-ux-design
-description: "UI quality control: anti-slop enforcement, HTML draft previews, animation quality rules, browser visual verification. Activate on slop check, draft preview, visual verify, or UI quality review."
+description: "UI quality: draft HTML under /sc-discuss; anti-slop and visual verify under /sc-run. Activate on slop check, draft preview, visual verify, or UI quality review."
 disable-model-invocation: true
 ---
 
 # sc-ux-design
 
-Quality-control companion for UI implementation: anti-slop enforcement, draft previews before code, animation quality, browser visual verification. Enforces the HTML-first HIL gate used by `/sc-run` and sc-web-frontend.
+UI quality companion: design brief + draft HTML under `/sc-discuss`; anti-slop and browser visual verification under `/sc-run` / sc-web-frontend. Draft discovery is discuss-owned; AFK run only builds against an approved draft.
 
 ## When to use
 
 Activate on:
 - **"Check for slop" / "anti-slop" / "slop audit"** - run anti-slop detection
-- **"Preview draft" / "create draft" / "draft HTML"** - pre-implementation draft workflow
-- **"Visual verify" / "visual test" / "browser check"** - Playwright visual verification
+- **"Preview draft" / "create draft" / "draft HTML"** - under `/sc-discuss` before implement
+- **"Visual verify" / "visual test" / "browser check"** - Playwright visual verification (post-build)
 - **"UI quality check"** - comprehensive UX quality review
-- Before UI implementation begins - design brief + draft checkpoint
-- When `/sc-run` detects visual UI/FE work
+- During `/sc-discuss` for visual UI/FE - design brief + draft checkpoint
+- During `/sc-run` after visual implementation - Tier 3 recheck (not draft discovery)
 
 ## Workflow
 
-### Design brief (forced checkpoint)
+### Design brief (forced checkpoint - `/sc-discuss`)
 
-Before writing any UI implementation code:
+Before clearing discuss on visual work (and before any UI implementation code):
 
 1. **Produce a design brief** covering 6 dimensions:
    - **Product metaphor and mood** - e.g., "studio dashboard", "reading room"
@@ -34,9 +34,9 @@ Before writing any UI implementation code:
 
 2. **Present the brief for user approval**. No implementation code until explicitly approved.
 
-### Draft preview
+### Draft preview (`/sc-discuss`)
 
-After design brief approval, before real implementation:
+After design brief approval, before `/sc-run` / real implementation:
 
 1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), and key components** - enough for the human to judge look and structure. Not a wireframe-only sketch.
 
@@ -44,10 +44,12 @@ After design brief approval, before real implementation:
 
 3. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
-4. **Under `/sc-run`**: after serving the draft, **stop AFK**. Set `spacecraft clarify-status open` (or handoff: approve draft then clear). Record pending approval in `decisions.md`. Do not start RED-GREEN for visual tasks until approval is recorded (e.g. `UI draft approved: <draft-file>`).
+4. **Under `/sc-discuss`**: iterate until the human likes it. On approval, record `UI draft approved: <draft-file>` in `decisions.md`, then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
 
-5. **Iterate** until approved (max 3 rounds - if still unapproved, escalate to user for direction). Only then begin real implementation.
-6. **Before approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
+5. **Under `/sc-run`**: do **not** invent or iterate draft HTML. If approval is missing, stop and recommend `/sc-discuss`.
+
+6. **Iterate** in discuss until approved (max 3 rounds - if still unapproved, escalate to user for direction).
+7. **Before approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
 
 ### DESIGN.md integration
 
@@ -99,7 +101,7 @@ Run after implementation:
 - **Must**: Generate a draft HTML preview showing layout + style tokens + key components; obtain user approval before writing implementation code.
 - **Must**: Every draft HTML file includes: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename.
 - **Must**: Check draft layout at 375px viewport width before asking for approval.
-- **Must**: Under `/sc-run`, stop AFK after draft is ready until approval is recorded in `decisions.md`.
+- **Must**: Own draft discovery under `/sc-discuss`; `/sc-run` requires `UI draft approved: …` already recorded (or non-visual skip).
 - **Must not**: Use draft HTML as the basis for production implementation. Drafts are throwaway mockups.
 - **Must**: After 3 draft rounds without approval, escalate to the user for direction instead of iterating indefinitely.
 
@@ -154,9 +156,8 @@ This skill does NOT handle:
 
 Before claiming UI implementation is ready:
 
-- [ ] Design brief produced and approved (6 dimensions)
-- [ ] Draft preview generated, responsive-checked at 375px, and approved (max 3 rounds)
-- [ ] `DESIGN.md` read and applied (or candidate generated)
+- [ ] Design brief + draft approved in `/sc-discuss` (`UI draft approved: …` in `decisions.md`)
+- [ ] `DESIGN.md` read and applied (or candidate generated during discuss)
 - [ ] Implementation cross-checked against approved design brief (no palette/typo/layout/motion drift)
 - [ ] `npx impeccable detect` run - zero unfixed violations
 - [ ] 5 LLM-only patterns reviewed with concrete heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids)

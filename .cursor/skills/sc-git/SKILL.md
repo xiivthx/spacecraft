@@ -133,8 +133,8 @@ This skill does NOT handle:
 
 - Mission lifecycle or planning - use sc-mission, sc-planning
 - Evidence capture or verification - use sc-verification
-- UI design - use sc-design
-- Direct user clarification - use sc-clarify
+- Direct user clarification - use `/sc-discuss` / sc-clarify
+- UI design - draft under `/sc-discuss`; QC via sc-ux-design
 
 ## Output format
 

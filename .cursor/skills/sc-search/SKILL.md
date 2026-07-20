@@ -75,7 +75,7 @@ When the topic is immediately recognizable, shortcut to the appropriate tier:
 
 - Systematic literature review sessions - use `/sc-research`
 - Debugging discipline - use sc-debug
-- Requirement clarification - use sc-clarify
+- Requirement clarification - use `/sc-discuss` / sc-clarify
 - Architectural decisions - use sc-architect
 
 ## References
