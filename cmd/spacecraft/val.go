@@ -113,6 +113,13 @@ func validateEvidence(path string, strict bool) bool {
 			fmt.Printf("x %-20s line %d missing exitCode (number)\n", "evidence", i+1)
 			ok = false
 		}
+		if hash, hasHash := entry["outputHash"].(string); hasHash {
+			output, _ := entry["output"].(string)
+			if hash != outputSHA256Hex(output) {
+				fmt.Printf("x %-20s line %d outputHash mismatch\n", "evidence", i+1)
+				ok = false
+			}
+		}
 		entries++
 	}
 

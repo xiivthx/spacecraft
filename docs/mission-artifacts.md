@@ -42,10 +42,12 @@ Jigsaw tasks: each task is one behavioral slice of the feature. Each `acceptance
 One JSON object per line:
 
 ```json
-{"label":"<label>","command":"<command>","output":"<output>","ts":"<iso-timestamp>"}
+{"label":"<label>","command":"<command>","output":"<output>","outputHash":"<hex>","ts":"<iso-timestamp>"}
 ```
 
 `output` must be actual captured command output - never fabricated.
+
+`outputHash` is optional: lowercase hex SHA-256 of `output`. Omitted via `omitempty`; entries without it remain valid (backward compatible).
 
 ## Roadmap (`.space/roadmaps/<id>.json`)
 

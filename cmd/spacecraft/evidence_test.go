@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -103,5 +105,108 @@ func TestEvidenceAliasAndCanonicalBothWork(t *testing.T) {
 	}
 	if ev.code != 0 {
 		t.Fatalf("evidence exit=%d stderr=%s", ev.code, ev.stderr)
+	}
+}
+
+func TestEvidenceRecordsMatchingOutputHash(t *testing.T) {
+	dir := spaceRoot(t)
+	writeMission(t, dir, "M07EVI05", "active")
+
+	res := runCLI(t, dir, "evi", "--mission", "M07EVI05", "hash-case", "--", "echo", "hello")
+	if res.code != 0 {
+		t.Fatalf("evi exit=%d stderr=%s", res.code, res.stderr)
+	}
+
+	path := filepath.Join(dir, ".space", "missions", "M07EVI05", "evidence.jsonl")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read evidence.jsonl: %v", err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
+	if len(lines) == 0 || lines[0] == "" {
+		t.Fatal("evidence.jsonl empty")
+	}
+	last := lines[len(lines)-1]
+
+	var entry map[string]any
+	if err := json.Unmarshal([]byte(last), &entry); err != nil {
+		t.Fatalf("evidence JSONL not JSON: %v\nline=%s", err, last)
+	}
+
+	outputVal, ok := entry["output"]
+	if !ok {
+		t.Fatalf("evidence JSONL missing output field\nentry=%s", last)
+	}
+	output, ok := outputVal.(string)
+	if !ok {
+		t.Fatalf("output has unexpected type %T (%v)", outputVal, outputVal)
+	}
+
+	sum := sha256.Sum256([]byte(output))
+	wantHash := hex.EncodeToString(sum[:])
+
+	hashVal, ok := entry["outputHash"]
+	if !ok {
+		t.Fatalf("evidence JSONL missing outputHash field\nentry=%s", last)
+	}
+	gotHash, ok := hashVal.(string)
+	if !ok {
+		t.Fatalf("outputHash has unexpected type %T (%v)", hashVal, hashVal)
+	}
+	if gotHash != wantHash {
+		t.Fatalf("outputHash=%q, want %q (sha256 of output)", gotHash, wantHash)
+	}
+}
+
+func TestEvidenceRecordsOutputHashForEmptyOutput(t *testing.T) {
+	dir := spaceRoot(t)
+	writeMission(t, dir, "M07EVI06", "active")
+
+	// Independent expected: SHA-256 of empty string (not recomputed from recorded output).
+	const wantHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+	res := runCLI(t, dir, "evi", "--mission", "M07EVI06", "empty-hash", "--", "true")
+	if res.code != 0 {
+		t.Fatalf("evi exit=%d stderr=%s", res.code, res.stderr)
+	}
+
+	path := filepath.Join(dir, ".space", "missions", "M07EVI06", "evidence.jsonl")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read evidence.jsonl: %v", err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
+	if len(lines) == 0 || lines[0] == "" {
+		t.Fatal("evidence.jsonl empty")
+	}
+	last := lines[len(lines)-1]
+
+	var entry map[string]any
+	if err := json.Unmarshal([]byte(last), &entry); err != nil {
+		t.Fatalf("evidence JSONL not JSON: %v\nline=%s", err, last)
+	}
+
+	outputVal, ok := entry["output"]
+	if !ok {
+		t.Fatalf("evidence JSONL missing output field\nentry=%s", last)
+	}
+	output, ok := outputVal.(string)
+	if !ok {
+		t.Fatalf("output has unexpected type %T (%v)", outputVal, outputVal)
+	}
+	if output != "" {
+		t.Fatalf("output=%q, want empty string for empty CombinedOutput", output)
+	}
+
+	hashVal, ok := entry["outputHash"]
+	if !ok {
+		t.Fatalf("evidence JSONL missing outputHash field\nentry=%s", last)
+	}
+	gotHash, ok := hashVal.(string)
+	if !ok {
+		t.Fatalf("outputHash has unexpected type %T (%v)", hashVal, hashVal)
+	}
+	if gotHash != wantHash {
+		t.Fatalf("outputHash=%q, want %q (sha256 of empty string)", gotHash, wantHash)
 	}
 }

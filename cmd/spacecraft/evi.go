@@ -51,11 +51,12 @@ func eviCmd(args []string, spaceDir, mid string) int {
 	}
 
 	entry := evidenceEntry{
-		Label:    label,
-		Command:  strings.Join(cmdArgs, " "),
-		Output:   output,
-		ExitCode: exitCode,
-		TS:       time.Now().UTC().Format(time.RFC3339),
+		Label:      label,
+		Command:    strings.Join(cmdArgs, " "),
+		Output:     output,
+		OutputHash: outputSHA256Hex(output),
+		ExitCode:   exitCode,
+		TS:         time.Now().UTC().Format(time.RFC3339),
 	}
 
 	data, _ := json.Marshal(entry)
@@ -78,9 +79,10 @@ func eviCmd(args []string, spaceDir, mid string) int {
 }
 
 type evidenceEntry struct {
-	Label    string `json:"label"`
-	Command  string `json:"command"`
-	Output   string `json:"output"`
-	ExitCode int    `json:"exitCode"`
-	TS       string `json:"ts"`
+	Label      string `json:"label"`
+	Command    string `json:"command"`
+	Output     string `json:"output"`
+	OutputHash string `json:"outputHash,omitempty"`
+	ExitCode   int    `json:"exitCode"`
+	TS         string `json:"ts"`
 }

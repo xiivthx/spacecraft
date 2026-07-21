@@ -67,6 +67,86 @@ func TestValidateAcceptsWellFormedMission(t *testing.T) {
 	}
 }
 
+func TestValidateRejectsMismatchedOutputHash(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07VAL10"
+	writeMission(t, dir, id, "active")
+
+	evidencePath := filepath.Join(dir, ".space", "missions", id, "evidence.jsonl")
+	// Well-formed required fields, but outputHash is not SHA-256 of output.
+	bad := `{"label":"unit","command":"echo hi","output":"hi\n","ts":"2026-01-01T00:00:00Z","exitCode":0,"outputHash":"0000000000000000000000000000000000000000000000000000000000000000"}` + "\n"
+	if err := os.WriteFile(evidencePath, []byte(bad), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, cmd := range []string{"val", "validate"} {
+		t.Run(cmd, func(t *testing.T) {
+			res := runCLI(t, dir, cmd, id)
+			if cmd == "validate" && stringsContainsUnknown(res.stderr) {
+				t.Fatalf("validate unknown: %s", res.stderr)
+			}
+			if res.code == 0 {
+				t.Fatalf("%s accepted evidence with mismatched outputHash; want nonzero\nstdout=%s", cmd, res.stdout)
+			}
+			out := res.stdout + res.stderr
+			if !strings.Contains(out, "line 1") {
+				t.Fatalf("%s mismatch message must identify evidence line; want %q\nstdout=%s\nstderr=%s",
+					cmd, "line 1", res.stdout, res.stderr)
+			}
+			lower := strings.ToLower(out)
+			if !strings.Contains(lower, "outputhash") && !strings.Contains(lower, "hash") {
+				t.Fatalf("%s mismatch message must mention outputHash or hash\nstdout=%s\nstderr=%s",
+					cmd, res.stdout, res.stderr)
+			}
+		})
+	}
+}
+
+func TestValidateAcceptsMatchingOutputHash(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07VAL11"
+	writeMission(t, dir, id, "active")
+
+	evidencePath := filepath.Join(dir, ".space", "missions", id, "evidence.jsonl")
+	// Independent expected: SHA-256 of "hi\n" (lowercase hex).
+	const matchingHash = "98ea6e4f216f2fb4b69fff9b3a44842c38686ca685f3f55dc48c5d3fb1107be4"
+	good := `{"label":"unit","command":"echo hi","output":"hi\n","ts":"2026-01-01T00:00:00Z","exitCode":0,"outputHash":"` + matchingHash + `"}` + "\n"
+	if err := os.WriteFile(evidencePath, []byte(good), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	res := runCLI(t, dir, "val", id)
+	if res.code != 0 {
+		t.Fatalf("val matching outputHash exit=%d\nstdout=%s\nstderr=%s", res.code, res.stdout, res.stderr)
+	}
+}
+
+// Legacy evidence.jsonl lines predate outputHash; validate must still accept them.
+func TestValidateAcceptsLegacyEvidenceWithoutOutputHash(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07VAL12"
+	writeMission(t, dir, id, "active")
+
+	evidencePath := filepath.Join(dir, ".space", "missions", id, "evidence.jsonl")
+	legacy := `{"label":"unit","command":"echo hi","output":"hi\n","ts":"2026-01-01T00:00:00Z","exitCode":0}` + "\n"
+	if err := os.WriteFile(evidencePath, []byte(legacy), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, cmd := range []string{"val", "validate"} {
+		t.Run(cmd, func(t *testing.T) {
+			res := runCLI(t, dir, cmd, id)
+			if cmd == "validate" && stringsContainsUnknown(res.stderr) {
+				t.Fatalf("validate unknown: %s", res.stderr)
+			}
+			if res.code != 0 {
+				t.Fatalf("%s must accept well-formed evidence omitting outputHash; exit=%d\nstdout=%s\nstderr=%s",
+					cmd, res.code, res.stdout, res.stderr)
+			}
+		})
+	}
+}
+
 func TestValidateRejectsMissingArtifacts(t *testing.T) {
 	dir := spaceRoot(t)
 	id := "M07VAL04"
