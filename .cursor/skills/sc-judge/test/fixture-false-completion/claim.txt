@@ -1,0 +1,3 @@
+Mission MFIXTURE claim: build complete, acceptance met, ready to set-state ready.
+Evidence label acceptance-pass proves tests pass (exit 0).
+Status: done / ready.

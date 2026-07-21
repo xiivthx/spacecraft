@@ -24,11 +24,23 @@ Keep **Goal**, **Output**, **Good vs Bad**, and **Verify** clear. If unclear: `/
 - Honesty. "I don't know" and "I was wrong" are valid.
 - Quality over speed. Surgical changes only.
 
+## Inner-loop gates (Fable)
+
+### INTENT:
+
+Before behavior-changing edits (code, checks, or spec), state `INTENT:` classifying the change (`code` | `check` | `spec`) and the intended behavior. Task framing "make tests pass" is NOT intended behavior by itself.
+
+When INTENT disagrees with observed behavior, authority order: **explicit user > spec > tests > current code**.
+
+### AUTH:
+
+Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. AUTH is necessary but not sufficient for ship: still requires `/sc-ship`, ship hooks, and `SPACECRAFT_SHIP=1` where applicable. AUTH does not bypass those gates.
+
 ## Boundaries
 
-**Never:** merge/tag/delete branches without `/sc-ship`; auto-detect ship intent; implement Mission work before `spec.md` + `plan.json`; write on `main`; write product code/tests in Commander; drive-by refactors; delete dead code unless asked; expose secrets.
+**Never:** merge/tag/delete branches without `/sc-ship`; auto-detect ship intent; implement Mission work before `spec.md` + `plan.json`; write on `main`; write product code/tests in Commander; drive-by refactors; delete dead code unless asked; expose secrets; outward push/deploy/publish/send without `AUTH:`.
 
-**Always:** feature branch; verify with tests; resolve mission from branch → `.space/missions/<id>/`; record issues in `issues.md`; `gh issue create` for bugs found mid-work.
+**Always:** feature branch; verify with tests; resolve mission from branch → `.space/missions/<id>/`; record issues in `issues.md`; `gh issue create` for bugs found mid-work; emit `INTENT:` before behavior-changing edits.
 
 ## Communication
 

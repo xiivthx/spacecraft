@@ -47,6 +47,8 @@ Use this exact sequence unless the user specifies otherwise:
   - **Strong**: evidence that exercises actual behavior (e.g., "PASS: model X produces correct output for test case Y")
   - Prefer functional proof. If only config validation is possible, explicitly state why.
 - **Must**: Before claiming verification passed, self-audit: "Did I verify behavior or just read config? Did I cover edge cases?"
+- **Must**: After defect fixes, require `TWINS:` - project-wide search for the same construct / twin occurrences before claiming done.
+- **Must**: After **3 failed fix-verify cycles**, stop and hand back to human. Do not keep looping.
 
 ## Out of scope
 

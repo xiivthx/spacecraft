@@ -105,6 +105,8 @@ Record skipped-TDD decisions for a task in the task output or plan.json notes.
 - **Must** (AFK): Checkpoint-commit after RED, GREEN, and post-feature refactor (Commander; see sc-git).
 - **Must**: Run functional test suite after refactor. Old tests must pass alongside new tests.
 - **Must not**: Horizontal slice - bulk tests before bulk implementation.
+- **Must**: After defect fixes, emit `TWINS:` - project-wide search for the same construct / twin occurrences before claiming done.
+- **Must**: After **3 failed fix-verify cycles**, stop and hand back to human. Do not keep looping (3-cycle stop).
 
 ### Mocking
 
