@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.37.2 - 2026-07-21
+
+- Fix: restore SHA-256 `outputHash` on evidence capture and validate integrity for the lean CLI (#37)
+- Docs: document optional `outputHash` in mission-artifacts evidence schema
+
 ## 0.37.1 - 2026-07-21
 
 - Docs: strip mission id from work branch name immediately before `/sc-ship` merge (`feat/<id>/<title>` → `feat/<title>`)
