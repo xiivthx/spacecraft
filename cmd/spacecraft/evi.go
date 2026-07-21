@@ -13,10 +13,12 @@ import (
 func eviCmd(args []string, spaceDir, mid string) int {
 	var label string
 	var cmdArgs []string
+	missionFlag := false
 
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--mission" && i+1 < len(args) {
 			mid = args[i+1]
+			missionFlag = true
 			i++
 		} else if args[i] == "--" {
 			cmdArgs = args[i+1:]
@@ -26,8 +28,12 @@ func eviCmd(args []string, spaceDir, mid string) int {
 		}
 	}
 
+	if !missionFlag {
+		mid = resolveActive(spaceDir, mid)
+	}
+
 	if mid == "" {
-		fmt.Fprintln(os.Stderr, "spacecraft evidence: no active mission - use --mission <id> or run from feat/<id>/ branch")
+		fmt.Fprintln(os.Stderr, "spacecraft evidence: no active mission - use --mission <id>, spacecraft use, or run from feat/<id>/ branch")
 		return 1
 	}
 	if label == "" || len(cmdArgs) == 0 {

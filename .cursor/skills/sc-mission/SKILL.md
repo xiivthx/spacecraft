@@ -58,7 +58,7 @@ Set state with `spacecraft set-state [mission-id] <new-state>` (mission-id optio
 ## Rules
 
 - **Must**: Resolve the active mission with `spacecraft resolve`, `status`, or `missions`; `.space/current` is fallback state, not sole authority. On conflict/ambiguity use `spacecraft use <selector>`.
-- **Must**: Resolver priority is explicit selector or `SPACECRAFT_MISSION`, session binding, branch mission id, branch metadata, `.space/current`, then single active mission.
+- **Must**: Resolver priority is (1) explicit selector / `--mission`, (2) `.space/current` (from `spacecraft use`), (3) branch `feat/<id>/…`.
 - **Must**: Strong signal conflicts or ambiguous active missions block mission writes until the user selects with `spacecraft use <number|id|title>` or an explicit selector.
 - **Must**: Users may choose by list number, mission id, exact title, or unique title substring; do not expect the user to know a mission id.
 - **Must**: New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.

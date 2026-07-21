@@ -18,13 +18,13 @@ func hasHelpFlag(args []string) bool {
 	return false
 }
 
-// resolveActive returns the mission ID from the branch, falling back to .space/current.
+// resolveActive returns the mission ID from .space/current, falling back to the branch.
 func resolveActive(spaceDir, mid string) string {
-	if mid != "" && missionExists(spaceDir, mid) {
-		return mid
-	}
 	if cur := readCurrent(spaceDir); cur != "" && missionExists(spaceDir, cur) {
 		return cur
+	}
+	if mid != "" && missionExists(spaceDir, mid) {
+		return mid
 	}
 	return ""
 }
