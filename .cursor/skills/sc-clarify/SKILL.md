@@ -1,15 +1,15 @@
 ---
 name: sc-clarify
-description: "Resolve mission ambiguity through focused user clarification. Activate on unclear requirements, ambiguous spec, or when clarification is needed before planning or design."
+description: "Blocking-question protocol used inside /sc-discuss. Activate when resolving ambiguous requirements; prefer /sc-discuss as the session entrypoint."
 ---
 
 # sc-clarify
 
-Resolve mission ambiguity through focused user clarification. Ask exactly one blocking question at a time. Record answers. Never proceed with hidden assumptions.
+Blocking-question protocol for `/sc-discuss`. Ask exactly one blocking question at a time. Record answers. Never proceed with hidden assumptions. Prefer `/sc-discuss` as the human slash entrypoint for ask/clarify/brainstorm/decide sessions.
 
 ## When to use
 
-Activate when the user asks to:
+Activate inside `/sc-discuss` (or when ambiguity blocks plan/build) for:
 
 - **Clarify scope, behavior, or direction** - ambiguous requirements
 - **Resolve a decision before planning** - blocking questions for planning phase
@@ -58,7 +58,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 ## AFK mode
 
-During `/sc-run` (mission `in_progress` with clarify-status clear): **do not auto-trigger**. Only ask if the Commander hits a true hard blocker (missing secret, impossible acceptance). Otherwise write assumptions to `decisions.md`.
+During `/sc-run` (mission `in_progress` with clarify-status clear): **do not auto-trigger**. Only ask if the Commander hits a true hard blocker (missing secret, impossible acceptance). Otherwise write assumptions to `decisions.md`. Prefer hand off to `/sc-discuss` over a long Q&A mid-AFK.
 
 ## Rules
 
@@ -67,19 +67,20 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 - **Must**: Ask exactly one blocking question at a time.
 - **Must**: Every question includes: the question, why it matters, a recommendation, and what happens if accepted.
 - **Must not**: Ask multiple questions in one message.
-- **Must not**: Implement, plan, or finalize design while a blocking question is open.
+- **Must not**: Implement, plan, or finalize visual draft while a blocking question is open.
 - **Must not**: Auto-trigger mid-AFK (`/sc-run`) unless a hard blocker.
 - **Must**: Record answered questions in `questions.md`. Record decisions in `decisions.md`.
 - **Must**: Prefer user clarity over agent cleverness. If the user's answer seems suboptimal, state your concern once and accept their decision.
 
 ## Out of scope
 
+- Session entry / brainstorm / visual draft ownership - use `/sc-discuss`
 - Planning - use sc-planning (via `/sc-run` for roadmap work)
-- Visual design - Task(`sc-designer`) / sc-ux-design when needed
+- Visual draft HTML - `/sc-discuss` + sc-ux-design; critique via Task(`sc-designer`)
 - Git operations - use sc-git
 - Implementation - use `/sc-run` (AFK) or agents; ship with `/sc-ship` only
 
-After clarify is clear for roadmap work, recommend `/sc-run <roadmap-id>`.
+After `/sc-discuss` clears clarify for roadmap work, recommend a **new session** `/sc-run <roadmap-id>`.
 
 ## Output format
 
@@ -103,12 +104,13 @@ After clarify is clear for roadmap work, recommend `/sc-run <roadmap-id>`.
 - [ ] Answer recorded in `questions.md`
 - [ ] Decision recorded in `decisions.md`
 - [ ] No blocking question remains open before planning or implementation
-- [ ] After clarify clear on roadmap work: recommend `/sc-run`
+- [ ] After clarify clear on roadmap work: recommend new session `/sc-run`
 
 ## References
 
 - `questions.md` - open and answered questions per mission
 - `decisions.md` - confirmed choices, assumptions, and deferrals
 - sc-search - WebSearch/WebFetch escalation for researchable questions
+- `/sc-discuss` - pre-build HIL session (owns clarify + visual draft)
 - `/sc-run` - AFK roadmap runner after clarify is clear
 - `/sc-ship` - explicit human-only ship

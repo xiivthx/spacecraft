@@ -24,10 +24,9 @@ Use this exact sequence unless the user specifies otherwise:
 
 2. **Choose stack** - Default: React + TypeScript + Vite + Tailwind CSS + Vitest. If the project already has a frontend stack, match it. Use sc-search (WebSearch/WebFetch) for `"react latest hooks api"` before using unfamiliar APIs.
 
-3. **UI draft gate (hard)** - For any visual layout/style/component work, follow sc-ux-design **before** product code:
-   - Design brief → standalone draft HTML under `.space/missions/<id>/design/drafts/` showing **layout, style tokens, and key components**
-   - Serve for human review; obtain explicit approval recorded in `decisions.md`
-   - **Must not** implement until approved
+3. **UI draft gate (hard)** - For any visual layout/style/component work, require `/sc-discuss` approval first (sc-ux-design brief + draft HTML):
+   - `decisions.md` must contain `UI draft approved: <path>` (or recorded non-visual skip)
+   - If missing, stop and recommend `/sc-discuss` - do not invent draft mid-build
    - Skip only for non-visual FE (pure logic/hooks, no UI surface); record skip in `decisions.md`
 
 4. **Build by slice** - Implement one vertical feature slice at a time (RED-GREEN under `/sc-run`):
@@ -47,7 +46,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **User specifies a different stack** - Adapt patterns. Still require component tests and build verification.
 - **Project has no frontend yet** - Scaffold with `npm create vite@latest`, install Tailwind CSS, set up Vitest.
-- **Design direction missing / draft not approved** - Stop. Run sc-ux-design draft HIL; do not implement UI.
+- **Design direction missing / draft not approved** - Stop. Recommend `/sc-discuss` + sc-ux-design draft HIL; do not implement UI.
 - **Accessibility concern** - Check against Tailwind's accessibility utilities and React Testing Library's accessibility queries.
 - **Build fails** - Fix before proceeding. Never skip build verification.
 
@@ -55,7 +54,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Default to React + TypeScript + Vite + Tailwind CSS + Vitest when no stack is specified.
-- **Must**: For visual UI work, obtain approved draft HTML (sc-ux-design) before writing product UI code.
+- **Must**: For visual UI work, require approved draft HTML from `/sc-discuss` (sc-ux-design) before writing product UI code.
 - **Must**: After visual UI implementation, capture visual verification (screenshots / `visual-verify.mjs`) and functional test evidence before claiming done.
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
 - **Must**: Prefer small vertical slices over broad horizontal scaffolding.
@@ -100,7 +99,7 @@ Use this checklist when reviewing frontend code:
 - API design, server logic, or backend architecture - separate concern
 - Database schema, migrations, or query optimization - separate concern
 - System architecture decisions or ADR writing - separate concern
-- UI design direction and draft HIL - use sc-ux-design (draft HTML approval) before code
+- UI design direction and draft HIL - `/sc-discuss` + sc-ux-design (draft HTML approval) before `/sc-run` code
 - TDD discipline - use sc-tdd for test-first workflow
 
 ## Output format

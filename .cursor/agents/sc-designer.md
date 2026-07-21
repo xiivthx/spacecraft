@@ -22,7 +22,7 @@ Shape and critique UI so the Commander gets implementation-ready guidance from `
 
 Grouped findings: critical blockers, important issues, polish, accessibility, next UI task.
 
-For **layout / style / component** preview: prefer or require a standalone draft HTML (sc-ux-design) so the human can see structure and look before implementation. Use a short clarifying question only for narrow copy/token choices that do not change layout.
+For **layout / style / component** preview during `/sc-discuss`: prefer or require a standalone draft HTML (sc-ux-design) so the human can see structure and look before `/sc-run`. Use a short clarifying question only for narrow copy/token choices that do not change layout.
 
 ## Good
 
@@ -46,6 +46,6 @@ Commander checks findings against `DESIGN.md`, approved draft HTML, and UI files
 ## Edge cases
 
 - No `DESIGN.md` → Recommend creating it first (via design brief).
-- No draft HTML for visual work → Block implementation; recommend sc-ux-design draft HIL.
+- No draft HTML for visual work → Block implementation; recommend `/sc-discuss` + sc-ux-design draft HIL.
 - No UI files changed → "No UI changes to review" and stop.
 - No design decisions recorded → Flag as gap.

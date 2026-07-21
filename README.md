@@ -35,17 +35,18 @@ See the [installation guide](docs/installation.md) for setup and verification de
 
 ## Quick start
 
-Open the project in Cursor. User-facing slash skills are only `/sc-run` and `/sc-ship`:
+Open the project in Cursor. User-facing slash skills are `/sc-discuss`, `/sc-run`, and `/sc-ship`:
 
 ```text
+/sc-discuss
 /sc-run <roadmap-id>
 /sc-ship
 ```
 
 Flow:
 
-1. Clarify first (human) - answer blocking questions; clear clarify-status.
-2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review). Visual UI/FE: draft HTML approval first, then screenshots/visual + functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
+1. `/sc-discuss` - clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
+2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review). Visual UI/FE: requires draft already approved in discuss; then screenshots/visual + functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
 3. Human checks the ready work.
 4. `/sc-ship` validates and closes out only when explicitly requested.
 
@@ -57,7 +58,7 @@ spacecraft map current            # print current roadmap id
 spacecraft map next <roadmap-id>  # next incomplete mission on named roadmap
 ```
 
-Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-run` and `/sc-ship` only. Spacecraft does not use `.cursor/commands/`.
+Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-discuss`, `/sc-run`, and `/sc-ship`. Spacecraft does not use `.cursor/commands/`.
 
 ## Cursor modes
 
@@ -65,8 +66,8 @@ Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workfl
 
 | User intent | Spacecraft lane | Cursor mode / action |
 |---|---|---|
-| Ask / explain | Advisory | Ask Mode (or Agent with no writes) |
-| Roadmap mission work | Mission | Agent + `/sc-run` (orchestrates plan/build/review) |
+| Ask / clarify / brainstorm / visual draft | Discuss | Agent + `/sc-discuss` |
+| Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
 | Bug hunt | Debug | Cursor Debug Mode (no slash skill) |
 | Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
 | Small edit / commit | Quick | Agent (no full mission gates) |
@@ -173,10 +174,11 @@ On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft st
 
 ## Lean profile
 
-User-facing slash skills: **`/sc-run`** and **`/sc-ship` only**.
+User-facing slash skills: **`/sc-discuss`**, **`/sc-run`**, and **`/sc-ship`**.
 
-- **HIL:** clarify gray areas, then final check + `/sc-ship`
-- **AFK:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits; UI missions pause for draft HTML approval and recheck with visual + functional evidence
+- **HIL discuss:** `/sc-discuss` - clarify, decide, approve visual draft HTML
+- **AFK run:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits; UI missions require prior draft approval and recheck with visual + functional evidence
+- **HIL ship:** final check + `/sc-ship`
 - **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, …)
 - **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design` - glob rules still apply
 

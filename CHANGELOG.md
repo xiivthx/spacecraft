@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.38.0 - 2026-07-21
+
+- Feat: `/sc-discuss` pre-build HIL (clarify, decisions, visual draft approval); `/sc-run` is AFK implement only
+- Feat: visual draft HTML gate moves from mid-`/sc-run` stop into `/sc-discuss`; run requires `UI draft approved` record
+- Docs: workflow rules, README, installation, prompting, and related skills/agents updated for discuss → run → ship
+
 ## 0.37.3 - 2026-07-21
 
 - Fix: prefer `.space/current` (`spacecraft use`) over branch `feat/<id>/` in lean CLI resolve/status/flow and evidence without `--mission` (#38 regression)

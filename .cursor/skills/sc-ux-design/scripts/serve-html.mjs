@@ -123,7 +123,7 @@ async function currentMissionId() {
 async function currentDesignDir() {
   const id = await currentMissionId();
   if (!id) {
-    fail("No current mission. Pass an HTML file or use /sc-run after roadmap.");
+    fail("No current mission. Pass an HTML file or use /sc-discuss after resolving a mission.");
   }
   return path.join(ROOT, ".space", "missions", id, "design");
 }

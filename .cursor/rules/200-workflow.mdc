@@ -7,8 +7,8 @@ alwaysApply: true
 
 | User intent | Lane |
 |-------------|------|
-| Ask, tell, talk, consult, research, explain, how-to | Advisory |
-| Add, build, create, implement, develop, feature, make | Mission |
+| Ask, tell, talk, consult, research, explain, how-to, brainstorm, decide, clarify | Advisory → `/sc-discuss` when mission-scoped |
+| Add, build, create, implement, develop, feature, make | Mission → `/sc-run` after discuss clear |
 | Fix, debug, diagnose, broken, error, bug, crash, investigate | Debug |
 | Edit prompt, config, doc, small fix, human already made changes, just commit | Quick |
 
@@ -16,27 +16,27 @@ alwaysApply: true
 
 | User intent | Lane | Cursor mode / action |
 |---|---|---|
-| Ask / explain | Advisory | Ask Mode (or Agent, no writes) |
-| Roadmap work | Mission | Agent + `/sc-run` |
+| Ask / explain / clarify / visual draft | Discuss | Agent + `/sc-discuss` |
+| Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
 | Bug hunt | Debug | Cursor Debug Mode |
 | Ship | Ship | Agent + `/sc-ship` |
 | Small edit / commit | Quick | Agent (no full mission gates) |
 
-After clarify clear, prefer `/sc-run`; no non-blocking questions mid-AFK. Ship only via `/sc-ship`. Detail: `.cursor/skills/sc-run`, `sc-ship`, `sc-mission`.
+After `/sc-discuss` clears clarify (and visual draft when required), prefer new session `/sc-run`; no non-blocking questions mid-AFK. Ship only via `/sc-ship`. Detail: `.cursor/skills/sc-discuss`, `sc-run`, `sc-ship`, `sc-mission`.
 
 ## AFK flow
 
 ```
-clarify (human) → [/sc-run UI draft HIL if visual] → /sc-run build → human check → /sc-ship
+/sc-discuss (spec + decisions + visual draft HIL) → new session /sc-run build → human check → /sc-ship
 ```
 
-`/sc-run` build: jigsaw plan tasks → per-acceptance RED (sc-tester) → GREEN (sc-coder) with auto checkpoint commits → combine/refactor + integration gate → review → `ready`. For visual UI/FE: stop after draft HTML (layout/style/components) until human approves; after build, require screenshots/visual verify + functional tests before `ready`. `/sc-ship` squashes checkpoints to ≤5 commits, then merges.
+`/sc-discuss`: clarify, brainstorm, decide; for visual UI/FE approve draft HTML before clear. `/sc-run` build: jigsaw plan tasks → per-acceptance RED (sc-tester) → GREEN (sc-coder) with auto checkpoint commits → combine/refactor + integration gate → (UI: visual + functional recheck) → review → `ready`. `/sc-ship` squashes checkpoints to ≤5 commits, then merges.
 
 `spacecraft map use|current|next` select and advance the roadmap.
 
 ## Roadmap / issues
 
-- Large work (>7 tasks): `spacecraft map new`, then add missions; AFK with `/sc-run`.
+- Large work (>7 tasks): `spacecraft map new`, then add missions; discuss each, AFK with `/sc-run`.
 - Bug radar any lane: `gh issue create` + record in mission `issues.md` / roadmap `issues`.
 - Fix issue #N: view issue → mission → reference in spec → close after ship.
 
@@ -48,6 +48,7 @@ Clarify status: `open` | `clear` | `deferred` under mission dir.
 
 ## Lanes (pointers)
 
+- **Discuss:** `/sc-discuss` (spec, decisions, visual draft). Detail: `sc-clarify`, `sc-ux-design` (brief/draft).
 - **Mission:** `/sc-run` (plan/build/review via agents). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`.
 - **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive.
 - **Quick:** skips spec/plan/TDD/formal review; still git safety + tests; report ready, wait for ship.
@@ -63,12 +64,12 @@ Orchestrator, not implementer. Task-delegate:
 | `sc-tester` | tests + evidence |
 | `sc-planner` | plan.json |
 | `sc-reviewer` | release readiness |
-| `sc-designer` | UI critique |
-| `sc-adviser` | complex design |
+| `sc-designer` | UI critique (discuss drafts + run review) |
+| `sc-adviser` | complex design (discuss) |
 | `sc-firmware` | STM32 C |
 
-Patterns: UI draft HTML before visual FE code; tester before coder (one acceptance per pair); firmware for embedded; refactor after all slices; UI visual + functional recheck; reviewer before ship.
+Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before coder (one acceptance per pair); firmware for embedded; refactor after all slices; UI visual + functional recheck in run; reviewer before ship.
 
 ## Session Handoff
 
-Unfinished work: state, blockers, dirty git, next pickup. End with recommended next action.
+Unfinished work: state, blockers, dirty git, next pickup. Prefer new session when phase changes (discuss → run → ship). End with recommended next action.

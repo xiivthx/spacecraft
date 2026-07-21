@@ -43,7 +43,7 @@ Use this exact sequence unless the user specifies otherwise:
    - `questions.md` - any open blocking questions
    - `decisions.md` - recorded choices and assumptions
    - `outputs/map.json` - project structure survey (if present, see Map integration below)
-   - If a blocking clarification question is open, stop - route to sc-clarify.
+   - If a blocking clarification question is open, stop - route to `/sc-discuss` / sc-clarify.
 
 3. **Decompose into jigsaw tasks** - Break the feature into atomic behavioral vertical slices (puzzle pieces that combine into the full capability). ≤7 tasks per phase. When scope demands more:
    - Split into Phase 1, Phase 2, ... each with its own `plan.json` (`plan-phase1.json`, `plan-phase2.json`, ...)
@@ -87,7 +87,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 ### Edge cases
 
 - **>7 tasks needed** - Split into phases (Phase 1, Phase 2, ...). Record the split with rationale in `decisions.md`. Each phase gets its own `plan-phase<N>.json`.
-- **Blocking question open** - Stop and route to sc-clarify. Do not produce `plan.json` with hidden assumptions.
+- **Blocking question open** - Stop and route to `/sc-discuss` / sc-clarify. Do not produce `plan.json` with hidden assumptions.
 - **File paths uncertain** - Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
 - **Spec is incomplete** - Flag gaps in `decisions.md`. Plan only what's specified.
 - **Task depends on another task** - Use `dependsOn: ["T01"]` field. Build loop mechanically skips tasks whose deps aren't `done`.
@@ -96,7 +96,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 - **Must**: Resolve mission before planning.
 - **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`.
-- **Must**: Stop if a blocking clarification is open - route to sc-clarify.
+- **Must**: Stop if a blocking clarification is open - route to `/sc-discuss` / sc-clarify.
 - **Must**: ≤7 tasks per phase. Split into Phase 1, Phase 2, ... if scope exceeds this.
 - **Must**: Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`.
 - **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
@@ -108,10 +108,10 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 ## Out of scope
 
-- Design or UI work - use sc-ux-design / sc-designer
+- Design or UI work - draft under `/sc-discuss` + sc-ux-design; critique via Task(`sc-designer`)
 - Implementation - Task `sc-coder` / `sc-firmware` under `/sc-run`
 - Verification - use sc-verification
-- Clarification - use sc-clarify
+- Clarification - use `/sc-discuss` (sc-clarify protocol)
 
 ## Output format
 
