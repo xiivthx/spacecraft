@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.37.3 - 2026-07-21
+
+- Fix: prefer `.space/current` (`spacecraft use`) over branch `feat/<id>/` in lean CLI resolve/status/flow and evidence without `--mission` (#38 regression)
+- Docs: sc-mission resolver priority is explicit selector / `--mission`, then `.space/current`, then branch
+
 ## 0.37.2 - 2026-07-21
 
 - Fix: restore SHA-256 `outputHash` on evidence capture and validate integrity for the lean CLI (#37)

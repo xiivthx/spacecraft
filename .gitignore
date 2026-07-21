@@ -68,3 +68,4 @@ Thumbs.db
 # signs
 signs/*
 .codegraph/spacecraft
+bin/
