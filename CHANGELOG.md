@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.37.1 - 2026-07-21
+
+- Docs: strip mission id from work branch name immediately before `/sc-ship` merge (`feat/<id>/<title>` → `feat/<title>`)
+- Docs: sc-ship, sc-git, conventions, and README document work vs merge branch naming
+
 ## 0.37.0 - 2026-07-19
 
 - Feat: UI HTML-first HIL gate - draft HTML (layout/style/components) must be approved before visual FE implementation under `/sc-run`
