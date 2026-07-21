@@ -14,8 +14,8 @@ Shipped mission on `main` (or blocked with exact missing gates). Never infer shi
 
 ## Good / Bad
 
-- Good: AFK checkpoints squashed to ≤5 Conventional Commits; `validate --strict` + `closeout-check` pass; CHANGELOG + version bump committed; `SPACECRAFT_SHIP=1` for gated git
-- Bad: shipping with unsquashed WIP checkpoints; shipping without evidence/review; deferring changelog
+- Good: AFK checkpoints squashed to ≤5 Conventional Commits; `validate --strict` + `closeout-check` pass; CHANGELOG + version bump committed; branch stripped to `<type>/<title>` before merge; `SPACECRAFT_SHIP=1` for gated git
+- Bad: shipping with unsquashed WIP checkpoints; shipping without evidence/review; merging while still named `<type>/<id>/<title>`; deferring changelog
 
 ## Verify
 
@@ -70,8 +70,16 @@ Before merge, one commit: sc-learn migration + CHANGELOG + version bump.
 
 ### 4. Merge
 
-- Rebase on latest `main` after confirming fork point.
-- Merge `--no-ff` only (no squash).
+- Finish all gates, release commit, and closeout while still on `<type>/<id>/<title>` (resolver needs the id segment).
+- Rebase on latest `main` after confirming fork point; reverify.
+- **Strip mission id from the branch name** immediately before merge:
+  - If current branch matches `<type>/<id>/<title>` and `<id>` is a mission id (`M…`), rename to `<type>/<title>`:
+    `git branch -m <type>/<title>`
+  - Example: `feat/M07FP1L7Z/go-rewrite` → `feat/go-rewrite`
+  - Skip rename if already `<type>/<title>` or not a mission-id pattern.
+  - Optional: `spacecraft bind-branch <id>` after rename so `mission.json.branches` stays accurate.
+  - If the old name was pushed: delete the remote old name after merge (or when cleaning up); do not block merge on remote rename.
+- Merge `--no-ff` only (no squash), using the stripped name.
 - Tag annotated `vX.Y.Z`; delete local branch unless asked to keep.
 - `spacecraft archive` unless user keeps the live mission folder.
 - No push unless explicitly requested.
@@ -81,7 +89,8 @@ Before merge, one commit: sc-learn migration + CHANGELOG + version bump.
 Hooks deny `git merge` / `push` / `tag` unless `SPACECRAFT_SHIP=1` and closeout passes. Prefer per-command env:
 
 ```
-SPACECRAFT_SHIP=1 git merge --no-ff feat/<id>/<title>
+# after strip: feat/<title> (not feat/<id>/<title>)
+SPACECRAFT_SHIP=1 git merge --no-ff feat/<title>
 SPACECRAFT_SHIP=1 git push origin main
 SPACECRAFT_SHIP=1 git tag -a vX.Y.Z -m "vX.Y.Z"
 ```
