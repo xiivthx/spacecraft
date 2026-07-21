@@ -7,7 +7,7 @@ description: "Test-driven development discipline. Activate on \"TDD\", \"Plan-Re
 
 Plan → Red → Green → Verify → Repeat. Then Refactor → Review when the feature is complete. Plan what to test before writing. Skip TDD when the test would be a trivial tautology - just code and review. Every cycle produces one vertical slice.
 
-Under `/sc-run`, the Commander drives each `plan.json` acceptance as one cycle via Task(`sc-tester`) then Task(`sc-coder`), auto-commits after RED and GREEN, then runs a combine/refactor + functional gate before review.
+Under `/sc-run`, the Commander triages each `plan.json` acceptance first. If TDD applies: Task(`sc-tester`) then Task(`sc-coder`), checkpoint after RED and GREEN. If triage skips: Task(`sc-coder`) direct write, evidence via the task verify command, one checkpoint (no RED harness). Then combine/refactor + functional gate before review.
 
 ## Principles
 
@@ -46,13 +46,15 @@ Before starting any cycle, ask: *"Would a test for this be a trivial tautology?"
 - Boilerplate that the framework generates or enforces
 - **Struct-constructor tests**: creating a struct, then checking its own fields with zero transformation, marshaling, or serialization in between. The test is `assert(x == x)` - the type definition IS the spec. Review the struct directly.
 - Any test that would be `expect(add(1,2)).toBe(3)` - the implementation IS the spec
+- **Docs / prose / wording-only**: acceptance is "file must contain phrase X" (skills, agents, rules, markdown policy). The text *is* the spec - a RED harness that greps for the phrase you will write is a tautology. Direct write + `spacecraft evidence` with the task `verify` command (e.g. `rg`).
 
 **Use TDD when:**
 - Behavior has branching logic, edge cases, or error states
 - The correct output is not trivially obvious from the input
 - The implementation could plausibly be wrong
+- A verify script / CLI / runtime path can fail for reasons other than "missing the sentence we plan to paste"
 
-Record skipped-TDD decisions for a task in the task output or plan.json notes.
+Record skipped-TDD decisions for a task in the task output, `plan.json` notes, or `decisions.md`. On skip under `/sc-run`: do **not** invent phrase-harness scripts; coder writes; evidence runs task `verify`.
 
 ### Per acceptance check (one cycle)
 
@@ -92,17 +94,18 @@ Record skipped-TDD decisions for a task in the task output or plan.json notes.
 
 ### Triage
 
-- **Must**: Apply the triage gate before every cycle. If the test would be a trivial tautology → skip TDD, code directly, review.
+- **Must**: Apply the triage gate before every cycle. If the test would be a trivial tautology → skip TDD, code directly, evidence + review.
 - **Must**: Record skipped-TDD decisions per task. Don't silently skip - make the call explicit.
+- **Must not**: Invent RED harnesses for docs/prose/wording-only acceptances (phrase-echo greps).
 - **Must not**: Skip TDD for anything with branching logic, edge cases, error states, or non-obvious output.
 
 ### Loop discipline
 
 - **Must**: Plan before red. No test without a confirmed seam and expected behavior written down.
-- **Must**: Red before green. No production code without a failing test (or explicit triage skip).
-- **Must**: One slice per cycle. One acceptance → one test → one implementation. Plan tasks are jigsaw pieces; acceptances are cycles inside them.
+- **Must**: Red before green when TDD applies. No production code without a failing test **or** an explicit triage skip.
+- **Must**: One slice per cycle. TDD path: one acceptance → one test → one implementation. Skip path: one acceptance → direct write → evidence. Plan tasks are jigsaw pieces; acceptances are cycles inside them.
 - **Must**: Refactor after all acceptance checks pass - not mid-cycle. You need the full picture.
-- **Must** (AFK): Checkpoint-commit after RED, GREEN, and post-feature refactor (Commander; see sc-git).
+- **Must** (AFK): Checkpoint after RED and GREEN when TDD applies; after the direct-write+evidence step when triage skips; and after post-feature refactor (Commander; see sc-git).
 - **Must**: Run functional test suite after refactor. Old tests must pass alongside new tests.
 - **Must not**: Horizontal slice - bulk tests before bulk implementation.
 - **Must**: After defect fixes, emit `TWINS:` - project-wide search for the same construct / twin occurrences before claiming done.
@@ -174,15 +177,16 @@ Cycle 1/3: <acceptance check description>
 ## Checklist
 
 - [ ] Triage applied per acceptance check (TDD or skip - recorded)
-- [ ] Plan done before red: seam confirmed, expected behavior written
+- [ ] Docs/prose/wording-only acceptances skipped (no phrase-echo RED harness)
+- [ ] Plan done before red when TDD applies: seam confirmed, expected behavior written
 - [ ] Every TDD test written before its implementation
 - [ ] Tests verify behavior through public interfaces only
 - [ ] No implementation-coupled or tautological tests
-- [ ] Vertical slices only - one plan → test → impl per cycle
+- [ ] Vertical slices only - TDD: plan → test → impl; skip: write → evidence
 - [ ] Refactor done after all checks pass (not mid-cycle)
 - [ ] Functional test suite passes after refactor
 - [ ] Mocks only at system boundaries
-- [ ] Evidence captured for each passing test suite (unit + functional)
+- [ ] Evidence captured for each passing acceptance (unit/verify + functional)
 
 ### Edge cases
 

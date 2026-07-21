@@ -61,11 +61,11 @@ Rules for slices:
 - Each `acceptance[]` item is exactly one RED-GREEN cycle (1-3 per task; split task if more)
 - Use `dependsOn` for real order (e.g. API before submit wiring)
 - Theme/visual may note TDD skip when pure styling with no behavior
-- If >7 slices needed → Phase 1 / Phase 2 plans; record split in `decisions.md`
+- If >7 slices needed → two escape hatches: (1) same-mission phase split via `plan-phaseN.json`; (2) roadmap/multi-mission via `spacecraft map`. Record split in `decisions.md`
 
 ## Good
 
-- ≤7 jigsaw tasks per phase; each has acceptance + verify + evidence label
+- ≤7 jigsaw tasks per phase as a hard Must (not preference-only); each has acceptance + verify + evidence label
 - Imperative, specific titles naming the slice
 - Blocking clarifications surfaced; no hidden assumptions
 
@@ -77,6 +77,8 @@ Rules for slices:
 - Tasks without verify/acceptance
 - Filling gray areas silently
 - Horizontal bulk ("all tests then all code") disguised as tasks
+- Soft prefer ≤7 (Must not: prefer ≤7)
+- Reject any 8-9 exception band (Must not: 8-9 exception band)
 
 ## Verify
 
