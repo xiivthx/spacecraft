@@ -73,4 +73,8 @@ Roadmap ID: lowercase kebab-case from title. Manage with `spacecraft roadmap` (`
 
 - `spec.md` - what and why (free-form markdown)
 - `decisions.md` / `questions.md` - assumptions and blocking questions
-- `review.md` / `review.json` - release readiness review output
+- `review.md` / `review.json` - release readiness review output (after `sc-judge`; block `ready` on `REFUTED`)
+
+## Inner-loop / judge
+
+Quick and Mission both apply INTENT / AUTH / TWINS and the 3-cycle stop. Capture judge evidence with a label that includes `judge` (e.g. `judge-<mission-id>` or `judge-pass-validate`). `output` must be real command stdout - never hand-written. AUTH does not bypass ship hooks or `SPACECRAFT_SHIP=1`.

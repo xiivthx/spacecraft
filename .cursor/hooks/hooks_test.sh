@@ -85,6 +85,17 @@ assert_perm "ship: without env denies merge" "deny" "$(extract_perm "$out")"
 out=$(run_ship "" '{"command":"git tag v1.0.0"}')
 assert_perm "ship: without env denies tag" "deny" "$(extract_perm "$out")"
 
+# AUTH (quoted user authorization) is a separate always-on gate; it does not set
+# SPACECRAFT_SHIP or allow merge/push/tag. Env gate still required.
+out=$(run_ship "" '{"command":"git push origin main"}')
+assert_perm "ship: AUTH does not bypass SPACECRAFT_SHIP - denies push" "deny" "$(extract_perm "$out")"
+if ! printf '%s' "$out" | grep -Eq 'deny|Ship gate'; then
+  printf 'FAIL ship: AUTH no-bypass message missing deny|Ship gate\n'
+  FAIL=1
+else
+  printf 'PASS ship: AUTH no-bypass message contains deny|Ship gate\n'
+fi
+
 out=$(run_ship "1" '{"command":"git push"}' "true")
 assert_perm "ship: SPACECRAFT_SHIP=1 closeout ok allows push" "allow" "$(extract_perm "$out")"
 

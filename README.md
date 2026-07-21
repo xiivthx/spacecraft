@@ -70,7 +70,7 @@ Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workfl
 | Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
 | Bug hunt | Debug | Cursor Debug Mode (no slash skill) |
 | Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
-| Small edit / commit | Quick | Agent (no full mission gates) |
+| Small edit / commit | Quick | Agent (no full mission ceremony; still INTENT/AUTH/TWINS/3-cycle) |
 
 ## Agents
 
