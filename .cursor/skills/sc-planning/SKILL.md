@@ -86,7 +86,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 ### Edge cases
 
-- **>7 tasks needed** - Split into phases (Phase 1, Phase 2, ...). Record the split with rationale in `decisions.md`. Each phase gets its own `plan-phase<N>.json`.
+- **>7 tasks needed** - Two escape hatches: (1) same-mission phase split via `plan-phaseN.json` (Phase 1 → `plan-phase1.json`, Phase 2 → `plan-phase2.json`, ...); each phase gets its own `plan-phase<N>.json`. (2) roadmap/multi-mission split via `spacecraft map`. Record the split rationale in `decisions.md`.
 - **Blocking question open** - Stop and route to `/sc-discuss` / sc-clarify. Do not produce `plan.json` with hidden assumptions.
 - **File paths uncertain** - Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
 - **Spec is incomplete** - Flag gaps in `decisions.md`. Plan only what's specified.
@@ -97,10 +97,11 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - **Must**: Resolve mission before planning.
 - **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`.
 - **Must**: Stop if a blocking clarification is open - route to `/sc-discuss` / sc-clarify.
-- **Must**: ≤7 tasks per phase. Split into Phase 1, Phase 2, ... if scope exceeds this.
+- **Must**: ≤7 tasks per phase as a hard Must (not preference-only). Split into Phase 1, Phase 2, ... if scope exceeds this.
 - **Must**: Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`.
 - **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
 - **Must**: File paths are real - verify with `ls` or glob before writing.
+- **Must not**: Soft prefer ≤7; reject any 8-9 exception band.
 - **Must not**: Use vague tasks like "improve code", "add features", or one task that swallows the whole feature.
 - **Must not**: Fill gray areas with hidden assumptions. Record assumptions explicitly.
 - **Must not**: Create broad architecture plans unless the spec requires it.

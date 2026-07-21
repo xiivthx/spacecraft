@@ -30,13 +30,16 @@ After `/sc-discuss` clears clarify (and visual draft when required), prefer new 
 /sc-discuss (spec + decisions + visual draft HIL) → new session /sc-run build → human check → /sc-ship
 ```
 
-`/sc-discuss`: clarify, brainstorm, decide; for visual UI/FE approve draft HTML before clear. `/sc-run` build: jigsaw plan tasks → per-acceptance RED (sc-tester) → GREEN (sc-coder) with auto checkpoint commits → combine/refactor + integration gate → (UI: visual + functional recheck) → review + `sc-judge` → `ready` (block on `REFUTED`). `/sc-ship` squashes checkpoints to ≤5 commits, then merges.
+`/sc-discuss`: clarify, brainstorm, decide; for visual UI/FE approve draft HTML before clear. `/sc-run` build: jigsaw plan tasks → per-acceptance triage (sc-tdd) → RED→GREEN **or** skip→direct write+evidence → combine/refactor + integration gate → (UI: visual + functional recheck) → review + `sc-judge` → `ready` (block on `REFUTED`). `/sc-ship` squashes AFK checkpoints to ≤5 commits, then merges.
 
 `spacecraft map use|current|next` select and advance the roadmap.
 
 ## Roadmap / issues
 
-- Large work (>7 tasks): `spacecraft map new`, then add missions; discuss each, AFK with `/sc-run`.
+- ≤7 jigsaw tasks per phase as a hard Must (not preference-only). Reject soft prefer ≤7; reject any 8-9 exception band.
+- Escape hatches when scope exceeds ≤7 (not a higher or soft cap):
+  - Same-mission phase split: sequential `plan-phaseN.json` (or `plan-phase1.json`, …) under the mission.
+  - Roadmap / multi-mission: `spacecraft map new`, then add missions; discuss each, AFK with `/sc-run`.
 - Bug radar any lane: `gh issue create` + record in mission `issues.md` / roadmap `issues`.
 - Fix issue #N: view issue → mission → reference in spec → close after ship.
 

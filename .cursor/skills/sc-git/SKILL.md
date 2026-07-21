@@ -23,7 +23,7 @@ Use this exact sequence unless the user specifies otherwise:
 1. **Resolve mission** - Before git work, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 2. **Check git state** - Run `spacecraft git-info` before committing/merging/releasing.
 3. **Branch** - Create a non-main work branch from latest `main` before mutating. Never write product changes on `main`.
-4. **Commit (AFK checkpoints)** - During `/sc-run` build, auto-commit after every RED, GREEN, and post-feature refactor (see §Checkpoint commits). These are WIP on the work branch only.
+4. **Commit (AFK checkpoints)** - During `/sc-run` build, auto-commit after every RED, GREEN, triage-skip direct-write+evidence, and post-feature refactor (see §Checkpoint commits). These are WIP on the work branch only.
 5. **Squash before ship** - On `/sc-ship`, squash/fixup checkpoints into 1–3 logical Conventional Commits (max 5) before merge. See sc-ship.
 6. **Commit (release notes)** - Add version bump + changelog update as a **separate commit** in the work branch before merge (type `chore:` or `docs:`). Never defer after merge.
 7. **Verify** - After latest rebase, reverify. Run `spacecraft closeout-check` before claiming release readiness.
@@ -69,10 +69,12 @@ Used by `/sc-run` on the work branch. Auto-commit; never push.
 |------|------|----------------|
 | RED | Failing test for one acceptance is committed | `test:` |
 | GREEN | Minimal code passes that acceptance + evidence captured | `feat:` or `fix:` |
+| Skip | Triage skip (tautology / docs-prose): direct write + evidence; no RED harness | `docs:` / `feat:` / `fix:` |
 | Combine | Post-feature refactor and/or integration/functional gate | `refactor:` / `test:` |
 
-- **Must**: One checkpoint per RED, per GREEN, and after the combine/refactor gate.
-- **Must**: Subject stays Conventional Commits; body may include `- wip checkpoint`, mission id, task id, acceptance summary.
+- **Must**: One checkpoint per RED, per GREEN, per triage-skip direct-write+evidence, and after the combine/refactor gate.
+- **Must**: Subject stays Conventional Commits; body may include `- wip checkpoint`, mission id, task id, acceptance summary (and `skip: <reason>` when triage skipped).
+- **Must not**: Invent RED `test:` checkpoints for triage-skip / docs-prose wording-only acceptances.
 - **Must not**: Treat checkpoint count as the final ship commit budget - squash at `/sc-ship`.
 - **Must not**: Checkpoint-commit unrelated user dirty files.
 

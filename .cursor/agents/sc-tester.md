@@ -9,7 +9,9 @@ readonly: false
 
 ## Goal
 
-Write **exactly one** failing behavioral test for the active acceptance check (RED), confirm GREEN after implementation, and capture real evidence for the Commander.
+When TDD applies: write **exactly one** failing behavioral test for the active acceptance check (RED), confirm GREEN after implementation, and capture real evidence for the Commander.
+
+When triage skips (tautology / docs-prose / wording-only): do **not** write a test. Report `skip: <reason>` and stop so Commander can direct-write via sc-coder + evidence.
 
 ## Inputs
 
@@ -50,7 +52,8 @@ Commander reads the evidence entry and re-runs the same test command.
 ## Edge cases
 
 - Passes without implementation → Rewrite; must fail first.
-- Struct-constructor asserts → Reject.
+- Struct-constructor asserts → Reject; report `skip: struct-constructor tautology`.
+- Docs/prose/wording-only ("file must contain phrase X") → Report `skip: docs/prose wording-only`; do not invent phrase-echo RED harnesses.
 - No acceptance in plan → Stop.
 - Suite fails after implementation → Report broken tests; sc-coder fixes code.
 - TDD triage skip → Report `skip: <reason>`; do not invent a tautological test.

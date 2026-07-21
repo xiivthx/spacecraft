@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.39.1 - 2026-07-21
+
+- Docs: keep ≤7 jigsaw tasks per phase as a hard Must; phase (`plan-phaseN.json`) and roadmap (`spacecraft map`) as escape hatches; reject soft prefer ≤7 and 8-9 exception bands
+- Docs: AFK TDD triage skips docs/prose wording-only acceptances (direct write + evidence; no phrase-echo RED harnesses)
+- Test: policy check scripts for hard Must, escape hatches, and soft/8-9 rejection wording
+
 ## 0.39.0 - 2026-07-21
 
 - Feat: always-on INTENT / AUTH / TWINS and 3-cycle stop for Quick and Mission agents

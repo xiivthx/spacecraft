@@ -16,8 +16,8 @@ Missions at `state=ready` (or stop on blocked / clarify / missing draft approval
 
 ## Good / Bad
 
-- Good: discuss clear first; visual draft already approved in discuss; jigsaw plan tasks; per-acceptance RED→GREEN via Task; auto checkpoint commits; visual + functional recheck for UI; evidence real; review recorded; `sc-judge` before ready; block `set-state ready` on `REFUTED`
-- Bad: shipping; clarifying or iterating draft HTML in this session; implementing UI without approved draft record; mid-loop non-blocking questions; stacking many missions on one branch; bulk implement without RED; skipping checkpoint commits; claiming UI ready without screenshots/visual + functional evidence; setting ready without `sc-judge` or after `REFUTED`
+- Good: discuss clear first; visual draft already approved in discuss; jigsaw plan tasks; triage then RED→GREEN **or** skip→direct write+evidence; auto checkpoint commits; visual + functional recheck for UI; evidence real; review recorded; `sc-judge` before ready; block `set-state ready` on `REFUTED`
+- Bad: shipping; clarifying or iterating draft HTML in this session; implementing UI without approved draft record; mid-loop non-blocking questions; stacking many missions on one branch; bulk implement without triage (skip RED only when sc-tdd skip applies); inventing phrase-echo RED harnesses for docs/prose; skipping checkpoint commits; claiming UI ready without screenshots/visual + functional evidence; setting ready without `sc-judge` or after `REFUTED`
 
 ## Verify
 
@@ -62,11 +62,11 @@ Stop when: `All missions complete.` (print handoff), tip `blocked`, clarify open
 1. Parse id from `map next` (`M…:` prefix); `spacecraft use <id>`.
 2. One branch per mission: if not on `feat/<id>/…`, checkout from main and `spacecraft bind-branch <id>`.
 3. Artifacts: `spec.md` must already be discuss-ready; Task(`sc-planner`) → jigsaw `plan.json`; `set-state planned` then `in_progress`.
-4. **Build (atomic RED-GREEN)** - for each pending plan task, for each `acceptance[]` check:
-   1. Triage via sc-tdd (skip tautologies; record skip in task notes / `decisions.md`).
-   2. **RED**: Task(`sc-tester`) for that single acceptance. Auto checkpoint commit (`test: …`).
-   3. **GREEN**: Task(`sc-coder`) / Task(`sc-firmware`) minimum code. `spacecraft evidence`. Auto checkpoint commit (`feat:` / `fix:`).
-   4. Mark task `done` only after all its acceptances pass.
+4. **Build (per acceptance)** - for each pending plan task, for each `acceptance[]` check:
+   1. **Triage** via sc-tdd. Record `skip: <reason>` in task notes / `decisions.md` when tautology (including docs/prose/wording-only).
+   2. **If TDD:** **RED** Task(`sc-tester`) for that single acceptance → checkpoint (`test: …`). **GREEN** Task(`sc-coder`) / Task(`sc-firmware`) minimum code → `spacecraft evidence` → checkpoint (`feat:` / `fix:`).
+   3. **If skip:** Task(`sc-coder`) / Task(`sc-firmware`) direct write → `spacecraft evidence` with the task `verify` command → one checkpoint (`docs:` / `feat:` / `fix:`). Do **not** call sc-tester or invent phrase-harness scripts.
+   4. Mark task `done` only after all its acceptances pass (TDD green or skip+evidence).
 5. **Combine**: after all plan tasks done - refactor for cohesion; run unit + integration/functional suite; `spacecraft evidence` for the full gate. Auto checkpoint commit (`refactor:` / `test:`).
 6. **UI visual + functional recheck (when visual UI/FE)** - before review:
    1. Visual: sc-ux-design Tier 3 (`visual-verify.mjs`) when Playwright available; else browser screenshots. Capture screenshot paths in evidence / `decisions.md`. Cross-check against approved draft / design brief.
@@ -82,7 +82,7 @@ Stop when: `All missions complete.` (print handoff), tip `blocked`, clarify open
 
 ## Checkpoint commits (mandatory during AFK)
 
-Commander auto-commits on the work branch after every RED, every GREEN, and after the combine/refactor gate. Use Conventional Commit subjects; body may note `wip checkpoint` + mission id + acceptance. See sc-git §Checkpoint commits. Never push.
+Commander auto-commits on the work branch after every RED, every GREEN, every triage-skip direct-write+evidence step, and after the combine/refactor gate. Use Conventional Commit subjects; body may note `wip checkpoint` + mission id + acceptance. See sc-git §Checkpoint commits. Never push.
 
 ## Rules
 
