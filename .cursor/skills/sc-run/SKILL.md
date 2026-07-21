@@ -16,8 +16,8 @@ Missions at `state=ready` (or stop on blocked / clarify / missing draft approval
 
 ## Good / Bad
 
-- Good: discuss clear first; visual draft already approved in discuss; jigsaw plan tasks; per-acceptance RED→GREEN via Task; auto checkpoint commits; visual + functional recheck for UI; evidence real; review recorded
-- Bad: shipping; clarifying or iterating draft HTML in this session; implementing UI without approved draft record; mid-loop non-blocking questions; stacking many missions on one branch; bulk implement without RED; skipping checkpoint commits; claiming UI ready without screenshots/visual + functional evidence
+- Good: discuss clear first; visual draft already approved in discuss; jigsaw plan tasks; per-acceptance RED→GREEN via Task; auto checkpoint commits; visual + functional recheck for UI; evidence real; review recorded; `sc-judge` before ready; block `set-state ready` on `REFUTED`
+- Bad: shipping; clarifying or iterating draft HTML in this session; implementing UI without approved draft record; mid-loop non-blocking questions; stacking many missions on one branch; bulk implement without RED; skipping checkpoint commits; claiming UI ready without screenshots/visual + functional evidence; setting ready without `sc-judge` or after `REFUTED`
 
 ## Verify
 
@@ -72,7 +72,12 @@ Stop when: `All missions complete.` (print handoff), tip `blocked`, clarify open
    1. Visual: sc-ux-design Tier 3 (`visual-verify.mjs`) when Playwright available; else browser screenshots. Capture screenshot paths in evidence / `decisions.md`. Cross-check against approved draft / design brief.
    2. Functional: Vitest/RTL or project functional suite via `spacecraft evidence`.
    3. Fix issues found; do not set `ready` without both.
-7. Review: Task(`sc-reviewer`); for UI also Task(`sc-designer`) when visual; write `review.md` / `review.json` (`status: ready`, releaseReadiness ready); `validate --strict`; `set-state ready`.
+7. Review + `sc-judge` ready gate:
+   1. Task(`sc-reviewer`); for UI also Task(`sc-designer`) when visual.
+   2. Run `sc-judge` (`.cursor/skills/sc-judge/SKILL.md`) - adversarial prove before ready.
+   3. Capture judge evidence via `spacecraft evidence` with a label including `judge` (e.g. `judge-<mission-id>`).
+   4. If verdict is `REFUTED`: do **not** `set-state ready`; leave blocked / fix and re-judge. Handshake blocked.
+   5. Only when judge is not `REFUTED`: write `review.md` / `review.json` (`status: ready`, releaseReadiness ready); `validate --strict`; `set-state ready`.
 8. Continue loop. Do not squash here - `/sc-ship` squashes checkpoints to ≤5 Conventional Commits.
 
 ## Checkpoint commits (mandatory during AFK)
@@ -88,9 +93,11 @@ Commander auto-commits on the work branch after every RED, every GREEN, and afte
 - Delegate product code/tests via Task - Commander orchestrates only.
 - Do not start AFK while clarify is `open` or visual draft approval is missing.
 - Do not implement visual UI/FE without an approved draft HTML record (from discuss) or recorded non-visual skip.
+- Do not `set-state ready` without `sc-judge`, or when verdict is `REFUTED`. Capture judge evidence (label including `judge`).
 
 ## References
 
 - `/sc-discuss` - clarify, decisions, visual draft approval
 - `/sc-ship` - explicit ship only
 - sc-ux-design - post-build visual QC (brief/draft owned by discuss)
+- sc-judge - adversarial prove gate before ready; block on `REFUTED`

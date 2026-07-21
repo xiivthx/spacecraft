@@ -20,7 +20,7 @@ alwaysApply: true
 | Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
 | Bug hunt | Debug | Cursor Debug Mode |
 | Ship | Ship | Agent + `/sc-ship` |
-| Small edit / commit | Quick | Agent (no full mission gates) |
+| Small edit / commit | Quick | Agent (no full mission ceremony; still INTENT/AUTH/TWINS/3-cycle) |
 
 After `/sc-discuss` clears clarify (and visual draft when required), prefer new session `/sc-run`; no non-blocking questions mid-AFK. Ship only via `/sc-ship`. Detail: `.cursor/skills/sc-discuss`, `sc-run`, `sc-ship`, `sc-mission`.
 
@@ -30,7 +30,7 @@ After `/sc-discuss` clears clarify (and visual draft when required), prefer new 
 /sc-discuss (spec + decisions + visual draft HIL) → new session /sc-run build → human check → /sc-ship
 ```
 
-`/sc-discuss`: clarify, brainstorm, decide; for visual UI/FE approve draft HTML before clear. `/sc-run` build: jigsaw plan tasks → per-acceptance RED (sc-tester) → GREEN (sc-coder) with auto checkpoint commits → combine/refactor + integration gate → (UI: visual + functional recheck) → review → `ready`. `/sc-ship` squashes checkpoints to ≤5 commits, then merges.
+`/sc-discuss`: clarify, brainstorm, decide; for visual UI/FE approve draft HTML before clear. `/sc-run` build: jigsaw plan tasks → per-acceptance RED (sc-tester) → GREEN (sc-coder) with auto checkpoint commits → combine/refactor + integration gate → (UI: visual + functional recheck) → review + `sc-judge` → `ready` (block on `REFUTED`). `/sc-ship` squashes checkpoints to ≤5 commits, then merges.
 
 `spacecraft map use|current|next` select and advance the roadmap.
 
@@ -49,9 +49,9 @@ Clarify status: `open` | `clear` | `deferred` under mission dir.
 ## Lanes (pointers)
 
 - **Discuss:** `/sc-discuss` (spec, decisions, visual draft). Detail: `sc-clarify`, `sc-ux-design` (brief/draft).
-- **Mission:** `/sc-run` (plan/build/review via agents). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`.
+- **Mission:** `/sc-run` (plan/build/review via agents). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-judge` (ready gate; block on `REFUTED`). Shares INTENT / AUTH / TWINS / 3-cycle inner-loop gates with Quick.
 - **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive.
-- **Quick:** skips spec/plan/TDD/formal review; still git safety + tests; report ready, wait for ship.
+- **Quick:** skips spec/plan/TDD/formal review; still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle inner-loop gates (same as Mission). Report ready, wait for ship.
 - **Debug:** reproduce E2E → falsify root cause → record in `issues.md`. Prefer Cursor Debug Mode for runtime evidence.
 
 ## Subagent Delegation
@@ -63,12 +63,20 @@ Orchestrator, not implementer. Task-delegate:
 | `sc-coder` | production code |
 | `sc-tester` | tests + evidence |
 | `sc-planner` | plan.json |
-| `sc-reviewer` | release readiness |
+| `sc-reviewer` | release readiness (requires `sc-judge` before ready) |
 | `sc-designer` | UI critique (discuss drafts + run review) |
 | `sc-adviser` | complex design (discuss) |
 | `sc-firmware` | STM32 C |
 
-Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before coder (one acceptance per pair); firmware for embedded; refactor after all slices; UI visual + functional recheck in run; reviewer before ship.
+Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before coder (one acceptance per pair); firmware for embedded; refactor after all slices; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (block `set-state ready` on `REFUTED`); reviewer before ship.
+
+## Inner-loop gates
+
+Always-on for **Quick and Mission** alike (see also `000-spacecraft`). Quick skips mission ceremony (spec/plan/TDD/formal review) but not these gates:
+
+- **INTENT:** Before behavior-changing edits (code / check / spec), emit `INTENT:` with class + intended behavior. Authority when disagreement: explicit user > spec > tests > current code. "Make tests pass" alone is not intended behavior.
+- **AUTH:** Before push / deploy / publish / send, emit `AUTH:` with a quoted user authorization. Necessary but not sufficient for ship - `/sc-ship`, hooks, and `SPACECRAFT_SHIP=1` still apply. AUTH does not bypass those gates; merge/push/tag still require `SPACECRAFT_SHIP=1`.
+- **TWINS:** After defect fixes, emit `TWINS:` with project-wide search for the same construct / twin occurrences before claiming done. After **3 failed fix-verify cycles**, stop and hand back to human (no more looping).
 
 ## Session Handoff
 

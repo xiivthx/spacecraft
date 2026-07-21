@@ -42,6 +42,12 @@ Commander auto-commits the GREEN checkpoint after verify passes - do not commit 
 
 Commander re-runs the task `verify` / failing test. Green = done.
 
+## Inner-loop gates
+
+- Before behavior-changing edits, state `INTENT:` (`code` | `check` | `spec`) and intended behavior. Authority when disagreement: explicit user > spec > tests > current code. "Make tests pass" is not intended behavior.
+- After defect fixes, emit `TWINS:` - project-wide search for the same construct / twin occurrences before claiming done.
+- After **3 failed fix-verify cycles**, stop and hand back (`blocked:`). Do not keep looping.
+
 ## Edge cases
 
 - No failing test → Stop. Red before green.

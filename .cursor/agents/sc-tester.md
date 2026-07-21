@@ -42,6 +42,11 @@ Commander auto-commits the RED checkpoint after the failing test is in place - d
 
 Commander reads the evidence entry and re-runs the same test command.
 
+## Inner-loop gates
+
+- After defect-related test/fix cycles, require `TWINS:` - project-wide search for the same construct / twin occurrences before claiming done.
+- After **3 failed fix-verify cycles**, stop and hand back. Do not keep looping (3-cycle stop).
+
 ## Edge cases
 
 - Passes without implementation → Rewrite; must fail first.
@@ -49,3 +54,4 @@ Commander reads the evidence entry and re-runs the same test command.
 - No acceptance in plan → Stop.
 - Suite fails after implementation → Report broken tests; sc-coder fixes code.
 - TDD triage skip → Report `skip: <reason>`; do not invent a tautological test.
+
