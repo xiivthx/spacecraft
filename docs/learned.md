@@ -13,6 +13,8 @@ Knowledge migrated from missions for internal research reuse.
 
 | Mission | Date | Lesson | Why it matters |
 |---------|------|--------|----------------|
+| M7ZMDXPQ | 2026-07-21 | Forced decision artifacts (INTENT/AUTH/TWINS/verdicts) beat mid-list prose for agent compliance | Harness gates that need rare high-stakes compliance should require greppable artifacts |
+| M7ZMDXPQ | 2026-07-21 | Adversarial prove before ready must re-observe evidence; never soft-ship past REFUTED | Release gates in agent workflows should re-run claims and hunt weakened tests / false completion / unauthorized action |
 | M7YB6X29 | 2026-07-21 | If a work branch encodes a mission id, create matching mission artifacts before `/sc-ship` even when the change is already complete | Closeout cannot invent Verify; retroactive scaffold + real evidence unblocks docs-only ships |
 | M07SMYDMZ | 2026-07-21 | After rewriting a signal-priority resolver, keep regression tests that `use`/explicit override still beats heuristics even if CHANGELOG claims the old fix | Priority bugs return silently when only the previous implementation was tested |
 | M07SML0VX | 2026-07-21 | When rewriting a subsystem, re-port integrity checks that lived on the old schema rather than assuming changelog history means the behavior still exists | Silent loss of security/integrity features after migrations ships false confidence |

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.39.0 - 2026-07-21
+
+- Feat: always-on INTENT / AUTH / TWINS and 3-cycle stop for Quick and Mission agents
+- Feat: `sc-judge` adversarial prove gate before `ready`; block on `REFUTED`
+- Test: sc-judge false-completion and pass smoke fixtures
+- Docs: prompting, mission-artifacts, README, and hooks_test assert AUTH does not bypass `SPACECRAFT_SHIP=1`
+
 ## 0.38.0 - 2026-07-21
 
 - Feat: `/sc-discuss` pre-build HIL (clarify, decisions, visual draft approval); `/sc-run` is AFK implement only
