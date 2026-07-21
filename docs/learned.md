@@ -1,0 +1,15 @@
+# Learned
+
+Knowledge migrated from missions for internal research reuse.
+
+## Solved
+
+| Mission | Date | Problem | Solution | Evidence |
+|---------|------|---------|----------|----------|
+| M07SML0VX | 2026-07-21 | Lean CLI rewrite dropped SHA-256 evidence integrity (#37); capture had no hash and validate did not check | Restore optional `outputHash` (hex SHA-256 of `output`) on write; validate mismatches when present; legacy omit still passes | ship-reverify, validate --strict |
+
+## Lessons
+
+| Mission | Date | Lesson | Why it matters |
+|---------|------|--------|----------------|
+| M07SML0VX | 2026-07-21 | When rewriting a subsystem, re-port integrity checks that lived on the old schema rather than assuming changelog history means the behavior still exists | Silent loss of security/integrity features after migrations ships false confidence |
