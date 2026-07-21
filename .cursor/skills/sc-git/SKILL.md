@@ -86,6 +86,7 @@ Used by `/sc-run` on the work branch. Auto-commit; never push.
 
 - **Must**: Before merge, rebase on latest `main`. Reverify after rebase.
 - **Must**: Identify fork point with `git log --oneline main..HEAD | head -1` before rebase. If `main` has advanced beyond the expected base, warn: "Rebase target mismatch: main HEAD differs from fork point. Confirm correct base before rebase."
+- **Must**: Immediately before merge, strip the mission id from the work branch when it matches `<type>/<id>/<title>` and `<id>` is a mission id (`M…`): `git branch -m <type>/<title>`. Finish closeout/evidence while the id is still in the name. See sc-ship §Merge.
 - **Must**: Merge only with `--no-ff`. No fast-forward or squash-merge into `main`.
 - **Must not**: Rebase/rewrite `main`. Resolve conflicts on work branch, then reverify.
 - **Must**: After merge, delete local branch unless asked to keep.
@@ -138,9 +139,10 @@ This skill does NOT handle:
 ## Output format
 
 ```
-Branch pattern: <type>/<id>/<title>
+Branch pattern (work): <type>/<id>/<title>
+Branch pattern (merge): <type>/<title> after stripping id
 Commit subject: <type>: <description> (~72 chars)
-Merge: git merge --no-ff <branch>
+Merge: git merge --no-ff <type>/<title>
 Tag: git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"
 ```
 
@@ -149,7 +151,7 @@ Tag: git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"
 Before claiming git work is done:
 
 - [ ] Not on `main` for product changes
-- [ ] Branch named with `<type>/<id>/<title>` pattern
+- [ ] Branch named `<type>/<id>/<title>` while working; stripped to `<type>/<title>` immediately before merge
 - [ ] `.gitignore` current; no secrets staged
 - [ ] Conventional Commits used
 - [ ] AFK checkpoints present during `/sc-run`; squashed to ≤5 before ship merge

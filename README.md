@@ -159,7 +159,7 @@ Each mission lives at `.space/missions/<id>/`. The primary files are:
 
 ## Git and shipping
 
-Spacecraft work belongs on `feat/<mission-id>/<title>`, not directly on `main`. Shipping is never inferred. `/sc-ship` runs only after an explicit request to merge or release, validates the mission, and applies the repository's release gates.
+Spacecraft work belongs on `feat/<mission-id>/<title>`, not directly on `main`. Immediately before `/sc-ship` merge, rename to `feat/<title>` (strip the mission id) so the merge commit uses the short name. Shipping is never inferred. `/sc-ship` runs only after an explicit request to merge or release, validates the mission, and applies the repository's release gates.
 
 Before claiming build complete, prefer `spacecraft validate --strict`. Before merge, run `spacecraft closeout-check` (or `ship-check`). With `SPACECRAFT_SHIP=1`, the Cursor ship hook re-runs closeout before allowing `git merge` / `git push` / `git tag`.
 
