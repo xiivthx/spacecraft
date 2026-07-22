@@ -12,20 +12,21 @@ Find what we want before implement: clear `spec.md`, recorded decisions, answere
 
 ## Output
 
-Mission ready to build: `spec.md` solid; `questions.md` / `decisions.md` updated; visual missions have `UI draft approved: <file>` in `decisions.md`; `spacecraft clarify-status clear`. Handoff: **Spec clear. New session: /sc-run.** Never plan AFK, RED-GREEN, product code, or ship.
+Mission ready to build: `spec.md` solid; `questions.md` / `decisions.md` updated; visual missions have `UI draft approved: <file>` in `decisions.md`; comprehension quiz passed or skip recorded; `spacecraft clarify-status clear`. Handoff: **Spec clear. New session: /sc-run.** Never plan AFK, RED-GREEN, product code, or ship.
 
 ## Good / Bad
 
-- Good: talk until Goal / Output / Good-Bad / Verify are sharp; one blocking question at a time (sc-clarify protocol); soft gaps → `decisions.md`; visual brief + draft HTML; Task(`sc-designer`) then Commander fixes before human sees draft; iterate until human likes it; new session for `/sc-run`
-- Bad: implementing; writing `plan.json` AFK; checkpoint commits; mid-discuss shipping; showing raw/unreviewed draft HTML to the human; clearing clarify while draft unapproved on visual work; stacking roadmap AFK in this session
+- Good: talk until Goal / Output / Good-Bad / Verify are sharp; one blocking question at a time (sc-clarify protocol); soft gaps → `decisions.md`; visual brief + draft HTML; Task(`sc-designer`) then Commander fixes before human sees draft; iterate until human likes it; comprehension quiz before clear; new session for `/sc-run`
+- Bad: implementing; writing `plan.json` AFK; checkpoint commits; mid-discuss shipping; showing raw/unreviewed draft HTML to the human; clearing clarify while draft unapproved on visual work; clearing while quiz unanswered; stacking roadmap AFK in this session
 
 ## Verify
 
-Human confirms the spec (and draft when visual). Then:
+Human confirms the spec (and draft when visual), then passes or explicitly skips the comprehension quiz. Then:
 
 ```
 spacecraft clarify-status clear
 # visual: decisions.md contains "UI draft approved: <draft-file>"
+# decisions.md contains "Comprehension quiz: passed" OR "Comprehension quiz: skipped - <reason>"
 ```
 
 ## Arguments
@@ -55,7 +56,7 @@ spacecraft clarify-status clear
 ## Discuss loop
 
 ```
-resolve → inspect → classify gaps → talk / ask / decide → (visual: brief + draft → designer → fix → human HIL) → clear → handoff
+resolve → inspect → classify gaps → talk / ask / decide → (visual: brief + draft → designer → fix → human HIL) → comprehension quiz → clear → handoff
 ```
 
 ### Spec and decisions
@@ -80,19 +81,25 @@ Detect from intent / `spec.md` (layout, style, pages, components, design). If vi
 
 Non-visual missions skip the draft path.
 
+### Comprehension quiz (hard gate before clear)
+
+Before `clarify-status clear`, follow `references/comprehension-quiz.md`: customer-lens quiz on spec/requirement/process/result (or skip if nothing material). Record `Comprehension quiz: passed` or `Comprehension quiz: skipped - <reason>` in `decisions.md`. Never clear while a posed quiz is unanswered.
+
 ### Exit
 
 1. No open blocking questions.
 2. Spec is implementable (Verify present).
 3. Visual: approved draft recorded (or non-visual skip recorded).
-4. `spacecraft clarify-status clear`.
-5. Recommend **new session** `/sc-run` (roadmap id if applicable). Do not continue into AFK build in this chat unless the user explicitly overrides.
+4. Comprehension quiz: `passed` or `skipped - <reason>` recorded in `decisions.md`.
+5. `spacecraft clarify-status clear`.
+6. Recommend **new session** `/sc-run` (roadmap id if applicable). Do not continue into AFK build in this chat unless the user explicitly overrides.
 
 ## Rules
 
 - Never call `/sc-run` build steps, `/sc-ship`, merge, push, or tag from this skill.
 - Never write product implementation or tests; drafts are throwaway HTML only.
 - Never serve or present visual draft HTML to the human before Task(`sc-designer`) and Commander fixes for critical/important findings.
+- Never `clarify-status clear` while the comprehension quiz is unanswered (unless skip is recorded).
 - Prefer recording over memory: `spec.md`, `decisions.md`, `questions.md` are the handoff.
 - Ask/clarify/pathfinder-style work lives here; do not invent separate slash commands for them.
 - One mission focus per discuss session (roadmap selection via `map use` is fine; AFK loop is `/sc-run`).
@@ -104,6 +111,7 @@ Non-visual missions skip the draft path.
 | One-question clarify protocol | sc-clarify (used inside discuss) |
 | Draft HTML + anti-slop / visual-verify scripts | sc-ux-design |
 | Required draft critique before human HIL | Task(`sc-designer`) then Commander fixes |
+| Comprehension quiz | `references/comprehension-quiz.md` (this skill) |
 | Deep architecture advice | Task(`sc-adviser`) |
 | Plan / TDD / evidence | `/sc-run` + sc-planning / sc-tdd / sc-verification |
 
@@ -111,5 +119,6 @@ Non-visual missions skip the draft path.
 
 - sc-clarify - blocking question protocol
 - sc-ux-design - brief, draft HTML, post-build visual QC
+- `references/comprehension-quiz.md` - comprehension quiz template and grading
 - `/sc-run` - AFK implement after clarify clear
 - `/sc-ship` - explicit ship only

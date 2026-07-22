@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.40.2 - 2026-07-22
+
+- Feat: always-on US English prompt coach (`.cursor/rules/025-english-coach.mdc`) - natural rewrite + short notes, or cheer when already correct
+- Docs: `/sc-discuss` comprehension quiz before clear (customer-lens 5W1H on spec/result; Feynman keys; skip if nothing material; harness trivia banned; procedure owned by `references/comprehension-quiz.md`)
+
 ## 0.40.1 - 2026-07-22
 
 - Docs: require Task(`sc-designer`) critique and Commander critical/important fixes before serving visual draft HTML to the human in `/sc-discuss`

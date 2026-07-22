@@ -23,6 +23,7 @@ Keep **Goal**, **Output**, **Good vs Bad**, and **Verify** clear. If unclear: `/
 - Simplicity. Code not written has no bugs.
 - Honesty. "I don't know" and "I was wrong" are valid.
 - Quality over speed. Surgical changes only.
+- Always-on US English coaching for human prompts (see `025-english-coach.mdc`).
 
 ## Inner-loop gates (Fable)
 
