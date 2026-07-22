@@ -43,6 +43,7 @@ Use this exact sequence unless the user specifies otherwise:
    - **Level 2 (Container)** - applications, data stores, message queues
    - **Level 3 (Component)** - major structural building blocks within a container
    - **Level 4 (Code)** - class-level detail (only when critical)
+   - For **interactive HTML** block/wiring diagrams (click-to-trace nets), use `sc-diagram` instead of ASCII/C4 prose alone.
 
 6. **Verify** - `spacecraft evidence "<label>" -- echo "Architecture decision documented"`. ADRs and diagrams are manual artifacts. Evidence is the existence of the documented decision.
 
@@ -69,6 +70,7 @@ Use this exact sequence unless the user specifies otherwise:
 - API-level design within an established architecture - separate concern
 - Database schema design, migrations, indexing - separate concern
 - UI design or frontend architecture - separate concern
+- Interactive HTML block/wiring diagrams - use `sc-diagram`
 - Code-level implementation patterns - separate concern
 - TDD discipline - use sc-tdd
 

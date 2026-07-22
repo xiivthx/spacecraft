@@ -20,14 +20,14 @@ Activate when the user asks to:
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** - Before git work, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
+1. **Resolve mission** - Before git work on a mission, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`. Skip for `/sc-quick` (no mission).
 2. **Check git state** - Run `spacecraft git-info` before committing/merging/releasing.
 3. **Branch** - Create a non-main work branch from latest `main` before mutating. Never write product changes on `main`.
 4. **Commit (AFK checkpoints)** - During `/sc-run` build, auto-commit after every RED, GREEN, triage-skip direct-write+evidence, and post-feature refactor (see §Checkpoint commits). These are WIP on the work branch only.
-5. **Squash before ship** - On `/sc-ship`, squash/fixup checkpoints into 1–3 logical Conventional Commits (max 5) before merge. See sc-ship.
-6. **Commit (release notes)** - Add version bump + changelog update as a **separate commit** in the work branch before merge (type `chore:` or `docs:`). Never defer after merge.
-7. **Verify** - After latest rebase, reverify. Run `spacecraft closeout-check` before claiming release readiness.
-8. **Rebase & Merge** - Before merge, rebase on latest `main`. Merge with `--no-ff` only.
+5. **Squash before ship** - On `/sc-ship`, squash/fixup checkpoints into 1–3 logical Conventional Commits (max 5) before merge. See sc-ship. `/sc-quick` keeps 1–3 commits (no mission squash ceremony).
+6. **Commit (release notes)** - Add changelog update as a **separate commit** in the work branch before merge (type `chore:` or `docs:`). Never defer after merge.
+7. **Verify** - After latest rebase, reverify. For missions, run `spacecraft closeout-check` before claiming release readiness. `/sc-quick` skips closeout (hook uses `SPACECRAFT_QUICK=1`).
+8. **Rebase & Merge** - Before merge, rebase on latest `main`. Merge with `--no-ff` only. Mission: `SPACECRAFT_SHIP=1`. Quick: `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`.
 9. **Tag** - After no-ff merge, create annotated tag. Follow bump policy from Rules §Release Prep: breaking=major, feature=minor, fix=patch, docs/chore=still tag as next patch. Do not tag before merge exists.
 
 ## Rules
@@ -36,16 +36,16 @@ Use this exact sequence unless the user specifies otherwise:
 
 - **Must**: Treat git as the rollback and release boundary for mutating work.
 - **May**: Discovery, clarification, design, planning, and review may run without git.
-- **Must**: Before git work, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <number|id|title>` or `SPACECRAFT_MISSION`.
+- **Must**: Before git work on a mission, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <number|id|title>` or `SPACECRAFT_MISSION`. Skip resolve for `/sc-quick`.
 - **Must**: Before committing/merging/releasing, run `spacecraft git-info`.
 - **Must not**: Write product changes on `main`. If on `main` when mutation is requested, create a work branch.
 - **Must not**: Auto-run `git init`, create worktrees, rebase, merge, tag, or push unless asked.
-- **Must**: Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. AUTH is necessary but not sufficient for ship - still requires `/sc-ship`, ship hooks, and `SPACECRAFT_SHIP=1`. AUTH does not bypass those gates.
+- **Must**: Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. AUTH is necessary but not sufficient for ship - still requires `/sc-ship` or `/sc-quick`, ship hooks, and `SPACECRAFT_SHIP=1` (`SPACECRAFT_QUICK=1` for quick). AUTH does not bypass those gates.
 
 ### Branching
 
 - **Must**: One branch = one feature/fix/scoped change. Branch from latest `main`.
-- **Must**: Pattern: `<type>/<id>/<title>` - e.g. `feat/m07fp1l7z/go-rewrite`.
+- **Must**: Pattern: `<type>/<id>/<title>` for missions - e.g. `feat/m07fp1l7z/go-rewrite`. `/sc-quick` uses `<type>/<title>` with no mission id.
 - **Must**: `release/v<major>.<minor>.<patch>` only for release prep.
 - **Must**: If a branch needs >5 final commits, split the feature first.
 
@@ -100,7 +100,7 @@ Used by `/sc-run` on the work branch. Auto-commit; never push.
 - **Must**: User "ship/release/merge/finish/close branch" → release closeout.
 - **Must**: "stop/close/end session" → session handoff (no merge/tag/branch delete).
 - **Must**: If ambiguous, recommend ship; don't auto-merge.
-- **Must**: Run `spacecraft closeout-check` (alias: `ship-check`) before claiming readiness. The CLI machine-enforces: required artifacts present; mission state `ready` or `shipped`; clarify-status not `open`; evidence.jsonl non-empty with `label`/`command`/`output`/`ts`/`exitCode`; `review.json` status `ready`; no critical or `blocksShip` findings; `releaseReadiness.changelog` and `releaseReadiness.specNote` objects with status `ready` (string/boolean gates invalid); at least one commit touching `CHANGELOG.md` since `main`/`origin/main`.
+- **Must**: For missions, run `spacecraft closeout-check` (alias: `ship-check`) before claiming readiness. The CLI machine-enforces: required artifacts present; mission state `ready` or `shipped`; clarify-status not `open`; evidence.jsonl non-empty with `label`/`command`/`output`/`ts`/`exitCode`; `review.json` status `ready`; no critical or `blocksShip` findings; `releaseReadiness.changelog` and `releaseReadiness.specNote` objects with status `ready` (string/boolean gates invalid); at least one commit touching `CHANGELOG.md` since `main`/`origin/main`. `/sc-quick` skips closeout; ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`.
 - **Must**: If any gate is incomplete, block and list missing actions.
 - **Must**: Cursor ship hooks re-run closeout when `SPACECRAFT_SHIP=1` before allowing merge/push/tag.
 - **Must**: Bump version by impact: breaking=major, feature=minor, fix/patch=patch, docs/chore=no bump unless part of a release (record in decisions.md).

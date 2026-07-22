@@ -31,23 +31,36 @@ $cmd_json
 EOF
 }
 
-# run_ship <SPACECRAFT_SHIP|empty> <cmd_json> [SPACECRAFT_CLOSEOUT_CMD]
+# run_ship <SPACECRAFT_SHIP|empty> <cmd_json> [SPACECRAFT_CLOSEOUT_CMD] [SPACECRAFT_QUICK]
 run_ship() {
   env_ship="$1"
   cmd_json="$2"
   closeout_cmd="${3-}"
+  env_quick="${4-}"
   if [ -n "$env_ship" ]; then
     if [ -n "$closeout_cmd" ]; then
-      SPACECRAFT_SHIP="$env_ship" SPACECRAFT_CLOSEOUT_CMD="$closeout_cmd" "$SHIP" <<EOF
+      if [ -n "$env_quick" ]; then
+        SPACECRAFT_SHIP="$env_ship" SPACECRAFT_QUICK="$env_quick" SPACECRAFT_CLOSEOUT_CMD="$closeout_cmd" "$SHIP" <<EOF
 $cmd_json
 EOF
+      else
+        env -u SPACECRAFT_QUICK SPACECRAFT_SHIP="$env_ship" SPACECRAFT_CLOSEOUT_CMD="$closeout_cmd" "$SHIP" <<EOF
+$cmd_json
+EOF
+      fi
     else
-      env -u SPACECRAFT_CLOSEOUT_CMD SPACECRAFT_SHIP="$env_ship" "$SHIP" <<EOF
+      if [ -n "$env_quick" ]; then
+        env -u SPACECRAFT_CLOSEOUT_CMD SPACECRAFT_SHIP="$env_ship" SPACECRAFT_QUICK="$env_quick" "$SHIP" <<EOF
 $cmd_json
 EOF
+      else
+        env -u SPACECRAFT_CLOSEOUT_CMD -u SPACECRAFT_QUICK SPACECRAFT_SHIP="$env_ship" "$SHIP" <<EOF
+$cmd_json
+EOF
+      fi
     fi
   else
-    env -u SPACECRAFT_SHIP -u SPACECRAFT_CLOSEOUT_CMD "$SHIP" <<EOF
+    env -u SPACECRAFT_SHIP -u SPACECRAFT_QUICK -u SPACECRAFT_CLOSEOUT_CMD "$SHIP" <<EOF
 $cmd_json
 EOF
   fi
@@ -107,6 +120,23 @@ assert_perm "ship: SPACECRAFT_SHIP=1 closeout fail denies push" "deny" "$(extrac
 
 out=$(run_ship "1" '{"command":"git merge --no-ff feat/x"}' "exit 1")
 assert_perm "ship: SPACECRAFT_SHIP=1 closeout fail denies merge" "deny" "$(extract_perm "$out")"
+
+# /sc-quick: SPACECRAFT_QUICK=1 skips closeout even when closeout would fail.
+out=$(run_ship "1" '{"command":"git push"}' "false" "1")
+assert_perm "ship: SPACECRAFT_QUICK=1 skips closeout allows push" "allow" "$(extract_perm "$out")"
+
+out=$(run_ship "1" '{"command":"git merge --no-ff docs/x"}' "exit 1" "1")
+assert_perm "ship: SPACECRAFT_QUICK=1 skips closeout allows merge" "allow" "$(extract_perm "$out")"
+
+out=$(run_ship "1" '{"command":"git tag v1.0.0"}' "false" "1")
+assert_perm "ship: SPACECRAFT_QUICK=1 skips closeout allows tag" "allow" "$(extract_perm "$out")"
+
+# QUICK alone is not enough — still need SPACECRAFT_SHIP=1.
+out=$(env -u SPACECRAFT_SHIP SPACECRAFT_QUICK=1 env -u SPACECRAFT_CLOSEOUT_CMD "$SHIP" <<'EOF'
+{"command":"git push"}
+EOF
+)
+assert_perm "ship: SPACECRAFT_QUICK=1 without SHIP denies push" "deny" "$(extract_perm "$out")"
 
 out=$(run_ship "" '{"command":"ls"}')
 assert_perm "ship: allows unrelated ls" "allow" "$(extract_perm "$out")"
