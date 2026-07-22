@@ -108,7 +108,7 @@ Resolver conflict; clarify open; missing evidence; review not ready; critical fi
 ## Errors
 
 - No push unless user asks.
-- Conventional Commits: `<type>: <description>`; body `- ` bullets, lowercase start.
+- Conventional Commits: `<type>: <description>`; body `- ` bullets, lowercase start. Do not put mission ids in commit subjects or bodies (including merge commits).
 - On gate fail: list exact missing actions.
 
 After ship, recommend a new session; pickup via `spacecraft status`.

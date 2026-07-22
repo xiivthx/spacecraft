@@ -17,6 +17,7 @@ Schemas: `docs/mission-artifacts.md`.
 - Branch: `feat/<id>/<title>` while working. Never write on `main`.
 - Before ship merge: rename to `feat/<title>` (strip mission id). See sc-ship.
 - Conventional Commits. Target 1-3 per branch, max 5. Rebase on `main` → verify → `git merge --no-ff`.
+- Do not put mission ids (`M…`) in git commit subjects or bodies (merge commits and checkpoints included).
 
 ## Mission IDs
 

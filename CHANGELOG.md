@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.39.2 - 2026-07-22
+
+- Docs: do not put mission ids in git commit subjects or bodies (merge commits and AFK checkpoints included); keep ids on the work branch / mission artifacts only
+
 ## 0.39.1 - 2026-07-21
 
 - Docs: keep ≤7 jigsaw tasks per phase as a hard Must; phase (`plan-phaseN.json`) and roadmap (`spacecraft map`) as escape hatches; reject soft prefer ≤7 and 8-9 exception bands

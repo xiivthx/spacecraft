@@ -57,7 +57,8 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Before `/sc-ship` merge, squash/fixup checkpoints into logical Conventional Commits (≤5). Do not squash unrelated changes.
 - **Must not**: Stage unrelated user changes. Prefer `git add <specific-files>`.
 - **Must**: Subject: `<type>: <description>` - imperative, lowercase, ~72 chars.
-- **Must**: Body: `-` bullets, lowercase start, no period end. Include mission/evidence ids.
+- **Must**: Body: `-` bullets, lowercase start, no period end. Describe what changed; evidence lives in `evidence.jsonl`, not the commit.
+- **Must not**: Put mission ids (`M…`) in commit subjects or bodies (including merge commits and AFK checkpoints). Keep ids on the work branch name / mission artifacts only.
 - **Must**: Types: `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `perf`, `style`, `revert`.
 - **Must**: Breaking: `!` after type or `BREAKING CHANGE:` footer.
 
@@ -73,7 +74,7 @@ Used by `/sc-run` on the work branch. Auto-commit; never push.
 | Combine | Post-feature refactor and/or integration/functional gate | `refactor:` / `test:` |
 
 - **Must**: One checkpoint per RED, per GREEN, per triage-skip direct-write+evidence, and after the combine/refactor gate.
-- **Must**: Subject stays Conventional Commits; body may include `- wip checkpoint`, mission id, task id, acceptance summary (and `skip: <reason>` when triage skipped).
+- **Must**: Subject stays Conventional Commits; body may include `- wip checkpoint`, task id, acceptance summary (and `skip: <reason>` when triage skipped). Do not include the mission id.
 - **Must not**: Invent RED `test:` checkpoints for triage-skip / docs-prose wording-only acceptances.
 - **Must not**: Treat checkpoint count as the final ship commit budget - squash at `/sc-ship`.
 - **Must not**: Checkpoint-commit unrelated user dirty files.
