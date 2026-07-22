@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.40.0 - 2026-07-22
+
+- Feat: restore `/sc-quick` as no-mission fast lane (branch → verify → commit → ship; no mission stub/closeout)
+- Feat: ship hook skips `closeout-check` when `SPACECRAFT_SHIP=1` and `SPACECRAFT_QUICK=1`
+- Feat: add `/sc-diagram` for standalone interactive HTML block diagrams (click-to-trace nets)
+- Docs: wire Quick lane in README, workflow, and Commander rules; sc-git notes quick branch naming and closeout skip
+- Docs: point sc-architect interactive wiring HTML to `sc-diagram`; list `sc-diagram` as explicit-only skill
+- Test: hooks_test covers QUICK bypass and SHIP-required-with-QUICK
+
 ## 0.39.2 - 2026-07-22
 
 - Docs: do not put mission ids in git commit subjects or bodies (merge commits and AFK checkpoints included); keep ids on the work branch / mission artifacts only
