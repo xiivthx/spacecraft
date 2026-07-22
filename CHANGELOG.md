@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.39.2 - 2026-07-22
 
 - Docs: do not put mission ids in git commit subjects or bodies (merge commits and AFK checkpoints included); keep ids on the work branch / mission artifacts only
 
