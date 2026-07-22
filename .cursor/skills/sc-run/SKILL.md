@@ -82,7 +82,7 @@ Stop when: `All missions complete.` (print handoff), tip `blocked`, clarify open
 
 ## Checkpoint commits (mandatory during AFK)
 
-Commander auto-commits on the work branch after every RED, every GREEN, every triage-skip direct-write+evidence step, and after the combine/refactor gate. Use Conventional Commit subjects; body may note `wip checkpoint` + mission id + acceptance. See sc-git §Checkpoint commits. Never push.
+Commander auto-commits on the work branch after every RED, every GREEN, every triage-skip direct-write+evidence step, and after the combine/refactor gate. Use Conventional Commit subjects; body may note `wip checkpoint` + acceptance. Do not put the mission id in the commit. See sc-git §Checkpoint commits. Never push.
 
 ## Rules
 
