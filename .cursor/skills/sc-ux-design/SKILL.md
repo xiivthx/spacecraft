@@ -20,6 +20,16 @@ Activate on:
 
 ## Workflow
 
+### Prompt assembly (draft generation)
+
+When generating draft HTML, assemble the generation prompt in this **fixed order**:
+
+1. **Shared draft directives** - always load `references/shared-draft-directives.md` (tech + fidelity + anti-slop alignment).
+2. **Pack body** - when an art-direction pack is selected, load that pack under `references/art-directions/<pack>/` (iron rules + locked layout/section pool). Skip this layer when the choice is none / custom brief only.
+3. **Brief / content tail** - append the approved design brief and any user-supplied copy or constraints last so they bind the earlier layers.
+
+Do not reverse or interleave these layers. Shared directives set how drafts are built; packs (optional) set structural personality; the brief/content tail is the mission-specific source of truth for tokens and copy.
+
 ### Design brief (forced checkpoint - `/sc-discuss`)
 
 Before clearing discuss on visual work (and before any UI implementation code):
@@ -34,11 +44,21 @@ Before clearing discuss on visual work (and before any UI implementation code):
 
 2. **Present the brief for user approval**. No implementation code until explicitly approved.
 
+### Art-direction pack selection (`/sc-discuss`)
+
+Before draft HTML generation, require explicit **pack selection** among:
+
+- `swiss-grid`
+- `editorial`
+- `none - custom brief only`
+
+Record the choice in `decisions.md` (e.g. `Art-direction pack: swiss-grid` or `Art-direction pack: none - custom brief only`). Human or explicit brief choice only - no silent keyword auto-matcher. Skip the pack body layer in Prompt assembly when the choice is `none - custom brief only`.
+
 ### Draft preview (`/sc-discuss`)
 
-After design brief approval, before `/sc-run` / real implementation:
+After design brief approval and pack selection, before `/sc-run` / real implementation:
 
-1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), and key components** - enough for the human to judge look and structure. Not a wireframe-only sketch.
+1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), and key components** - enough for the human to judge look and structure. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → pack body when selected → brief/content tail). Do not generate draft HTML until pack selection is recorded.
 
 2. **Every draft MUST include**: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`).
 
@@ -87,6 +107,7 @@ Run after implementation:
 
 ### Anti-slop
 
+- **Authority**: When an art-direction pack and `references/anti-slop-catalog.md` disagree, anti-slop-catalog is authoritative.
 - **Must**: Run `npx impeccable detect` on all HTML output before claiming UI work is complete. Fix all CLI-detected violations before shipping.
 - **Must not**: Use any pattern flagged in `references/anti-slop-catalog.md` (purple-blue gradients, glassmorphism, nested cards, side-tab borders, cream/beige palettes, gradient text, hero eyebrows) without explicit user approval. Document intentional exceptions in `decisions.md`.
 - **Must not**: Use Inter/Geist/Space Grotesk as sole font without deliberate pairing.
@@ -97,6 +118,12 @@ Run after implementation:
 - **Must**: Obtain explicit user approval on the brief before proceeding.
 - **Must not**: Skip the brief checkpoint even for "quick" UI changes that affect visual design.
 - **Must**: After implementation, cross-check the output against the approved brief (palette, typography, layout, motion). Fix any drift before running anti-slop detection.
+
+### Pack selection
+
+- **Must**: Require explicit pack selection among `swiss-grid`, `editorial`, or `none - custom brief only` before draft HTML generation.
+- **Must**: Record pack selection in `decisions.md` (human or explicit brief choice only).
+- **Must not**: Use a silent keyword auto-matcher for pack selection. No silent keyword inference from the brief or copy.
 
 ### Draft preview
 
@@ -173,6 +200,8 @@ Before claiming UI implementation is ready:
 
 ## References
 
+- `references/shared-draft-directives.md` - always-on draft prompt layer (tech, fidelity, anti-slop alignment)
+- `references/art-directions/` - optional art-direction packs (loaded after shared directives when selected)
 - `references/anti-slop-catalog.md` - all 46 impeccable.style patterns with detection methods and fixes
 - `references/animation-guidelines.md` - duration standards, easing rules, reduced-motion, anti-patterns
 - `scripts/serve-html.mjs` - local HTML draft preview server

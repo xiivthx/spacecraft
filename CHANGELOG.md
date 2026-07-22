@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.41.0 - 2026-07-22
+
+- Feat: draft art-direction packs for `sc-ux-design` (`swiss-grid`, `editorial`) with shared prompt assembly, locked layout pools, and discuss pack selection (no silent auto-matcher)
+- Feat: `sc-designer` pack-fidelity critique when a pack is selected; anti-slop catalog remains authoritative on conflict
+
 ## 0.40.2 - 2026-07-22
 
 - Feat: always-on US English prompt coach (`.cursor/rules/025-english-coach.mdc`) - natural rewrite + short notes, or cheer when already correct

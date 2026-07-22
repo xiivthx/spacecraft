@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" data-draft="true">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>swiss-grid reference - poster-masthead (DRAFT)</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --ink: #0a0a0a;
+      --muted: #4a4a4a;
+      --accent: #c41e3a;
+      --rule: #0a0a0a;
+      --gutter: 1rem;
+      --col: minmax(0, 1fr);
+      --font-display: "IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-body: "IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      border-radius: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .draft-banner {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--accent);
+      color: #fff;
+      text-align: center;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.4rem var(--gutter);
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .frame {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: var(--gutter);
+    }
+
+    /* Named layout: poster-masthead */
+    .poster-masthead {
+      display: grid;
+      grid-template-columns: repeat(12, var(--col));
+      gap: 0 var(--gutter);
+      border: 1px solid var(--rule);
+      background: #fff;
+    }
+
+    .masthead {
+      grid-column: 1 / -1;
+      padding: 2rem var(--gutter) 1.25rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .masthead h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.5rem, 8vw, 5.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .masthead .meta {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .col-main {
+      grid-column: 1 / span 8;
+      padding: 1.25rem var(--gutter) 1.5rem;
+      border-right: 1px solid var(--rule);
+    }
+
+    .col-side {
+      grid-column: 9 / span 4;
+      padding: 1.25rem var(--gutter) 1.5rem;
+    }
+
+    .col-main h2,
+    .col-side h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .col-main p,
+    .col-side p {
+      margin: 0 0 1rem;
+      max-width: 65ch;
+      color: var(--ink);
+    }
+
+    .col-side ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .col-side li {
+      padding: 0.55rem 0;
+      border-top: 1px solid var(--rule);
+      font-size: 0.9rem;
+    }
+
+    .col-side li:last-child {
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .accent {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .pool-note {
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      max-width: 65ch;
+    }
+
+    .pool-note code {
+      font-family: ui-monospace, "IBM Plex Mono", Menlo, monospace;
+      font-size: 0.85em;
+    }
+
+    @media (max-width: 640px) {
+      .col-main,
+      .col-side {
+        grid-column: 1 / -1;
+        border-right: none;
+      }
+
+      .col-main {
+        border-bottom: 1px solid var(--rule);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="draft-banner">DRAFT - Not Final - swiss-grid reference (not product UI)</div>
+  <main class="frame">
+    <article class="poster-masthead" aria-label="Named layout poster-masthead">
+      <header class="masthead">
+        <h1>Grid<br />System</h1>
+        <p class="meta">Layout pool demo · <span class="accent">poster-masthead</span></p>
+      </header>
+      <section class="col-main">
+        <h2>Body band</h2>
+        <p>
+          Throwaway reference for the swiss-grid art-direction pack. Strict twelve-column
+          alignment, hairline rules, and zero border-radius. Copy here is placeholder only -
+          real drafts bind to the approved brief.
+        </p>
+        <p>
+          Iron rules: modular grid, hairlines for edges (no soft-shadow + hairline house
+          recipe), square corners, content fidelity from the brief.
+        </p>
+      </section>
+      <aside class="col-side">
+        <h2>Pool sample</h2>
+        <ul>
+          <li>poster-masthead (this page)</li>
+          <li>split-rule</li>
+          <li>index-rail</li>
+          <li>quad-matrix</li>
+          <li>triptych-band</li>
+          <li>asymmetric-twelve</li>
+          <li>baseline-stack</li>
+          <li>corner-flag</li>
+        </ul>
+      </aside>
+    </article>
+    <p class="pool-note">
+      Reference only. Agents pick a <code>named layout</code> from
+      <code>art-directions/swiss-grid/SKILL.md</code>. On conflict with the anti-slop catalog,
+      the catalog wins.
+    </p>
+  </main>
+</body>
+</html>
