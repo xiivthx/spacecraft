@@ -63,7 +63,11 @@ mw_class=$(printf '%s' "$command" | python3 -c '
 import re, sys
 
 cmd = sys.stdin.read()
-GIT_PREFIX = r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*"
+GIT_PREFIX = (
+    r"(?:(?:export\s+)?(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)*)?"
+    r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*"
+    r"(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*"
+)
 SEP = r"(?:^|[;&|]|&&|\|\|)\s*"
 
 MUTATE = re.compile(
@@ -95,9 +99,33 @@ print("other")
 
 case "$mw_class" in
   mutate)
+    # Allow ship-gated merge/push/tag on main (documented SPACECRAFT_SHIP=1 form).
+    # Cursor hooks do not inherit agent shell env; read assignment from command.
+    ship_ok=$(printf '%s' "$command" | python3 -c '
+import os, re, sys
+cmd = sys.stdin.read()
+env_ship = os.environ.get("SPACECRAFT_SHIP", "") == "1"
+pat = re.compile(
+    r"(?:^|[;&|]|&&|\|\|)\s*(?:export\s+)?"
+    r"((?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)*)"
+    r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*"
+    r"(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*\s+(?:merge|push|tag)\b"
+)
+cmd_ship = False
+for m in pat.finditer(cmd):
+    blob = (m.group(1) or "") + " " + m.group(0)
+    if re.search(r"(?:^|[\s])SPACECRAFT_SHIP=1(?:\s|$)", blob):
+        cmd_ship = True
+        break
+# Exempt only merge/push/tag when ship gate is present (env or command prefix).
+print("1" if (env_ship or cmd_ship) and pat.search(cmd) else "0")
+')
+    if [ "$ship_ok" = "1" ]; then
+      allow
+    fi
     deny \
       "Mutating git on main/master is blocked. Use a feature branch (feat/<id>/<title>). Never write on main." \
-      "You are on main/master. Do not run mutating git commands here. Checkout a feature branch first: git checkout -b feat/<id>/<title>"
+      "You are on main/master. Do not run mutating git commands here. Checkout a feature branch first: git checkout -b feat/<id>/<title>. Ship merge/push/tag must use SPACECRAFT_SHIP=1 prefix."
     ;;
   selftest|other) allow ;;
   *) allow ;;

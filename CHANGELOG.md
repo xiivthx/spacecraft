@@ -3,6 +3,7 @@
 ## 0.41.1 - 2026-07-22
 
 - Docs: Tier 3 browser matrix — `playwright-cli` primary, Cursor IDE browser fallback; remove system Chrome headless and browser-use/CDP from visual gates (`sc-ux-design`, `sc-run`, `sc-web-frontend`)
+- Fix: ship/main hooks honor documented `SPACECRAFT_SHIP=1` / `SPACECRAFT_QUICK=1` command prefixes (Cursor hook process does not inherit agent shell env)
 
 ## 0.41.0 - 2026-07-22
 

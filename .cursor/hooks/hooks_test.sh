@@ -138,6 +138,34 @@ EOF
 )
 assert_perm "ship: SPACECRAFT_QUICK=1 without SHIP denies push" "deny" "$(extract_perm "$out")"
 
+# Command-string assignments (Cursor hook process has no agent shell env).
+out=$(env -u SPACECRAFT_SHIP -u SPACECRAFT_QUICK -u SPACECRAFT_CLOSEOUT_CMD "$SHIP" <<'EOF'
+{"command":"SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1 git merge --no-ff docs/x"}
+EOF
+)
+assert_perm "ship: command-prefix SHIP+QUICK allows merge" "allow" "$(extract_perm "$out")"
+
+out=$(env -u SPACECRAFT_SHIP -u SPACECRAFT_QUICK SPACECRAFT_CLOSEOUT_CMD="true" "$SHIP" <<'EOF'
+{"command":"SPACECRAFT_SHIP=1 git tag -a v1.0.0 -m v1.0.0"}
+EOF
+)
+assert_perm "ship: command-prefix SHIP allows tag with closeout" "allow" "$(extract_perm "$out")"
+
+out=$(env -u SPACECRAFT_SHIP -u SPACECRAFT_QUICK -u SPACECRAFT_CLOSEOUT_CMD "$SHIP" <<'EOF'
+{"command":"echo SPACECRAFT_SHIP=1; git push"}
+EOF
+)
+assert_perm "ship: echo of SHIP=1 does not unlock push" "deny" "$(extract_perm "$out")"
+
+out=$(run_main "main" '{"command":"SPACECRAFT_SHIP=1 git merge --no-ff feat/x"}')
+assert_perm "main-write: ship-prefixed merge on main allows" "allow" "$(extract_perm "$out")"
+
+out=$(run_main "main" '{"command":"SPACECRAFT_SHIP=1 git tag -a v1.0.0 -m v1.0.0"}')
+assert_perm "main-write: ship-prefixed tag on main allows" "allow" "$(extract_perm "$out")"
+
+out=$(run_main "main" '{"command":"SPACECRAFT_SHIP=1 git commit -m x"}')
+assert_perm "main-write: ship-prefixed commit on main still denies" "deny" "$(extract_perm "$out")"
+
 out=$(run_ship "" '{"command":"ls"}')
 assert_perm "ship: allows unrelated ls" "allow" "$(extract_perm "$out")"
 
