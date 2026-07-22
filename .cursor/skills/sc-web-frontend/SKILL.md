@@ -38,7 +38,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 5. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
 
-6. **Verify (visual)** - After visual UI work: sc-ux-design Tier 3 (`visual-verify.mjs`) when Playwright is available; otherwise browser screenshots. Record screenshot paths in evidence / `decisions.md`. Fix visual issues before ready.
+6. **Verify (visual)** - After visual UI work: sc-ux-design Tier 3 via `playwright-cli` (preferred) or Cursor IDE browser (fallback); optional `visual-verify.mjs`. Record screenshot paths in evidence / `decisions.md`. Fix visual issues before ready. Do not use system Chrome headless or browser-use/CDP.
 
 7. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
 
@@ -55,7 +55,8 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Default to React + TypeScript + Vite + Tailwind CSS + Vitest when no stack is specified.
 - **Must**: For visual UI work, require approved draft HTML from `/sc-discuss` (sc-ux-design) before writing product UI code.
-- **Must**: After visual UI implementation, capture visual verification (screenshots / `visual-verify.mjs`) and functional test evidence before claiming done.
+- **Must**: After visual UI implementation, capture visual verification (`playwright-cli` or Cursor IDE browser; optional `visual-verify.mjs`) and functional test evidence before claiming done.
+- **Must not**: Use system Chrome headless or browser-use/CDP for visual verification.
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
 - **Must**: Prefer small vertical slices over broad horizontal scaffolding.
 - **Must**: Component tests cover behavior via public interfaces - render output and user interactions, not internal state.
@@ -128,7 +129,7 @@ Before claiming frontend work done:
 - [ ] Components typed with TypeScript interfaces
 - [ ] Styles applied via Tailwind utility classes, scoped to component
 - [ ] Component / functional tests pass (`npx vitest run` or project suite)
-- [ ] Visual recheck: screenshots or `visual-verify.mjs` captured
+- [ ] Visual recheck: `playwright-cli` or Cursor IDE browser screenshots captured
 - [ ] Build passes (`npm run build`)
 - [ ] Evidence captured with `spacecraft evidence`
 - [ ] No unapproved dependencies

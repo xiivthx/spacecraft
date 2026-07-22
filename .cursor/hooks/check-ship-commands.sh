@@ -49,7 +49,12 @@ ship_class=$(printf '%s' "$command" | python3 -c '
 import re, sys
 
 cmd = sys.stdin.read()
-GIT_PREFIX = r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*"
+# Optional bare VAR=val / export / env prefixes before git (agent ship form).
+GIT_PREFIX = (
+    r"(?:(?:export\s+)?(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)*)?"
+    r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*"
+    r"(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*"
+)
 SEP = r"(?:^|[;&|]|&&|\|\|)\s*"
 REAL_SHIP = re.compile(SEP + GIT_PREFIX + r"\s+(merge|push|tag)\b")
 
@@ -79,15 +84,45 @@ case "$ship_class" in
   *) allow ;;
 esac
 
+# Resolve ship flags: process env (hooks_test / sessionStart) OR command-string
+# assignments. Cursor beforeShellExecution does not inherit agent shell exports
+# or `VAR=1 cmd` prefixes into the hook process, so the documented
+# `SPACECRAFT_SHIP=1 [SPACECRAFT_QUICK=1] git merge|push|tag` form must be
+# read from the command text.
+ship_flags=$(printf '%s' "$command" | python3 -c '
+import os, re, sys
+cmd = sys.stdin.read()
+ship = os.environ.get("SPACECRAFT_SHIP", "")
+quick = os.environ.get("SPACECRAFT_QUICK", "")
+# Assignments must prefix the ship git invocation (not echo/strings elsewhere).
+pat = re.compile(
+    r"(?:^|[;&|]|&&|\|\|)\s*(?:export\s+)?"
+    r"((?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)*)"
+    r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*"
+    r"(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*\s+(?:merge|push|tag)\b"
+)
+for m in pat.finditer(cmd):
+    assigns = m.group(1) or ""
+    env_chunk = m.group(0)
+    blob = assigns + " " + env_chunk
+    if re.search(r"(?:^|[\s])SPACECRAFT_SHIP=1(?:\s|$)", blob):
+        ship = "1"
+    if re.search(r"(?:^|[\s])SPACECRAFT_QUICK=1(?:\s|$)", blob):
+        quick = "1"
+print(f"{ship}\t{quick}")
+')
+SHIP_FLAG=$(printf '%s' "$ship_flags" | cut -f1)
+QUICK_FLAG=$(printf '%s' "$ship_flags" | cut -f2)
+
 # Real git merge|push|tag: require SPACECRAFT_SHIP=1, then closeout (unless quick lane).
-if [ "${SPACECRAFT_SHIP:-}" != "1" ]; then
+if [ "$SHIP_FLAG" != "1" ]; then
   deny \
     "Ship gate blocked this command. Run /sc-ship (or /sc-quick ship) and set SPACECRAFT_SHIP=1 only for gated git merge/push/tag, then unset it." \
-    "Do not merge, push, or tag unless the user explicitly requested ship via /sc-ship or /sc-quick. Export SPACECRAFT_SHIP=1 for those gated git commands only, then unset SPACECRAFT_SHIP. For no-mission quick lane also set SPACECRAFT_QUICK=1."
+    "Do not merge, push, or tag unless the user explicitly requested ship via /sc-ship or /sc-quick. Prefix gated git with SPACECRAFT_SHIP=1 (and SPACECRAFT_QUICK=1 for no-mission /sc-quick), then unset after."
 fi
 
 # No-mission /sc-quick: skip mission closeout-check.
-if [ "${SPACECRAFT_QUICK:-}" = "1" ]; then
+if [ "$QUICK_FLAG" = "1" ]; then
   allow
 fi
 

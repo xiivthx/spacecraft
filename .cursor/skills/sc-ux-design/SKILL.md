@@ -13,7 +13,7 @@ UI quality companion: design brief + draft HTML under `/sc-discuss`; anti-slop a
 Activate on:
 - **"Check for slop" / "anti-slop" / "slop audit"** - run anti-slop detection
 - **"Preview draft" / "create draft" / "draft HTML"** - under `/sc-discuss` before implement
-- **"Visual verify" / "visual test" / "browser check"** - Playwright visual verification (post-build)
+- **"Visual verify" / "visual test" / "browser check"** - playwright-cli / Cursor IDE browser visual verification (post-build)
 - **"UI quality check"** - comprehensive UX quality review
 - During `/sc-discuss` for visual UI/FE - design brief + draft checkpoint
 - During `/sc-run` after visual implementation - Tier 3 recheck (not draft discovery)
@@ -96,12 +96,18 @@ Run after implementation:
 - **Identical card grids**: Same-sized cards repeated with icon + heading + text? If no differentiation → flag.
 
 **Tier 3 - Browser visual check** (**required** after visual UI implementation):
-`node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <html-file-or-url>`
-- 3 viewports (375/768/1280px), full-page screenshots
-- Audits: horizontal overflow, clipped content, text touching viewport edge, cramped padding
-- JSON report: `breakpoint`, `issues` (selector, kind, severity), `screenshots`
-- Install: `cd .cursor/skills/sc-ux-design && npm install`
-- **When Playwright is unavailable**: Commander must still capture browser screenshots (e.g. Cursor browser tools), record paths in evidence / `decisions.md`, and fix blocking visual issues before `ready`.
+
+Canonical browser matrix (do not expand):
+1. **Vitest + happy-dom** — behavior only (not visual pixels)
+2. **`playwright-cli`** — primary real-browser visual / interact (`open` → `snapshot` / `screenshot`; resize 375/768/1280)
+3. **Cursor IDE browser** (`cursor-ide-browser` MCP) — fallback when `playwright-cli` cannot run
+
+Optional scripted audit (same Playwright family):  
+`node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <html-file-or-url>`  
+(3 viewports, overflow/clip audits, JSON report). Install: `cd .cursor/skills/sc-ux-design && npm install`.
+
+- Capture screenshot paths in evidence / `decisions.md`; fix blocking visual issues before `ready`.
+- **Do not use** system Chrome headless or browser-use/CDP for Tier 3 (removed from the official matrix).
 
 ## Rules
 
@@ -138,8 +144,9 @@ Run after implementation:
 
 ### Visual recheck
 
-- **Must**: After visual UI implementation, run Tier 3 visual verify when Playwright is available; otherwise capture browser screenshots and record paths.
+- **Must**: After visual UI implementation, run Tier 3 with `playwright-cli` (preferred) or Cursor IDE browser (fallback); record screenshot paths.
 - **Must**: Pair visual recheck with functional tests (Vitest/RTL or project suite) via `spacecraft evidence` before claiming UI ready.
+- **Must not**: Use system Chrome headless or browser-use/CDP as the visual gate.
 
 ### Animation
 
@@ -195,7 +202,7 @@ Before claiming UI implementation is ready:
 - [ ] 5 LLM-only patterns reviewed with concrete heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids)
 - [ ] Animation: durations in range, easing rules followed, reduced-motion respected
 - [ ] No banned fonts (Inter/Geist/Space Grotesk) without deliberate pairing
-- [ ] Tier 3 visual verification run (or browser screenshots if Playwright unavailable); paths recorded
+- [ ] Tier 3 visual verification via `playwright-cli` or Cursor IDE browser; paths recorded
 - [ ] Functional tests passed with `spacecraft evidence`
 
 ## References
