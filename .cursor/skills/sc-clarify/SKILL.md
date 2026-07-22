@@ -76,7 +76,7 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 
 - Session entry / brainstorm / visual draft ownership - use `/sc-discuss`
 - Planning - use sc-planning (via `/sc-run` for roadmap work)
-- Visual draft HTML - `/sc-discuss` + sc-ux-design; critique via Task(`sc-designer`)
+- Visual draft HTML - `/sc-discuss` + sc-ux-design; required critique via Task(`sc-designer`) before human HIL
 - Git operations - use sc-git
 - Implementation - use `/sc-run` (AFK) or agents; ship with `/sc-ship` only
 

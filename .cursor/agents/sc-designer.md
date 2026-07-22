@@ -22,7 +22,7 @@ Shape and critique UI so the Commander gets implementation-ready guidance from `
 
 Grouped findings: critical blockers, important issues, polish, accessibility, next UI task.
 
-For **layout / style / component** preview during `/sc-discuss`: prefer or require a standalone draft HTML (sc-ux-design) so the human can see structure and look before `/sc-run`. Use a short clarifying question only for narrow copy/token choices that do not change layout.
+For **layout / style / component** preview during `/sc-discuss`: require a standalone draft HTML (sc-ux-design). Critique runs **before** human HIL; Commander applies critical/important fixes (this agent is readonly), then serves the cleaned draft. Use a short clarifying question only for narrow copy/token choices that do not change layout.
 
 ## Good
 

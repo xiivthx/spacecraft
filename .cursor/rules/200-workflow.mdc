@@ -67,7 +67,7 @@ Orchestrator, not implementer. Task-delegate:
 | `sc-tester` | tests + evidence |
 | `sc-planner` | plan.json |
 | `sc-reviewer` | release readiness (requires `sc-judge` before ready) |
-| `sc-designer` | UI critique (discuss drafts + run review) |
+| `sc-designer` | UI critique (required before discuss draft HIL; also run review) |
 | `sc-adviser` | complex design (discuss) |
 | `sc-firmware` | STM32 C |
 
