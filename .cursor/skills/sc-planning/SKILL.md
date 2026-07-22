@@ -109,7 +109,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 ## Out of scope
 
-- Design or UI work - draft under `/sc-discuss` + sc-ux-design; critique via Task(`sc-designer`)
+- Design or UI work - draft under `/sc-discuss` + sc-ux-design; required Task(`sc-designer`) before human HIL
 - Implementation - Task `sc-coder` / `sc-firmware` under `/sc-run`
 - Verification - use sc-verification
 - Clarification - use `/sc-discuss` (sc-clarify protocol)

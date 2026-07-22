@@ -42,14 +42,16 @@ After design brief approval, before `/sc-run` / real implementation:
 
 2. **Every draft MUST include**: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`).
 
-3. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
+3. **Designer gate (required):** Task(`sc-designer`) on the draft. Commander applies critical and important fixes (`sc-designer` is readonly). Check 375px before and after fixes. Do not serve or present the draft to the human until this gate passes.
 
-4. **Under `/sc-discuss`**: iterate until the human likes it. On approval, record `UI draft approved: <draft-file>` in `decisions.md`, then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
+4. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
-5. **Under `/sc-run`**: do **not** invent or iterate draft HTML. If approval is missing, stop and recommend `/sc-discuss`.
+5. **Under `/sc-discuss`**: iterate (draft → designer → fix → human) until the human likes it. On approval, record `UI draft approved: <draft-file>` in `decisions.md`, then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
 
-6. **Iterate** in discuss until approved (max 3 rounds - if still unapproved, escalate to user for direction).
-7. **Before approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
+6. **Under `/sc-run`**: do **not** invent or iterate draft HTML. If approval is missing, stop and recommend `/sc-discuss`.
+
+7. **Iterate** in discuss until approved (max 3 human rounds - if still unapproved, escalate to user for direction). Each new draft version re-runs the designer gate before human HIL.
+8. **Before human approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
 
 ### DESIGN.md integration
 
@@ -100,10 +102,12 @@ Run after implementation:
 
 - **Must**: Generate a draft HTML preview showing layout + style tokens + key components; obtain user approval before writing implementation code.
 - **Must**: Every draft HTML file includes: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename.
+- **Must**: Run Task(`sc-designer`) and apply critical/important fixes before serving or presenting any draft to the human.
 - **Must**: Check draft layout at 375px viewport width before asking for approval.
 - **Must**: Own draft discovery under `/sc-discuss`; `/sc-run` requires `UI draft approved: …` already recorded (or non-visual skip).
+- **Must not**: Serve or present raw/unreviewed draft HTML to the human.
 - **Must not**: Use draft HTML as the basis for production implementation. Drafts are throwaway mockups.
-- **Must**: After 3 draft rounds without approval, escalate to the user for direction instead of iterating indefinitely.
+- **Must**: After 3 human draft rounds without approval, escalate to the user for direction instead of iterating indefinitely.
 
 ### Visual recheck
 
@@ -126,8 +130,8 @@ Run after implementation:
 
 This skill does NOT handle:
 
-- Design direction and visual identity - use sc-design
-- Full accessibility audit (WCAG, ARIA, keyboard nav) - use sc-review
+- Draft critique before human HIL - Task(`sc-designer`); Commander applies fixes
+- Full accessibility audit (WCAG, ARIA, keyboard nav) - note gaps; escalate if blocking
 - CSS framework selection or component library decisions - ask the user
 - Product implementation - that's the build command's scope
 - Mission planning - use sc-planning
@@ -157,6 +161,7 @@ This skill does NOT handle:
 Before claiming UI implementation is ready:
 
 - [ ] Design brief + draft approved in `/sc-discuss` (`UI draft approved: …` in `decisions.md`)
+- [ ] Draft passed Task(`sc-designer`) + critical/important fixes before human HIL
 - [ ] `DESIGN.md` read and applied (or candidate generated during discuss)
 - [ ] Implementation cross-checked against approved design brief (no palette/typo/layout/motion drift)
 - [ ] `npx impeccable detect` run - zero unfixed violations

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.40.1 - 2026-07-22
+
+- Docs: require Task(`sc-designer`) critique and Commander critical/important fixes before serving visual draft HTML to the human in `/sc-discuss`
+
 ## 0.40.0 - 2026-07-22
 
 - Feat: restore `/sc-quick` as no-mission fast lane (branch → verify → commit → ship; no mission stub/closeout)

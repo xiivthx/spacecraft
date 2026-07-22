@@ -16,8 +16,8 @@ Mission ready to build: `spec.md` solid; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: talk until Goal / Output / Good-Bad / Verify are sharp; one blocking question at a time (sc-clarify protocol); soft gaps → `decisions.md`; visual brief + draft HTML iterated until human likes it; new session for `/sc-run`
-- Bad: implementing; writing `plan.json` AFK; checkpoint commits; mid-discuss shipping; clearing clarify while draft unapproved on visual work; stacking roadmap AFK in this session
+- Good: talk until Goal / Output / Good-Bad / Verify are sharp; one blocking question at a time (sc-clarify protocol); soft gaps → `decisions.md`; visual brief + draft HTML; Task(`sc-designer`) then Commander fixes before human sees draft; iterate until human likes it; new session for `/sc-run`
+- Bad: implementing; writing `plan.json` AFK; checkpoint commits; mid-discuss shipping; showing raw/unreviewed draft HTML to the human; clearing clarify while draft unapproved on visual work; stacking roadmap AFK in this session
 
 ## Verify
 
@@ -55,7 +55,7 @@ spacecraft clarify-status clear
 ## Discuss loop
 
 ```
-resolve → inspect → classify gaps → talk / ask / decide → (visual: brief + draft) → clear → handoff
+resolve → inspect → classify gaps → talk / ask / decide → (visual: brief + draft → designer → fix → human HIL) → clear → handoff
 ```
 
 ### Spec and decisions
@@ -63,7 +63,7 @@ resolve → inspect → classify gaps → talk / ask / decide → (visual: brief
 1. Ensure `spec.md` has Goal, Output, Good vs Bad, Verify (machine-checkable where possible). Prefer editing the spec over chat-only agreements.
 2. Use sc-clarify protocol for blocking ambiguity: exhaust files/research first; ask exactly one blocking question at a time (question + why + recommendation + if-accepted); record in `questions.md` / `decisions.md`.
 3. Soft / non-blocking gaps: write explicit assumptions to `decisions.md` (do not block clear on soft gaps alone).
-4. Deep architecture tradeoffs: optional Task(`sc-adviser`). UI critique on drafts: optional Task(`sc-designer`).
+4. Deep architecture tradeoffs: optional Task(`sc-adviser`). Visual draft critique: required Task(`sc-designer`) before human HIL (see Visual design).
 5. Keep `spacecraft clarify-status open` while blocking questions or unapproved visual draft remain.
 
 ### Visual design (when UI/FE surface)
@@ -71,10 +71,12 @@ resolve → inspect → classify gaps → talk / ask / decide → (visual: brief
 Detect from intent / `spec.md` (layout, style, pages, components, design). If visual:
 
 1. Follow sc-ux-design design brief (6 dimensions); get human approval.
-2. Generate standalone draft HTML under `.space/missions/<id>/design/drafts/` (layout, style tokens, key components - not wireframe-only). Serve via `serve-html.mjs`; check 375px.
-3. Iterate until the human likes it (max 3 rounds, then escalate for direction).
-4. On approval: record `UI draft approved: <draft-file>` in `decisions.md`. Optionally note art direction / DESIGN.md updates.
-5. Skip draft only for non-visual FE (pure logic/hooks); record skip reason in `decisions.md`.
+2. Generate standalone draft HTML under `.space/missions/<id>/design/drafts/` (layout, style tokens, key components - not wireframe-only). Check 375px.
+3. **Designer gate (required before human sees draft):** Task(`sc-designer`) on the draft. Commander applies all critical and important fixes to the draft HTML (`sc-designer` is readonly). Re-check 375px after fixes. Do not serve or present the draft to the human until this gate passes.
+4. Serve via `serve-html.mjs` and present the cleaned draft for human review.
+5. Iterate (draft → designer → fix → human) until the human likes it (max 3 human rounds, then escalate for direction). Each new draft version re-runs the designer gate before human HIL.
+6. On approval: record `UI draft approved: <draft-file>` in `decisions.md`. Optionally note art direction / DESIGN.md updates.
+7. Skip draft only for non-visual FE (pure logic/hooks); record skip reason in `decisions.md`.
 
 Non-visual missions skip the draft path.
 
@@ -90,6 +92,7 @@ Non-visual missions skip the draft path.
 
 - Never call `/sc-run` build steps, `/sc-ship`, merge, push, or tag from this skill.
 - Never write product implementation or tests; drafts are throwaway HTML only.
+- Never serve or present visual draft HTML to the human before Task(`sc-designer`) and Commander fixes for critical/important findings.
 - Prefer recording over memory: `spec.md`, `decisions.md`, `questions.md` are the handoff.
 - Ask/clarify/pathfinder-style work lives here; do not invent separate slash commands for them.
 - One mission focus per discuss session (roadmap selection via `map use` is fine; AFK loop is `/sc-run`).
@@ -100,7 +103,8 @@ Non-visual missions skip the draft path.
 |---------|--------|
 | One-question clarify protocol | sc-clarify (used inside discuss) |
 | Draft HTML + anti-slop / visual-verify scripts | sc-ux-design |
-| Deep design advice | Task(`sc-adviser`) / Task(`sc-designer`) |
+| Required draft critique before human HIL | Task(`sc-designer`) then Commander fixes |
+| Deep architecture advice | Task(`sc-adviser`) |
 | Plan / TDD / evidence | `/sc-run` + sc-planning / sc-tdd / sc-verification |
 
 ## References
