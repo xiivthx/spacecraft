@@ -30,7 +30,7 @@ After `/sc-discuss` clears clarify (and visual draft when required), prefer new 
 /sc-discuss (spec + decisions + visual draft HIL) → new session /sc-run build → human check → /sc-ship
 ```
 
-`/sc-discuss`: clarify, brainstorm, decide; for visual UI/FE approve draft HTML before clear. `/sc-run` build: jigsaw plan tasks → per-acceptance triage (sc-tdd) → RED→GREEN **or** skip→direct write+evidence → combine/refactor + integration gate → (UI: visual + functional recheck) → review + `sc-judge` → `ready` (block on `REFUTED`). `/sc-ship` squashes AFK checkpoints to ≤5 commits, then merges.
+`/sc-discuss`: clarify, brainstorm, decide; for visual UI/FE approve draft HTML before clear; comprehension quiz before clear. `/sc-run` build: jigsaw plan tasks → per-acceptance triage (sc-tdd) → RED→GREEN **or** skip→direct write+evidence → combine/refactor + integration gate → (UI: visual + functional recheck) → review + `sc-judge` → `ready` (block on `REFUTED`). `/sc-ship` squashes AFK checkpoints to ≤5 commits, then merges.
 
 `spacecraft map use|current|next` select and advance the roadmap.
 
@@ -51,7 +51,7 @@ Clarify status: `open` | `clear` | `deferred` under mission dir.
 
 ## Lanes (pointers)
 
-- **Discuss:** `/sc-discuss` (spec, decisions, visual draft). Detail: `sc-clarify`, `sc-ux-design` (brief/draft).
+- **Discuss:** `/sc-discuss` (spec, decisions, visual draft, comprehension quiz before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft).
 - **Mission:** `/sc-run` (plan/build/review via agents). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-judge` (ready gate; block on `REFUTED`). Shares INTENT / AUTH / TWINS / 3-cycle inner-loop gates with Quick.
 - **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive (mission only).
 - **Quick:** `/sc-quick` - no mission artifacts; branch `<type>/<title>` → verify → commit → ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` (hook skips closeout). Still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle. Do not invent a mission stub.

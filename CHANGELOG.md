@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.40.2 - 2026-07-22
+
+- Docs: `/sc-discuss` comprehension quiz before clear (customer-lens 5W1H on spec/result; Feynman keys; skip if nothing material; harness trivia banned)
+
 ## 0.40.1 - 2026-07-22
 
 - Docs: require Task(`sc-designer`) critique and Commander critical/important fixes before serving visual draft HTML to the human in `/sc-discuss`
