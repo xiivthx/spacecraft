@@ -20,9 +20,9 @@ alwaysApply: true
 | Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
 | Bug hunt | Debug | Cursor Debug Mode |
 | Ship | Ship | Agent + `/sc-ship` |
-| Small edit / commit | Quick | Agent (no full mission ceremony; still INTENT/AUTH/TWINS/3-cycle) |
+| Small edit / commit | Quick | Agent + `/sc-quick` (no mission; still INTENT/AUTH/TWINS/3-cycle) |
 
-After `/sc-discuss` clears clarify (and visual draft when required), prefer new session `/sc-run`; no non-blocking questions mid-AFK. Ship only via `/sc-ship`. Detail: `.cursor/skills/sc-discuss`, `sc-run`, `sc-ship`, `sc-mission`.
+After `/sc-discuss` clears clarify (and visual draft when required), prefer new session `/sc-run`; no non-blocking questions mid-AFK. Mission ship only via `/sc-ship`; no-mission small edits via `/sc-quick`. Detail: `.cursor/skills/sc-discuss`, `sc-run`, `sc-ship`, `sc-quick`, `sc-mission`.
 
 ## AFK flow
 
@@ -53,8 +53,8 @@ Clarify status: `open` | `clear` | `deferred` under mission dir.
 
 - **Discuss:** `/sc-discuss` (spec, decisions, visual draft). Detail: `sc-clarify`, `sc-ux-design` (brief/draft).
 - **Mission:** `/sc-run` (plan/build/review via agents). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-judge` (ready gate; block on `REFUTED`). Shares INTENT / AUTH / TWINS / 3-cycle inner-loop gates with Quick.
-- **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive.
-- **Quick:** skips spec/plan/TDD/formal review; still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle inner-loop gates (same as Mission). Report ready, wait for ship.
+- **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive (mission only).
+- **Quick:** `/sc-quick` - no mission artifacts; branch `<type>/<title>` → verify → commit → ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` (hook skips closeout). Still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle. Do not invent a mission stub.
 - **Debug:** reproduce E2E → falsify root cause → record in `issues.md`. Prefer Cursor Debug Mode for runtime evidence.
 
 ## Subagent Delegation
@@ -78,7 +78,7 @@ Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before
 Always-on for **Quick and Mission** alike (see also `000-spacecraft`). Quick skips mission ceremony (spec/plan/TDD/formal review) but not these gates:
 
 - **INTENT:** Before behavior-changing edits (code / check / spec), emit `INTENT:` with class + intended behavior. Authority when disagreement: explicit user > spec > tests > current code. "Make tests pass" alone is not intended behavior.
-- **AUTH:** Before push / deploy / publish / send, emit `AUTH:` with a quoted user authorization. Necessary but not sufficient for ship - `/sc-ship`, hooks, and `SPACECRAFT_SHIP=1` still apply. AUTH does not bypass those gates; merge/push/tag still require `SPACECRAFT_SHIP=1`.
+- **AUTH:** Before push / deploy / publish / send, emit `AUTH:` with a quoted user authorization. Necessary but not sufficient for ship - `/sc-ship` or `/sc-quick`, hooks, and `SPACECRAFT_SHIP=1` still apply (`SPACECRAFT_QUICK=1` for quick). AUTH does not bypass those gates; merge/push/tag still require `SPACECRAFT_SHIP=1`.
 - **TWINS:** After defect fixes, emit `TWINS:` with project-wide search for the same construct / twin occurrences before claiming done. After **3 failed fix-verify cycles**, stop and hand back to human (no more looping).
 
 ## Session Handoff

@@ -11,7 +11,7 @@ Commander contract for spacecraft - a Cursor-native mission-control harness.
 
 Orchestrate, delegate, verify. Action over narration. Gates: `/sc-discuss` (scope + decisions + UI draft HIL) → `/sc-run` (plan → RED-GREEN per acceptance → evidence → checkpoint → combine/refactor → UI visual + functional → review → ready) → `/sc-ship`.
 
-User-facing slash skills: `/sc-discuss` (pre-build HIL), `/sc-run` (AFK to ready), `/sc-ship` (explicit ship only). Detail skills: `.cursor/skills/`; agents: `.cursor/agents/`. Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware`). Prefer SwitchMode over narrating plan/debug need. Never ship without `/sc-ship`.
+User-facing slash skills: `/sc-discuss` (pre-build HIL), `/sc-run` (AFK to ready), `/sc-ship` (mission ship), `/sc-quick` (no-mission small edits). Detail skills: `.cursor/skills/`; agents: `.cursor/agents/`. Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware`). Prefer SwitchMode over narrating plan/debug need. Never ship mission work without `/sc-ship`; no-mission small edits ship via `/sc-quick`.
 
 ## Prompting
 
@@ -34,13 +34,13 @@ When INTENT disagrees with observed behavior, authority order: **explicit user >
 
 ### AUTH:
 
-Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. AUTH is necessary but not sufficient for ship: still requires `/sc-ship`, ship hooks, and `SPACECRAFT_SHIP=1` where applicable. AUTH does not bypass those gates.
+Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. AUTH is necessary but not sufficient for ship: still requires `/sc-ship` or `/sc-quick`, ship hooks, and `SPACECRAFT_SHIP=1` where applicable (`SPACECRAFT_QUICK=1` for quick). AUTH does not bypass those gates.
 
 ## Boundaries
 
-**Never:** merge/tag/delete branches without `/sc-ship`; auto-detect ship intent; implement Mission work before `spec.md` + `plan.json`; write on `main`; write product code/tests in Commander; drive-by refactors; delete dead code unless asked; expose secrets; outward push/deploy/publish/send without `AUTH:`.
+**Never:** merge/tag/delete branches without `/sc-ship` or `/sc-quick`; auto-detect ship intent; implement Mission work before `spec.md` + `plan.json`; write on `main`; write product code/tests in Commander; drive-by refactors; delete dead code unless asked; expose secrets; outward push/deploy/publish/send without `AUTH:`.
 
-**Always:** feature branch; verify with tests; resolve mission from branch → `.space/missions/<id>/`; record issues in `issues.md`; `gh issue create` for bugs found mid-work; emit `INTENT:` before behavior-changing edits.
+**Always:** feature branch; verify with tests; for missions resolve from branch → `.space/missions/<id>/`; record issues in `issues.md`; `gh issue create` for bugs found mid-work; emit `INTENT:` before behavior-changing edits.
 
 ## Communication
 

@@ -58,7 +58,7 @@ spacecraft map current            # print current roadmap id
 spacecraft map next <roadmap-id>  # next incomplete mission on named roadmap
 ```
 
-Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-discuss`, `/sc-run`, and `/sc-ship`. Spacecraft does not use `.cursor/commands/`.
+Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-discuss`, `/sc-run`, `/sc-ship`, and `/sc-quick`. Spacecraft does not use `.cursor/commands/`.
 
 ## Cursor modes
 
@@ -70,7 +70,7 @@ Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workfl
 | Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
 | Bug hunt | Debug | Cursor Debug Mode (no slash skill) |
 | Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
-| Small edit / commit | Quick | Agent (no full mission ceremony; still INTENT/AUTH/TWINS/3-cycle) |
+| Small edit / commit | Quick | Agent + `/sc-quick` (no mission; still INTENT/AUTH/TWINS/3-cycle) |
 
 ## Agents
 
@@ -160,9 +160,11 @@ Each mission lives at `.space/missions/<id>/`. The primary files are:
 
 ## Git and shipping
 
-Spacecraft work belongs on `feat/<mission-id>/<title>`, not directly on `main`. Immediately before `/sc-ship` merge, rename to `feat/<title>` (strip the mission id) so the merge commit uses the short name. Shipping is never inferred. `/sc-ship` runs only after an explicit request to merge or release, validates the mission, and applies the repository's release gates.
+Mission work belongs on `feat/<mission-id>/<title>`, not directly on `main`. Immediately before `/sc-ship` merge, rename to `feat/<title>` (strip the mission id) so the merge commit uses the short name. Shipping is never inferred. `/sc-ship` runs only after an explicit request to merge or release, validates the mission, and applies the repository's release gates.
 
-Before claiming build complete, prefer `spacecraft validate --strict`. Before merge, run `spacecraft closeout-check` (or `ship-check`). With `SPACECRAFT_SHIP=1`, the Cursor ship hook re-runs closeout before allowing `git merge` / `git push` / `git tag`.
+No-mission small edits use `/sc-quick` on branch `<type>/<title>` (no mission id). Ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` so the hook skips `closeout-check`.
+
+Before claiming mission build complete, prefer `spacecraft validate --strict`. Before mission merge, run `spacecraft closeout-check` (or `ship-check`). With `SPACECRAFT_SHIP=1` alone, the Cursor ship hook re-runs closeout before allowing `git merge` / `git push` / `git tag`. With both `SPACECRAFT_SHIP=1` and `SPACECRAFT_QUICK=1`, closeout is skipped (quick lane only).
 
 Local gate (Go tests + hook unit tests):
 
@@ -174,13 +176,14 @@ On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft st
 
 ## Lean profile
 
-User-facing slash skills: **`/sc-discuss`**, **`/sc-run`**, and **`/sc-ship`**.
+User-facing slash skills: **`/sc-discuss`**, **`/sc-run`**, **`/sc-ship`**, and **`/sc-quick`**.
 
 - **HIL discuss:** `/sc-discuss` - clarify, decide, approve visual draft HTML
 - **AFK run:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits; UI missions require prior draft approval and recheck with visual + functional evidence
 - **HIL ship:** final check + `/sc-ship`
+- **Quick (no mission):** `/sc-quick` - manual edits/fixes/docs; branch → verify → commit → ship without mission artifacts or closeout
 - **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, …)
-- **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design` - glob rules still apply
+- **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design`, `sc-diagram` - glob rules still apply
 
 Project behavior and policy are defined by the always-on files in `.cursor/rules/`.
 

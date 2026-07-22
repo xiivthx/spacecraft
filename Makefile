@@ -77,7 +77,8 @@ test-install: build
 	HOME="$$fake_home" $(MAKE) -C "$(ROOT)" install-global GLOBAL="$$fake_home/.cursor" LOCAL_BIN="$$fake_home/.local/bin" BIN="$(BIN)"; \
 	test -f "$$fake_home/.cursor/skills/sc-run/SKILL.md" || { echo "FAIL: install-global missing sc-run skill"; exit 1; }; \
 	test -f "$$fake_home/.cursor/skills/sc-ship/SKILL.md" || { echo "FAIL: install-global missing sc-ship skill"; exit 1; }; \
-	echo "  ok   install-global installs sc-run and sc-ship"
+	test -f "$$fake_home/.cursor/skills/sc-quick/SKILL.md" || { echo "FAIL: install-global missing sc-quick skill"; exit 1; }; \
+	echo "  ok   install-global installs sc-run, sc-ship, and sc-quick"
 
 build:
 	cd $(ROOT)/cmd/spacecraft && go build -o $(BIN) .
@@ -111,8 +112,9 @@ install-global: build install-cli
 	@echo "skills -> $(GLOBAL)/skills (sc-*)"
 	@test -f $(GLOBAL)/skills/sc-run/SKILL.md
 	@test -f $(GLOBAL)/skills/sc-ship/SKILL.md
+	@test -f $(GLOBAL)/skills/sc-quick/SKILL.md
 	@python3 $(ROOT)/scripts/mcp-merge.py merge $(GLOBAL)/mcp.json $(ROOT)/.cursor/mcp.json
-	@echo "Global install complete. Restart Cursor to pick up /sc-run and /sc-ship."
+	@echo "Global install complete. Restart Cursor to pick up /sc-run, /sc-ship, and /sc-quick."
 
 smoke:
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"

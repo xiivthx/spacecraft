@@ -1,5 +1,6 @@
 #!/bin/sh
 # Deny git merge/push/tag unless SPACECRAFT_SHIP=1 and closeout-check passes.
+# Exception: SPACECRAFT_QUICK=1 with SPACECRAFT_SHIP=1 skips closeout (no-mission /sc-quick lane).
 
 deny() {
   user_msg="$1"
@@ -78,14 +79,19 @@ case "$ship_class" in
   *) allow ;;
 esac
 
-# Real git merge|push|tag: require SPACECRAFT_SHIP=1, then closeout.
+# Real git merge|push|tag: require SPACECRAFT_SHIP=1, then closeout (unless quick lane).
 if [ "${SPACECRAFT_SHIP:-}" != "1" ]; then
   deny \
-    "Ship gate blocked this command. Run /sc-ship and set SPACECRAFT_SHIP=1 only for gated git merge/push/tag, then unset it." \
-    "Do not merge, push, or tag unless the user explicitly requested ship via /sc-ship. Export SPACECRAFT_SHIP=1 for those gated git commands only, then unset SPACECRAFT_SHIP."
+    "Ship gate blocked this command. Run /sc-ship (or /sc-quick ship) and set SPACECRAFT_SHIP=1 only for gated git merge/push/tag, then unset it." \
+    "Do not merge, push, or tag unless the user explicitly requested ship via /sc-ship or /sc-quick. Export SPACECRAFT_SHIP=1 for those gated git commands only, then unset SPACECRAFT_SHIP. For no-mission quick lane also set SPACECRAFT_QUICK=1."
 fi
 
-# SPACECRAFT_SHIP=1: run closeout before allowing (never allow immediately).
+# No-mission /sc-quick: skip mission closeout-check.
+if [ "${SPACECRAFT_QUICK:-}" = "1" ]; then
+  allow
+fi
+
+# SPACECRAFT_SHIP=1 (mission ship): run closeout before allowing.
 if [ -n "${SPACECRAFT_CLOSEOUT_CMD:-}" ]; then
   closeout_out=$(sh -c "$SPACECRAFT_CLOSEOUT_CMD" 2>&1)
   closeout_rc=$?
@@ -100,7 +106,7 @@ fi
 if [ "$closeout_rc" -ne 0 ]; then
   truncated=$(printf '%s' "$closeout_out" | truncate_msg)
   deny \
-    "Ship gate blocked: closeout-check failed. Fix closeout issues, then retry with SPACECRAFT_SHIP=1." \
+    "Ship gate blocked: closeout-check failed. Fix closeout issues, then retry with SPACECRAFT_SHIP=1. For no-mission /sc-quick use SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1." \
     "closeout-check failed (exit $closeout_rc). Output:
 $truncated"
 fi
