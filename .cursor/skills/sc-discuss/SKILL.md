@@ -72,12 +72,13 @@ resolve → inspect → classify gaps → talk / ask / decide → (visual: brief
 Detect from intent / `spec.md` (layout, style, pages, components, design). If visual:
 
 1. Follow sc-ux-design design brief (6 dimensions); get human approval.
-2. Generate standalone draft HTML under `.space/missions/<id>/design/drafts/` (layout, style tokens, key components - not wireframe-only). Check 375px.
-3. **Designer gate (required before human sees draft):** Task(`sc-designer`) on the draft. Commander applies all critical and important fixes to the draft HTML (`sc-designer` is readonly). Re-check 375px after fixes. Do not serve or present the draft to the human until this gate passes.
-4. Serve via `serve-html.mjs` and present the cleaned draft for human review.
-5. Iterate (draft → designer → fix → human) until the human likes it (max 3 human rounds, then escalate for direction). Each new draft version re-runs the designer gate before human HIL.
-6. On approval: record `UI draft approved: <draft-file>` in `decisions.md`. Optionally note art direction / DESIGN.md updates.
-7. Skip draft only for non-visual FE (pure logic/hooks); record skip reason in `decisions.md`.
+2. **Pack selection (required before draft HTML):** Explicit choice among `swiss-grid`, `editorial`, or `none - custom brief only`. Record in `decisions.md` (e.g. `Art-direction pack: …`). Human or explicit brief choice only - no silent keyword auto-matcher. Must not: silent keyword auto-matcher pack selection.
+3. Generate standalone draft HTML under `.space/missions/<id>/design/drafts/` (layout, style tokens, key components - not wireframe-only). Check 375px. Follow sc-ux-design Prompt assembly (shared → pack when selected → brief/content). Do not generate draft HTML until pack selection is recorded.
+4. **Designer gate (required before human sees draft):** Task(`sc-designer`) on the draft. Commander applies all critical and important fixes to the draft HTML (`sc-designer` is readonly). Re-check 375px after fixes. Do not serve or present the draft to the human until this gate passes.
+5. Serve via `serve-html.mjs` and present the cleaned draft for human review.
+6. Iterate (draft → designer → fix → human) until the human likes it (max 3 human rounds, then escalate for direction). Each new draft version re-runs the designer gate before human HIL.
+7. On approval: record `UI draft approved: <draft-file>` in `decisions.md`. Optionally note art direction / DESIGN.md updates.
+8. Skip draft only for non-visual FE (pure logic/hooks); record skip reason in `decisions.md`.
 
 Non-visual missions skip the draft path.
 
@@ -103,6 +104,7 @@ Before `clarify-status clear`, follow `references/comprehension-quiz.md`: custom
 - Prefer recording over memory: `spec.md`, `decisions.md`, `questions.md` are the handoff.
 - Ask/clarify/pathfinder-style work lives here; do not invent separate slash commands for them.
 - One mission focus per discuss session (roadmap selection via `map use` is fine; AFK loop is `/sc-run`).
+- For visual draft work: require explicit pack selection among `swiss-grid`, `editorial`, or `none - custom brief only` before draft HTML generation. Must not: silent keyword auto-matcher. No silent keyword inference - human or explicit brief choice only.
 
 ## Specialist skills (not slash phases)
 

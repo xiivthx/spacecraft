@@ -24,6 +24,8 @@ Grouped findings: critical blockers, important issues, polish, accessibility, ne
 
 For **layout / style / component** preview during `/sc-discuss`: require a standalone draft HTML (sc-ux-design). Critique runs **before** human HIL; Commander applies critical/important fixes (this agent is readonly), then serves the cleaned draft. Use a short clarifying question only for narrow copy/token choices that do not change layout.
 
+When an art-direction pack was selected for the draft (not `none - custom brief only`), include **pack fidelity** as a critique dimension: check the draft against that pack's iron rules and locked layout/section pool. Skip pack fidelity when no pack was selected.
+
 ## Good
 
 - Distinctive restraint; slop named
