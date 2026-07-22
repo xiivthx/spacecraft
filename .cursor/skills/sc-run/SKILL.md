@@ -69,7 +69,7 @@ Stop when: `All missions complete.` (print handoff), tip `blocked`, clarify open
    4. Mark task `done` only after all its acceptances pass (TDD green or skip+evidence).
 5. **Combine**: after all plan tasks done - refactor for cohesion; run unit + integration/functional suite; `spacecraft evidence` for the full gate. Auto checkpoint commit (`refactor:` / `test:`).
 6. **UI visual + functional recheck (when visual UI/FE)** - before review:
-   1. Visual: sc-ux-design Tier 3 (`visual-verify.mjs`) when Playwright available; else browser screenshots. Capture screenshot paths in evidence / `decisions.md`. Cross-check against approved draft / design brief.
+   1. Visual: sc-ux-design Tier 3 — prefer `playwright-cli` (`open` / `screenshot` / viewports); fallback Cursor IDE browser MCP. Optional: `visual-verify.mjs`. Capture screenshot paths in evidence / `decisions.md`. Cross-check against approved draft / design brief. Do **not** use system Chrome headless or browser-use/CDP.
    2. Functional: Vitest/RTL or project functional suite via `spacecraft evidence`.
    3. Fix issues found; do not set `ready` without both.
 7. Review + `sc-judge` ready gate:
