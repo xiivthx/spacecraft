@@ -83,18 +83,7 @@ Non-visual missions skip the draft path.
 
 ### Comprehension quiz (hard gate before clear)
 
-After blocking questions are closed and (when visual) draft approval or non-visual skip is recorded - **before** `clarify-status clear` - run the quiz. Template: `references/comprehension-quiz.md`.
-
-Treat the human as the customer. Probe **spec / requirement / process / result** understanding only.
-
-1. Draft 1-5 useful 5W1H questions from Goal, Output, Verify, product decisions, out-of-scope (and draft-preserve when visual). If nothing material to probe, skip with `Comprehension quiz: skipped - no material gaps to probe` - do not invent filler.
-2. Chat shows **only** the questions. No harness trivia (`decisions.md` lines, `clarify-status`, slash skill internals) unless the mission itself is that product behavior.
-3. Human answers first. Then short Feynman key + pass/fail per item. Stop. Bad/vague question → rewrite or drop, do not punish the human.
-4. **Pass:** human confirms → `Comprehension quiz: passed` in `decisions.md`.
-5. **Fail / unsure:** do not clear; return to spec / ask more; re-quiz after fixes.
-6. **Skip (human):** explicit request → `Comprehension quiz: skipped - <reason>`.
-
-Must not: filler quizzes; harness-meta questions; jargon walls; clear while a posed quiz is unanswered; run this quiz mid-clarify or under `/sc-run`.
+Before `clarify-status clear`, follow `references/comprehension-quiz.md`: customer-lens quiz on spec/requirement/process/result (or skip if nothing material). Record `Comprehension quiz: passed` or `Comprehension quiz: skipped - <reason>` in `decisions.md`. Never clear while a posed quiz is unanswered.
 
 ### Exit
 
