@@ -1,7 +1,7 @@
 ---
 name: sc-reviewer
 description: Reviews diff, evidence, and release readiness. Use proactively after build before ready/ship.
-model: claude-opus-4-8[effort=high]
+model: gpt-5.6-sol
 readonly: true
 ---
 

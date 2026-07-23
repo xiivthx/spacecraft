@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.5 - 2026-07-23
+
+- Chore: retier Task agent models for plan/do/check diversity - planner Opus, doers Sonnet 5 high, reviewer GPT-5.6 Sol (cross-family check); adviser stays Opus; designer stays Sonnet
+
 ## 0.41.4 - 2026-07-23
 
 - Fix: `spacecraft new --help`/`-h` and `spacecraft map new --help`/`-h` print usage and exit 0 instead of creating a mission/roadmap titled `--help`
