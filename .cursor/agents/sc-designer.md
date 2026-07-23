@@ -1,7 +1,7 @@
 ---
 name: sc-designer
 description: UI critique and anti-slop review. Use proactively for UI work. DESIGN.md is canonical.
-model: inherit
+model: claude-sonnet-5[effort=high]
 readonly: true
 ---
 

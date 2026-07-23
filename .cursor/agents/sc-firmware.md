@@ -1,7 +1,7 @@
 ---
 name: sc-firmware
 description: STM32 embedded C (F4/F7/H7). Use proactively for HAL/LL, CubeMX, peripherals.
-model: inherit
+model: claude-sonnet-5[effort=high]
 readonly: false
 ---
 
