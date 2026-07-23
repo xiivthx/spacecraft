@@ -150,6 +150,8 @@ Unfamiliar tooling/APIs: use sc-search before committing. Fast ≠ skip-research
 
 ## Summary format
 
+After successful merge/tag, if `spacecraft map current` succeeds and `spacecraft map next <rid>` is not `All missions complete.`, set Next to that mission (`/sc-discuss <id>` then `/sc-run`). Otherwise keep `Next: push? / done`.
+
 ```
 Lane: quick (no mission)
 Branch: <type>/<title> → merged --no-ff → deleted
@@ -158,5 +160,6 @@ Tag: vX.Y.Z
 Files: …
 Verify: <tests or docs-only>
 AUTH: "<quoted user ship phrase>"
-Next: push? / done
+Next: new session → /sc-discuss <id> (then /sc-run)   # when roadmap has next
+# or: Next: push? / done                                 # no current roadmap / all complete
 ```

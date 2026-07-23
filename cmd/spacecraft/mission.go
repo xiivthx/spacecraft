@@ -65,6 +65,11 @@ func writeCurrent(spaceDir, id string) error {
 	return os.WriteFile(currentFile(spaceDir), []byte(id+"\n"), 0644)
 }
 
+// clearCurrent removes the current-mission pointer if present.
+func clearCurrent(spaceDir string) {
+	_ = os.Remove(currentFile(spaceDir))
+}
+
 // newMissionID generates a compact sortable mission ID (M + base36 ms since 2026-01-01).
 func newMissionID() string {
 	epoch := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)

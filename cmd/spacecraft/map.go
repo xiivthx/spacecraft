@@ -179,26 +179,102 @@ func mapNext(args []string, dir string) int {
 		fmt.Fprintln(os.Stderr, "spacecraft map:", err)
 		return 1
 	}
-	missions, _ := r["missions"].([]interface{})
-	for _, m := range missions {
-		entry, _ := m.(map[string]interface{})
-		id, _ := entry["id"].(string)
-		desc, _ := entry["description"].(string)
-		if id == "" {
-			continue
-		}
-		if _, err := os.Stat(filepath.Join(dir, "..", "archive", id)); err == nil {
-			continue
-		}
-		state := missionIncompleteState(filepath.Join(dir, "..", "missions", id))
-		if state == "" {
-			continue
-		}
+	spaceDir := filepath.Join(dir, "..")
+	if id, desc, state, ok := nextIncompleteOnRoadmap(spaceDir, r); ok {
 		fmt.Printf("%s: %s (state=%s)\n", id, desc, state)
 		return 0
 	}
 	fmt.Println("All missions complete.")
 	return 0
+}
+
+// nextIncompleteOnRoadmap returns the first incomplete (non-ready, non-shipped,
+// non-archived) mission on a roadmap.
+func nextIncompleteOnRoadmap(spaceDir string, r map[string]interface{}) (id, desc, state string, ok bool) {
+	missions, _ := r["missions"].([]interface{})
+	for _, m := range missions {
+		entry, _ := m.(map[string]interface{})
+		mid, _ := entry["id"].(string)
+		d, _ := entry["description"].(string)
+		if mid == "" {
+			continue
+		}
+		if _, err := os.Stat(filepath.Join(spaceDir, "archive", mid)); err == nil {
+			continue
+		}
+		st := missionIncompleteState(filepath.Join(spaceDir, "missions", mid))
+		if st == "" {
+			continue
+		}
+		return mid, d, st, true
+	}
+	return "", "", "", false
+}
+
+func roadmapContainsMission(r map[string]interface{}, missionID string) bool {
+	missions, _ := r["missions"].([]interface{})
+	for _, m := range missions {
+		entry, _ := m.(map[string]interface{})
+		if id, _ := entry["id"].(string); id == missionID {
+			return true
+		}
+	}
+	return false
+}
+
+// findRoadmapForArchivedMission prefers current-roadmap when it lists the
+// archived mission; otherwise scans roadmaps for one that contains it.
+func findRoadmapForArchivedMission(spaceDir, archivedID string) (rid string, r map[string]interface{}, ok bool) {
+	roadmapsDir := filepath.Join(spaceDir, "roadmaps")
+	if data, err := os.ReadFile(filepath.Join(spaceDir, "current-roadmap")); err == nil {
+		cur := strings.TrimSpace(string(data))
+		if cur != "" {
+			if rm, err := loadRoadmap(roadmapsDir, cur); err == nil && roadmapContainsMission(rm, archivedID) {
+				return cur, rm, true
+			}
+		}
+	}
+	entries, err := os.ReadDir(roadmapsDir)
+	if err != nil {
+		return "", nil, false
+	}
+	var ids []string
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".json") {
+			continue
+		}
+		ids = append(ids, strings.TrimSuffix(e.Name(), ".json"))
+	}
+	sort.Strings(ids)
+	for _, id := range ids {
+		rm, err := loadRoadmap(roadmapsDir, id)
+		if err != nil {
+			continue
+		}
+		if roadmapContainsMission(rm, archivedID) {
+			return id, rm, true
+		}
+	}
+	return "", nil, false
+}
+
+// suggestNextAfterArchive clears stale current, advances to the next incomplete
+// roadmap mission when one exists, and prints a human hint.
+func suggestNextAfterArchive(spaceDir, archivedID string) {
+	if readCurrent(spaceDir) == archivedID {
+		clearCurrent(spaceDir)
+	}
+	rid, r, found := findRoadmapForArchivedMission(spaceDir, archivedID)
+	if !found {
+		return
+	}
+	nextID, desc, state, ok := nextIncompleteOnRoadmap(spaceDir, r)
+	if !ok {
+		return
+	}
+	_ = writeCurrent(spaceDir, nextID)
+	fmt.Printf("Next mission on roadmap %s: %s: %s (state=%s)\n", rid, nextID, desc, state)
+	fmt.Printf("Suggested: new session → /sc-discuss %s (then /sc-run)\n", nextID)
 }
 
 // missionIncompleteState returns the display state for an incomplete mission, or "" if complete.
