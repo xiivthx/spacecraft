@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.3 - 2026-07-23
+
+- Feat: after ship, recommend next roadmap mission - `spacecraft archive` prints next incomplete mission + `/sc-discuss` hint; `/sc-ship` and `/sc-quick` surface `map next` when a roadmap still has work
+
 ## 0.41.2 - 2026-07-23
 
 - Chore: pin spacecraft Task agents to third-party models (Opus for reviewer/adviser; Sonnet for coder/tester/planner/designer/firmware) so Other Models usage is drawn instead of Auto inherit

@@ -586,5 +586,6 @@ func archiveCmd(args []string, spaceDir, mid string) int {
 		return 1
 	}
 	fmt.Printf("Archived mission %s\n", id)
+	suggestNextAfterArchive(spaceDir, id)
 	return 0
 }

@@ -101,6 +101,19 @@ Unset after ship ops. Never set for ordinary git work.
 
 Mission id, what changed, evidence, review status, git/tag state, limitations, next step. Then `set-state shipped` and archive if not already.
 
+After archive, surface any CLI next-mission lines in the ship summary. If archive was silent, still run:
+
+```
+spacecraft map current
+spacecraft map next <roadmap-id>
+```
+
+When current roadmap exists and `map next` is not `All missions complete.`, recommend that mission:
+
+`Next: new session → /sc-discuss <id> (then /sc-run)`
+
+Do not auto-start discuss or run. If no current roadmap or all complete: recommend a new session; pickup via `spacecraft status`.
+
 ## Hard stops
 
 Resolver conflict; clarify open; missing evidence; review not ready; critical findings; sc-git fail; no CHANGELOG/version commit; UI without design review.
@@ -110,5 +123,3 @@ Resolver conflict; clarify open; missing evidence; review not ready; critical fi
 - No push unless user asks.
 - Conventional Commits: `<type>: <description>`; body `- ` bullets, lowercase start. Do not put mission ids in commit subjects or bodies (including merge commits).
 - On gate fail: list exact missing actions.
-
-After ship, recommend a new session; pickup via `spacecraft status`.
