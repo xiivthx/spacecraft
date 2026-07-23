@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.4 - 2026-07-23
+
+- Fix: `spacecraft new --help`/`-h` and `spacecraft map new --help`/`-h` print usage and exit 0 instead of creating a mission/roadmap titled `--help`
+
 ## 0.41.3 - 2026-07-23
 
 - Feat: after ship, recommend next roadmap mission - `spacecraft archive` prints next incomplete mission + `/sc-discuss` hint; `/sc-ship` and `/sc-quick` surface `map next` when a roadmap still has work
