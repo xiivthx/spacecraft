@@ -1,7 +1,7 @@
 ---
 name: sc-planner
 description: Converts mission spec into executable plan.json. Use proactively for spec decomposition.
-model: claude-sonnet-5[effort=high]
+model: claude-opus-4-8[effort=high]
 readonly: true
 ---
 
