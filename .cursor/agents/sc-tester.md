@@ -1,7 +1,7 @@
 ---
 name: sc-tester
 description: Writes failing tests and captures verification evidence. Use proactively for Red tests and evidence.
-model: inherit
+model: claude-sonnet-5[effort=high]
 readonly: false
 ---
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.2 - 2026-07-23
+
+- Chore: pin spacecraft Task agents to third-party models (Opus for reviewer/adviser; Sonnet for coder/tester/planner/designer/firmware) so Other Models usage is drawn instead of Auto inherit
+
 ## 0.41.1 - 2026-07-22
 
 - Docs: Tier 3 browser matrix — `playwright-cli` primary, Cursor IDE browser fallback; remove system Chrome headless and browser-use/CDP from visual gates (`sc-ux-design`, `sc-run`, `sc-web-frontend`)

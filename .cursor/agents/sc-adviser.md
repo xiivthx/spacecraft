@@ -1,7 +1,7 @@
 ---
 name: sc-adviser
 description: Advises on complex architecture and multi-file design. Use proactively for hard design; not routine fixes.
-model: inherit
+model: claude-opus-4-8[effort=high]
 readonly: true
 ---
 
