@@ -43,6 +43,10 @@ func initCmd(spaceDir string) int {
 }
 
 func newCmd(args []string, spaceDir string) int {
+	if hasHelpFlag(args) {
+		fmt.Println("Usage: spacecraft new <title>")
+		return 0
+	}
 	title := strings.TrimSpace(strings.Join(args, " "))
 	if title == "" {
 		fmt.Fprintln(os.Stderr, "spacecraft new: missing mission title")

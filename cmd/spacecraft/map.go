@@ -45,6 +45,10 @@ func mapCmd(args []string, spaceDir, _ string) int {
 }
 
 func mapNew(args []string, dir string) int {
+	if hasHelpFlag(args) {
+		fmt.Println("Usage: spacecraft map new <title> [--desc <text>]")
+		return 0
+	}
 	if len(args) < 1 {
 		fmt.Fprintln(os.Stderr, "Usage: spacecraft map new <title> [--desc <text>]")
 		return 1
