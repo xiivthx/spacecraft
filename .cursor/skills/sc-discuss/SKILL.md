@@ -105,6 +105,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 | Draft critique | Task(`sc-designer`) |
 | Mission brief | `references/mission-brief.md` |
 | Architecture | Task(`sc-adviser`) |
+| Prompt / docs / spec wording | optional Task(`sc-writer`) |
 | Plan / TDD / evidence | `/sc-run` |
 
 ## References

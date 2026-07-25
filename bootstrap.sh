@@ -1,5 +1,5 @@
 #!/bin/sh
-# bootstrap.sh — install spacecraft into a project (safe, project-local default).
+# bootstrap.sh - install spacecraft into a project (safe, project-local default).
 #
 # Usage:
 #   ./bootstrap.sh [project-dir]                 # from a spacecraft clone
@@ -13,21 +13,28 @@ set -e
 
 REPO_URL="${SPACECRAFT_REPO:-https://github.com/xiivthx/spacecraft.git}"
 REPO_REF="${SPACECRAFT_REF:-main}"
-TARGET="${1:-.}"
 
 echo "Spacecraft bootstrap"
 echo "===================="
 
-# Resolve the source repo: use the local clone if this script lives in one,
-# otherwise clone into a temp dir.
+# Resolve the target to an absolute path up front so every later step (build
+# output, smoke check, final messages) can use it without re-resolving.
+mkdir -p "${1:-.}"
+TARGET=$(CDPATH= cd -- "${1:-.}" && pwd)
+
+# Resolve the source repo: use the local clone if this script runs from one,
+# otherwise clone into a temp dir. $0 is a real file path when run directly
+# (./bootstrap.sh or sh bootstrap.sh) and is not when piped via curl|sh, so
+# checking for an existing file first tells the two cases apart.
 SRC=""
 CLEANUP=""
-if [ -n "${BASH_SOURCE:-}" ]; then
-  SELF="${BASH_SOURCE}"
-else
-  SELF="$0"
+SCRIPT_DIR=""
+# Prefer a real on-disk script path (./bootstrap.sh / sh path/to/bootstrap.sh).
+# curl|sh often sets $0 to sh or /bin/sh; those resolve to a dir without
+# spacecraft sources, so we fall through to a temp clone below.
+if [ -f "$0" ]; then
+  SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" 2>/dev/null && pwd || true)
 fi
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$SELF")" 2>/dev/null && pwd || true)
 
 if [ -n "$SCRIPT_DIR" ] && [ -d "$SCRIPT_DIR/.cursor/rules" ] && [ -f "$SCRIPT_DIR/scripts/install-cursor.sh" ]; then
   SRC="$SCRIPT_DIR"
@@ -44,7 +51,9 @@ else
     || git clone --depth 1 "$REPO_URL" "$SRC" >/dev/null 2>&1
 fi
 
-cleanup() { [ -n "$CLEANUP" ] && rm -rf "$CLEANUP"; }
+# Nothing to clean up when SRC was already local; a bare `[ -n ... ]` failure
+# would otherwise become the script's exit status under `set -e` + EXIT trap.
+cleanup() { [ -z "$CLEANUP" ] || rm -rf "$CLEANUP"; }
 trap cleanup EXIT INT TERM
 
 # Install the config surface + scaffold + merged MCP.
@@ -52,43 +61,7 @@ sh "$SRC/scripts/install-cursor.sh" "$TARGET" "$SRC"
 
 # Build (preferred) or fetch the CLI binary.
 BIN="$TARGET/spacecraft"
-if command -v go >/dev/null 2>&1; then
-  echo "Building spacecraft CLI from source..."
-  ( cd "$SRC/cmd/spacecraft" && go build -o "$(cd "$TARGET" && pwd)/spacecraft" . )
-  echo "  spacecraft -> $BIN"
-else
-  echo "Go not found; attempting optional prebuilt binary..."
-  OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-  ARCH=$(uname -m)
-  case "$ARCH" in
-    x86_64|amd64) ARCH=amd64 ;;
-    arm64|aarch64) ARCH=arm64 ;;
-  esac
-  ASSET="spacecraft-${OS}-${ARCH}"
-  BASE_URL="${REPO_URL%.git}/releases/latest/download"
-  if command -v curl >/dev/null 2>&1 && curl -fsSL "$BASE_URL/$ASSET" -o "$BIN" 2>/dev/null; then
-    chmod +x "$BIN"
-    if curl -fsSL "$BASE_URL/$ASSET.sha256" -o "$BIN.sha256" 2>/dev/null; then
-      EXPECTED=$(awk '{print $1}' "$BIN.sha256")
-      if command -v shasum >/dev/null 2>&1; then
-        ACTUAL=$(shasum -a 256 "$BIN" | awk '{print $1}')
-      else
-        ACTUAL=$(sha256sum "$BIN" | awk '{print $1}')
-      fi
-      rm -f "$BIN.sha256"
-      if [ "$EXPECTED" != "$ACTUAL" ]; then
-        echo "error: checksum mismatch for $ASSET" >&2
-        rm -f "$BIN"
-        exit 1
-      fi
-      echo "  spacecraft -> $BIN (checksum verified)"
-    else
-      echo "  spacecraft -> $BIN (no checksum published; unverified)"
-    fi
-  else
-    echo "  skipped — install Go and run 'make build', or build cmd/spacecraft manually."
-  fi
-fi
+sh "$SRC/scripts/install-binary.sh" "$TARGET" "$SRC" "$REPO_URL"
 
 # Smoke check.
 sh "$SRC/scripts/smoke.sh" "$TARGET" "$BIN"
@@ -96,5 +69,5 @@ sh "$SRC/scripts/smoke.sh" "$TARGET" "$BIN"
 echo ""
 echo "Done. $TARGET is spacecraft-ready."
 echo ""
-echo "Optional global CLI:  ln -sf \"$(cd "$TARGET" && pwd)/spacecraft\" ~/.local/bin/spacecraft"
+echo "Optional global CLI:  ln -sf \"$BIN\" ~/.local/bin/spacecraft"
 echo "Restart Cursor to pick up config."

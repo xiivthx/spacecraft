@@ -7,7 +7,7 @@ description: "Test-driven development discipline. Activate on \"TDD\", \"Plan-Re
 
 Plan → Red → Green → Verify → Repeat. Then Refactor → Review when the feature is complete. Plan what to test before writing. Skip TDD when the test would be a trivial tautology - just code and review. Every cycle produces one vertical slice.
 
-Under `/sc-run`, the Commander triages each `plan.json` acceptance first. If TDD applies: Task(`sc-tester`) then Task(`sc-coder`), checkpoint after RED and GREEN. If triage skips: Task(`sc-coder`) direct write, evidence via the task verify command, one checkpoint (no RED harness). Then combine/refactor + functional gate before review.
+Under `/sc-run`, the Commander triages each `plan.json` acceptance first. If TDD applies: Task(`sc-tester`) then Task(`sc-coder`), checkpoint after RED and GREEN. If triage skips: direct write - Task(`sc-writer`) for docs/prose/wording-only, Task(`sc-coder`) for other tautologies - evidence via the task verify command, one checkpoint (no RED harness). Then combine/refactor + functional gate before review.
 
 ## Principles
 
@@ -55,7 +55,7 @@ Before starting any cycle, ask: *"Would a test for this be a trivial tautology?"
 - The implementation could plausibly be wrong
 - A verify script / CLI / runtime path can fail for reasons other than "missing the sentence we plan to paste"
 
-Record skipped-TDD decisions for a task in the task output, `plan.json` notes, or `decisions.md`. On skip under `/sc-run`: do **not** invent phrase-harness scripts; coder writes; evidence runs task `verify`.
+Record skipped-TDD decisions for a task in the task output, `plan.json` notes, or `decisions.md`. On skip under `/sc-run`: do **not** invent phrase-harness scripts; `sc-writer` writes docs/prose, `sc-coder` writes other tautology fixes; evidence runs task `verify`.
 
 ### Per acceptance check (one cycle)
 

@@ -11,7 +11,7 @@ Commander contract for spacecraft - a Cursor-native mission-control harness.
 
 Orchestrate, delegate, verify. Action over narration. Gates: `/sc-discuss` (HIL clear) → `/sc-run` (plan → build → combine(+UI) → issues drain → review → ready) → human check → `/sc-ship`. Detail: `.cursor/rules/200-workflow.mdc`.
 
-User-facing slash skills (`.cursor/skills/`, `disable-model-invocation: true` - not `.cursor/commands/`): `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`. Detail skills + agents under `.cursor/`. Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware`). Prefer SwitchMode over narrating plan/debug need. Never ship mission work without `/sc-ship`; no-mission small edits via `/sc-quick`.
+User-facing slash skills (`.cursor/skills/`, `disable-model-invocation: true` - not `.cursor/commands/`): `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`. Detail skills + agents under `.cursor/`. Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware`); docs/prompts/messages/non-code prose go to `sc-writer`, not `sc-coder`. Prefer SwitchMode over narrating plan/debug need. Never ship mission work without `/sc-ship`; no-mission small edits via `/sc-quick`.
 
 ## Prompting
 

@@ -73,8 +73,9 @@ Orchestrator, not implementer. Task-delegate:
 | `sc-designer` | UI critique (required before discuss draft HIL; also run review) |
 | `sc-adviser` | complex design (discuss) |
 | `sc-firmware` | STM32 C |
+| `sc-writer` | docs, prompts, messages, non-code prose |
 
-Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before coder (one acceptance per pair); firmware for embedded; combine then issues drain; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (block on `REFUTED`); reviewer before ship.
+Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before coder (one acceptance per pair); firmware for embedded; docs/prose triage skips → Task(`sc-writer`), not sc-coder; combine then issues drain; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (block on `REFUTED`); reviewer before ship.
 
 ## Inner-loop gates
 
