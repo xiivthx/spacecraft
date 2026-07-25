@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.41.8 - 2026-07-25
+
+- Feat: new `sc-writer` agent for docs/prompts/messages/non-code prose; Commander, `sc-tdd`, `/sc-run`, `/sc-discuss`, `sc-coder`, and `sc-tester` route docs/prose work to `sc-writer` instead of `sc-coder`; README and installation list eight agents
+- Chore: install script refactor - `bootstrap.sh` becomes an executable with an exit-trap fix; extract `scripts/install-binary.sh`; add `scripts/global-sync.sh` for agents+skills; add `scripts/test-install.sh`; `scripts/smoke.sh` checks `.space/roadmaps`; Makefile slimmed
+
 ## 0.41.7 - 2026-07-25
 
 - Feat: ready/ship clean-slate bar - 0 open `issues.md` items and 0 review findings (including warnings); related/regression/consequence must be fixed in `/sc-run`; ship blocks instead of migrating open debt to GitHub; `closeout-check` enforces both gates
