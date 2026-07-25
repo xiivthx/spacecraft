@@ -8,119 +8,106 @@ disable-model-invocation: true
 
 ## Goal
 
-Find what we want before implement: clear `spec.md`, recorded decisions, answered questions, and (when visual) an approved draft HTML. Exit with `clarify-status clear` so a new session can `/sc-run`.
+Find what we want before implement: clear `spec.md`, decisions, answered questions, and (when visual) an approved draft HTML. Exit with `clarify-status clear` so a new session can `/sc-run`.
 
 ## Output
 
-Mission ready to build: `spec.md` solid; `questions.md` / `decisions.md` updated; visual missions have `UI draft approved: <file>` in `decisions.md`; comprehension quiz passed or skip recorded; `spacecraft clarify-status clear`. Handoff: **Spec clear. New session: /sc-run.** Never plan AFK, RED-GREEN, product code, or ship.
+Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated; visual: `UI draft approved: <file>`; mission brief accepted or skip recorded; `spacecraft clarify-status clear`. Handoff: **Spec clear. New session: /sc-run.** Never plan AFK, RED-GREEN, product code, or ship.
 
 ## Good / Bad
 
-- Good: talk until Goal / Output / Good-Bad / Verify are sharp; one blocking question at a time (sc-clarify protocol); soft gaps → `decisions.md`; visual brief + draft HTML; Task(`sc-designer`) then Commander fixes before human sees draft; iterate until human likes it; comprehension quiz before clear; new session for `/sc-run`
-- Bad: implementing; writing `plan.json` AFK; checkpoint commits; mid-discuss shipping; showing raw/unreviewed draft HTML to the human; clearing clarify while draft unapproved on visual work; clearing while quiz unanswered; stacking roadmap AFK in this session
+- Good: sharp Goal / Output / Good-Bad / Verify; one blocking question at a time; soft gaps → `decisions.md`; visual brief + draft with designer gate before human; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
+- Bad: implementing; writing `plan.json` AFK; shipping; serving unreviewed draft HTML; clearing while draft unapproved or mission brief undecided; quizzing the human instead of presenting Answers
 
 ## Verify
 
-Human confirms the spec (and draft when visual), then passes or explicitly skips the comprehension quiz. Then:
+Human confirms spec (and draft when visual), then Accepts (or skip) the mission brief:
 
 ```
 spacecraft clarify-status clear
 # visual: decisions.md contains "UI draft approved: <draft-file>"
-# decisions.md contains "Comprehension quiz: passed" OR "Comprehension quiz: skipped - <reason>"
+# decisions.md contains "Mission brief: accepted" OR "Mission brief: skipped - <reason>"
 ```
 
 ## Arguments
-
-`$ARGUMENTS` = mission selector or roadmap mission id (optional if already resolved).
 
 ```
 /sc-discuss
 /sc-discuss <mission-id|title>
 ```
 
-## HIL vs AFK
+## Lifecycle
 
-| Phase | Who | Action |
-|-------|-----|--------|
-| Discuss | Human + AI | Spec, brainstorm, decisions, questions, visual draft |
-| Run | AI (`/sc-run`) | AFK plan → RED-GREEN → review → ready |
-| Check | Human | Review ready work |
-| Ship | Human | Explicit `/sc-ship` only |
+Canonical: `.cursor/rules/200-workflow.mdc` - this skill is discuss HIL only. Next: new session `/sc-run`.
 
 ## Pre-flight
 
-1. Resolve mission: `$ARGUMENTS` → `spacecraft use`; else `spacecraft resolve`. Create with `spacecraft new` only if user wants mutating work and none exists.
-2. Read `spec.md`, `questions.md`, `decisions.md`, design drafts when present.
-3. Do not start `/sc-run` build, product code, or ship from this skill.
+1. Resolve: `$ARGUMENTS` → `spacecraft use`; else `spacecraft resolve`. `spacecraft new` only if user wants mutating work and none exists.
+2. Read `spec.md`, `questions.md`, `decisions.md`, drafts when present.
+3. Do not start `/sc-run` build, product code, or ship.
 
 ## Discuss loop
 
 ```
-resolve → inspect → classify gaps → talk / ask / decide → (visual: brief + draft → designer → fix → human HIL) → comprehension quiz → clear → handoff
+resolve → inspect → classify gaps → talk / ask / decide → (visual: brief + draft → designer → fix → human HIL) → mission brief → clear → handoff
 ```
 
 ### Spec and decisions
 
-1. Ensure `spec.md` has Goal, Output, Good vs Bad, Verify (machine-checkable where possible). Prefer editing the spec over chat-only agreements.
-2. Use sc-clarify protocol for blocking ambiguity: exhaust files/research first; ask exactly one blocking question at a time (question + why + recommendation + if-accepted); record in `questions.md` / `decisions.md`.
-3. Soft / non-blocking gaps: write explicit assumptions to `decisions.md` (do not block clear on soft gaps alone).
-4. Deep architecture tradeoffs: optional Task(`sc-adviser`). Visual draft critique: required Task(`sc-designer`) before human HIL (see Visual design).
-5. Keep `spacecraft clarify-status open` while blocking questions or unapproved visual draft remain.
+1. Ensure `spec.md` has Goal, Output, Good vs Bad, Verify (machine-checkable where possible). Skim `.space/trust/lessons.md` before inventing process (sc-learn: seed if missing).
+2. Blocking ambiguity: sc-clarify (one question at a time); record in `questions.md` / `decisions.md`.
+3. Soft gaps → assumptions in `decisions.md` (do not block clear alone).
+4. Deep architecture: optional Task(`sc-adviser`). Keep `clarify-status open` while blockers or unapproved visual draft remain.
 
-### Visual design (when UI/FE surface)
+### Visual design (when UI/FE)
 
-Detect from intent / `spec.md` (layout, style, pages, components, design). If visual:
+Detect from intent / `spec.md`. If visual:
 
-1. Follow sc-ux-design design brief (6 dimensions); get human approval.
-2. **Pack selection (required before draft HTML):** Explicit choice among `swiss-grid`, `editorial`, or `none - custom brief only`. Record in `decisions.md` (e.g. `Art-direction pack: …`). Human or explicit brief choice only - no silent keyword auto-matcher. Must not: silent keyword auto-matcher pack selection.
-3. Generate standalone draft HTML under `.space/missions/<id>/design/drafts/` (layout, style tokens, key components - not wireframe-only). Check 375px. Follow sc-ux-design Prompt assembly (shared → pack when selected → brief/content). Do not generate draft HTML until pack selection is recorded.
-4. **Designer gate (required before human sees draft):** Task(`sc-designer`) on the draft. Commander applies all critical and important fixes to the draft HTML (`sc-designer` is readonly). Re-check 375px after fixes. Do not serve or present the draft to the human until this gate passes.
-5. Serve via `serve-html.mjs` and present the cleaned draft for human review.
-6. Iterate (draft → designer → fix → human) until the human likes it (max 3 human rounds, then escalate for direction). Each new draft version re-runs the designer gate before human HIL.
-7. On approval: record `UI draft approved: <draft-file>` in `decisions.md`. Optionally note art direction / DESIGN.md updates.
-8. Skip draft only for non-visual FE (pure logic/hooks); record skip reason in `decisions.md`.
+1. sc-ux-design design brief (6 dimensions); human approval.
+2. **Pack selection before draft HTML:** `swiss-grid`, `editorial`, or `none - custom brief only`. Record in `decisions.md`. Human or explicit brief choice only - no silent auto-matcher.
+3. Generate draft HTML under `.space/missions/<id>/design/drafts/` (not wireframe-only). Check 375px. Follow sc-ux-design prompt assembly.
+4. **Designer gate before human:** Task(`sc-designer`); Commander applies critical/important fixes; re-check 375px. Do not present draft until this passes.
+5. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) until approved (max 3 human rounds). Each new draft re-runs designer gate.
+6. On approval: `UI draft approved: <draft-file>` in `decisions.md`.
+7. Skip draft only for non-visual FE; record skip reason.
 
-Non-visual missions skip the draft path.
+### Mission brief (before clear)
 
-### Comprehension quiz (hard gate before clear)
+Follow `references/mission-brief.md`. Present Information / Question / Answer cards (Feynman + technical); human **Accept | Adjust | Reject**.
 
-Before `clarify-status clear`, follow `references/comprehension-quiz.md`: customer-lens quiz on spec/requirement/process/result (or skip if nothing material). Record `Comprehension quiz: passed` or `Comprehension quiz: skipped - <reason>` in `decisions.md`. Never clear while a posed quiz is unanswered.
+- Accept → record `Mission brief: accepted` (then clear if other gates hold)
+- Adjust → record `Mission brief: adjust - <summary>`; update spec/decisions; re-brief; do not clear
+- Reject → record `Mission brief: rejected - <reason>`; do not clear
+- Skip → `Mission brief: skipped - <reason>`
+
+Never clear while a posed brief awaits a decision (unless skip recorded).
 
 ### Exit
 
-1. No open blocking questions.
-2. Spec is implementable (Verify present).
-3. Visual: approved draft recorded (or non-visual skip recorded).
-4. Comprehension quiz: `passed` or `skipped - <reason>` recorded in `decisions.md`.
-5. `spacecraft clarify-status clear`.
-6. Recommend **new session** `/sc-run` (roadmap id if applicable). Do not continue into AFK build in this chat unless the user explicitly overrides.
+1. No open blocking questions; Verify present; visual approved or skip recorded; mission brief accepted or skip recorded.
+2. `spacecraft clarify-status clear`.
+3. Handoff: **Spec clear. New session: /sc-run.**
 
 ## Rules
 
-- Never call `/sc-run` build steps, `/sc-ship`, merge, push, or tag from this skill.
-- Never write product implementation or tests; drafts are throwaway HTML only.
-- Never serve or present visual draft HTML to the human before Task(`sc-designer`) and Commander fixes for critical/important findings.
-- Never `clarify-status clear` while the comprehension quiz is unanswered (unless skip is recorded).
-- Prefer recording over memory: `spec.md`, `decisions.md`, `questions.md` are the handoff.
-- Ask/clarify/pathfinder-style work lives here; do not invent separate slash commands for them.
-- One mission focus per discuss session (roadmap selection via `map use` is fine; AFK loop is `/sc-run`).
-- For visual draft work: require explicit pack selection among `swiss-grid`, `editorial`, or `none - custom brief only` before draft HTML generation. Must not: silent keyword auto-matcher. No silent keyword inference - human or explicit brief choice only.
+- Never `/sc-run` build, `/sc-ship`, merge, push, tag, or product implementation/tests (draft HTML only).
+- Never present draft before designer gate + critical/important fixes.
+- Never clear while mission brief undecided (unless skip recorded).
+- Prefer `spec.md` / `decisions.md` / `questions.md` over chat-only memory.
+- One mission focus per discuss session.
 
-## Specialist skills (not slash phases)
+## Specialist skills
 
 | Concern | Where |
 |---------|--------|
-| One-question clarify protocol | sc-clarify (used inside discuss) |
-| Draft HTML + anti-slop / visual-verify scripts | sc-ux-design |
-| Required draft critique before human HIL | Task(`sc-designer`) then Commander fixes |
-| Comprehension quiz | `references/comprehension-quiz.md` (this skill) |
-| Deep architecture advice | Task(`sc-adviser`) |
-| Plan / TDD / evidence | `/sc-run` + sc-planning / sc-tdd / sc-verification |
+| Blocking questions | sc-clarify |
+| Draft HTML / visual-verify | sc-ux-design |
+| Draft critique | Task(`sc-designer`) |
+| Mission brief | `references/mission-brief.md` |
+| Architecture | Task(`sc-adviser`) |
+| Plan / TDD / evidence | `/sc-run` |
 
 ## References
 
-- sc-clarify - blocking question protocol
-- sc-ux-design - brief, draft HTML, post-build visual QC
-- `references/comprehension-quiz.md` - comprehension quiz template and grading
-- `/sc-run` - AFK implement after clarify clear
-- `/sc-ship` - explicit ship only
+- sc-clarify, sc-ux-design, `/sc-run`, `/sc-ship`
+- `references/mission-brief.md`

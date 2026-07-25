@@ -96,6 +96,49 @@ testRepoContract(() => new PostgresUserRepo(testDb));
 
 ---
 
+## Composition tests
+
+**Composition** = a user-visible path that mints something in step A and consumes it in step B (create→use, join→claim, auth→mutate, invite→accept).
+
+Isolated unit tests with mocked `fetch` / happy fixtures prove each seam in isolation. They **will not** catch:
+
+- Credentials returned by create that cannot unlock the next step
+- Flags/state that mark an entity “ready” without a usable secret
+- Empty public API base / reverse-proxy / same-origin rewrite miswiring (“could not reach server”)
+- UI that only spies on the first call while the real chain is broken
+
+**Required when shipping such a feature:**
+
+1. At least one **API or inject-style contract** that walks the chain with values returned by earlier steps (not hard-coded fixtures that skip the mint).
+2. If the client uses relative `/api` or a dev proxy, at least one test or config guard that empty/default base still targets the documented same-origin path, and local/dev config stays aligned.
+3. A production composition bug is closed only when the composition test is added in the same change — not by another mocked unit test alone.
+
+```typescript
+it('create credentials unlock the follow-up step', async () => {
+  const created = await app.inject({ method: 'POST', url: '/resources', payload: { name: 'x' } });
+  expect(created.statusCode).toBe(201);
+  const { id, secret } = created.json();
+
+  const join = await app.inject({
+    method: 'POST',
+    url: '/sessions',
+    payload: { resourceId: id, secret },
+  });
+  expect(join.statusCode).toBe(200);
+
+  const finish = await app.inject({
+    method: 'POST',
+    url: `/resources/${id}/claim`,
+    payload: { sessionToken: join.json().token, secret },
+  });
+  expect(finish.statusCode).toBe(200);
+});
+```
+
+Evidence labels: prefer `integration:composition:<flow-name>` so review can see the chain was exercised.
+
+---
+
 ## Common Mistakes
 
 | Mistake | Fix |
@@ -105,6 +148,8 @@ testRepoContract(() => new PostgresUserRepo(testDb));
 | Shared state between tests (flaky) | Isolate - fresh state per test |
 | Testing trivial code | Focus on logic, edge cases, invariants |
 | Slow test suite | Keep unit tests fast. Optimize integration tests. |
+| Mocked seam only for multi-step flows | Add a composition contract across create→use / join→claim |
+| Asserting only create response shape | Also assert the next step succeeds with returned credentials |
 
 ---
 

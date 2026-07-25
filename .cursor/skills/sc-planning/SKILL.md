@@ -36,7 +36,7 @@ When scope exceeds 7 tasks, split into Phase 1, Phase 2, ... each with its own p
 
 Use this exact sequence unless the user specifies otherwise:
 
-1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
+1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`. Skim `.space/trust/lessons.md` before inventing process (sc-learn: seed if missing).
 
 2. **Read inputs** - Before producing `plan.json`, read:
    - `spec.md` - what needs to be built

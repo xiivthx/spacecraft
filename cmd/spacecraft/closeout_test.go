@@ -24,10 +24,8 @@ func writeReadyCloseoutMission(t *testing.T, root, id string) {
 	}
 
 	review := map[string]any{
-		"status": "ready",
-		"findings": []any{
-			map[string]any{"severity": "low", "blocksShip": false, "summary": "nits"},
-		},
+		"status":   "ready",
+		"findings": []any{},
 		"releaseReadiness": map[string]any{
 			"changelog": map[string]any{"status": "ready"},
 			"specNote":  map[string]any{"status": "ready"},
@@ -203,6 +201,83 @@ func TestCloseoutFailsBlocksShip(t *testing.T) {
 	}
 	if !strings.Contains(res.stdout, "blocksShip") && !strings.Contains(strings.ToLower(res.stdout), "block") {
 		t.Fatalf("want blocksShip problem\nstdout=%s", res.stdout)
+	}
+}
+
+func TestCloseoutFailsWarningFinding(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07CLO12"
+	writeReadyCloseoutMission(t, dir, id)
+	r := goodReview()
+	r["findings"] = []any{
+		map[string]any{"severity": "warning", "blocksShip": false, "summary": "nit"},
+	}
+	writeReviewJSON(t, dir, id, r)
+
+	res := runCLIWithEnv(t, dir, []string{"SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG=1"}, "closeout-check")
+	if res.code == 0 {
+		t.Fatalf("expected fail for warning finding\nstdout=%s", res.stdout)
+	}
+	if !strings.Contains(strings.ToLower(res.stdout), "warning") {
+		t.Fatalf("want warning problem\nstdout=%s", res.stdout)
+	}
+}
+
+func TestCloseoutFailsLowSeverityFinding(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07CLO13"
+	writeReadyCloseoutMission(t, dir, id)
+	r := goodReview()
+	r["findings"] = []any{
+		map[string]any{"severity": "low", "blocksShip": false, "summary": "nit"},
+	}
+	writeReviewJSON(t, dir, id, r)
+
+	res := runCLIWithEnv(t, dir, []string{"SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG=1"}, "closeout-check")
+	if res.code == 0 {
+		t.Fatalf("expected fail for low severity finding\nstdout=%s", res.stdout)
+	}
+	if !strings.Contains(strings.ToLower(res.stdout), "low") {
+		t.Fatalf("want low severity problem\nstdout=%s", res.stdout)
+	}
+}
+
+func writeIssuesMD(t *testing.T, root, id, body string) {
+	t.Helper()
+	path := filepath.Join(root, ".space", "missions", id, "issues.md")
+	if err := os.WriteFile(path, []byte(body), 0644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCloseoutFailsIssuesOpen(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07CLO14"
+	writeReadyCloseoutMission(t, dir, id)
+	writeIssuesMD(t, dir, id, "# Issues - Test Mission\n\n### Race in scheduler\n"+
+		"- **Date**: 2026-01-01\n- **Severity**: important\n- **Status**: open\n"+
+		"- **Source**: review\n- **Description**: found a race\n- **Impact**: flaky\n")
+
+	res := runCLIWithEnv(t, dir, []string{"SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG=1"}, "closeout-check")
+	if res.code == 0 {
+		t.Fatalf("expected fail for open issue\nstdout=%s", res.stdout)
+	}
+	if !strings.Contains(res.stdout, "issues.md has 1 open issue") {
+		t.Fatalf("want open issues problem\nstdout=%s", res.stdout)
+	}
+}
+
+func TestCloseoutPassesIssuesAllSolved(t *testing.T) {
+	dir := spaceRoot(t)
+	id := "M07CLO15"
+	writeReadyCloseoutMission(t, dir, id)
+	writeIssuesMD(t, dir, id, "# Issues - Test Mission\n\n### Race in scheduler\n"+
+		"- **Date**: 2026-01-01\n- **Severity**: important\n- **Status**: solved\n"+
+		"- **Source**: review\n- **Description**: found a race\n- **Impact**: flaky\n")
+
+	res := runCLIWithEnv(t, dir, []string{"SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG=1"}, "closeout-check")
+	if res.code != 0 {
+		t.Fatalf("expected pass with no open issues\nstdout=%s\nstderr=%s", res.stdout, res.stderr)
 	}
 }
 

@@ -80,7 +80,7 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 - Git operations - use sc-git
 - Implementation - use `/sc-run` (AFK) or agents; ship with `/sc-ship` only
 
-After `/sc-discuss` clears clarify for roadmap work, recommend a **new session** `/sc-run <roadmap-id>`.
+After `/sc-discuss` clears clarify for roadmap work, handoff: **Spec clear. New session: /sc-run.**
 
 ## Output format
 
@@ -104,7 +104,7 @@ After `/sc-discuss` clears clarify for roadmap work, recommend a **new session**
 - [ ] Answer recorded in `questions.md`
 - [ ] Decision recorded in `decisions.md`
 - [ ] No blocking question remains open before planning or implementation
-- [ ] After clarify clear on roadmap work: recommend new session `/sc-run`
+- [ ] After clarify clear: handoff `Spec clear. New session: /sc-run.`
 
 ## References
 

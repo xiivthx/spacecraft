@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.41.7 - 2026-07-25
+
+- Feat: ready/ship clean-slate bar - 0 open `issues.md` items and 0 review findings (including warnings); related/regression/consequence must be fixed in `/sc-run`; ship blocks instead of migrating open debt to GitHub; `closeout-check` enforces both gates
+- Feat: `/sc-run` **issues drain loop** after plan+combine(+UI) - queue open issues, act by class+severity (must-fix related; file-or-fix unrelated), append new findings and loop until 0 open, then review/judge; review hits re-enter drain
+- Docs: lifecycle prompt simplify - canonical discuss → run → ship in `200-workflow`; sc-learn owns issues policy; standardized handoffs; sc-judge caveats = non-defect only; lifecycle stays Skills not Commands
+- Docs: `/sc-discuss` mission brief replaces comprehension quiz - Information/Question/Answer (Feynman + technical); human Accept/Adjust/Reject before clear (`references/mission-brief.md`)
+- Docs: drop `docs/learned.md`; local source of trust is `.space/trust/` (gitignored with `.space/`); tracked seed in `sc-learn/references/trust-seed/`; `spacecraft init` seeds empty trust files; ship migrates only high-signal lessons/solved (no diary noise)
+- Docs: sc-learn / sc-run / sc-ship / sc-judge / workflow rules updated for issue class triage and clean ready
+
+## 0.41.6 - 2026-07-25
+
+- Docs: sc-tdd composition-test rules (create→use / join→claim / auth→mutate) — mocked seams alone are insufficient; production composition bugs need chain contracts; mirror in testing-strategy, mocking, sc-web-backend and sc-web-frontend testing refs
+
 ## 0.41.5 - 2026-07-23
 
 - Chore: retier Task agent models for plan/do/check diversity - planner Opus, doers Sonnet 5 high, reviewer GPT-5.6 Sol (cross-family check); adviser stays Opus; designer stays Sonnet

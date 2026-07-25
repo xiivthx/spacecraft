@@ -1,28 +1,36 @@
 # Mission Tracking File Templates
 
-> Copy these templates when creating `.space/missions/<id>/issues.md`, `solved.md`, `learned.md`.
+> Copy when creating `.space/missions/<id>/issues.md`, `solved.md`, `learned.md`.
 
 ## issues.md
 
 ```markdown
 # Issues - <mission-title>
 
-> Mission: <mission-id>. Issues found during development.
-> Created as GitHub Issues on ship if unresolved.
+> Mission: <mission-id>. Ready/ship require 0 open.
+> Policy: sc-learn. Drain: sc-run.
 
 ---
 ```
 
-### Issue entry format
+### Issue entry
 
 ```markdown
 ### <short title>
 - **Date**: YYYY-MM-DD
 - **Severity**: critical | important | minor
+- **Class**: regression | consequence | related | unrelated | preexisting
 - **Status**: open
 - **Source**: <task id, review finding, or discovery context>
 - **Description**: <what was found>
 - **Impact**: <what it affects>
+```
+
+Filed (unrelated/preexisting only):
+
+```markdown
+- **Status**: filed
+- **GitHub**: <#N or URL>
 ```
 
 ---
@@ -32,13 +40,10 @@
 ```markdown
 # Solved - <mission-title>
 
-> Mission: <mission-id>. Issues resolved during development.
-> Migrated to docs/learned.md on ship.
+> Mission: <mission-id>. Migrated to .space/trust/ on ship (local, gitignored).
 
 ---
 ```
-
-### Solved entry format
 
 ```markdown
 ### <same title as original issue>
@@ -57,13 +62,10 @@
 ```markdown
 # Lessons Learned - <mission-title>
 
-> Mission: <mission-id>. Principles and patterns discovered.
-> Migrated to docs/learned.md on ship.
+> Mission: <mission-id>. Migrated to .space/trust/ on ship (local, gitignored).
 
 ---
 ```
-
-### Lesson entry format
 
 ```markdown
 ### <lesson title>

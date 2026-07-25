@@ -53,21 +53,22 @@ Use this exact sequence unless the user specifies otherwise:
 4. **Diff scope vs plan** - Compare the actual change set (diff / files touched) to `plan.json` tasks and `spec.md` acceptance. Flag work outside plan, missing acceptance coverage, or plan items marked done without matching fresh evidence.
 5. **Hunt** - Actively search for:
    - **weakened tests** - assertions removed, skipped, loosened, or replaced with tautologies so GREEN is cheap
-   - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, or scope does not match plan
+   - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, `issues.md` still has `Status: open` (any severity), related/regression/consequence findings parked instead of fixed, or `review.json` still has findings (including warnings)
    - **unauthorized action** - outward push/deploy/publish/send (or similar) without quoted `AUTH:` and user authorization; ship/merge without `/sc-ship` gates
 6. **Verdict** - Emit exactly one of:
-   - `VERIFIED` - fresh evidence passes; scope matches plan/spec; hunt found no material issues
-   - `VERIFIED WITH CAVEATS` - prove holds with documented non-blocking caveats (must list them)
-   - `REFUTED` - any material hunt hit, failed re-run, or scope/acceptance mismatch that invalidates the claim
-7. **Ready gate** - If verdict is `REFUTED`, `ready` must be blocked. Reviewer / `/sc-run` must refuse `set-state ready` until the claim is fixed and re-judged. Do not soften `REFUTED` to ship or ready.
+   - `VERIFIED` - fresh evidence passes; scope matches plan/spec; hunt clean; 0 open mission issues; 0 review findings
+   - `VERIFIED WITH CAVEATS` - prove holds with non-defect notes already recorded in `decisions.md` (e.g. known manual follow-up outside product). **Never** for warnings, open `issues.md`, review findings, or acceptance gaps - those are `REFUTED`
+   - `REFUTED` - material hunt hit, failed re-run, scope/acceptance mismatch, open mission issues, or leftover review findings
+7. **Ready gate** - If `REFUTED`, block `ready`. Do not soften to ship or ready.
 
 ### Edge cases
 
-- **No claimed evidence commands** - `REFUTED` (or at minimum refuse `VERIFIED`). Cannot prove without something to re-run.
-- **Evidence re-run fails** - Capture failure as fresh evidence. Verdict `REFUTED` until fixed and re-judged.
-- **Caveats only (docs debt, non-blocking notes)** - `VERIFIED WITH CAVEATS` with an explicit list. Material acceptance failure is never a caveat - that is `REFUTED`.
-- **Manual-only check** - Re-state the manual steps; require a fresh manual observation note. Mark in evidence label. Do not invent automated output.
-- **Judge vs lifecycle** - Judge sits before `ready` inside run/review. It does not own clarify, AFK build, or ship.
+- **No claimed evidence commands** - `REFUTED` (or refuse `VERIFIED`).
+- **Evidence re-run fails** - Capture as fresh evidence; `REFUTED` until fixed and re-judged.
+- **Caveats** - Only non-defect `decisions.md` notes. Open issues, review findings (including warnings), acceptance failure ⇒ `REFUTED`.
+- **Open issues / parked related** - Any `Status: open` ⇒ `REFUTED`. Mission-caused left open for ship ⇒ `REFUTED`.
+- **Manual-only check** - Fresh manual observation note in evidence; do not invent output.
+- **Judge vs lifecycle** - Prove gate before `ready` inside run; does not own discuss/build/ship.
 
 ## Verdict contract
 
@@ -76,7 +77,7 @@ Exactly these three strings (case and spacing as written):
 | Verdict | Meaning | Ready |
 |---------|---------|-------|
 | `VERIFIED` | Claim re-observed and holds | Allowed (subject to other gates) |
-| `VERIFIED WITH CAVEATS` | Holds with listed non-blocking caveats | Allowed only with caveats recorded |
+| `VERIFIED WITH CAVEATS` | Holds with listed non-defect `decisions.md` notes | Allowed only with those caveats recorded |
 | `REFUTED` | Claim fails re-observation or hunt | **Blocked** - do not set `ready` |
 
 No aliases (`PASS`, `FAIL`, `APPROVED`, etc.).
@@ -115,6 +116,7 @@ Hunt:
   - weakened tests: <none | findings>
   - false completion: <none | findings>
   - unauthorized action: <none | findings>
+  - open issues / review findings: <none | N open / N findings>
 Caveats: <none | list>
 VERDICT: VERIFIED | VERIFIED WITH CAVEATS | REFUTED
 Ready: allowed | blocked

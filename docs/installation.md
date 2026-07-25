@@ -101,7 +101,7 @@ After restarting Cursor:
 3. Confirm the seven agents are discoverable: `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, and `sc-firmware`.
 4. Approve the project MCP server if Cursor asks for confirmation.
 
-Workflow prompts are skills under `.cursor/skills/`. No `.cursor/commands/` directory is required.
+Workflow prompts are Agent Skills under `.cursor/skills/` (explicit `/` via `disable-model-invocation: true`). Do not migrate them to `.cursor/commands/` - Cursor's direction is Commands → Skills (`/migrate-to-skills`).
 
 ## Start a project
 
@@ -129,10 +129,13 @@ Then begin in Cursor:
   mcp.json
   hooks.json
   hooks/
-.space/
+.space/                    # fully gitignored (local state)
   missions/
   archive/
   roadmaps/
+  trust/                   # local source of trust (lessons.md, solved.md); seeded by init
 ```
+
+Trust is not committed. Tracked seed: `.cursor/skills/sc-learn/references/trust-seed/`. Agents read `.space/trust/lessons.md` before inventing process.
 
 The Spacecraft repository also contains the CLI source at `cmd/spacecraft/`.
