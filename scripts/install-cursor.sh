@@ -1,5 +1,5 @@
 #!/bin/sh
-# install-cursor.sh — install the full spacecraft .cursor surface into a project.
+# install-cursor.sh - install the full spacecraft .cursor surface into a project.
 #
 # Copies rules, agents, skills, and hooks (if present) into <target>/.cursor,
 # scaffolds <target>/.space, and merges mcp.json without clobbering unrelated

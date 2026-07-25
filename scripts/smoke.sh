@@ -1,5 +1,5 @@
 #!/bin/sh
-# smoke.sh — post-install validation for a spacecraft install.
+# smoke.sh - post-install validation for a spacecraft install.
 #
 # Checks: expected rules/agents/skills are present, mcp.json parses as JSON,
 # hooks.json parses when present, and the spacecraft CLI reports help.
@@ -19,7 +19,7 @@ count() { ls -1 "$1" 2>/dev/null | wc -l | tr -d ' '; }
 
 echo "Smoke check: $TARGET"
 
-# 1. File counts — every surface must have at least one entry.
+# 1. File counts - every surface must have at least one entry.
 for pair in "rules:1" "agents:1" "skills:1"; do
   dir=${pair%%:*}; min=${pair##*:}
   n=$(count "$TARGET/.cursor/$dir")
@@ -31,7 +31,7 @@ for pair in "rules:1" "agents:1" "skills:1"; do
 done
 
 # 2. .space scaffold.
-for d in missions archive; do
+for d in missions archive roadmaps; do
   if [ -d "$TARGET/.space/$d" ]; then
     pass ".space/$d present"
   else
