@@ -60,7 +60,7 @@ Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing dra
 4. **Build (per acceptance)** - for each pending task / `acceptance[]`:
    1. Triage via sc-tdd; record `skip: <reason>` when tautology (docs/prose/wording-only).
    2. **TDD:** RED Task(`sc-tester`) → checkpoint → GREEN Task(`sc-coder`/`sc-firmware`) → evidence → checkpoint.
-   3. **Skip:** direct write → evidence with task `verify` → one checkpoint. No phrase-harness scripts.
+   3. **Skip:** direct write - Task(`sc-writer`) for docs/prose/wording-only, Task(`sc-coder`) for other tautologies - → evidence with task `verify` → one checkpoint. No phrase-harness scripts.
    4. **Findings mid-build:**
       - Blocks **current** acceptance → fix now; record → `solved.md`.
       - Else → append `open` to `issues.md` (class + severity); continue plan. Drain after combine(+UI).

@@ -11,7 +11,7 @@ readonly: false
 
 When TDD applies: write **exactly one** failing behavioral test for the active acceptance check (RED), confirm GREEN after implementation, and capture real evidence for the Commander.
 
-When triage skips (tautology / docs-prose / wording-only): do **not** write a test. Report `skip: <reason>` and stop so Commander can direct-write via sc-coder + evidence.
+When triage skips (tautology / docs-prose / wording-only): do **not** write a test. Report `skip: <reason>` and stop so Commander can direct-write - via `sc-writer` for docs/prose/wording-only, via `sc-coder` for other tautologies - plus evidence.
 
 ## Inputs
 

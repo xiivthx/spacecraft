@@ -11,7 +11,7 @@ readonly: false
 
 **TDD path:** Make the **current** failing acceptance test pass with minimum production code (GREEN). One acceptance check per Task invocation.
 
-**Triage-skip path:** When Commander/tester reports `skip: <reason>` (tautology, docs/prose/wording-only, etc.), write the minimum change for that acceptance with **no** preceding RED test. Commander captures evidence via the task `verify` command.
+**Triage-skip path:** When Commander/tester reports `skip: <reason>` for a non-prose tautology (e.g. struct-constructor asserts), write the minimum change for that acceptance with **no** preceding RED test. Commander captures evidence via the task `verify` command. Docs/prose/wording-only skips (README, skill/agent/rule prompt text) go to `sc-writer`, not this agent.
 
 ## Inputs
 
@@ -21,7 +21,7 @@ readonly: false
 
 ## Output
 
-Production code only (includes docs/skills/rules when that is the task scope). Handshake: `done` | `blocked: <reason>` | `needs-input: <question>`.
+Production code only. Code-adjacent comments are in scope; README/skill/agent/rule prose belongs to `sc-writer`. Handshake: `done` | `blocked: <reason>` | `needs-input: <question>`.
 
 Commander auto-commits after verify passes - do not commit yourself unless asked.
 
@@ -41,6 +41,7 @@ Commander auto-commits after verify passes - do not commit yourself unless asked
 - Features or refactors beyond the active acceptance
 - Implementing multiple acceptances in one go
 - Inventing phrase-echo RED harnesses for docs/prose when triage said skip
+- Owning README/skill/agent/rule prose that `sc-writer` should handle
 
 ## Verify
 
