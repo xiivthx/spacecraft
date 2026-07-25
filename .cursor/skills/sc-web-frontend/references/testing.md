@@ -101,6 +101,8 @@ Mock only at system boundaries. Do not mock React components or hooks under your
 - **Timers** - use `vi.useFakeTimers()` for `setTimeout`/`setInterval`
 - **Do not mock** - React hooks (`useState`, `useEffect`), child components, context providers
 
+A component test that spies on `startJoin` / `createX` or mocks `fetch` with a happy body is **not** enough for create→use / join→claim / auth flows. Those need a companion API **composition** contract (real inject/chain) that consumes credentials returned by earlier steps. Empty public API base / same-origin `/api` rewrite bugs also need a wiring guard or relative-URL unit assertion — see sc-tdd composition rules.
+
 ```tsx
 // MSW handler for API mocking
 import { http, HttpResponse } from "msw";

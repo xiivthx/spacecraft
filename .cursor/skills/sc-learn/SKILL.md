@@ -5,43 +5,69 @@ description: "Capture mission knowledge: issues, solutions, and lessons learned.
 
 # sc-learn
 
-Capture knowledge from missions: track issues found, solutions applied, and lessons learned. During ship, create GitHub Issues for unresolved items and migrate solved/learned items to `docs/learned.md` for internal research reuse.
+Mission knowledge: issues, solutions, lessons. **Sole owner of issues triage policy.** Ready/ship require **0 open** issues and empty review findings.
+
+**Local source of trust** (gitignored with the rest of `.space/`):
+
+```
+.space/trust/lessons.md   # must-read for agents
+.space/trust/solved.md    # project-specific fixes
+```
+
+Tracked seed only: `references/trust-seed/` (copy into `.space/trust/` when missing). Never write trust to `docs/`.
 
 ## When to use
 
-Activate when the user asks to:
+- Record / solve / file a finding during a mission
+- Reflect ("what did we learn?")
+- Ship migration: confirm 0 open; migrate solved/learned into `.space/trust/` before version bump
+- Ensure trust exists (seed if missing) before discuss/plan/run
 
-- **"Record this issue" / "track this bug" / "note this finding"** - during a mission
-- **"Mark as solved" / "this is fixed"** - after resolving an issue
-- **"What did we learn?" / "lesson learned" / "capture knowledge"** - reflection
-- During ship migration - create GitHub Issues for open items; migrate solved/learned to `docs/learned.md` before version bump
-- During implementation - record issues and lessons as they are discovered
+## Ensure trust (before read or migrate)
+
+1. If `.space/trust/lessons.md` is missing: `mkdir -p .space/trust` and copy from `references/trust-seed/lessons.md` and `solved.md` (or create empty tables with the headers in those seeds).
+2. Agents **must read** `.space/trust/lessons.md` before inventing process in `/sc-discuss` or `/sc-run` plan/build. Skim for matching lessons; do not invent conflicting process.
+
+## Issues policy (source of truth)
+
+**Two-rule summary** (for always-on rules / sc-run):
+
+1. **Mission-caused** (`related` / `regression` / `consequence`): **must fix** in `/sc-run` drain → `solved.md`. Never file-away.
+2. **Not mission-caused** (`unrelated` / `preexisting`): **file** during run (`gh issue create` → `filed`) unless **suite-breaking**, on **touched path**, or **trivial** one-shot fix - then fix → `solved.md`.
+
+Ready/ship: 0 `Status: open` (any severity, including minor). Drain loop mechanics: **sc-run**.
+
+### Full drain matrix
+
+| Class | Severity | Drain action |
+|-------|----------|--------------|
+| `regression` / `consequence` / `related` | any | **Must fix** → `solved.md`. Never file-away. |
+| `unrelated` / `preexisting` | critical / important | **Fix** if suite-breaking, on touched path, or small/local; else **file** → `filed`. |
+| `unrelated` / `preexisting` | minor | **File** by default; **fix** only if trivial one-shot. |
+
+No soft "prefer fix when uncertain." Suite-breaking or touched-path ⇒ fix; else file.
+
+During drain: new findings **append** and stay in the loop until 0 open. Review/judge hits become new open entries and re-enter drain (sc-run).
 
 ## Workflow
 
 ### During a mission
 
-1. **Create tracking files** - When a mission moves to `planned` state, ensure these files exist in `.space/missions/<id>/`:
-   - `issues.md` - open issues found during this mission
-   - `solved.md` - issues resolved during this mission
-   - `learned.md` - lessons extracted from this mission
+1. **Create tracking files** when mission moves to `planned` (or earlier): `issues.md`, `solved.md`, `learned.md` under `.space/missions/<id>/`. Templates: `references/templates.md`. After each write, ctx_index with `sc-memory/<mission-id>/<type>` (best-effort).
 
-   If they don't exist, create them from the templates below.
-
-   After each write to these files, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort, non-blocking). See sc-memory for conventions.
-
-2. **Record issues** - When a bug, gap, or finding is discovered:
+2. **Classify and record** when a finding appears:
    ```
    ### <short title>
    - **Date**: YYYY-MM-DD
    - **Severity**: critical | important | minor
+   - **Class**: regression | consequence | related | unrelated | preexisting
    - **Status**: open
    - **Source**: <task id, review finding, or discovery context>
    - **Description**: <what was found>
    - **Impact**: <what it affects>
    ```
 
-3. **Mark as solved** - When an issue is resolved, move it from `issues.md` to `solved.md`:
+3. **Mark as solved** - move from `issues.md` to `solved.md`:
    ```
    ### <same title>
    - **Date found**: YYYY-MM-DD
@@ -52,94 +78,66 @@ Activate when the user asks to:
    - **Commit**: <hash or reference>
    ```
 
-4. **Record lessons** - When a general principle or transferable insight emerges (NOT a specific issue - those go to solved.md):
-    ```
-    ### <lesson title>
-    - **Date**: YYYY-MM-DD
-    - **Context**: <what triggered this insight>
-    - **Lesson**: <the general principle - framed as world-wide solution, not project-specific>
-    - **Application**: <how this applies beyond the current mission>
-    ```
-    
-    **Distinction**: Solved = specific bugs fixed in this project. Lessons = general truths reusable anywhere. A closeout checker quirk is solved; "verify pre-existing failures before blocking" is a lesson.
+4. **Mark as filed** (unrelated/preexisting only):
+   ```
+   - **Status**: filed
+   - **GitHub**: <#N or URL>
+   ```
+
+5. **Record lessons** (general principles, not specific bugs) in mission `learned.md`. Solved = project-specific fix; Lessons = transferable principle.
+
+### Clean-slate gate
+
+Before `set-state ready` and before ship release:
+
+- `issues.md`: **0** `Status: open` (`spacecraft closeout-check`)
+- `review.json` `findings`: **empty**
+- Do not leave open items for ship to turn into GitHub Issues
 
 ### During ship (migration)
 
-Before the version bump and changelog commit, run this migration:
-
-1. **Read mission files** - Load `.space/missions/<id>/issues.md`, `solved.md`, `learned.md`.
-
-2. **Migrate unresolved issues** - For each issue in `issues.md` with status `open`:
-   - Create a GitHub Issue with mission context: `gh issue create --title "<title>" --body "<body>" --label bug`
-   - Body must include: mission id/title, date, severity, description, impact
-   - Update the mission `issues.md` to mark each as `status: migrated` and record the GitHub issue URL/number
-   - If the mission belongs to a roadmap, append the issue to the roadmap `issues` array
-
-3. **Migrate solved items** - For each entry in `solved.md` (specific issues fixed):
-    - Append to `docs/learned.md` under the `## Solved` table with mission context
-    - Format: `| <mission-id> | <date> | <problem summary> | <solution summary> | <evidence> |`
-
-4. **Migrate lessons** - For each entry in `learned.md` (general principles, not project-specific):
-    - Reword from mission context to general principle before migrating - strip project-specific details, keep the transferable insight
-    - Append to `docs/learned.md` under the `## Lessons` table
-    - Format: `| <mission-id> | <date> | <lesson - general principle> | <why it matters - world-wide relevance> |`
-
-5. **Proceed with ship** - After migration, continue with version bump and changelog as normal.
-
-### Templates
-
-See `references/templates.md` for the full file templates. Copy them when creating mission tracking files.
+1. If any issue is `open` → **block ship**. Fix or file in `/sc-run`, then re-ready.
+2. Ensure `.space/trust/` exists (seed if missing).
+3. **Quality bar (must)** - do not dump mission noise into trust:
+   - **Lessons:** only general, reusable principles. Skip duplicates of rows already in `.space/trust/lessons.md`. Skip mission-diary / one-off UI taste / harness trivia. Prefer ≤1 new lesson per ship unless clearly distinct.
+   - **Solved:** only regressions or fixes others would hit again. Skip nits, typos, and issues already covered by an existing lesson. Prefer empty append over pad.
+   - Reword lessons to world-wide principles before append; keep rows short (one line each cell).
+4. Migrate qualifying mission `solved.md` → `.space/trust/solved.md`: `| <mission-id> | <date> | <problem> | <solution> | <evidence> |`
+5. Migrate qualifying mission `learned.md` → `.space/trust/lessons.md`: `| <date> | <lesson> | <why it matters> | <mission-id> |`
+6. Continue version bump + changelog. Do not delete mission tracking files (archive with mission). Trust stays local/gitignored - do not commit `.space/`.
 
 ## Rules
 
-- **Must**: Create tracking files when mission moves to `planned` state (or earlier if issues arise).
-- **Must**: Record issues as they are found - don't batch at the end.
-- **Must**: Move issues from `issues.md` to `solved.md` when resolved during the mission.
-- **Must**: Distinguish Solved (specific issues fixed in this project) from Lessons (general principles, transferable to any codebase). If an insight only makes sense in the context of this specific tool, it's a solved issue, not a lesson.
-- **Must**: During migration, reword lesson entries from project-specific context into general principles before writing to `docs/learned.md`.
-- **Must**: During ship, create GitHub Issues for unresolved mission issues before the version bump commit.
-- **Must**: During ship, migrate solved and learned items to `docs/learned.md` before the version bump commit.
-- **Must not**: Ship with unresolved issues still only in the mission folder - they must be promoted to GitHub Issues.
-- **Must**: Use GitHub Issues as the sole global issue registry.
-- **Must not**: Delete mission tracking files after migration - archive them with the mission.
-- **Must**: After writing to issues.md, solved.md, or learned.md, ctx_index the file with source label `sc-memory/<mission-id>/<type>` (best-effort, non-blocking -- warn on failure). See sc-memory for label format and conventions.
-
-## Out of scope
-
-- Git operations - use sc-git
-- Mission lifecycle - use sc-mission
-- Code quality issues - use sc-solid for detection, sc-learn for tracking
-- Automated lesson extraction from git diffs - manual reflection only (for now)
+- **Must**: Create tracking files at `planned` (or earlier); record findings as found; classify each.
+- **Must**: Follow the issues policy matrix above; clear all `open` before ready/ship.
+- **Must**: Migrate only high-signal solved/learned into `.space/trust/` at ship; reword lessons; skip duplicates and nits.
+- **Must**: Read `.space/trust/lessons.md` before inventing process (seed if missing). Keep trust files short.
+- **Must not**: Ship or ready with open issues; create GitHub Issues at ship for open debt; write trust into `docs/`; pad trust with mission diary noise.
+- **Must**: GitHub Issues = global registry for debt filed during run.
+- **Must**: ctx_index after mission tracking writes (best-effort).
 
 ## Output format
 
 ```
 Mission: <mission-id>
-Issues: [N] open → GitHub Issues created (#N, #M, ...)
-Solved: [N] items → migrated to docs/learned.md
-Lessons: [N] items → migrated to docs/learned.md
+Issues: 0 open (clean)
+Solved: [N] items → .space/trust/solved.md
+Lessons: [N] items → .space/trust/lessons.md
 Migration complete. Ready for version bump.
 ```
 
 ## Checklist
 
-Before claiming knowledge migration is done:
-
-- [ ] Mission tracking files exist (issues.md, solved.md, learned.md)
-- [ ] All open issues created as GitHub Issues with mission context
-- [ ] All solved items migrated to `docs/learned.md` with mission context
-- [ ] All lessons migrated to `docs/learned.md` with mission context
-- [ ] Mission files marked as `status: migrated` (not deleted)
-- [ ] Proceed to version bump and changelog after migration
-
----
+- [ ] Tracking files exist
+- [ ] Zero open issues (closeout-check)
+- [ ] Trust dir present (seeded if needed)
+- [ ] Solved + lessons migrated to `.space/trust/`
+- [ ] Proceed to version bump / changelog
 
 ## References
 
-- `references/templates.md` - mission tracking file templates (issues.md, solved.md, learned.md)
-- GitHub Issues - global issue registry (via `gh issue create`)
-- `docs/learned.md` - global lessons learned (aggregation target, internal research source)
-- sc-memory - cross-mission memory conventions (ctx_index/ctx_search wrapping)
-- `.space/missions/<id>/issues.md` - per-mission issue tracking
-- `.space/missions/<id>/solved.md` - per-mission resolved items
-- `.space/missions/<id>/learned.md` - per-mission lessons
+- `references/templates.md` - mission tracking templates
+- `references/trust-seed/` - tracked seed for local trust
+- `.space/trust/` - local source of trust (gitignored)
+- sc-run - issues drain loop
+- sc-memory - ctx_index conventions

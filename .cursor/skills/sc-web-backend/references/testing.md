@@ -131,6 +131,42 @@ it("creates and retrieves a user", async () => {
 });
 ```
 
+### Composition (create → use)
+
+When step A mints credentials (join code, password, invite token, session) that step B must consume, the integration test **must** use A’s response in B — not a hard-coded fixture that skips minting:
+
+```typescript
+it("minted credentials unlock the follow-up step", async () => {
+  const created = await app.inject({
+    method: "POST",
+    url: "/public/resources",
+    payload: { name: "Trip" },
+  });
+  expect(created.statusCode).toBe(201);
+  const { id, joinCode, joinPassword } = created.json();
+
+  const session = await app.inject({
+    method: "POST",
+    url: "/join-sessions",
+    payload: { joinCode, joinPassword },
+  });
+  expect(session.statusCode).toBe(200);
+
+  const claim = await app.inject({
+    method: "POST",
+    url: `/resources/${id}/member-sessions`,
+    payload: {
+      memberId: created.json().ownerMemberId,
+      participantPassword: joinPassword,
+      joinSessionToken: session.json().joinSessionToken,
+    },
+  });
+  expect(claim.statusCode).toBe(200);
+});
+```
+
+A UI unit test that mocks only the first call does not replace this contract. See sc-tdd composition rules.
+
 ## Spacecraft integration
 
 - Run tests per endpoint: `spacecraft evidence "<endpoint>:test" -- npx vitest run src/routes/<name>.test.ts`

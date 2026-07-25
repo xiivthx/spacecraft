@@ -31,7 +31,7 @@ node -e "const MS=Date.now()-new Date('2026-01-01').getTime();console.log('M'+MS
 
 Per mission under `.space/missions/<id>/`: `mission.json`, `spec.md`, `plan.json`, `evidence.jsonl`, optional `decisions.md` / `questions.md` / `review.json`. Roadmaps: `.space/roadmaps/<id>.json` via `spacecraft map`.
 
-Bug radar: `gh issue create --title "..." --body "..." --label bug`, then append to roadmap `issues` if linked.
+Issues: policy in sc-learn; drain in sc-run. Ready/ship: 0 open `issues.md`; 0 review findings.
 
 ## Evidence
 

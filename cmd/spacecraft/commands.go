@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -38,8 +39,40 @@ func initCmd(spaceDir string) int {
 		fmt.Fprintln(os.Stderr, "spacecraft init:", err)
 		return 1
 	}
+	trustDir := filepath.Join(spaceDir, "trust")
+	if err := os.MkdirAll(trustDir, 0755); err != nil {
+		fmt.Fprintln(os.Stderr, "spacecraft init:", err)
+		return 1
+	}
+	writeTrustSeedIfMissing(filepath.Join(trustDir, "lessons.md"), trustLessonsSeed)
+	writeTrustSeedIfMissing(filepath.Join(trustDir, "solved.md"), trustSolvedSeed)
 	fmt.Println("Spacecraft initialized at .space/")
 	return 0
+}
+
+const trustLessonsSeed = `# Trust lessons
+
+Local source of trust (gitignored). Read before discuss/plan/run when present.
+Richer starter rows: copy from .cursor/skills/sc-learn/references/trust-seed/lessons.md
+
+| Date | Lesson | Why it matters | Source |
+|------|--------|----------------|--------|
+`
+
+const trustSolvedSeed = `# Trust solved
+
+Local project memory of specific fixes (gitignored).
+Richer starter rows: copy from .cursor/skills/sc-learn/references/trust-seed/solved.md
+
+| Mission | Date | Problem | Solution | Evidence |
+|---------|------|---------|----------|----------|
+`
+
+func writeTrustSeedIfMissing(path, body string) {
+	if _, err := os.Stat(path); err == nil {
+		return
+	}
+	_ = os.WriteFile(path, []byte(body), 0644)
 }
 
 func newCmd(args []string, spaceDir string) int {
@@ -421,6 +454,10 @@ func closeoutCmd(spaceDir, mid string) int {
 		problems = append(problems, closeoutReviewProblems(filepath.Join(dir, "review.json"))...)
 	}
 
+	if _, err := os.Stat(filepath.Join(dir, "issues.md")); err == nil {
+		problems = append(problems, closeoutIssuesProblems(filepath.Join(dir, "issues.md"))...)
+	}
+
 	// SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG=1 is for unit tests in temp dirs without
 	// git history only. Production never sets this.
 	if os.Getenv("SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG") != "1" {
@@ -496,17 +533,12 @@ func closeoutReviewProblems(path string) []string {
 	}
 	if findings, ok := review["findings"].([]any); ok {
 		for i, raw := range findings {
-			f, ok := raw.(map[string]any)
-			if !ok {
-				continue
-			}
+			f, _ := raw.(map[string]any)
 			sev, _ := f["severity"].(string)
-			if sev == "critical" {
-				problems = append(problems, fmt.Sprintf("review finding %d has severity critical", i+1))
-			}
-			if blocks, ok := f["blocksShip"].(bool); ok && blocks {
-				problems = append(problems, fmt.Sprintf("review finding %d has blocksShip=true", i+1))
-			}
+			blocks, _ := f["blocksShip"].(bool)
+			problems = append(problems, fmt.Sprintf(
+				"review finding %d present (severity=%q, blocksShip=%v); ship requires 0 findings (including warnings)",
+				i+1, sev, blocks))
 		}
 	}
 	rr, ok := review["releaseReadiness"].(map[string]any)
@@ -526,6 +558,36 @@ func closeoutReviewProblems(path string) []string {
 		}
 	}
 	return problems
+}
+
+// issuesStatusRe matches "Status" lines in issues.md, with or without a
+// leading list marker or bold markers around the label, e.g.
+// "- **Status**: open" or "Status: open".
+var issuesStatusRe = regexp.MustCompile(`(?i)^\s*-?\s*\**Status\**\s*:\s*(\S.*)$`)
+
+func closeoutIssuesProblems(path string) []string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil // optional artifact; missing is fine
+	}
+	open := 0
+	for _, line := range strings.Split(string(data), "\n") {
+		m := issuesStatusRe.FindStringSubmatch(line)
+		if m == nil {
+			continue
+		}
+		value := strings.ToLower(strings.TrimSpace(m[1]))
+		value = strings.Trim(value, "*")
+		if value == "open" {
+			open++
+		}
+	}
+	if open > 0 {
+		return []string{fmt.Sprintf(
+			"issues.md has %d open issue(s); ready/ship require 0 open (fix or file during run, then clear open status)",
+			open)}
+	}
+	return nil
 }
 
 func closeoutChangelogProblems(cwd string) []string {

@@ -24,13 +24,17 @@ alwaysApply: true
 
 After `/sc-discuss` clears clarify (and visual draft when required), prefer new session `/sc-run`; no non-blocking questions mid-AFK. Mission ship only via `/sc-ship`; no-mission small edits via `/sc-quick`. Detail: `.cursor/skills/sc-discuss`, `sc-run`, `sc-ship`, `sc-quick`, `sc-mission`.
 
-## AFK flow
+## Lifecycle (canonical)
 
 ```
-/sc-discuss (spec + decisions + visual draft HIL) → new session /sc-run build → human check → /sc-ship
+/sc-discuss (HIL clear) → new session /sc-run (build → drain → ready) → human check → /sc-ship
 ```
 
-`/sc-discuss`: clarify, brainstorm, decide; for visual UI/FE approve draft HTML before clear; comprehension quiz before clear. `/sc-run` build: jigsaw plan tasks → per-acceptance triage (sc-tdd) → RED→GREEN **or** skip→direct write+evidence → combine/refactor + integration gate → (UI: visual + functional recheck) → review + `sc-judge` → `ready` (block on `REFUTED`). `/sc-ship` squashes AFK checkpoints to ≤5 commits, then merges.
+- **Discuss:** spec, decisions, visual draft HIL, mission brief (Accept/Adjust/Reject) → `clarify-status clear`. Handoff: `Spec clear. New session: /sc-run.`
+- **Run:** plan → build → combine(+UI) → issues drain → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.`
+- **Ship:** squash checkpoints ≤5, closeout, merge `--no-ff`, archive. Roadmap continues: `Next: new session → /sc-discuss <id>`
+
+Detail: `/sc-discuss`, `/sc-run`, `/sc-ship`. Issues policy: **sc-learn**; drain loop owned by **sc-run**. Local trust (gitignored): `.space/trust/lessons.md` - read before discuss/plan/run; seed from sc-learn `references/trust-seed/` if missing.
 
 `spacecraft map use|current|next` select and advance the roadmap.
 
@@ -40,8 +44,7 @@ After `/sc-discuss` clears clarify (and visual draft when required), prefer new 
 - Escape hatches when scope exceeds ≤7 (not a higher or soft cap):
   - Same-mission phase split: sequential `plan-phaseN.json` (or `plan-phase1.json`, …) under the mission.
   - Roadmap / multi-mission: `spacecraft map new`, then add missions; discuss each, AFK with `/sc-run`.
-- Bug radar any lane: `gh issue create` + record in mission `issues.md` / roadmap `issues`.
-- Fix issue #N: view issue → mission → reference in spec → close after ship.
+- Issues: record in mission `issues.md`; drain in `/sc-run` until 0 open (policy in sc-learn). Ready/ship: 0 open issues, 0 review findings. Fix issue #N: view → mission → spec → close after ship.
 
 ## Mission resolution
 
@@ -51,8 +54,8 @@ Clarify status: `open` | `clear` | `deferred` under mission dir.
 
 ## Lanes (pointers)
 
-- **Discuss:** `/sc-discuss` (spec, decisions, visual draft, comprehension quiz before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft).
-- **Mission:** `/sc-run` (plan/build/review via agents). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-judge` (ready gate; block on `REFUTED`). Shares INTENT / AUTH / TWINS / 3-cycle inner-loop gates with Quick.
+- **Discuss:** `/sc-discuss` (spec, decisions, visual draft, mission brief before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft), `sc-discuss/references/mission-brief.md`.
+- **Mission:** `/sc-run` (plan → build → drain → review → ready). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (block on `REFUTED`). Shares INTENT / AUTH / TWINS / 3-cycle with Quick.
 - **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive (mission only).
 - **Quick:** `/sc-quick` - no mission artifacts; branch `<type>/<title>` → verify → commit → ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` (hook skips closeout). Still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle. Do not invent a mission stub.
 - **Debug:** reproduce E2E → falsify root cause → record in `issues.md`. Prefer Cursor Debug Mode for runtime evidence.
@@ -71,7 +74,7 @@ Orchestrator, not implementer. Task-delegate:
 | `sc-adviser` | complex design (discuss) |
 | `sc-firmware` | STM32 C |
 
-Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before coder (one acceptance per pair); firmware for embedded; refactor after all slices; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (block `set-state ready` on `REFUTED`); reviewer before ship.
+Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before coder (one acceptance per pair); firmware for embedded; combine then issues drain; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (block on `REFUTED`); reviewer before ship.
 
 ## Inner-loop gates
 

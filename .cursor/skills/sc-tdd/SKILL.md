@@ -23,6 +23,7 @@ Distilled from common testing anti-patterns. Apply silently; surface violations.
 | **DRY applies to tests too.** Centralize fixtures, share helpers, avoid copy-paste. Test code is production code. | Test code as second-class |
 | **Read the test framework docs first.** Know what parameterized tests, fixtures, mocks, and test categorization your framework offers before writing utilities. | Writing tests without docs |
 | **Match test type to the code.** Business logic → unit tests. External systems → integration tests. Both are needed - they catch different things. | Wrong kind of tests |
+| **Composition over mocked seams.** A create→use or multi-step user path needs at least one test that walks the real chain. Isolated unit tests with happy mocks will not catch credential, session, or wiring bugs between steps. | Mocked-seam false confidence |
 
 ## When to use
 
@@ -90,6 +91,7 @@ Record skipped-TDD decisions for a task in the task output, `plan.json` notes, o
 - **Must not**: Test private methods, mock internal collaborators, verify through side channels (e.g., querying DB instead of using the interface).
 - **Must**: Tests must be deterministic. No sleep-based waits, no random seeds without pinning, no order-dependent test state. A test that sometimes fails undermines the entire suite.
 - **Must**: Every production bug gets a test. PBCNT (Percent of Bugs that Create New Tests) target: 100%. A bug that shipped once should never ship twice.
+- **Must**: When the bug was a **composition** failure (step A’s output unusable by step B, or env/proxy/client wiring), the new test must exercise that chain — not only re-mock the failing seam.
 - **Must**: Read the test framework documentation before writing tests. Know parameterized tests, fixtures, setup/teardown, test categorization, and mock capabilities.
 
 ### Triage
@@ -115,7 +117,20 @@ Record skipped-TDD decisions for a task in the task output, `plan.json` notes, o
 
 - **Must**: Mock at system boundaries only - external APIs, payment, email, time/randomness.
 - **Must not**: Mock your own classes, internal collaborators, or anything under your control.
+- **Must not**: Ship a UI or client path that only has a mocked seam (e.g. form spies on `startX`) without a companion **composition** contract or integration test for the real credentials/responses that path will receive.
 - **Prefer**: Dependency injection and SDK-style interfaces over generic fetchers. See `references/mocking.md`.
+
+### Composition paths (create → use, join → claim, auth → mutate)
+
+These are non-negotiable for features that mint credentials, sessions, tokens, or IDs in one step and consume them in another:
+
+1. **Backend/API contract must span the user path**, not only the create or mint response. Example shape: create resource → start session/join with returned credentials → complete the next step (claim, login, mutate) with those same credentials. Assert success on the final step.
+2. **Do not leave inconsistent state** that the UI will treat as “ready” (e.g. marked claimed/active) without a usable secret or follow-up path — unless a composition test proves the UI path still works.
+3. **Client wiring**: if the browser talks to the API via empty/public base URL, reverse proxy, or same-origin rewrite, keep at least one test that empty/default base builds same-origin `/api/...` (or documented relative) URLs, and keep local/dev config (Makefile, env templates) aligned. Cross-origin “could not reach server” failures are composition bugs.
+4. **Before claiming done**: run the composition contract(s). Prefer also a smoke through the **app origin** (dev UI host), not only the API port.
+5. **Production composition bugs**: fix + add the composition test in the same change. A mocked unit test alone does not close the bug.
+
+See `references/testing-strategy.md` (Composition tests).
 
 ## Assessing test quality during review
 
@@ -139,6 +154,10 @@ Use these during code review to spot tests that pass green but don't actually ve
    - Red flag: Test mocks internal collaborators and verifies only mock interactions (`expect(mock.fn).toHaveBeenCalledWith(...)`); no assertion on actual output.
    - Fix: Assert on real behavior through public interfaces; mock only external system boundaries.
 
+5. **Mocked seam without composition coverage**
+   - Red flag: Feature ships with UI/unit tests that spy or mock the first call (`startJoin`, `createX`) while the real create→use / join→claim / auth→mutate chain has no API or integration contract.
+   - Fix: Add a composition contract that uses credentials returned by step A in step B; do not close the bug with another happy mock.
+
 ### Anti-patterns
 
 | Type | Tell | Fix |
@@ -147,6 +166,7 @@ Use these during code review to spot tests that pass green but don't actually ve
 | **Tautological** | `expect(add(a,b)).toBe(a+b)` - can't disagree with code | Use a literal expected value |
 | **Struct-constructor** | Creates struct, checks its own fields with zero transformation - `assert(x == x)` | Delete. Review struct type directly. No test needed. |
 | **Horizontal slicing** | All tests written before any implementation | Restart with vertical slices |
+| **Mocked-seam only** | Create/join/auth UI covered only by mocked fetch; real credential handoff untested | Add composition contract across the real HTTP (or inject) chain |
 
 ## Out of scope
 
@@ -186,6 +206,7 @@ Cycle 1/3: <acceptance check description>
 - [ ] Refactor done after all checks pass (not mid-cycle)
 - [ ] Functional test suite passes after refactor
 - [ ] Mocks only at system boundaries
+- [ ] Composition paths (create→use, join→claim, auth→mutate) have a chain contract, not only mocked seams
 - [ ] Evidence captured for each passing acceptance (unit/verify + functional)
 
 ### Edge cases

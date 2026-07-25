@@ -8,10 +8,10 @@ Clarity over prompting tricks. Keep always-on rules short; put long detail in sk
 |---|---|---|
 | `.cursor/rules/` always-on | Every turn | Hard Never/Always, lanes, prompting |
 | `.cursor/rules/` with globs | Matching files | Domain constraints |
-| `.cursor/skills/*/SKILL.md` | On demand | Workflows |
+| `.cursor/skills/*/SKILL.md` | On demand | Workflows (lifecycle `/sc-*` are Skills with `disable-model-invocation: true`, not `.cursor/commands/`) |
 | `.cursor/agents/*.md` | Subagent Task | Job contracts |
 
-Do not restate the always-on clarity rule inside every agent.
+Lifecycle detail: `.cursor/rules/200-workflow.mdc` + slash skills. Issues drain is part of `/sc-run` before ready (policy: sc-learn). Do not restate the always-on clarity rule inside every agent.
 
 ## Spec Contract
 

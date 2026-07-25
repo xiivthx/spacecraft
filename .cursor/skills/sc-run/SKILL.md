@@ -8,16 +8,16 @@ disable-model-invocation: true
 
 ## Goal
 
-After `/sc-discuss` (clarify clear + approved visual draft when required), AFK incomplete roadmap missions to `ready` so a human can check and then `/sc-ship`.
+After `/sc-discuss` clear, AFK incomplete roadmap missions to `ready` for human check, then `/sc-ship`.
 
 ## Output
 
-Missions at `state=ready` (or stop on blocked / clarify / missing draft approval). Handoff: **AFK done. Human check, then /sc-ship.** Never merge/push/tag.
+Missions at `state=ready` (or stop on blocked / clarify / missing draft approval). Handoff: **Ready. Human check, then /sc-ship.** Never merge/push/tag.
 
 ## Good / Bad
 
-- Good: discuss clear first; visual draft already approved in discuss; jigsaw plan tasks; triage then RED→GREEN **or** skip→direct write+evidence; auto checkpoint commits; visual + functional recheck for UI; evidence real; review recorded; `sc-judge` before ready; block `set-state ready` on `REFUTED`
-- Bad: shipping; clarifying or iterating draft HTML in this session; implementing UI without approved draft record; mid-loop non-blocking questions; stacking many missions on one branch; bulk implement without triage (skip RED only when sc-tdd skip applies); inventing phrase-echo RED harnesses for docs/prose; skipping checkpoint commits; claiming UI ready without screenshots/visual + functional evidence; setting ready without `sc-judge` or after `REFUTED`
+- Good: discuss clear first; plan → build → combine(+UI) → issues drain → review/judge; 0 open issues; empty findings; real evidence
+- Bad: shipping; discuss work mid-AFK; skip drain; ready with open issues or findings; ready without `sc-judge` or after `REFUTED`; invent phrase-echo RED for docs/prose
 
 ## Verify
 
@@ -33,21 +33,16 @@ spacecraft map use <roadmap-id>
 # or /sc-run  (uses map current)
 ```
 
-## HIL vs AFK
+## Lifecycle
 
-| Phase | Who | Action |
-|-------|-----|--------|
-| Discuss | Human (`/sc-discuss`) | Spec, decisions, visual draft approval; `clarify-status clear` |
-| Run | AI | Loop missions to `ready` (RED-GREEN + checkpoints) |
-| Check | Human | Review ready work |
-| Ship | Human | Explicit `/sc-ship` only (squashes checkpoints → ≤5 commits) |
+Canonical: `.cursor/rules/200-workflow.mdc` - discuss (HIL) → run (AFK) → human check → ship.
 
 ## Pre-flight
 
 1. Resolve roadmap: `$ARGUMENTS` → `map use`; else `map current` (fail if missing).
-2. If any incomplete mission has `clarify-status` `open` → stop; recommend `/sc-discuss`. Do not AFK.
-3. If any incomplete mission is visual UI/FE and `decisions.md` lacks `UI draft approved: …` (and no recorded non-visual skip) → stop; recommend `/sc-discuss`.
-4. Do not ask non-blocking questions; record assumptions in `decisions.md`. Do not run design-brief / draft-HTML discovery here.
+2. Incomplete mission with `clarify-status` `open` → stop; `/sc-discuss`.
+3. Visual UI/FE without `UI draft approved: …` (and no non-visual skip) → stop; `/sc-discuss`.
+4. Soft gaps → `decisions.md`. No design-brief / draft-HTML discovery here.
 
 ## AFK loop
 
@@ -55,49 +50,70 @@ spacecraft map use <roadmap-id>
 spacecraft map next <roadmap-id>
 ```
 
-Stop when: `All missions complete.` (print handoff), tip `blocked`, clarify opened by hard blocker, or missing draft approval discovered.
+Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing draft approval.
 
 ### Per incomplete mission
 
-1. Parse id from `map next` (`M…:` prefix); `spacecraft use <id>`.
-2. One branch per mission: if not on `feat/<id>/…`, checkout from main and `spacecraft bind-branch <id>`.
-3. Artifacts: `spec.md` must already be discuss-ready; Task(`sc-planner`) → jigsaw `plan.json`; `set-state planned` then `in_progress`.
-4. **Build (per acceptance)** - for each pending plan task, for each `acceptance[]` check:
-   1. **Triage** via sc-tdd. Record `skip: <reason>` in task notes / `decisions.md` when tautology (including docs/prose/wording-only).
-   2. **If TDD:** **RED** Task(`sc-tester`) for that single acceptance → checkpoint (`test: …`). **GREEN** Task(`sc-coder`) / Task(`sc-firmware`) minimum code → `spacecraft evidence` → checkpoint (`feat:` / `fix:`).
-   3. **If skip:** Task(`sc-coder`) / Task(`sc-firmware`) direct write → `spacecraft evidence` with the task `verify` command → one checkpoint (`docs:` / `feat:` / `fix:`). Do **not** call sc-tester or invent phrase-harness scripts.
-   4. Mark task `done` only after all its acceptances pass (TDD green or skip+evidence).
-5. **Combine**: after all plan tasks done - refactor for cohesion; run unit + integration/functional suite; `spacecraft evidence` for the full gate. Auto checkpoint commit (`refactor:` / `test:`).
-6. **UI visual + functional recheck (when visual UI/FE)** - before review:
-   1. Visual: sc-ux-design Tier 3 — prefer `playwright-cli` (`open` / `screenshot` / viewports); fallback Cursor IDE browser MCP. Optional: `visual-verify.mjs`. Capture screenshot paths in evidence / `decisions.md`. Cross-check against approved draft / design brief. Do **not** use system Chrome headless or browser-use/CDP.
-   2. Functional: Vitest/RTL or project functional suite via `spacecraft evidence`.
-   3. Fix issues found; do not set `ready` without both.
-7. Review + `sc-judge` ready gate:
-   1. Task(`sc-reviewer`); for UI also Task(`sc-designer`) when visual.
-   2. Run `sc-judge` (`.cursor/skills/sc-judge/SKILL.md`) - adversarial prove before ready.
-   3. Capture judge evidence via `spacecraft evidence` with a label including `judge` (e.g. `judge-<mission-id>`).
-   4. If verdict is `REFUTED`: do **not** `set-state ready`; leave blocked / fix and re-judge. Handshake blocked.
-   5. Only when judge is not `REFUTED`: write `review.md` / `review.json` (`status: ready`, releaseReadiness ready); `validate --strict`; `set-state ready`.
-8. Continue loop. Do not squash here - `/sc-ship` squashes checkpoints to ≤5 Conventional Commits.
+1. Parse id from `map next` (`M…:`); `spacecraft use <id>`.
+2. Branch `feat/<id>/…` from main; `spacecraft bind-branch <id>` if needed.
+3. Spec already discuss-ready; ensure `.space/trust/lessons.md` (sc-learn seed if missing) and skim before planning; Task(`sc-planner`) → `plan.json`; `set-state planned` then `in_progress`. Ensure mission `issues.md` / `solved.md` / `learned.md` (sc-learn).
+4. **Build (per acceptance)** - for each pending task / `acceptance[]`:
+   1. Triage via sc-tdd; record `skip: <reason>` when tautology (docs/prose/wording-only).
+   2. **TDD:** RED Task(`sc-tester`) → checkpoint → GREEN Task(`sc-coder`/`sc-firmware`) → evidence → checkpoint.
+   3. **Skip:** direct write → evidence with task `verify` → one checkpoint. No phrase-harness scripts.
+   4. **Findings mid-build:**
+      - Blocks **current** acceptance → fix now; record → `solved.md`.
+      - Else → append `open` to `issues.md` (class + severity); continue plan. Drain after combine(+UI).
+   5. Mark task `done` only when all its acceptances pass.
+5. **Combine:** refactor; full suite; evidence. Append new failures to `issues.md`. Checkpoint.
+6. **UI recheck (visual UI/FE):** visual (sc-ux-design Tier 3: `playwright-cli` primary) + functional suite; append failures to `issues.md`. No ready yet.
+7. **Issues drain** - until 0 `Status: open` (policy: **sc-learn**):
+   1. Queue open entries (critical → important → minor; mission-caused before unrelated).
+   2. Act per sc-learn matrix (must-fix mission-caused; file-or-fix unrelated).
+   3. Verify each action; fixed → `solved.md`; filed → `filed` + GitHub URL.
+   4. New problems → append `open`; continue loop.
+   5. When empty, re-run suite (+ UI if UI); reopen → drain again.
+   6. Same issue fails fix-verify **3** times or hard blocker → stop to human.
+8. **Review + sc-judge** (only after 0 open):
+   1. Task(`sc-reviewer`); UI also Task(`sc-designer`).
+   2. Run sc-judge; evidence label including `judge`.
+   3. Findings or `REFUTED` → open entries in `issues.md` → back to step 7.
+   4. Clean: `review.json` (`status: ready`, empty `findings`); `validate --strict`; `set-state ready`.
+9. Handoff: **Ready. Human check, then /sc-ship.** Continue `map next`. Squash is `/sc-ship` only.
 
-## Checkpoint commits (mandatory during AFK)
+```mermaid
+flowchart TD
+  A["plan build"] --> B["findings: fix if blocks acceptance else append"]
+  B --> C["combine + UI"]
+  C --> D["issues drain"]
+  D --> E{"open?"}
+  E -->|yes| F["sc-learn: fix or file"]
+  F --> G{"new finding?"}
+  G -->|yes| H["append open"]
+  H --> E
+  G -->|no| E
+  E -->|no| I["re-run suite"]
+  I -->|fails| H
+  I -->|clean| J["review + judge"]
+  J -->|findings or REFUTED| H
+  J -->|clean| K["ready → HIL → ship"]
+```
 
-Commander auto-commits on the work branch after every RED, every GREEN, every triage-skip direct-write+evidence step, and after the combine/refactor gate. Use Conventional Commit subjects; body may note `wip checkpoint` + acceptance. Do not put the mission id in the commit. See sc-git §Checkpoint commits. Never push.
+## Checkpoint commits
+
+Auto-commit after every RED, GREEN, skip+evidence, combine, and material drain fix. Conventional Commits; no mission id in subject/body. Never push. See sc-git.
 
 ## Rules
 
-- Never call `/sc-ship`, merge, push, or tag.
-- Never run `/sc-discuss` work (clarify Q&A, design brief, draft HTML iteration) inside AFK - stop and hand off to `/sc-discuss` if discovery is still needed.
-- One feature branch per mission id.
-- Prefer `decisions.md` assumptions over mid-AFK questions (hard blockers only: missing secret, impossible acceptance).
-- Delegate product code/tests via Task - Commander orchestrates only.
-- Do not start AFK while clarify is `open` or visual draft approval is missing.
-- Do not implement visual UI/FE without an approved draft HTML record (from discuss) or recorded non-visual skip.
-- Do not `set-state ready` without `sc-judge`, or when verdict is `REFUTED`. Capture judge evidence (label including `judge`).
+- Never `/sc-ship`, merge, push, tag; never discuss/draft work mid-AFK.
+- One feature branch per mission id; Task-delegate product code/tests.
+- No ready without sc-judge, with `REFUTED`, with open issues, or with review findings.
+- Must drain after plan+combine(+UI) until 0 open (sc-learn policy).
+- After 3 failed fix-verify on the same issue → human.
 
 ## References
 
-- `/sc-discuss` - clarify, decisions, visual draft approval
-- `/sc-ship` - explicit ship only
-- sc-ux-design - post-build visual QC (brief/draft owned by discuss)
-- sc-judge - adversarial prove gate before ready; block on `REFUTED`
+- `/sc-discuss`, `/sc-ship`
+- sc-learn - issues policy
+- sc-judge - ready prove gate
+- sc-ux-design - post-build visual QC
