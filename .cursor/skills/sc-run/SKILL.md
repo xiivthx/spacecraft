@@ -66,7 +66,7 @@ Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing dra
       - Else → append `open` to `issues.md` (class + severity); continue plan. Drain after combine(+UI).
    5. Mark task `done` only when all its acceptances pass.
 5. **Combine:** refactor; full suite; evidence. Append new failures to `issues.md`. Checkpoint.
-6. **UI recheck (visual UI/FE):** visual (sc-ux-design Tier 3: `playwright-cli` primary) + functional suite; append failures to `issues.md`. No ready yet.
+6. **UI recheck (visual UI/FE):** sc-ux-design Step 0 **draft-parity** (side-by-side vs approved draft: tokens, layout, component chrome, scenario states) + Tier 3 visual (`playwright-cli` primary) + functional suite. Layout-only match with different chrome, or missing draft `data-state` coverage in the product, → append `open` to `issues.md`. No ready yet.
 7. **Issues drain** - until 0 `Status: open` (policy: **sc-learn**):
    1. Queue open entries (critical → important → minor; mission-caused before unrelated).
    2. Act per sc-learn matrix (must-fix mission-caused; file-or-fix unrelated).
@@ -116,4 +116,5 @@ Auto-commit after every RED, GREEN, skip+evidence, combine, and material drain f
 - `/sc-discuss`, `/sc-ship`
 - sc-learn - issues policy
 - sc-judge - ready prove gate
-- sc-ux-design - post-build visual QC
+- sc-ux-design - post-build visual QC + draft-parity
+- sc-web-frontend - port look from approved draft

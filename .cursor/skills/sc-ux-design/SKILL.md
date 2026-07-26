@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # sc-ux-design
 
-UI quality companion: design brief + draft HTML under `/sc-discuss`; anti-slop and browser visual verification under `/sc-run` / sc-web-frontend. Draft discovery is discuss-owned; AFK run only builds against an approved draft.
+UI quality companion: design brief + draft HTML under `/sc-discuss`; anti-slop and browser visual verification under `/sc-run` / sc-web-frontend. Draft discovery is discuss-owned; AFK run **ports** look from an approved draft (visual source of truth), with scenario coverage required before approval.
 
 ## When to use
 
@@ -16,7 +16,7 @@ Activate on:
 - **"Visual verify" / "visual test" / "browser check"** - playwright-cli / Cursor IDE browser visual verification (post-build)
 - **"UI quality check"** - comprehensive UX quality review
 - During `/sc-discuss` for visual UI/FE - design brief + draft checkpoint
-- During `/sc-run` after visual implementation - Tier 3 recheck (not draft discovery)
+- During `/sc-run` after visual implementation - Tier 3 recheck + draft-parity (not draft discovery)
 
 ## Workflow
 
@@ -24,11 +24,11 @@ Activate on:
 
 When generating draft HTML, assemble the generation prompt in this **fixed order**:
 
-1. **Shared draft directives** - always load `references/shared-draft-directives.md` (tech + fidelity + anti-slop alignment).
+1. **Shared draft directives** - always load `references/shared-draft-directives.md` (tech + fidelity + scenario matrix + anti-slop alignment).
 2. **Pack body** - when an art-direction pack is selected, load that pack under `references/art-directions/<pack>/` (iron rules + locked layout/section pool). Skip this layer when the choice is none / custom brief only.
-3. **Brief / content tail** - append the approved design brief and any user-supplied copy or constraints last so they bind the earlier layers.
+3. **Brief / content tail** - append the approved design brief, `spec.md` feature/state requirements, and any user-supplied copy or constraints last so they bind the earlier layers.
 
-Do not reverse or interleave these layers. Shared directives set how drafts are built; packs (optional) set structural personality; the brief/content tail is the mission-specific source of truth for tokens and copy.
+Do not reverse or interleave these layers. Shared directives set how drafts are built; packs (optional) set structural personality; the brief/content tail is the mission-specific source of truth for tokens and copy during draft generation.
 
 ### Design brief (forced checkpoint - `/sc-discuss`)
 
@@ -58,32 +58,32 @@ Record the choice in `decisions.md` (e.g. `Art-direction pack: swiss-grid` or `A
 
 After design brief approval and pack selection, before `/sc-run` / real implementation:
 
-1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), and key components** - enough for the human to judge look and structure. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → pack body when selected → brief/content tail). Do not generate draft HTML until pack selection is recorded.
+1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), key components, and a full scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → pack body when selected → brief/content tail). Do not generate draft HTML until pack selection is recorded.
 
-2. **Every draft MUST include**: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`).
+2. **Every draft MUST include**: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`), CSS custom properties for brief tokens, and a visible **Scenario matrix** with `data-state="<name>"` panels covering at least: empty, error, few, many, plus feature/behavior surfaces from `spec.md` (and loading when async is implied). Each panel shows real component chrome - not layout boxes only.
 
-3. **Designer gate (required):** Task(`sc-designer`) on the draft. Commander applies critical and important fixes (`sc-designer` is readonly). Check 375px before and after fixes. Do not serve or present the draft to the human until this gate passes.
+3. **Designer gate (required):** Task(`sc-designer`) on the draft. Commander applies critical and important fixes (`sc-designer` is readonly). Missing scenario states or non-portable chrome = critical. Check 375px before and after fixes. Do not serve or present the draft to the human until this gate passes.
 
 4. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
-5. **Under `/sc-discuss`**: iterate (draft → designer → fix → human) until the human likes it. On approval, record `UI draft approved: <draft-file>` in `decisions.md`, then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
+5. **Under `/sc-discuss`**: iterate (draft → designer → fix → human) until the human likes it. On approval, record `UI draft approved: <draft-file>` in `decisions.md` only when the scenario matrix is complete; then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
 
-6. **Under `/sc-run`**: do **not** invent or iterate draft HTML. If approval is missing, stop and recommend `/sc-discuss`.
+6. **Under `/sc-run`**: do **not** invent or iterate draft HTML. Port look from the approved draft. If approval is missing, stop and recommend `/sc-discuss`.
 
 7. **Iterate** in discuss until approved (max 3 human rounds - if still unapproved, escalate to user for direction). Each new draft version re-runs the designer gate before human HIL.
 8. **Before human approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
 
 ### DESIGN.md integration
 
-1. **Read `DESIGN.md`** before any UI work. Apply its tokens.
+1. **Read `DESIGN.md`** before any UI work.
 2. **If missing**, the design brief phase produces a candidate `DESIGN.md` for approval.
-3. All drafts and implementation must reference `DESIGN.md` as source of truth.
+3. After `UI draft approved`, **update `DESIGN.md` from the approved draft** (tokens, type, spacing) so product CSS matches the draft. Post-approval, the approved draft owns look; `DESIGN.md` is the extracted token doc, not a license to freestyle chrome.
 
 ### Anti-slop detection & visual verification
 
 Run after implementation:
 
-**Step 0 - Brief trace** (before detection): Cross-check the implementation against the approved design brief. Verify: color palette matches (no drift), typography pairing is intact, layout structure follows the wireframe, motion intent is respected. Flag and fix any drift before running detectors.
+**Step 0 - Draft parity** (before detection): Cross-check the implementation against the **approved draft HTML** (and brief tokens embedded there). Verify: color palette matches (no drift), typography pairing is intact, layout structure matches the draft, component chrome matches (buttons/inputs/tables/empty/error - not layout-only), motion intent is respected, and each draft `data-state` has a corresponding product state or test. Flag layout-only match with different chrome as blocking drift. Fix before running detectors.
 
 **Tier 1 - CLI** (36 rules + 5 browser-rendered via headless):
 `npx impeccable detect <html-file>` - catches 41 patterns, 5 need browser rendering.
@@ -99,14 +99,14 @@ Run after implementation:
 
 Canonical browser matrix (do not expand):
 1. **Vitest + happy-dom** — behavior only (not visual pixels)
-2. **`playwright-cli`** — primary real-browser visual / interact (`open` → `snapshot` / `screenshot`; resize 375/768/1280)
+2. **`playwright-cli`** — primary real-browser visual / interact (`open` → `snapshot` / `screenshot`; resize 375/768/1280); compare app screenshots to approved draft states (side-by-side LLM/browser review)
 3. **Cursor IDE browser** (`cursor-ide-browser` MCP) — fallback when `playwright-cli` cannot run
 
 Optional scripted audit (same Playwright family):  
 `node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <html-file-or-url>`  
 (3 viewports, overflow/clip audits, JSON report). Install: `cd .cursor/skills/sc-ux-design && npm install`.
 
-- Capture screenshot paths in evidence / `decisions.md`; fix blocking visual issues before `ready`.
+- Capture screenshot paths in evidence / `decisions.md`; fix blocking visual issues and draft-parity gaps before `ready`.
 - **Do not use** system Chrome headless or browser-use/CDP for Tier 3 (removed from the official matrix).
 
 ## Rules
@@ -123,7 +123,6 @@ Optional scripted audit (same Playwright family):
 - **Must**: Produce a 6-dimension design brief before writing UI implementation code.
 - **Must**: Obtain explicit user approval on the brief before proceeding.
 - **Must not**: Skip the brief checkpoint even for "quick" UI changes that affect visual design.
-- **Must**: After implementation, cross-check the output against the approved brief (palette, typography, layout, motion). Fix any drift before running anti-slop detection.
 
 ### Pack selection
 
@@ -133,18 +132,20 @@ Optional scripted audit (same Playwright family):
 
 ### Draft preview
 
-- **Must**: Generate a draft HTML preview showing layout + style tokens + key components; obtain user approval before writing implementation code.
-- **Must**: Every draft HTML file includes: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename.
+- **Must**: Generate a draft HTML preview showing layout + style tokens + key components + **scenario matrix**; obtain user approval before writing implementation code.
+- **Must**: Every draft HTML file includes: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename, and `data-state` panels for empty, error, few, many, plus spec feature/behavior surfaces (loading when implied).
 - **Must**: Run Task(`sc-designer`) and apply critical/important fixes before serving or presenting any draft to the human.
 - **Must**: Check draft layout at 375px viewport width before asking for approval.
 - **Must**: Own draft discovery under `/sc-discuss`; `/sc-run` requires `UI draft approved: …` already recorded (or non-visual skip).
 - **Must not**: Serve or present raw/unreviewed draft HTML to the human.
-- **Must not**: Use draft HTML as the basis for production implementation. Drafts are throwaway mockups.
+- **Must not**: Record `UI draft approved` when required scenario states are missing.
+- **Must**: Treat the approved draft as the **visual source of truth** for production implementation - port structure, tokens, spacing, type, and component chrome; do not invent a second visual system.
 - **Must**: After 3 human draft rounds without approval, escalate to the user for direction instead of iterating indefinitely.
 
 ### Visual recheck
 
-- **Must**: After visual UI implementation, run Tier 3 with `playwright-cli` (preferred) or Cursor IDE browser (fallback); record screenshot paths.
+- **Must**: After visual UI implementation, run Step 0 draft-parity against the approved draft, then Tier 3 with `playwright-cli` (preferred) or Cursor IDE browser (fallback); record screenshot paths.
+- **Must**: Flag layout-only match with different chrome, or missing draft states in the product, as blocking issues.
 - **Must**: Pair visual recheck with functional tests (Vitest/RTL or project suite) via `spacecraft evidence` before claiming UI ready.
 - **Must not**: Use system Chrome headless or browser-use/CDP as the visual gate.
 
@@ -157,8 +158,9 @@ Optional scripted audit (same Playwright family):
 
 ### DESIGN.md
 
-- **Must**: Read and apply `DESIGN.md` before any UI implementation work.
+- **Must**: Read `DESIGN.md` before any UI implementation work.
 - **Must**: Generate a candidate `DESIGN.md` when the project lacks one, during the design brief phase.
+- **Must**: After draft approval, sync `DESIGN.md` tokens from the approved draft before or during port.
 
 ## Out of scope
 
@@ -167,8 +169,9 @@ This skill does NOT handle:
 - Draft critique before human HIL - Task(`sc-designer`); Commander applies fixes
 - Full accessibility audit (WCAG, ARIA, keyboard nav) - note gaps; escalate if blocking
 - CSS framework selection or component library decisions - ask the user
-- Product implementation - that's the build command's scope
+- Product implementation - that's the build command's scope (must port from approved draft)
 - Mission planning - use sc-planning
+- Automated pixel-diff tooling - side-by-side LLM/browser compare in v1
 
 ## Output format
 
@@ -195,19 +198,21 @@ This skill does NOT handle:
 Before claiming UI implementation is ready:
 
 - [ ] Design brief + draft approved in `/sc-discuss` (`UI draft approved: …` in `decisions.md`)
+- [ ] Approved draft includes scenario matrix (`empty`, `error`, `few`, `many`, + spec features; loading when implied)
 - [ ] Draft passed Task(`sc-designer`) + critical/important fixes before human HIL
-- [ ] `DESIGN.md` read and applied (or candidate generated during discuss)
-- [ ] Implementation cross-checked against approved design brief (no palette/typo/layout/motion drift)
+- [ ] `DESIGN.md` synced from approved draft and applied
+- [ ] Implementation **ported** from approved draft (tokens, layout, chrome) - Step 0 draft-parity passed
+- [ ] Each draft `data-state` mapped to product UI and/or tests
 - [ ] `npx impeccable detect` run - zero unfixed violations
 - [ ] 5 LLM-only patterns reviewed with concrete heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids)
 - [ ] Animation: durations in range, easing rules followed, reduced-motion respected
 - [ ] No banned fonts (Inter/Geist/Space Grotesk) without deliberate pairing
-- [ ] Tier 3 visual verification via `playwright-cli` or Cursor IDE browser; paths recorded
+- [ ] Tier 3 visual verification via `playwright-cli` or Cursor IDE browser; paths recorded; side-by-side vs draft
 - [ ] Functional tests passed with `spacecraft evidence`
 
 ## References
 
-- `references/shared-draft-directives.md` - always-on draft prompt layer (tech, fidelity, anti-slop alignment)
+- `references/shared-draft-directives.md` - always-on draft prompt layer (tech, fidelity, scenario matrix, anti-slop alignment)
 - `references/art-directions/` - optional art-direction packs (loaded after shared directives when selected)
 - `references/anti-slop-catalog.md` - all 46 impeccable.style patterns with detection methods and fixes
 - `references/animation-guidelines.md` - duration standards, easing rules, reduced-motion, anti-patterns

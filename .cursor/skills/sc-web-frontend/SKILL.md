@@ -26,27 +26,31 @@ Use this exact sequence unless the user specifies otherwise:
 
 3. **UI draft gate (hard)** - For any visual layout/style/component work, require `/sc-discuss` approval first (sc-ux-design brief + draft HTML):
    - `decisions.md` must contain `UI draft approved: <path>` (or recorded non-visual skip)
+   - Open the approved draft; confirm scenario matrix (`empty`, `error`, `few`, `many`, + spec features) is present
    - If missing, stop and recommend `/sc-discuss` - do not invent draft mid-build
    - Skip only for non-visual FE (pure logic/hooks, no UI surface); record skip in `decisions.md`
 
-4. **Build by slice** - Implement one vertical feature slice at a time (RED-GREEN under `/sc-run`):
-   - Component with its styles (co-located or Tailwind classes)
+4. **Port from draft (visual SoT)** - Before coding chrome, open the approved draft HTML. Sync `DESIGN.md` tokens from the draft. Implement by **porting** structure, tokens, spacing, type, and component chrome - do not invent a second look that only "matches the brief." Map each draft `data-state` to real app states and tests. Behavior/Verify stay owned by `spec.md`; look/behavior conflict → stop and `/sc-discuss`.
+
+5. **Build by slice** - Implement one vertical feature slice at a time (RED-GREEN under `/sc-run`):
+   - Component with its styles ported from the draft (co-located or Tailwind classes that match draft chrome)
    - TypeScript types for props, state, and data
-   - Test for the component's behavior via Vitest + React Testing Library
+   - Test for the component's behavior via Vitest + React Testing Library (include empty/error/few/many where the draft defines them)
    - Wire into the app's routing or parent component
    Prefer small, focused components. Extract shared patterns to `references/components.md` patterns.
 
-5. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
+6. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
 
-6. **Verify (visual)** - After visual UI work: sc-ux-design Tier 3 via `playwright-cli` (preferred) or Cursor IDE browser (fallback); optional `visual-verify.mjs`. Record screenshot paths in evidence / `decisions.md`. Fix visual issues before ready. Do not use system Chrome headless or browser-use/CDP.
+7. **Verify (visual / draft-parity)** - After visual UI work: sc-ux-design Step 0 draft-parity (side-by-side vs approved draft - tokens, layout, chrome, states) then Tier 3 via `playwright-cli` (preferred) or Cursor IDE browser (fallback); optional `visual-verify.mjs`. Layout-only match with different chrome, or missing draft states, is blocking. Record screenshot paths in evidence / `decisions.md`. Fix before ready. Do not use system Chrome headless or browser-use/CDP.
 
-7. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
+8. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
 
 ### Edge cases
 
 - **User specifies a different stack** - Adapt patterns. Still require component tests and build verification.
 - **Project has no frontend yet** - Scaffold with `npm create vite@latest`, install Tailwind CSS, set up Vitest.
 - **Design direction missing / draft not approved** - Stop. Recommend `/sc-discuss` + sc-ux-design draft HIL; do not implement UI.
+- **Draft present but freestyle temptation** - Port chrome from the approved draft. Do not rebuild a "cleaner" Tailwind look that only matches layout.
 - **Accessibility concern** - Check against Tailwind's accessibility utilities and React Testing Library's accessibility queries.
 - **Build fails** - Fix before proceeding. Never skip build verification.
 
@@ -55,7 +59,10 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Default to React + TypeScript + Vite + Tailwind CSS + Vitest when no stack is specified.
 - **Must**: For visual UI work, require approved draft HTML from `/sc-discuss` (sc-ux-design) before writing product UI code.
-- **Must**: After visual UI implementation, capture visual verification (`playwright-cli` or Cursor IDE browser; optional `visual-verify.mjs`) and functional test evidence before claiming done.
+- **Must**: Treat the approved draft as the **visual source of truth** - port structure, tokens, spacing, type, and component chrome; sync `DESIGN.md` from the draft.
+- **Must not**: Freestyle alternate buttons/inputs/tables/empty/error chrome that only vaguely match the draft layout.
+- **Must**: Map each draft `data-state` (empty, error, few, many, + spec features) to product UI and/or tests.
+- **Must**: After visual UI implementation, pass Step 0 draft-parity then capture visual verification (`playwright-cli` or Cursor IDE browser; optional `visual-verify.mjs`) and functional test evidence before claiming done.
 - **Must not**: Use system Chrome headless or browser-use/CDP for visual verification.
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
 - **Must**: Prefer small vertical slices over broad horizontal scaffolding.
@@ -108,14 +115,15 @@ Use this checklist when reviewing frontend code:
 ```
 Stack: React + TypeScript + Vite + Tailwind CSS + Vitest
 Draft: approved <path> | skip non-visual: <reason>
+Port: tokens/layout/chrome from draft; states mapped: empty|error|few|many|…
 Component: <name>
   Props: <typed interface>
-  Styles: Tailwind classes (co-located in JSX)
+  Styles: Tailwind classes ported from draft (co-located in JSX)
   Test: vitest + @testing-library/react
 Verify:
   npx vitest run → PASS
   npm run build → PASS
-  visual-verify / screenshots → PASS
+  draft-parity + visual-verify / screenshots → PASS
 Evidence: <label>
 ```
 
@@ -126,10 +134,12 @@ Before claiming frontend work done:
 - [ ] Mission resolved, branch created
 - [ ] Stack confirmed: React + TypeScript + Vite + Tailwind CSS + Vitest (or approved alternative)
 - [ ] Draft HTML approved (or non-visual skip recorded in `decisions.md`)
+- [ ] Look ported from approved draft (not freestyled from brief alone); `DESIGN.md` synced
+- [ ] Draft scenario states mapped to product UI and/or tests
 - [ ] Components typed with TypeScript interfaces
 - [ ] Styles applied via Tailwind utility classes, scoped to component
 - [ ] Component / functional tests pass (`npx vitest run` or project suite)
-- [ ] Visual recheck: `playwright-cli` or Cursor IDE browser screenshots captured
+- [ ] Draft-parity + visual recheck: `playwright-cli` or Cursor IDE browser screenshots captured
 - [ ] Build passes (`npm run build`)
 - [ ] Evidence captured with `spacecraft evidence`
 - [ ] No unapproved dependencies
