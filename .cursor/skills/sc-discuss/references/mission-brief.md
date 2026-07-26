@@ -59,7 +59,7 @@ Mission: hard ≤7 tasks per plan phase.
 1.
 **Information:** Plans blow up when "a few more tasks" sneak in after the hard cap.
 **Question:** What is the hard task limit per plan phase after this ships?
-**Answer:** At most seven tasks - a wall, not a vibe. Soft "prefer ≤7" and 8-9 exception bands are rejected; split with plan-phaseN or a vertical roadmap of feature seams (`*-data` → `*-functional` → `*-ui`) per mission-sizing - never a cross-feature layer waterfall or a `*-ux` seam.
+**Answer:** At most seven tasks - a wall, not a vibe. Soft "prefer ≤7" and 8-9 exception bands are rejected; discuss sizes `phases` (`plan-phaseN.json`) or a vertical multi-mission of feature seams (`*-data` → `*-functional` → `*-ui`) per mission-sizing - never a cross-feature layer waterfall or a `*-ux` seam.
 
 **Decision:** Accept | Adjust | Reject
 ```

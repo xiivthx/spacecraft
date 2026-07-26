@@ -37,16 +37,17 @@ See the [installation guide](docs/installation.md) for setup and verification de
 
 Open the project in Cursor. User-facing slash skills are `/sc-discuss`, `/sc-run`, and `/sc-ship`:
 
-```text
+```
 /sc-discuss
-/sc-run <roadmap-id>
+/sc-run <roadmap-id>   # multi-mission
+/sc-run                # mission-only when Sizing: single|phases (or map current)
 /sc-ship
 ```
 
 Flow:
 
-1. `/sc-discuss` - clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
-2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review). Visual UI/FE: requires draft already approved in discuss; then screenshots/visual + functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
+1. `/sc-discuss` - size (`Sizing: single|phases|roadmap`), clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
+2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (or `/sc-run` mission-only for single/phases). Jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review. Visual UI/FE: requires draft already approved in discuss (not for `*-data` / `*-functional` seams); then screenshots/visual + functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
 3. Human checks the ready work.
 4. `/sc-ship` validates and closes out only when explicitly requested.
 

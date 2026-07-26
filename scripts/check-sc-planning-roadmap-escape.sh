@@ -1,6 +1,6 @@
 #!/bin/sh
-# Assert sc-planning/SKILL.md documents roadmap/multi-mission split via
-# spacecraft map as the other escape hatch (alongside same-mission phases).
+# Assert sc-planning/SKILL.md hands multi-mission splits to /sc-discuss +
+# mission-sizing (discuss owns spacecraft map). Planning must not create maps.
 # Vague "roadmap" alone, or map.json / Map integration, is not enough.
 set -e
 
@@ -12,23 +12,33 @@ if [ ! -f "$FILE" ]; then
   exit 1
 fi
 
-# Require the CLI escape hatch name (not outputs/map.json / "Map integration").
-if ! grep -Eq 'spacecraft[[:space:]]+map' "$FILE"; then
-  echo "FAIL: $FILE must name spacecraft map (CLI), not map.json alone"
+# Require handoff to discuss for multi-mission / independent seams.
+if ! grep -Eq '/sc-discuss' "$FILE"; then
+  echo "FAIL: $FILE must hand multi-mission splits to /sc-discuss"
   exit 1
 fi
 
-# Require roadmap or multi-mission framing for the split.
-if ! grep -Eiq 'multi[- ]mission|roadmap' "$FILE"; then
-  echo "FAIL: $FILE must document roadmap/multi-mission split"
+if ! grep -Eq 'mission-sizing' "$FILE"; then
+  echo "FAIL: $FILE must name mission-sizing"
   exit 1
 fi
 
-# Require escape-hatch framing (the other hatch alongside phases).
-if ! grep -Eiq 'escape[[:space:]]+hatch' "$FILE"; then
-  echo "FAIL: $FILE must frame roadmap/multi-mission split via spacecraft map as an escape hatch"
+# Require multi-mission framing (not map.json / Map integration alone).
+if ! grep -Eiq 'multi[- ]mission' "$FILE"; then
+  echo "FAIL: $FILE must document multi-mission handoff"
   exit 1
 fi
 
-echo "ok: sc-planning documents roadmap/multi-mission split via spacecraft map as escape hatch"
+# Require explicit ban on planning-owned map create.
+if ! grep -Eq 'map new' "$FILE"; then
+  echo "FAIL: $FILE must mention map new (as a Must-not for planning)"
+  exit 1
+fi
+
+if ! grep -Eiq 'must not.*map new|never.*map new|do not.*map new' "$FILE"; then
+  echo "FAIL: $FILE must forbid planning-owned map new"
+  exit 1
+fi
+
+echo "ok: sc-planning hands multi-mission to /sc-discuss + mission-sizing; forbids planning map new"
 exit 0

@@ -1,8 +1,6 @@
 #!/bin/sh
-# Assert sc-planner.md documents both escape hatches when scope exceeds ≤7:
-# (1) same-mission phase split via plan-phaseN.json (or equivalent explicit naming)
-# (2) roadmap/multi-mission via spacecraft map
-# Vague "Phase 1 / Phase 2" alone is not enough.
+# Assert sc-planner.md documents: same-mission phase split, and multi-mission
+# handoff to /sc-discuss + mission-sizing (planner must not create maps).
 set -e
 
 ROOT="${1:-.}"
@@ -19,29 +17,38 @@ if ! grep -Eq 'plan-phaseN\.json|plan-phase<N>\.json|plan-phase[0-9]+\.json' "$F
   exit 1
 fi
 
-# Require same-mission framing for the phase-split escape hatch.
+# Require same-mission framing for the phase-split path.
 if ! grep -Eiq 'same[- ]mission' "$FILE"; then
   echo "FAIL: $FILE must document same-mission phase split (not vague Phase 1 / Phase 2 alone)"
   exit 1
 fi
 
-# Require the CLI escape hatch name (not map.json alone).
-if ! grep -Eq 'spacecraft[[:space:]]+map' "$FILE"; then
-  echo "FAIL: $FILE must name spacecraft map (CLI) for roadmap/multi-mission split"
+# Require handoff to discuss + mission-sizing for multi-mission.
+if ! grep -Eq '/sc-discuss' "$FILE"; then
+  echo "FAIL: $FILE must hand multi-mission splits to /sc-discuss"
   exit 1
 fi
 
-# Require roadmap or multi-mission framing.
+if ! grep -Eq 'mission-sizing' "$FILE"; then
+  echo "FAIL: $FILE must name mission-sizing"
+  exit 1
+fi
+
 if ! grep -Eiq 'multi[- ]mission|roadmap' "$FILE"; then
-  echo "FAIL: $FILE must document roadmap/multi-mission split"
+  echo "FAIL: $FILE must document multi-mission or roadmap handoff"
   exit 1
 fi
 
-# Require escape-hatch framing for both paths.
-if ! grep -Eiq 'escape[[:space:]]+hatch' "$FILE"; then
-  echo "FAIL: $FILE must frame phase split and roadmap/multi-mission as escape hatches"
+# Require ban on planner-owned map create (spacecraft map named in Must-not sense).
+if ! grep -Eq 'spacecraft[[:space:]]+map' "$FILE"; then
+  echo "FAIL: $FILE must name spacecraft map (as discuss-owned / planner Must-not)"
   exit 1
 fi
 
-echo "ok: sc-planner documents phase-split and roadmap/multi-mission escape hatches"
+if ! grep -Eiq 'never create|discuss owns|must not.*map' "$FILE"; then
+  echo "FAIL: $FILE must forbid planner-owned map create"
+  exit 1
+fi
+
+echo "ok: sc-planner documents phase-split and discuss handoff for multi-mission"
 exit 0

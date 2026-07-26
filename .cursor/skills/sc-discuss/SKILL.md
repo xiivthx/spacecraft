@@ -12,7 +12,7 @@ Find what we want before implement: clear `spec.md`, decisions, answered questio
 
 ## Output
 
-Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated; visual: `UI draft approved: <file>`; mission brief accepted or skip recorded; `spacecraft clarify-status clear`. Handoff: **Spec clear. New session: /sc-run.** Never plan AFK, RED-GREEN, product code, or ship.
+Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated; visual: `UI draft approved: <file>` (or non-visual skip); mission brief accepted or skip recorded; `spacecraft clarify-status clear`. Handoff by sizing (see Exit). Never plan AFK, RED-GREEN, product code, or ship.
 
 ## Good / Bad
 
@@ -26,11 +26,12 @@ Human confirms spec (and draft when visual), then Accepts (or skip) the mission 
 ```
 spacecraft clarify-status clear
 # decisions.md contains "Sizing: single" OR "Sizing: phases" OR "Sizing: roadmap <id>"
-# visual: decisions.md contains "UI draft approved: <draft-file>"
-# visual draft includes scenario matrix (empty, error, few, many, + spec features)
+# visual: decisions.md contains "UI draft approved: <draft-file>" OR "UI draft skipped:"
+# visual draft includes scenario matrix (empty, error, few, many, + spec features) when approved
 # decisions.md contains "Mission brief: accepted" OR "Mission brief: skipped - <reason>"
 ```
 
+Handoff by sizing: roadmap → `/sc-run <id>`; single|phases → `/sc-run` (mission-only).
 ## Arguments
 
 ```
@@ -40,7 +41,7 @@ spacecraft clarify-status clear
 
 ## Lifecycle
 
-Canonical: `.cursor/rules/200-workflow.mdc` - this skill is discuss HIL only. Next: new session `/sc-run`.
+Canonical: `.cursor/rules/200-workflow.mdc` - this skill is discuss HIL only. Next: handoff by sizing (`/sc-run <roadmap-id>` or mission-only `/sc-run`).
 
 ## Pre-flight
 
@@ -56,13 +57,13 @@ resolve → inspect → sizing gate → classify gaps → talk / ask / decide �
 
 ### Sizing gate
 
-Before deep clarify or draft work on a large / multi-concern ask, apply `references/mission-sizing.md`:
+**Always** apply `references/mission-sizing.md` (default `Sizing: single` when work fits one mission) before deep clarify or draft:
 
 1. Classify checklist concerns present: UX / UI / functional / database.
 2. Rough jigsaw count for a vertical slice.
-3. Choose `single` | `phases` | `roadmap` per the playbook (3 seams only when splitting: `*-data` → `*-functional` → `*-ui`). **Must not** add a `*-ux` seam.
-4. Record in `decisions.md`: `Sizing: single | phases | roadmap <id>` (+ seams/rationale when roadmap).
-5. If roadmap: `spacecraft map new` (or use current) + add only needed feature-seam missions; discuss **current** tip only.
+3. Choose `single` | `phases` | `roadmap` per the playbook (3 seams only when splitting: `*-data` → `*-functional` → `*-ui`). **Must** use `*-functional` on new maps; **Must not** add a `*-ux` seam.
+4. Record in `decisions.md`: `Sizing: single | phases | roadmap <id>` (+ seams/rationale when roadmap; + `Sizing phases: N - …` when phases).
+5. If roadmap: follow **Map creation (discuss only)** ordered steps in `references/mission-sizing.md` (`spacecraft new` stubs → `map new` unless human approved reuse → `map add` → stub `Sizing:` on every seam → discuss tip only). Never leave map create/resize to planning.
 
 ### Spec and decisions
 
@@ -81,7 +82,7 @@ Detect from intent / `spec.md`. If visual:
 4. **Designer gate before human:** Task(`sc-designer`); check scenario coverage + port readiness; Commander applies critical/important fixes; re-check 375px. Do not present draft until this passes. Missing required states = critical - do not serve.
 5. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) until approved (max 3 human rounds). Each new draft re-runs designer gate.
 6. On approval: record `UI draft approved: <draft-file>` in `decisions.md` **only if** the scenario matrix is complete. Incomplete states → refuse approval; iterate draft.
-7. Skip draft only for non-visual FE; record skip reason.
+7. Skip draft for non-visual FE, or for `*-data` / `*-functional` seams: record `UI draft skipped: non-visual seam (<data|functional>)` or other skip reason.
 8. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome).
 
 ### Mission brief (before clear)
@@ -99,7 +100,9 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 
 1. No open blocking questions; Verify present; `Sizing: …` recorded; visual approved or skip recorded; mission brief accepted or skip recorded.
 2. `spacecraft clarify-status clear`.
-3. Handoff: **Spec clear. New session: /sc-run.**
+3. Handoff by sizing (`references/mission-sizing.md`):
+   - `Sizing: roadmap <id>` → **Spec clear. New session: `/sc-run <id>`.**
+   - `Sizing: single` or `phases` → **Spec clear. New session: `/sc-run`.** (mission-only AFK on resolved current mission)
 
 ## Rules
 

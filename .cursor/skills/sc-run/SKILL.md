@@ -1,6 +1,6 @@
 ---
 name: sc-run
-description: "AFK roadmap runner: after /sc-discuss clear, auto-run incomplete missions to ready. Invoke as /sc-run <roadmap-id>."
+description: "AFK runner: after /sc-discuss clear, run roadmap queue or a single resolved mission to ready. Invoke as /sc-run [roadmap-id]."
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Goal
 
-After `/sc-discuss` clear, AFK incomplete roadmap missions to `ready` for human check, then `/sc-ship`.
+After `/sc-discuss` clear, AFK incomplete work to `ready` for human check, then `/sc-ship`. Supports multi-mission roadmap queue **or** mission-only (`Sizing: single|phases`).
 
 ## Output
 
@@ -17,20 +17,20 @@ Missions at `state=ready` (or stop on blocked / clarify / missing draft approval
 ## Good / Bad
 
 - Good: discuss clear first; plan → build → combine(+UI) → issues drain → review/judge; 0 open issues; empty findings; real evidence
-- Bad: shipping; discuss work mid-AFK; skip drain; ready with open issues or findings; ready without `sc-judge` or after `REFUTED`; invent phrase-echo RED for docs/prose
+- Bad: shipping; discuss work mid-AFK; skip drain; ready with open issues or findings; ready without `sc-judge` or after `REFUTED`; invent phrase-echo RED for docs/prose; demanding UI draft on `*-data` / `*-functional` seams
 
 ## Verify
 
-`spacecraft validate --strict` per mission; `map next` until `All missions complete.` or blocked tip.
+`spacecraft validate --strict` per mission; roadmap mode: `map next` until `All missions complete.` or blocked tip; mission-only: that one mission `ready`.
 
 ## Arguments
 
-`$ARGUMENTS` = roadmap id (optional if `spacecraft map current` is set).
+`$ARGUMENTS` = roadmap id (optional).
 
 ```
 spacecraft map use <roadmap-id>
 /sc-run <roadmap-id>
-# or /sc-run  (uses map current)
+# or /sc-run  → map current if set; else mission-only on spacecraft resolve/current
 ```
 
 ## Lifecycle
@@ -39,18 +39,28 @@ Canonical: `.cursor/rules/200-workflow.mdc` - discuss (HIL) → run (AFK) → hu
 
 ## Pre-flight
 
-1. Resolve roadmap: `$ARGUMENTS` → `map use`; else `map current` (fail if missing).
+1. Resolve mode:
+   - If `$ARGUMENTS` set → `map use` that roadmap (**roadmap mode**).
+   - Else if `spacecraft map current` succeeds → **roadmap mode** on that id.
+   - Else resolve mission via `spacecraft resolve` / `current` → **mission-only mode** (one mission; no map required). Fail only if neither roadmap nor mission resolves.
 2. Incomplete mission with `clarify-status` `open` → stop; `/sc-discuss`.
-3. Visual UI/FE without `UI draft approved: …` (and no non-visual skip) → stop; `/sc-discuss`.
+3. Draft gate (visual only):
+   - Require `UI draft approved: …` when the mission is visual UI/FE (`*-ui` title, or `Sizing: single|phases` without a non-visual skip).
+   - Do **not** require draft when `decisions.md` has `UI draft skipped: non-visual seam (data|functional)` or another recorded non-visual skip.
+   - Missing required draft → stop; `/sc-discuss`.
 4. Soft gaps → `decisions.md`. No design-brief / draft-HTML discovery here.
 
 ## AFK loop
+
+**Roadmap mode:**
 
 ```
 spacecraft map next <roadmap-id>
 ```
 
 Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing draft approval.
+
+**Mission-only mode:** run the single resolved mission through **Per incomplete mission** once; then stop (no `map next`).
 
 ### Per incomplete mission
 

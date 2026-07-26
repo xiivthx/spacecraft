@@ -41,9 +41,9 @@ Detail: `/sc-discuss`, `/sc-run`, `/sc-ship`. Issues policy: **sc-learn**; drain
 ## Roadmap / issues
 
 - ≤7 jigsaw tasks per phase as a hard Must (not preference-only). Reject soft prefer ≤7; reject any 8-9 exception band.
-- Escape hatches when scope exceeds ≤7 (not a higher or soft cap):
-  - Same-mission phase split: sequential `plan-phaseN.json` (or `plan-phase1.json`, …) under the mission when seams are not independently shippable.
-  - Roadmap / multi-mission: `spacecraft map new`, then add **vertical feature-seam** missions (`*-data` → `*-functional` → `*-ui`) per `.cursor/skills/sc-discuss/references/mission-sizing.md`; discuss each, AFK with `/sc-run`. UX draft lives in the ui mission discuss - not a `*-ux` seam. Never cross-feature layer waterfalls.
+- When scope exceeds ≤7 (hard Must; not a higher or soft cap):
+  - Same-mission phase split: sequential `plan-phaseN.json` (or `plan-phase1.json`, …) under the mission when seams are not independently shippable. Discuss records `Sizing: phases`; planning may write the phase files.
+  - Multi-mission via mission-sizing (discuss sizing outcome, not a planning "create roadmap" ceremony): `/sc-discuss` applies `.cursor/skills/sc-discuss/references/mission-sizing.md` (`*-data` → `*-functional` → `*-ui`); discuss owns ordered map create (`new` stubs → `map new`/`add` → stub `Sizing:` on every seam); then AFK with `/sc-run <roadmap-id>`. `Sizing: single|phases` uses mission-only `/sc-run`. UX draft lives in the ui mission discuss - not a `*-ux` seam. Never cross-feature layer waterfalls. Planning must not `map new` - stop and `/sc-discuss` resize protocol.
 - Issues: record in mission `issues.md`; drain in `/sc-run` until 0 open (policy in sc-learn). Ready/ship: 0 open issues, 0 review findings. Fix issue #N: view → mission → spec → close after ship.
 
 ## Mission resolution
@@ -54,8 +54,8 @@ Clarify status: `open` | `clear` | `deferred` under mission dir.
 
 ## Lanes (pointers)
 
-- **Discuss:** `/sc-discuss` (spec, decisions, visual draft, mission brief before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft), `sc-discuss/references/mission-brief.md`.
-- **Mission:** `/sc-run` (plan → build → drain → review → ready). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (block on `REFUTED`). Shares INTENT / AUTH / TWINS / 3-cycle with Quick.
+- **Discuss:** `/sc-discuss` (sizing + spec, decisions, visual draft, mission brief before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft), `sc-discuss/references/mission-sizing.md`, `sc-discuss/references/mission-brief.md`.
+- **Mission:** `/sc-run` (roadmap queue or mission-only; plan → build → drain → review → ready). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (block on `REFUTED`). Shares INTENT / AUTH / TWINS / 3-cycle with Quick.
 - **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive (mission only).
 - **Quick:** `/sc-quick` - no mission artifacts; branch `<type>/<title>` → verify → commit → ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` (hook skips closeout). Still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle. Do not invent a mission stub.
 - **Debug:** reproduce E2E → falsify root cause → record in `issues.md`. Prefer Cursor Debug Mode for runtime evidence.
