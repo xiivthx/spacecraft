@@ -31,7 +31,7 @@ Keep **Goal**, **Output**, **Good vs Bad**, and **Verify** clear. If unclear: `/
 
 Before behavior-changing edits (code, checks, or spec), state `INTENT:` classifying the change (`code` | `check` | `spec`) and the intended behavior. Task framing "make tests pass" is NOT intended behavior by itself.
 
-When INTENT disagrees with observed behavior, authority order: **explicit user > spec > tests > current code**.
+When INTENT disagrees with observed behavior, authority order: **explicit user > approved draft (look) + spec (behavior) > tests > current code**. For visual UI, the approved draft owns look/chrome/tokens; `spec.md` owns behavior/Verify. Look vs behavior conflict → stop and `/sc-discuss`.
 
 ### AUTH:
 

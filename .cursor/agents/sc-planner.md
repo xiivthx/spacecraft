@@ -53,14 +53,15 @@ Example - login page might become:
 | T3 | Submit button triggers auth flow |
 | T4 | Auth API client call on submit |
 | T5 | Error states surface user-visible messages |
-| T6 | Theme/visual treatment matches design brief |
+| T6 | Theme/visual treatment matches approved draft (port chrome + scenario states) |
 
 Rules for slices:
 
 - Each task is a vertical piece (UI seam, API seam, error path, etc.) that can RED-GREEN alone
 - Each `acceptance[]` item is exactly one RED-GREEN cycle (1-3 per task; split task if more)
 - Use `dependsOn` for real order (e.g. API before submit wiring)
-- Theme/visual may note TDD skip when pure styling with no behavior
+- Theme/visual may note TDD skip when pure styling with no behavior; still verify against **approved draft** (not brief alone)
+- Prefer plan tasks that cover draft scenario states (empty/error/few/many and spec features) when visual UI is in scope
 - If >7 slices needed → two escape hatches: (1) same-mission phase split via `plan-phaseN.json`; (2) roadmap/multi-mission via `spacecraft map`. Record split in `decisions.md`
 
 ## Good

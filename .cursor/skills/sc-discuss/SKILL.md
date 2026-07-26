@@ -16,8 +16,8 @@ Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; one blocking question at a time; soft gaps → `decisions.md`; visual brief + draft with designer gate before human; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
-- Bad: implementing; writing `plan.json` AFK; shipping; serving unreviewed draft HTML; clearing while draft unapproved or mission brief undecided; quizzing the human instead of presenting Answers
+- Good: sharp Goal / Output / Good-Bad / Verify; one blocking question at a time; soft gaps → `decisions.md`; visual brief + scenario-complete draft with designer gate before human; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
+- Bad: implementing; writing `plan.json` AFK; shipping; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; quizzing the human instead of presenting Answers
 
 ## Verify
 
@@ -26,6 +26,7 @@ Human confirms spec (and draft when visual), then Accepts (or skip) the mission 
 ```
 spacecraft clarify-status clear
 # visual: decisions.md contains "UI draft approved: <draft-file>"
+# visual draft includes scenario matrix (empty, error, few, many, + spec features)
 # decisions.md contains "Mission brief: accepted" OR "Mission brief: skipped - <reason>"
 ```
 
@@ -65,11 +66,12 @@ Detect from intent / `spec.md`. If visual:
 
 1. sc-ux-design design brief (6 dimensions); human approval.
 2. **Pack selection before draft HTML:** `swiss-grid`, `editorial`, or `none - custom brief only`. Record in `decisions.md`. Human or explicit brief choice only - no silent auto-matcher.
-3. Generate draft HTML under `.space/missions/<id>/design/drafts/` (not wireframe-only). Check 375px. Follow sc-ux-design prompt assembly.
-4. **Designer gate before human:** Task(`sc-designer`); Commander applies critical/important fixes; re-check 375px. Do not present draft until this passes.
+3. Generate draft HTML under `.space/missions/<id>/design/drafts/` (not wireframe-only). Must include a **scenario matrix** with `data-state` panels for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied); real component chrome in each panel. Check 375px. Follow sc-ux-design prompt assembly.
+4. **Designer gate before human:** Task(`sc-designer`); check scenario coverage + port readiness; Commander applies critical/important fixes; re-check 375px. Do not present draft until this passes. Missing required states = critical - do not serve.
 5. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) until approved (max 3 human rounds). Each new draft re-runs designer gate.
-6. On approval: `UI draft approved: <draft-file>` in `decisions.md`.
+6. On approval: record `UI draft approved: <draft-file>` in `decisions.md` **only if** the scenario matrix is complete. Incomplete states → refuse approval; iterate draft.
 7. Skip draft only for non-visual FE; record skip reason.
+8. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome).
 
 ### Mission brief (before clear)
 
@@ -92,6 +94,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 
 - Never `/sc-run` build, `/sc-ship`, merge, push, tag, or product implementation/tests (draft HTML only).
 - Never present draft before designer gate + critical/important fixes.
+- Never record `UI draft approved` when required scenario states are missing.
 - Never clear while mission brief undecided (unless skip recorded).
 - Prefer `spec.md` / `decisions.md` / `questions.md` over chat-only memory.
 - One mission focus per discuss session.

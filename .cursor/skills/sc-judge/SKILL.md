@@ -55,6 +55,7 @@ Use this exact sequence unless the user specifies otherwise:
    - **weakened tests** - assertions removed, skipped, loosened, or replaced with tautologies so GREEN is cheap
    - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, `issues.md` still has `Status: open` (any severity), related/regression/consequence findings parked instead of fixed, or `review.json` still has findings (including warnings)
    - **unauthorized action** - outward push/deploy/publish/send (or similar) without quoted `AUTH:` and user authorization; ship/merge without `/sc-ship` gates
+   - **draft drift (visual UI)** - when `UI draft approved: …` is recorded, treat "matches draft" / visual ready as a claim: REFUTE if product chrome clearly diverges from the approved draft (layout-only match) or required draft scenario states (`empty` / `error` / `few` / `many` / spec features) were never implemented or tested
 6. **Verdict** - Emit exactly one of:
    - `VERIFIED` - fresh evidence passes; scope matches plan/spec; hunt clean; 0 open mission issues; 0 review findings
    - `VERIFIED WITH CAVEATS` - prove holds with non-defect notes already recorded in `decisions.md` (e.g. known manual follow-up outside product). **Never** for warnings, open `issues.md`, review findings, or acceptance gaps - those are `REFUTED`
@@ -87,7 +88,7 @@ No aliases (`PASS`, `FAIL`, `APPROVED`, etc.).
 - **Must**: Treat completion / "done" / "ready" claims as claims to re-observe - never trust the report alone.
 - **Must**: Re-run claimed evidence commands; record fresh observation in `evidence.jsonl`.
 - **Must**: Diff actual change scope vs `plan.json` / spec acceptance before verdict.
-- **Must**: Hunt for weakened tests, false completion, and unauthorized action (use those phrases in findings so they are searchable).
+- **Must**: Hunt for weakened tests, false completion, unauthorized action, and (when visual UI) draft drift (use those phrases in findings so they are searchable).
 - **Must**: Emit verdict exactly as `VERIFIED` | `VERIFIED WITH CAVEATS` | `REFUTED`.
 - **Must**: When `REFUTED`, block `ready` (enforced by reviewer / `/sc-run`).
 - **Must**: Preserve discuss / run / ship - judge is the prove gate, not a replacement lifecycle.
@@ -116,6 +117,7 @@ Hunt:
   - weakened tests: <none | findings>
   - false completion: <none | findings>
   - unauthorized action: <none | findings>
+  - draft drift (visual UI): <n/a | none | findings>
   - open issues / review findings: <none | N open / N findings>
 Caveats: <none | list>
 VERDICT: VERIFIED | VERIFIED WITH CAVEATS | REFUTED
@@ -130,7 +132,7 @@ Before emitting a verdict:
 - [ ] Completion claims listed as claims, not trusted reports
 - [ ] Claimed evidence commands re-run; fresh observation recorded
 - [ ] Scope diffed against `plan.json` / spec acceptance
-- [ ] Hunt covered weakened tests, false completion, unauthorized action
+- [ ] Hunt covered weakened tests, false completion, unauthorized action, and draft drift when visual UI
 - [ ] Verdict is exactly one of the three contract strings
 - [ ] If `REFUTED`, ready blocked stated explicitly
 
@@ -139,5 +141,6 @@ Before emitting a verdict:
 - `sc-verification` - fresh evidence capture mechanics
 - `/sc-run` - AFK path that must not set `ready` on `REFUTED`
 - `sc-reviewer` agent - release readiness; consume judge verdict (wiring)
-- `plan.json` / `spec.md` - acceptance and scope authority
+- `plan.json` / `spec.md` - acceptance and scope authority (behavior)
+- approved draft HTML - visual look authority when `UI draft approved` is recorded
 - `evidence.jsonl` - append-only observations; judge appends re-runs

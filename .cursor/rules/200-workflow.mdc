@@ -75,13 +75,13 @@ Orchestrator, not implementer. Task-delegate:
 | `sc-firmware` | STM32 C |
 | `sc-writer` | docs, prompts, messages, non-code prose |
 
-Patterns: visual draft approved in `/sc-discuss` before `/sc-run`; tester before coder (one acceptance per pair); firmware for embedded; docs/prose triage skips → Task(`sc-writer`), not sc-coder; combine then issues drain; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (block on `REFUTED`); reviewer before ship.
+Patterns: visual draft (scenario-complete) approved in `/sc-discuss` before `/sc-run`; `/sc-run` **ports** look from approved draft (draft-parity UI recheck); tester before coder (one acceptance per pair); firmware for embedded; docs/prose triage skips → Task(`sc-writer`), not sc-coder; combine then issues drain; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (block on `REFUTED`); reviewer before ship.
 
 ## Inner-loop gates
 
 Always-on for **Quick and Mission** alike (see also `000-spacecraft`). Quick skips mission ceremony (spec/plan/TDD/formal review) but not these gates:
 
-- **INTENT:** Before behavior-changing edits (code / check / spec), emit `INTENT:` with class + intended behavior. Authority when disagreement: explicit user > spec > tests > current code. "Make tests pass" alone is not intended behavior.
+- **INTENT:** Before behavior-changing edits (code / check / spec), emit `INTENT:` with class + intended behavior. Authority when disagreement: explicit user > **approved draft (look)** + **spec (behavior)** > tests > current code. For visual UI, port from the approved draft; do not freestyle chrome. Look vs behavior conflict → `/sc-discuss`. "Make tests pass" alone is not intended behavior.
 - **AUTH:** Before push / deploy / publish / send, emit `AUTH:` with a quoted user authorization. Necessary but not sufficient for ship - `/sc-ship` or `/sc-quick`, hooks, and `SPACECRAFT_SHIP=1` still apply (`SPACECRAFT_QUICK=1` for quick). AUTH does not bypass those gates; merge/push/tag still require `SPACECRAFT_SHIP=1`.
 - **TWINS:** After defect fixes, emit `TWINS:` with project-wide search for the same construct / twin occurrences before claiming done. After **3 failed fix-verify cycles**, stop and hand back to human (no more looping).
 
