@@ -62,7 +62,7 @@ Before deep clarify or draft work on a large / multi-concern ask, apply `referen
 2. Rough jigsaw count for a vertical slice.
 3. Choose `single` | `phases` | `roadmap` per the playbook (3 seams only when splitting: `*-data` → `*-functional` → `*-ui`). **Must not** add a `*-ux` seam.
 4. Record in `decisions.md`: `Sizing: single | phases | roadmap <id>` (+ seams/rationale when roadmap).
-5. If roadmap: `spacecraft map new` (or use current) + add only needed feature-seam missions; discuss **current** tip only.
+5. If roadmap: discuss owns map create/add per `references/mission-sizing.md` (**Map creation (discuss only)**) - `spacecraft map new` (or use current) + add only needed feature-seam missions; discuss **current** tip only. Never leave map create/resize to planning.
 
 ### Spec and decisions
 

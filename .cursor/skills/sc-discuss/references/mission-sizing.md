@@ -34,7 +34,17 @@ Ask which concerns the requirement needs (omit absent ones):
    - Any single seam alone would need roughly ≥4 tasks, **or**
    - Visual draft HIL would block unrelated data/functional work if kept in one mission
 
-Then: `spacecraft map new` (or use current map) and add only the needed `<feature>-data` / `<feature>-functional` / `<feature>-ui` missions. Discuss the current tip only; later seams wait for post-ship handoff (`Next: /sc-discuss <id>`).
+Then create the map under **Map creation (discuss only)** below. Discuss the current tip only; later seams wait for post-ship handoff (`Next: /sc-discuss <id>`).
+
+## Map creation (discuss only)
+
+`spacecraft map` is queue plumbing for `/sc-run` - not a planning ceremony. Only `/sc-discuss` (this playbook) may create or resize a multi-mission map:
+
+1. Record `Sizing: roadmap <id>` (+ seams / rationale) in `decisions.md`.
+2. `spacecraft map new` (or use current map) + add only needed `<feature>-data` / `<feature>-functional` / `<feature>-ui` missions.
+3. Discuss the current tip; leave later seams for post-ship handoff.
+
+**Must not** call `map new` / `map add` from `/sc-run` planning (`sc-planning` / `sc-planner`). If scope needs a new or resized multi-mission split mid-plan → stop and hand to `/sc-discuss`.
 
 ## Record
 
@@ -53,4 +63,5 @@ Roadmap description should state feature name, seam order, and why split.
 - Global layer roadmaps across unrelated features
 - Fourth `*-ux` roadmap seam
 - Soft "prefer ≤7" or 8-9 exception bands (≤7 remains a hard Must per phase)
-- Inventing roadmap resize mid-`/sc-run` without returning to `/sc-discuss`
+- Inventing roadmap create/resize mid-`/sc-run` or mid-plan without returning to `/sc-discuss`
+- Planning-owned "create a roadmap" as an escape hatch (multi-mission is a discuss sizing outcome)

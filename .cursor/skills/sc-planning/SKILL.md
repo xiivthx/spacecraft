@@ -47,11 +47,12 @@ Use this exact sequence unless the user specifies otherwise:
 
 3. **Decompose into jigsaw tasks** - Break the feature into atomic behavioral vertical slices (puzzle pieces that combine into the full capability). ≤7 tasks per phase. When scope demands more:
    - Prefer same-mission `plan-phaseN.json` when still one ship story and seams are not independently shippable
-   - Prefer roadmap feature-seam missions (`*-data` / `*-functional` / `*-ui`) when seams can ship separately - see sc-discuss `references/mission-sizing.md`; stop and hand to `/sc-discuss` if the roadmap must be resized
+   - If seams can ship separately → stop and hand to `/sc-discuss` + mission-sizing (`*-data` / `*-functional` / `*-ui`); do not create or resize a roadmap from planning
    - Phase 1 covers the highest-priority, blocking, or foundational work
    - Each phase is independently buildable and verifiable
    - Record the split rationale in `decisions.md`
    - **Must not** invent cross-feature layer waterfalls or `*-ux` roadmap seams
+   - **Must not** call `spacecraft map new` / `map add` from planning
 
    **Jigsaw rule:** prefer one plan task per independently testable slice (form fields, remember-me, submit, API, errors, theme), not one task for the whole feature. `/sc-run` runs RED then GREEN once per acceptance item.
 
@@ -88,8 +89,8 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 ### Edge cases
 
-- **>7 tasks needed** - Two escape hatches: (1) same-mission phase split via `plan-phaseN.json` when seams are not independently shippable; (2) roadmap/multi-mission via `spacecraft map` using **vertical feature seams** only (`*-data` → `*-functional` → `*-ui`) per sc-discuss `references/mission-sizing.md`. Record the split rationale in `decisions.md`. Prefer returning to `/sc-discuss` to resize the roadmap rather than inventing a cross-feature layer waterfall or a `*-ux` seam mid-plan.
-- **Plan balloons mid-run** - Stop AFK planning expansion; recommend `/sc-discuss` to apply mission-sizing (phases vs roadmap). Do not silently add unrelated layer missions.
+- **>7 tasks needed** - (1) same-mission phase split via `plan-phaseN.json` when seams are not independently shippable; (2) if independent feature seams are needed → stop and hand to `/sc-discuss` + `references/mission-sizing.md` (multi-mission; discuss owns `spacecraft map`). Never `map new` / invent missions from planning. Do not invent a cross-feature layer waterfall or a `*-ux` seam mid-plan.
+- **Plan balloons mid-run** - Stop AFK planning expansion; recommend `/sc-discuss` to apply mission-sizing (phases vs multi-mission). Do not silently add missions or call `spacecraft map`.
 - **Blocking question open** - Stop and route to `/sc-discuss` / sc-clarify. Do not produce `plan.json` with hidden assumptions.
 - **File paths uncertain** - Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
 - **Spec is incomplete** - Flag gaps in `decisions.md`. Plan only what's specified.
@@ -105,6 +106,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
 - **Must**: File paths are real - verify with `ls` or glob before writing.
 - **Must not**: Soft prefer ≤7; reject any 8-9 exception band.
+- **Must not**: Call `spacecraft map new` / `map add` or invent multi-mission roadmaps from planning - hand independent-seam splits to `/sc-discuss` + mission-sizing.
 - **Must not**: Invent cross-feature layer waterfalls or `*-ux` roadmap seams when escaping ≤7 - use vertical feature seams per sc-discuss `references/mission-sizing.md`.
 - **Must not**: Use vague tasks like "improve code", "add features", or one task that swallows the whole feature.
 - **Must not**: Fill gray areas with hidden assumptions. Record assumptions explicitly.
@@ -159,4 +161,4 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - `decisions.md` - recorded choices and assumptions
 - `outputs/map.json` - project structure survey (optional input)
 - `spacecraft missions` - list missions and confirm IDs
-- sc-discuss `references/mission-sizing.md` - single vs phases vs vertical feature-seam roadmap
+- sc-discuss `references/mission-sizing.md` - single vs phases vs multi-mission (discuss owns map)

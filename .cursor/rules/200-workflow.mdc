@@ -43,7 +43,7 @@ Detail: `/sc-discuss`, `/sc-run`, `/sc-ship`. Issues policy: **sc-learn**; drain
 - ≤7 jigsaw tasks per phase as a hard Must (not preference-only). Reject soft prefer ≤7; reject any 8-9 exception band.
 - Escape hatches when scope exceeds ≤7 (not a higher or soft cap):
   - Same-mission phase split: sequential `plan-phaseN.json` (or `plan-phase1.json`, …) under the mission when seams are not independently shippable.
-  - Roadmap / multi-mission: `spacecraft map new`, then add **vertical feature-seam** missions (`*-data` → `*-functional` → `*-ui`) per `.cursor/skills/sc-discuss/references/mission-sizing.md`; discuss each, AFK with `/sc-run`. UX draft lives in the ui mission discuss - not a `*-ux` seam. Never cross-feature layer waterfalls.
+  - Multi-mission via mission-sizing: `/sc-discuss` applies `.cursor/skills/sc-discuss/references/mission-sizing.md` (`*-data` → `*-functional` → `*-ui`); discuss owns `spacecraft map` create/add; then AFK with `/sc-run`. UX draft lives in the ui mission discuss - not a `*-ux` seam. Never cross-feature layer waterfalls. Planning must not `map new` - stop and hand to `/sc-discuss` to size or resize.
 - Issues: record in mission `issues.md`; drain in `/sc-run` until 0 open (policy in sc-learn). Ready/ship: 0 open issues, 0 review findings. Fix issue #N: view → mission → spec → close after ship.
 
 ## Mission resolution
