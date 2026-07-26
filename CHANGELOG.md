@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.14 - 2026-07-27
+
+- Chore: ship sizing-prompt-cleanup closeout (findings #10-#15 verify evidence; plan-phaseN naming, sizing-outcome metaphor, discuss lane pointer, artifacts, trust-seed, `*-api` alias already released in 0.41.10)
+
 ## 0.41.13 - 2026-07-27
 
 - Chore: ship sizing-run-handoff closeout (findings #1 #6 verify evidence; mission-only `/sc-run` for single|phases and non-ui draft skip already released in 0.41.10)
