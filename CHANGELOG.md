@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.12 - 2026-07-26
+
+- Chore: ship sizing-decision-tree closeout (findings #4 #7 #8 #9 verify evidence; always-size, phases ownership, resize protocol, hard ≥4 already released in 0.41.10)
+
 ## 0.41.11 - 2026-07-26
 
 - Chore: ship sizing-map-protocol closeout (findings #2 #3 #5 verify evidence; map create protocol already released in 0.41.10)
