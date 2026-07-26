@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.41.10 - 2026-07-26
+
+- Docs: discuss owns multi-mission map create/add; planning must hand off (no planning-owned roadmap creator)
+- Docs: harden mission-sizing - always-size, ordered stub map protocol, resize protocol, mission-only `/sc-run`, non-ui draft skips, hard ≥4 single-seam split
+
 ## 0.41.9 - 2026-07-26
 
 - Feat: approved draft HTML is visual source of truth - port chrome from draft; require scenario matrix (empty/error/few/many) before `UI draft approved`; draft-parity UI recheck and judge draft-drift hunt
