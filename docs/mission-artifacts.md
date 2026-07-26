@@ -37,6 +37,8 @@ Jigsaw tasks: each task is one behavioral slice of the feature. Each `acceptance
 }
 ```
 
+When `Sizing: phases` (discuss-owned), same-mission overflow uses sequential files `plan-phase1.json`, `plan-phase2.json`, … (or `plan-phaseN.json` naming). Each file matches the `plan.json` shape above; ≤7 tasks per phase. Default active plan for build is the current incomplete phase file (Commander tracks which phase is active in `decisions.md` or by first pending phase).
+
 ## evidence.jsonl
 
 One JSON object per line:

@@ -30,7 +30,7 @@ Activate when:
 - User asks to plan / break the spec into tasks
 - Scope work before implementation
 
-When scope exceeds 7 tasks, split into Phase 1, Phase 2, ... each with its own plan.json.
+When scope exceeds 7 tasks, split into same-mission `plan-phaseN.json` files (discuss must have recorded `Sizing: phases`), or hand independent seams to `/sc-discuss` + mission-sizing (do not create maps from planning).
 
 ## Workflow
 
@@ -46,13 +46,14 @@ Use this exact sequence unless the user specifies otherwise:
    - If a blocking clarification question is open, stop - route to `/sc-discuss` / sc-clarify.
 
 3. **Decompose into jigsaw tasks** - Break the feature into atomic behavioral vertical slices (puzzle pieces that combine into the full capability). ≤7 tasks per phase. When scope demands more:
-   - Prefer same-mission `plan-phaseN.json` when still one ship story and seams are not independently shippable
+   - Prefer same-mission `plan-phaseN.json` when still one ship story and seams are not independently shippable (only if `decisions.md` has `Sizing: phases` - discuss owns that decision; planning may write the phase files)
    - If seams can ship separately → stop and hand to `/sc-discuss` + mission-sizing (`*-data` / `*-functional` / `*-ui`); do not create or resize a roadmap from planning
-   - Phase 1 covers the highest-priority, blocking, or foundational work
+   - Phase 1 (`plan-phase1.json` or first `plan-phaseN.json`) covers the highest-priority, blocking, or foundational work
    - Each phase is independently buildable and verifiable
-   - Record the split rationale in `decisions.md`
+   - Record the split rationale in `decisions.md` when planning writes phase files under an existing `Sizing: phases`
    - **Must not** invent cross-feature layer waterfalls or `*-ux` roadmap seams
    - **Must not** call `spacecraft map new` / `map add` from planning
+   - Mid-run multi-mission need → stop; `/sc-discuss` **Resize protocol** (mission-sizing)
 
    **Jigsaw rule:** prefer one plan task per independently testable slice (form fields, remember-me, submit, API, errors, theme), not one task for the whole feature. `/sc-run` runs RED then GREEN once per acceptance item.
 
@@ -89,8 +90,8 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 ### Edge cases
 
-- **>7 tasks needed** - (1) same-mission phase split via `plan-phaseN.json` when seams are not independently shippable; (2) if independent feature seams are needed → stop and hand to `/sc-discuss` + `references/mission-sizing.md` (multi-mission; discuss owns `spacecraft map`). Never `map new` / invent missions from planning. Do not invent a cross-feature layer waterfall or a `*-ux` seam mid-plan.
-- **Plan balloons mid-run** - Stop AFK planning expansion; recommend `/sc-discuss` to apply mission-sizing (phases vs multi-mission). Do not silently add missions or call `spacecraft map`.
+- **>7 tasks needed** - (1) same-mission `plan-phaseN.json` when seams are not independently shippable and `Sizing: phases` is recorded (planning may write phase files); (2) if independent feature seams are needed → stop and hand to `/sc-discuss` + `references/mission-sizing.md` (multi-mission; discuss owns `spacecraft map` + Resize protocol). Never `map new` / invent missions from planning. Do not invent a cross-feature layer waterfall or a `*-ux` seam mid-plan.
+- **Plan balloons mid-run** - Stop AFK planning expansion; recommend `/sc-discuss` to apply mission-sizing (phases vs multi-mission / Resize protocol). Do not silently add missions or call `spacecraft map`.
 - **Blocking question open** - Stop and route to `/sc-discuss` / sc-clarify. Do not produce `plan.json` with hidden assumptions.
 - **File paths uncertain** - Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
 - **Spec is incomplete** - Flag gaps in `decisions.md`. Plan only what's specified.
@@ -101,7 +102,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - **Must**: Resolve mission before planning.
 - **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`.
 - **Must**: Stop if a blocking clarification is open - route to `/sc-discuss` / sc-clarify.
-- **Must**: ≤7 tasks per phase as a hard Must (not preference-only). Split into Phase 1, Phase 2, ... if scope exceeds this.
+- **Must**: ≤7 tasks per phase as a hard Must (not preference-only). Use `plan-phaseN.json` when `Sizing: phases`; else hand multi-mission to `/sc-discuss`.
 - **Must**: Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`.
 - **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
 - **Must**: File paths are real - verify with `ls` or glob before writing.

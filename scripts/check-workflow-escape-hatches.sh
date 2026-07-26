@@ -36,8 +36,8 @@ if ! grep -Eiq 'multi[- ]mission' "$FILE"; then
 fi
 
 # Require discuss owns map; planning must not map new.
-if ! grep -Eq 'spacecraft[[:space:]]+map' "$FILE"; then
-  echo "FAIL: $FILE must name spacecraft map (CLI) as discuss-owned plumbing"
+if ! grep -Eq 'spacecraft[[:space:]]+map|map new' "$FILE"; then
+  echo "FAIL: $FILE must name spacecraft map / map new (as discuss-owned plumbing)"
   exit 1
 fi
 

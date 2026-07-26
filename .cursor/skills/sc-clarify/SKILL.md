@@ -80,7 +80,9 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 - Git operations - use sc-git
 - Implementation - use `/sc-run` (AFK) or agents; ship with `/sc-ship` only
 
-After `/sc-discuss` clears clarify for roadmap work, handoff: **Spec clear. New session: /sc-run.**
+After `/sc-discuss` clears clarify:
+- `Sizing: roadmap <id>` → handoff **Spec clear. New session: `/sc-run <id>`.**
+- `Sizing: single|phases` → handoff **Spec clear. New session: `/sc-run`.** (mission-only)
 
 ## Output format
 
