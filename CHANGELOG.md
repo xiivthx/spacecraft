@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.42.0 - 2026-07-27
+
+- Feat: split Cursor install into User vs Project layers - `install-global` generates `~/.cursor/spacecraft/USER-RULES.txt` and merges absolute-path safety hooks; `install-project` installs domain rules `300`-`620` + `session-start` without re-copying `alwaysApply`
+- Docs: document User Rules paste into Settings → Rules → User Rules and the User vs Project install split
+
 ## 0.41.14 - 2026-07-27
 
 - Chore: ship sizing-prompt-cleanup closeout (findings #10-#15 verify evidence; plan-phaseN naming, sizing-outcome metaphor, discuss lane pointer, artifacts, trust-seed, `*-api` alias already released in 0.41.10)
