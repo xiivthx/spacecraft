@@ -46,10 +46,12 @@ Use this exact sequence unless the user specifies otherwise:
    - If a blocking clarification question is open, stop - route to `/sc-discuss` / sc-clarify.
 
 3. **Decompose into jigsaw tasks** - Break the feature into atomic behavioral vertical slices (puzzle pieces that combine into the full capability). ≤7 tasks per phase. When scope demands more:
-   - Split into Phase 1, Phase 2, ... each with its own `plan.json` (`plan-phase1.json`, `plan-phase2.json`, ...)
+   - Prefer same-mission `plan-phaseN.json` when still one ship story and seams are not independently shippable
+   - Prefer roadmap feature-seam missions (`*-data` / `*-functional` / `*-ui`) when seams can ship separately - see sc-discuss `references/mission-sizing.md`; stop and hand to `/sc-discuss` if the roadmap must be resized
    - Phase 1 covers the highest-priority, blocking, or foundational work
    - Each phase is independently buildable and verifiable
    - Record the split rationale in `decisions.md`
+   - **Must not** invent cross-feature layer waterfalls or `*-ux` roadmap seams
 
    **Jigsaw rule:** prefer one plan task per independently testable slice (form fields, remember-me, submit, API, errors, theme), not one task for the whole feature. `/sc-run` runs RED then GREEN once per acceptance item.
 
@@ -86,7 +88,8 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 ### Edge cases
 
-- **>7 tasks needed** - Two escape hatches: (1) same-mission phase split via `plan-phaseN.json` (Phase 1 → `plan-phase1.json`, Phase 2 → `plan-phase2.json`, ...); each phase gets its own `plan-phase<N>.json`. (2) roadmap/multi-mission split via `spacecraft map`. Record the split rationale in `decisions.md`.
+- **>7 tasks needed** - Two escape hatches: (1) same-mission phase split via `plan-phaseN.json` when seams are not independently shippable; (2) roadmap/multi-mission via `spacecraft map` using **vertical feature seams** only (`*-data` → `*-functional` → `*-ui`) per sc-discuss `references/mission-sizing.md`. Record the split rationale in `decisions.md`. Prefer returning to `/sc-discuss` to resize the roadmap rather than inventing a cross-feature layer waterfall or a `*-ux` seam mid-plan.
+- **Plan balloons mid-run** - Stop AFK planning expansion; recommend `/sc-discuss` to apply mission-sizing (phases vs roadmap). Do not silently add unrelated layer missions.
 - **Blocking question open** - Stop and route to `/sc-discuss` / sc-clarify. Do not produce `plan.json` with hidden assumptions.
 - **File paths uncertain** - Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
 - **Spec is incomplete** - Flag gaps in `decisions.md`. Plan only what's specified.
@@ -102,6 +105,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
 - **Must**: File paths are real - verify with `ls` or glob before writing.
 - **Must not**: Soft prefer ≤7; reject any 8-9 exception band.
+- **Must not**: Invent cross-feature layer waterfalls or `*-ux` roadmap seams when escaping ≤7 - use vertical feature seams per sc-discuss `references/mission-sizing.md`.
 - **Must not**: Use vague tasks like "improve code", "add features", or one task that swallows the whole feature.
 - **Must not**: Fill gray areas with hidden assumptions. Record assumptions explicitly.
 - **Must not**: Create broad architecture plans unless the spec requires it.
@@ -155,3 +159,4 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - `decisions.md` - recorded choices and assumptions
 - `outputs/map.json` - project structure survey (optional input)
 - `spacecraft missions` - list missions and confirm IDs
+- sc-discuss `references/mission-sizing.md` - single vs phases vs vertical feature-seam roadmap

@@ -62,7 +62,7 @@ Rules for slices:
 - Use `dependsOn` for real order (e.g. API before submit wiring)
 - Theme/visual may note TDD skip when pure styling with no behavior; still verify against **approved draft** (not brief alone)
 - Prefer plan tasks that cover draft scenario states (empty/error/few/many and spec features) when visual UI is in scope
-- If >7 slices needed → two escape hatches: (1) same-mission phase split via `plan-phaseN.json`; (2) roadmap/multi-mission via `spacecraft map`. Record split in `decisions.md`
+- If >7 slices needed → two escape hatches: (1) same-mission phase split via `plan-phaseN.json` when not independently shippable; (2) roadmap/multi-mission via `spacecraft map` with vertical feature seams only (`*-data` → `*-functional` → `*-ui`) per sc-discuss `references/mission-sizing.md`. Record split in `decisions.md`. If the roadmap must change, stop and recommend `/sc-discuss` - do not invent cross-feature layer missions or a `*-ux` seam.
 
 ## Good
 
