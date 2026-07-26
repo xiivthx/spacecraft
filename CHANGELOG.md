@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.13 - 2026-07-27
+
+- Chore: ship sizing-run-handoff closeout (findings #1 #6 verify evidence; mission-only `/sc-run` for single|phases and non-ui draft skip already released in 0.41.10)
+
 ## 0.41.12 - 2026-07-26
 
 - Chore: ship sizing-decision-tree closeout (findings #4 #7 #8 #9 verify evidence; always-size, phases ownership, resize protocol, hard ≥4 already released in 0.41.10)
