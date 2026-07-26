@@ -10,6 +10,15 @@ Spacecraft is installed as Cursor project configuration plus a local CLI. Instal
 - macOS or Linux
 - Go 1.21 or newer when building the CLI from source
 
+## User layer vs Project layer
+
+Spacecraft installs in two layers:
+
+- **User layer** (`make install-global`, once per machine): agents, skills, MCP config, the CLI, and global safety hooks. It also generates `~/.cursor/spacecraft/USER-RULES.txt` from the five `alwaysApply` rules (`000-spacecraft`, `025-english-coach`, `050-style`, `100-conventions`, `200-workflow`). Paste that file's contents into Cursor Settings -> Rules -> User Rules once - that is how the `alwaysApply` rules take effect in every workspace, since Cursor does not read a repo's `alwaysApply: true` rules outside that repo.
+- **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): the domain/glob rules `300`-`620`, agents, skills, project hooks (including `session-start`), and a merged `.cursor/mcp.json`. It never copies the `alwaysApply` rules - those stay User layer only, so installing into many projects never re-duplicates them.
+
+Run the User layer install once per machine; each Project layer install is independent and repeatable.
+
 ## Install with bootstrap
 
 From a Spacecraft checkout, pass the target project directory:
@@ -24,7 +33,7 @@ To bootstrap the current directory:
 ./bootstrap.sh
 ```
 
-The bootstrap installer prepares project-local `.cursor/` and `.space/` content and installs the repository CLI when a compatible prebuilt binary is available.
+The bootstrap installer prepares project-local `.cursor/` and `.space/` content and installs the repository CLI when a compatible prebuilt binary is available. This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
 
 You can also run the published bootstrap script from the target project:
 
@@ -50,13 +59,21 @@ make install
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-For Cursor-wide agents **and** slash skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and other `sc-*` skills):
+For the User layer - Cursor-wide agents, slash skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and other `sc-*` skills), and the `alwaysApply` rules:
 
 ```sh
 make install-global
 ```
 
-That copies `~/.cursor/agents/sc-*.md` and `~/.cursor/skills/sc-*/`, merges MCP into `~/.cursor/mcp.json`, and links the CLI. Restart Cursor afterward. Unrelated skills (for example personal ones) are left alone.
+That copies `~/.cursor/agents/sc-*.md` and `~/.cursor/skills/sc-*/`, merges MCP into `~/.cursor/mcp.json`, links the CLI, installs global safety hooks (`check-main-write`, `check-ship-commands`) into `~/.cursor/hooks.json`, and generates `~/.cursor/spacecraft/USER-RULES.txt` from the five `alwaysApply` rules. Paste that file's contents into Cursor Settings -> Rules -> User Rules once so Commander, workflow, English coaching, style, and conventions apply in every workspace. Restart Cursor afterward. Unrelated skills and hooks (for example personal ones) are left alone.
+
+For the Project layer in another repo, either run `./bootstrap.sh /path/to/project` or, from this checkout:
+
+```sh
+make install-project PROJECT=/path/to/project
+```
+
+Both install the domain/glob rules (`300`-`620`), agents, skills, and project hooks (including `session-start`) - never the `alwaysApply` rules, which are User layer only.
 
 To build without installing:
 

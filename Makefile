@@ -1,5 +1,5 @@
 .PHONY: build install install-cli install-project install-global smoke uninstall clean help \
-        test test-go test-config test-install gate
+        test test-go test-config test-install test-gen-user-rules gate
 
 ROOT      := $(CURDIR)
 BIN       := $(ROOT)/spacecraft
@@ -14,6 +14,7 @@ help:
 	@echo "  test-go         Go unit tests, go vet, gofmt check (cmd/spacecraft)"
 	@echo "  test-config     Static config smoke (mcp/hooks JSON, frontmatter, no commands/)"
 	@echo "  test-install    Bootstrap/install smoke into a throwaway temp dir"
+	@echo "  test-gen-user-rules  RED/GREEN test for scripts/gen-user-rules.sh"
 	@echo "  gate            Go tests + Cursor hook unit tests (hooks_test.sh)"
 	@echo "  install         build + link CLI into ~/.local/bin + smoke check"
 	@echo "  install-project Install full .cursor surface into PROJECT=<dir> (default .)"
@@ -48,6 +49,10 @@ test-config:
 test-install: build
 	@sh $(ROOT)/scripts/test-install.sh "$(ROOT)" "$(BIN)"
 
+# Focused RED/GREEN test for the USER-RULES generator (no build required).
+test-gen-user-rules:
+	@sh $(ROOT)/scripts/test-gen-user-rules.sh "$(ROOT)"
+
 build:
 	cd $(ROOT)/cmd/spacecraft && go build -o $(BIN) .
 
@@ -76,6 +81,9 @@ install-global: build install-cli
 	@test -f "$(GLOBAL)/skills/sc-ship/SKILL.md"
 	@test -f "$(GLOBAL)/skills/sc-quick/SKILL.md"
 	@python3 $(ROOT)/scripts/mcp-merge.py merge "$(GLOBAL)/mcp.json" "$(ROOT)/.cursor/mcp.json"
+	@sh $(ROOT)/scripts/install-global-hooks.sh "$(ROOT)" "$(GLOBAL)"
+	@sh $(ROOT)/scripts/gen-user-rules.sh "$(ROOT)/.cursor/rules" "$(GLOBAL)/spacecraft/USER-RULES.txt"
+	@echo "user rules -> $(GLOBAL)/spacecraft/USER-RULES.txt (paste into Settings > Rules > User Rules)"
 	@echo "Global install complete. Restart Cursor to pick up /sc-run, /sc-ship, and /sc-quick."
 
 smoke:
