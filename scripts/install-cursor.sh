@@ -31,10 +31,16 @@ if [ "$TARGET_ABS" = "$SRC_ABS" ]; then
   echo "  source == target; config already in place, scaffolding .space only"
 else
   mkdir -p "$TARGET_ABS/.cursor/rules" "$TARGET_ABS/.cursor/agents" "$TARGET_ABS/.cursor/skills"
-  cp -R "$SRC_ABS/.cursor/rules/." "$TARGET_ABS/.cursor/rules/"
+  # Project layer gets domain/glob rules only (300-620); alwaysApply rules
+  # (000/025/050/100/200) are User layer via install-global's USER-RULES.txt.
+  for rule in "$SRC_ABS"/.cursor/rules/*.mdc; do
+    [ -f "$rule" ] || continue
+    grep -q '^alwaysApply: true$' "$rule" && continue
+    cp "$rule" "$TARGET_ABS/.cursor/rules/"
+  done
   cp -R "$SRC_ABS/.cursor/agents/." "$TARGET_ABS/.cursor/agents/"
   cp -R "$SRC_ABS/.cursor/skills/." "$TARGET_ABS/.cursor/skills/"
-  echo "  rules, agents, skills -> $TARGET_ABS/.cursor"
+  echo "  domain rules, agents, skills -> $TARGET_ABS/.cursor"
 
   if [ -f "$SRC_ABS/.cursor/hooks.json" ]; then
     if [ -d "$SRC_ABS/.cursor/hooks" ]; then
