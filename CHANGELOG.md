@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.41.11 - 2026-07-26
+
+- Chore: ship sizing-map-protocol closeout (findings #2 #3 #5 verify evidence; map create protocol already released in 0.41.10)
+
 ## 0.41.10 - 2026-07-26
 
 - Docs: discuss owns multi-mission map create/add; planning must hand off (no planning-owned roadmap creator)
