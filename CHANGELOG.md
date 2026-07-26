@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.41.9 - 2026-07-26
+
+- Feat: approved draft HTML is visual source of truth - port chrome from draft; require scenario matrix (empty/error/few/many) before `UI draft approved`; draft-parity UI recheck and judge draft-drift hunt
+- Feat: vertical multi-mission sizing playbook - `/sc-discuss` sizes single vs phases vs roadmap seams (`*-data` → `*-functional` → `*-ui`); ban `*-ux` seam and cross-feature layer waterfalls
+
 ## 0.41.8 - 2026-07-25
 
 - Feat: new `sc-writer` agent for docs/prompts/messages/non-code prose; Commander, `sc-tdd`, `/sc-run`, `/sc-discuss`, `sc-coder`, and `sc-tester` route docs/prose work to `sc-writer` instead of `sc-coder`; README and installation list eight agents
