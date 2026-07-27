@@ -41,7 +41,7 @@ When Tiers 1–2 are insufficient.
 - Run additional `WebSearch` queries with refined terms (version pins, migration guides, changelogs).
 - `WebFetch` 2–4 high-signal sources (official docs, release notes, issue trackers).
 - Synthesize: prefer primary docs over secondary blogs; note contradictions; record the concrete answer and sources.
-- For explicit systematic research sessions, the user may invoke `/sc-research`, which wraps these same tiers.
+- For explicit systematic open-domain research feeding discuss, use sc-storm (Tier 3) - not this skill.
 
 ### Tier 4 - Ask user
 
@@ -57,7 +57,7 @@ When all tiers fail to resolve the question.
 - **Must**: Record findings in mission context (decisions.md, questions.md, or session notes). Don't just stash them.
 - **Must**: If all tiers fail, ask the user exactly one question with the context gathered so far.
 - **Must not**: Skip tiers in the general case - even obvious answers deserve a quick search for confirmation. The only exceptions are the shortcuts in the table below.
-- **Must not**: Use this skill for long systematic literature reviews - use `/sc-research` for that wrapper.
+- **Must not**: Use this skill for long systematic literature reviews - use sc-storm for that.
 - **Must not**: Use for casual browsing or curiosity - only for blocking technical questions.
 
 ## Tier shortcuts
@@ -73,7 +73,7 @@ When the topic is immediately recognizable, shortcut to the appropriate tier:
 
 ## Out of scope
 
-- Systematic literature review sessions - use `/sc-research`
+- Systematic literature review sessions - use sc-storm
 - Debugging discipline - use sc-debug
 - Requirement clarification - use `/sc-discuss` / sc-clarify
 - Architectural decisions - use sc-architect
@@ -82,6 +82,6 @@ When the topic is immediately recognizable, shortcut to the appropriate tier:
 
 - `WebSearch` tool - Cursor built-in web search
 - `WebFetch` tool - Cursor built-in page fetcher
-- `/sc-research` - explicit systematic research wrapper around these tiers
+- sc-storm - Tier 3 systematic research feeding discuss (open-domain / strategy; not API gray areas)
 - `decisions.md` - record findings that affect mission direction
 - `questions.md` - record open questions escalated to the user

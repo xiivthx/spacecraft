@@ -80,11 +80,13 @@ install-global: build install-cli
 	@test -f "$(GLOBAL)/skills/sc-run/SKILL.md"
 	@test -f "$(GLOBAL)/skills/sc-ship/SKILL.md"
 	@test -f "$(GLOBAL)/skills/sc-quick/SKILL.md"
+	@test -f "$(GLOBAL)/skills/sc-storm/SKILL.md"
+	@test -f "$(GLOBAL)/skills/sc-discuss/references/lens-pass.md"
 	@python3 $(ROOT)/scripts/mcp-merge.py merge "$(GLOBAL)/mcp.json" "$(ROOT)/.cursor/mcp.json"
 	@sh $(ROOT)/scripts/install-global-hooks.sh "$(ROOT)" "$(GLOBAL)"
 	@sh $(ROOT)/scripts/gen-user-rules.sh "$(ROOT)/.cursor/rules" "$(GLOBAL)/spacecraft/USER-RULES.txt"
 	@echo "user rules -> $(GLOBAL)/spacecraft/USER-RULES.txt (paste into Settings > Rules > User Rules)"
-	@echo "Global install complete. Restart Cursor to pick up /sc-run, /sc-ship, and /sc-quick."
+	@echo "Global install complete. Restart Cursor to pick up /sc-run, /sc-ship, /sc-quick, and sc-storm."
 
 smoke:
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"

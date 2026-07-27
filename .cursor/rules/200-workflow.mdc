@@ -54,7 +54,7 @@ Clarify status: `open` | `clear` | `deferred` under mission dir.
 
 ## Lanes (pointers)
 
-- **Discuss:** `/sc-discuss` (sizing + spec, decisions, visual draft, mission brief before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft), `sc-discuss/references/mission-sizing.md`, `sc-discuss/references/mission-brief.md`.
+- **Discuss:** `/sc-discuss` (sizing + lens pass or skip, spec, decisions, visual draft, mission brief before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft), `sc-discuss/references/mission-sizing.md`, `sc-discuss/references/mission-brief.md`, `sc-discuss/references/lens-pass.md`; Tier 3 open-domain research: sc-storm. sc-judge at ready stays Skeptic-only - no full STORM at ready.
 - **Mission:** `/sc-run` (roadmap queue or mission-only; plan → build → drain → review → ready). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (ready only on `VERIFIED`). Shares INTENT / AUTH / TWINS / 3-cycle with Quick.
 - **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive (mission only).
 - **Quick:** `/sc-quick` - no mission artifacts; branch `<type>/<title>` → verify → commit → ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` (hook skips closeout). Still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle. Do not invent a mission stub.

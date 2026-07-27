@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.43.0 - 2026-07-28
+
+- Feat: STORM Tier 0-3 lens pass - discuss checklist (Tier 0), sc-adviser Tier 1, parallel readonly Tier 2 (2-3 Tasks), sc-storm Tier 3 systematic research; greppable `## Lens pass` / skip in `decisions.md`; retarget sc-search from `/sc-research` to sc-storm
+- Fix: install-global / install smoke assert `sc-storm` and `sc-discuss/references/lens-pass.md`; USER-RULES marker for lens pass; installation docs list sc-storm
+
 ## 0.42.4 - 2026-07-28
 
 - Docs: binary sc-judge - `VERIFIED` | `REFUTED` only; remove `VERIFIED WITH CAVEATS` soft-pass; ready only on `VERIFIED` with empty findings; `REFUTED` requires fix plan → drain → re-judge

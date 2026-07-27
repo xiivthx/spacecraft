@@ -16,7 +16,7 @@ Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); one blocking question at a time; soft gaps → `decisions.md`; visual brief + scenario-complete draft with designer gate before human; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
+- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; one blocking question at a time; soft gaps → `decisions.md`; visual brief + scenario-complete draft with designer gate before human; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
 - Bad: implementing; writing `plan.json` AFK; shipping; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; quizzing the human instead of presenting Answers; cross-feature layer waterfalls or `*-ux` roadmap seams
 
 ## Verify
@@ -29,6 +29,7 @@ spacecraft clarify-status clear
 # visual: decisions.md contains "UI draft approved: <draft-file>" OR "UI draft skipped:"
 # visual draft includes scenario matrix (empty, error, few, many, + spec features) when approved
 # decisions.md contains "Mission brief: accepted" OR "Mission brief: skipped - <reason>"
+# decisions.md contains "## Lens pass" OR "Lens pass skipped:"
 ```
 
 Handoff by sizing: roadmap → `/sc-run <id>`; single|phases → `/sc-run` (mission-only).
@@ -52,7 +53,7 @@ Canonical: `.cursor/rules/200-workflow.mdc` - this skill is discuss HIL only. Ne
 ## Discuss loop
 
 ```
-resolve → inspect → sizing gate → classify gaps → talk / ask / decide → (visual: brief + draft → designer → fix → human HIL) → mission brief → clear → handoff
+resolve → inspect → sizing gate → lens-pass gate → classify gaps → talk / ask / decide → (visual: brief + draft → designer → fix → human HIL) → mission brief → clear → handoff
 ```
 
 ### Sizing gate
@@ -65,12 +66,17 @@ resolve → inspect → sizing gate → classify gaps → talk / ask / decide �
 4. Record in `decisions.md`: `Sizing: single | phases | roadmap <id>` (+ seams/rationale when roadmap; + `Sizing phases: N - …` when phases).
 5. If roadmap: follow **Map creation (discuss only)** ordered steps in `references/mission-sizing.md` (`spacecraft new` stubs → `map new` unless human approved reuse → `map add` → stub `Sizing:` on every seam → discuss tip only). Never leave map create/resize to planning.
 
+### Lens-pass gate
+
+After sizing, apply `references/lens-pass.md` before deep spec work when triggers fire (architecture fork, policy preference, soft Verify, sizing explosion risk). Otherwise record `Lens pass skipped: <reason>`. Tier 0: Commander checklist in discuss. Tier 1: Task(`sc-adviser`). Tier 2: 2-3 readonly Tasks (default Skeptic, Economist, Practitioner) synthesized to one `## Lens pass`. Tier 3 open-domain research: sc-storm (not sc-search gray areas).
+
 ### Spec and decisions
 
 1. Ensure `spec.md` has Goal, Output, Good vs Bad, Verify (machine-checkable where possible). Skim `.space/trust/lessons.md` before inventing process (sc-learn: seed if missing).
 2. Blocking ambiguity: sc-clarify (one question at a time); record in `questions.md` / `decisions.md`.
 3. Soft gaps → assumptions in `decisions.md` (do not block clear alone).
-4. Deep architecture: optional Task(`sc-adviser`). Keep `clarify-status open` while blockers or unapproved visual draft remain.
+4. Lens pass or skip: `## Lens pass (<topic>)` per `references/lens-pass.md` OR `Lens pass skipped: <reason>`.
+5. Deep architecture: Task(`sc-adviser`) with Tier 1 lens pass; high-stakes may use Tier 2; open-domain systematic research → sc-storm (Tier 3). Keep `clarify-status open` while blockers or unapproved visual draft remain.
 
 ### Visual design (when UI/FE)
 
@@ -98,7 +104,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 
 ### Exit
 
-1. No open blocking questions; Verify present; `Sizing: …` recorded; visual approved or skip recorded; mission brief accepted or skip recorded.
+1. No open blocking questions; Verify present; `Sizing: …` recorded; `## Lens pass` or `Lens pass skipped:` recorded; visual approved or skip recorded; mission brief accepted or skip recorded.
 2. `spacecraft clarify-status clear`.
 3. Handoff by sizing (`references/mission-sizing.md`):
    - `Sizing: roadmap <id>` → **Spec clear. New session: `/sc-run <id>`.**
@@ -124,6 +130,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 | Draft critique | Task(`sc-designer`) |
 | Mission brief | `references/mission-brief.md` |
 | Architecture | Task(`sc-adviser`) |
+| Lens pass / STORM | `references/lens-pass.md`; optional sc-storm (Tier 3) |
 | Prompt / docs / spec wording | optional Task(`sc-writer`) |
 | Plan / TDD / evidence | `/sc-run` |
 
@@ -132,3 +139,5 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 - sc-clarify, sc-ux-design, `/sc-run`, `/sc-ship`
 - `references/mission-sizing.md`
 - `references/mission-brief.md`
+- `references/lens-pass.md`
+- sc-storm
