@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.42.3 - 2026-07-27
+
+- Chore: route high-volume agents to Cursor Models pool - `sc-writer` → Composer 2.5 Fast, `sc-coder` → Grok 4.5; keep tester/planner/gates on Other Models
+
 ## 0.42.2 - 2026-07-27
 
 - Docs: encode clean commenting doctrine - why-not-what, best comment is none, provenance ban in style/clean-code/sc-coder Bad, plus trust-seed lesson
