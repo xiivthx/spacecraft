@@ -4,6 +4,7 @@ Tracked seed for `.space/trust/lessons.md`. Keep this file **short** - only dura
 
 | Date | Lesson | Why it matters | Source |
 |------|--------|----------------|--------|
+| 2026-07-28 | New `sc-*` skills and discuss references must be asserted in install-global / test-install smoke | Glob copy alone does not prove Cursor discovery paths stay wired | harness |
 | 2026-07-28 | Ready only on sc-judge VERIFIED; no VERIFIED WITH CAVEATS soft-pass; REFUTED → fix plan → drain → re-judge | Caveat ready lets small issues accumulate until work is damaged | harness |
 | 2026-07-21 | High-stakes gates need greppable artifacts (INTENT/AUTH/TWINS/verdicts), not buried prose | Agents skip mid-list policy; they honor forced tokens | M7ZMDXPQ |
 | 2026-07-21 | Before ready: re-run claimed evidence; never soft-ship past REFUTED | Reports and stale evidence.jsonl lines are not proof | M7ZMDXPQ |
