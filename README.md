@@ -54,7 +54,7 @@ Open the project in Cursor. User-facing slash skills are `/sc-discuss`, `/sc-run
 
 Flow:
 
-1. `/sc-discuss` - size (`Sizing: single|phases|roadmap`), clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
+1. `/sc-discuss` - size (`Sizing: single|phases|roadmap`), lens pass or skip (`## Lens pass` / `Lens pass skipped:`), clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
 2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (or `/sc-run` mission-only for single/phases). Jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review. Visual UI/FE: requires draft already approved in discuss (not for `*-data` / `*-functional` seams); then screenshots/visual + functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
 3. Human checks the ready work.
 4. `/sc-ship` validates and closes out only when explicitly requested.
@@ -192,8 +192,8 @@ User-facing slash skills: **`/sc-discuss`**, **`/sc-run`**, **`/sc-ship`**, and 
 - **AFK run:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits; UI missions require prior draft approval and recheck with visual + functional evidence
 - **HIL ship:** final check + `/sc-ship`
 - **Quick (no mission):** `/sc-quick` - manual edits/fixes/docs; branch → verify → commit → ship without mission artifacts or closeout
-- **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, …)
-- **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design`, `sc-diagram` - glob rules still apply
+- **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, sc-storm, …)
+- **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design`, `sc-diagram` - glob rules still apply. `sc-storm` activates on open-domain / strategy research feeding discuss.
 
 Project behavior and policy are defined by the always-on files in `.cursor/rules/`.
 

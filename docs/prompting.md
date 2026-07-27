@@ -31,7 +31,9 @@ Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (se
 ## Avoid
 
 - Threats, tips, or career-stakes framing
-- Expertise cosplay
+- Expertise cosplay (including STORM lenses as personas instead of jobs)
 - Forced chain-of-thought on reasoning models
 
 Role names (Commander, Coder, Tester) are routing contracts, not expertise claims.
+
+**Note:** Lens pass = five decision jobs that write `## Lens pass` or `Lens pass skipped:` in `decisions.md` - not expertise cosplay. See `.cursor/skills/sc-discuss/references/lens-pass.md` and sc-storm (Tier 3).

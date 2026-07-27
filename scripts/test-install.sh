@@ -67,26 +67,35 @@ for rule in 000-spacecraft 025-english-coach 050-style 100-conventions 200-workf
 done
 echo "  ok   install-project excludes alwaysApply rules from project target"
 
+# STORM Tier 0/3: project install must land sc-storm + discuss lens-pass reference.
+test -f "$tmp/.cursor/skills/sc-storm/SKILL.md" \
+  || { echo "FAIL: install-project missing sc-storm skill"; exit 1; }
+test -f "$tmp/.cursor/skills/sc-discuss/references/lens-pass.md" \
+  || { echo "FAIL: install-project missing sc-discuss/references/lens-pass.md"; exit 1; }
+echo "  ok   install-project installs sc-storm and discuss lens-pass reference"
+
 mkdir -p "$fake_home/.cursor"
 printf '%s\n' '{"version":1,"hooks":{"beforeShellExecution":[{"command":"~/.cursor/hooks/user-unrelated-global.sh","matcher":"echo"}]}}' \
   > "$fake_home/.cursor/hooks.json"
 
 HOME="$fake_home" make -C "$ROOT" install-global \
   GLOBAL="$fake_home/.cursor" LOCAL_BIN="$fake_home/.local/bin" BIN="$BIN"
-for skill in sc-run sc-ship sc-quick; do
+for skill in sc-run sc-ship sc-quick sc-storm; do
   test -f "$fake_home/.cursor/skills/$skill/SKILL.md" \
     || { echo "FAIL: install-global missing $skill skill"; exit 1; }
 done
-echo "  ok   install-global installs sc-run, sc-ship, and sc-quick"
+test -f "$fake_home/.cursor/skills/sc-discuss/references/lens-pass.md" \
+  || { echo "FAIL: install-global missing sc-discuss/references/lens-pass.md"; exit 1; }
+echo "  ok   install-global installs sc-run, sc-ship, sc-quick, sc-storm, and lens-pass"
 
 user_rules="$fake_home/.cursor/spacecraft/USER-RULES.txt"
 test -f "$user_rules" \
   || { echo "FAIL: install-global did not write $user_rules"; exit 1; }
-for marker in 'Spacecraft' 'English prompt coach' 'Coding Standards' 'Project Structure' 'Lane Detection'; do
+for marker in 'Spacecraft' 'English prompt coach' 'Coding Standards' 'Project Structure' 'Lane Detection' 'lens pass'; do
   grep -q "$marker" "$user_rules" \
     || { echo "FAIL: USER-RULES.txt missing marker: $marker"; exit 1; }
 done
-echo "  ok   install-global generates USER-RULES.txt with five-source markers"
+echo "  ok   install-global generates USER-RULES.txt with five-source markers (+ lens pass)"
 
 if [ -f "$fake_home/.cursorrules" ]; then
   echo "FAIL: install-global wrote legacy ~/.cursorrules"
