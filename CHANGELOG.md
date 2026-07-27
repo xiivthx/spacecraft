@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.42.2 - 2026-07-27
+
+- Docs: encode clean commenting doctrine - why-not-what, best comment is none, provenance ban in style/clean-code/sc-coder Bad, plus trust-seed lesson
+- Fix: ship gate closeout resolves workspace via hook payload (`workspace_roots` / cwd) so global hooks do not fail when process cwd is `~/.cursor`
+
 ## 0.42.1 - 2026-07-27
 
 - Docs: encode optional roadmap `*-integrate` tip in mission-sizing (Must-when, skip, owns, must-not) with discuss/run/planning/workflow pointers and trust-seed lesson that per-tip combine is not whole-map reconcile

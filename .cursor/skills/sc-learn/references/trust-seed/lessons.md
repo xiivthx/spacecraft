@@ -11,3 +11,4 @@ Tracked seed for `.space/trust/lessons.md`. Keep this file **short** - only dura
 | 2026-07-21 | Branch `feat/<id>/…` requires live mission artifacts before `/sc-ship` | Closeout cannot invent Verify after the fact | M7YB6X29 |
 | 2026-07-21 | Subsystem rewrites: keep regression tests for priority overrides and integrity checks; CHANGELOG is not proof behavior survived | Silent loss of `#38`/`#37`-class fixes after lean rewrites | M07SMYDMZ |
 | 2026-07-27 | Per-tip `/sc-run` combine does not replace a roadmap `*-integrate` tip when Must-when holds | Each seam's own combine only proves that seam; cross-seam drift needs a dedicated integrate pass | M8849HWY |
+| 2026-07-27 | Agent-written provenance comments (mission ids, plan/task cites, decisions ceremony) are noise; comments carry WHY, not WHAT | Source control already tracks provenance; comments should hold durable reasoning, not process narration | harness |
