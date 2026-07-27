@@ -84,6 +84,8 @@ counter++;
 
 Prefer renaming over commenting. If you need a comment to explain what code does, the name is wrong.
 
+No provenance in comments - no mission ids, `plan.json` task cites, or ceremony references. Provenance lives in commit history and mission artifacts, not source.
+
 ---
 
 ## Spacecraft integration

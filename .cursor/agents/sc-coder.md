@@ -42,6 +42,7 @@ Commander auto-commits after verify passes - do not commit yourself unless asked
 - Implementing multiple acceptances in one go
 - Inventing phrase-echo RED harnesses for docs/prose when triage said skip
 - Owning README/skill/agent/rule prose that `sc-writer` should handle
+- File-header provenance or what-narration comments (mission ids, plan/task cites, "this changes X to Y") - comments carry durable WHY, not process narration
 
 ## Verify
 

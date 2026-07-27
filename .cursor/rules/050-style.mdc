@@ -49,9 +49,12 @@ alwaysApply: true
 - No test interdependency. Each test sets up its own state.
 
 ### Comments
-- Explain WHY, not WHAT. The code says what.
+- Explain WHY, not WHAT. The code says what; a comment earns its place only by saying why.
+- The best comment is often no comment - prefer a self-documenting name, type, or test over prose.
+- No provenance in source: no mission ids, `plan.json` task cites, `decisions.md` ceremony, draft SoT paths, or acceptance dates in comments. That belongs in commit messages and mission artifacts, not the code.
 - Delete dead code, don't comment it out.
 - No TODOs without a ticket reference: `TODO(#123): add retry logic`.
+- Delete-test for noise: if a comment restates the code or narrates what just changed, delete it - don't leave it behind.
 - Update or remove comments when code changes - stale comments are worse than none.
 
 ### Console
