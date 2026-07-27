@@ -79,10 +79,11 @@ printf 'Hunt:\n'
 printf '  - weakened tests: %s\n' "$weak_note"
 printf '  - false completion: %s\n' "$false_note"
 printf '  - unauthorized action: none\n'
-printf 'Caveats: none\n'
+printf 'Remediation (when REFUTED): none\n'
 
 if [ "$FAIL" -ne 0 ]; then
   printf 'Findings:\n%s' "$FINDINGS"
+  printf 'Remediation (when REFUTED): fix findings then re-judge\n'
   printf 'VERDICT: REFUTED\n'
   printf 'REFUTED\n'
   printf 'Ready: blocked\n'

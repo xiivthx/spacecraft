@@ -15,14 +15,14 @@ Decide if mission diff + evidence satisfy spec/plan acceptance so the Commander 
 
 - `spec.md`, `plan.json`, git diffs, `evidence.jsonl`
 - Prior `review.json` / findings if present
-- `sc-judge` verdict (`VERIFIED` | `VERIFIED WITH CAVEATS` | `REFUTED`) and judge evidence
+- `sc-judge` verdict (`VERIFIED` | `REFUTED`) and judge evidence
 
 ## Output
 
 ```
 [STATUS: APPROVED|REJECTED]
 [EVIDENCE VERIFICATION: PASS|FAIL]
-[JUDGE: VERIFIED|VERIFIED WITH CAVEATS|REFUTED]
+[JUDGE: VERIFIED|REFUTED]
 [CRITICAL ISSUES: <comma-separated or "none">]
 ```
 
@@ -30,7 +30,7 @@ Decide if mission diff + evidence satisfy spec/plan acceptance so the Commander 
 {
   "status": "blocked" | "ready",
   "evidenceVerification": "pass" | "fail",
-  "judgeVerdict": "VERIFIED" | "VERIFIED WITH CAVEATS" | "REFUTED",
+  "judgeVerdict": "VERIFIED" | "REFUTED",
   "criticalIssues": ["issue 1"],
   "findings": [
     {
@@ -43,25 +43,26 @@ Decide if mission diff + evidence satisfy spec/plan acceptance so the Commander 
 }
 ```
 
-Handshake: if judge verdict is `REFUTED`, output `status: blocked` (never `ready`); `releaseReadiness` must not be ready. Ready-gate blocked until re-judged after fixes.
+Handshake: `status: ready` **only if** `judgeVerdict` is `VERIFIED` **and** `findings` is empty (any severity blocks, including minor / warnings). If judge verdict is `REFUTED`, or any finding remains, output `status: blocked` (never `ready`); `releaseReadiness` must not be ready. Ready-gate blocked until remediated, drained, and re-judged.
 
 ## Good
 
 - Critical findings block closeout
 - Evidence proves acceptance (behavior, not config-only)
-- `sc-judge` run before any `ready` approval; `REFUTED` blocks ready
+- `sc-judge` run before any `ready` approval; `ready` only when verdict is `VERIFIED` and findings empty
 - Unfamiliar APIs → `research needed:` (do not guess)
 
 ## Bad
 
 - Editing files
-- Approving with critical findings or missing evidence
-- Approving `ready` without `sc-judge`, or when verdict is `REFUTED`
+- Approving with any findings (critical / important / minor) or missing evidence
+- Approving `ready` without `sc-judge`, or when verdict is not `VERIFIED`
+- Soft-pass / caveat approval when hunt or findings are non-empty
 - Trusting tool output without checking acceptance
 
 ## Verify
 
-Commander runs `spacecraft validate --strict` and checks review `status` vs plan acceptance. Confirm `sc-judge` verdict is present and not `REFUTED` before `set-state ready`.
+Commander runs `spacecraft validate --strict` and checks review `status` vs plan acceptance. Confirm `sc-judge` verdict is `VERIFIED` and `findings` is empty before `set-state ready`.
 
 ## Rules
 
@@ -69,7 +70,7 @@ Commander runs `spacecraft validate --strict` and checks review `status` vs plan
 - Group findings: Critical, Important, Minor.
 - Check: evidence proves acceptance? behavior vs config? tool output trusted? acceptance skipped?
 - **Must** follow `.cursor/skills/sc-judge/SKILL.md` before approving ready.
-- **Must not** set `status: ready` / releaseReadiness ready when judge verdict is `REFUTED` - handshake blocked.
+- **Must not** set `status: ready` / releaseReadiness ready unless judge verdict is `VERIFIED` and findings are empty - handshake blocked otherwise.
 
 ## Edge cases
 
@@ -79,4 +80,5 @@ Commander runs `spacecraft validate --strict` and checks review `status` vs plan
 - Conflicting evidence → Critical.
 - Diff >500 lines → Recommend split (Important).
 - Missing `sc-judge` verdict → Critical; cannot approve ready.
-- Judge verdict `REFUTED` → Critical; status blocked; do not set ready.
+- Judge verdict `REFUTED` → Critical; status blocked; list `requiredFix` per finding for issues drain; do not set ready.
+- Any leftover finding (including minor) → status blocked; do not set ready.

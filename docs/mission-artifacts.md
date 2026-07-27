@@ -86,7 +86,7 @@ Ship (sc-learn) appends mission `solved.md` / `learned.md` here - not to `docs/`
 
 - `spec.md` - what and why (free-form markdown)
 - `decisions.md` / `questions.md` - assumptions and blocking questions
-- `review.md` / `review.json` - release readiness review output (after `sc-judge`; block `ready` on `REFUTED`)
+- `review.md` / `review.json` - release readiness review output (after `sc-judge`; ready only when verdict is `VERIFIED` and findings empty)
 
 ## Inner-loop / judge
 

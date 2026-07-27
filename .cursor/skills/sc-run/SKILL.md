@@ -16,8 +16,8 @@ Missions at `state=ready` (or stop on blocked / clarify / missing draft approval
 
 ## Good / Bad
 
-- Good: discuss clear first; plan → build → combine(+UI) → issues drain → review/judge; 0 open issues; empty findings; real evidence
-- Bad: shipping; discuss work mid-AFK; skip drain; ready with open issues or findings; ready without `sc-judge` or after `REFUTED`; invent phrase-echo RED for docs/prose; demanding UI draft on `*-data` / `*-functional` / `*-integrate` seams
+- Good: discuss clear first; plan → build → combine(+UI) → issues drain → review/judge; 0 open issues; empty findings; `sc-judge` `VERIFIED`; real evidence
+- Bad: shipping; discuss work mid-AFK; skip drain; ready with open issues or findings; ready without `sc-judge` or without `VERIFIED`; caveat / soft-pass ready; invent phrase-echo RED for docs/prose; demanding UI draft on `*-data` / `*-functional` / `*-integrate` seams
 
 ## Verify
 
@@ -86,9 +86,9 @@ Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing dra
    6. Same issue fails fix-verify **3** times or hard blocker → stop to human.
 8. **Review + sc-judge** (only after 0 open):
    1. Task(`sc-reviewer`); UI also Task(`sc-designer`).
-   2. Run sc-judge; evidence label including `judge`.
-   3. Findings or `REFUTED` → open entries in `issues.md` → back to step 7.
-   4. Clean: `review.json` (`status: ready`, empty `findings`); `validate --strict`; `set-state ready`.
+   2. Run sc-judge; evidence label including `judge`. Verdict is binary: `VERIFIED` | `REFUTED` (no caveats).
+   3. Any findings (any severity) or `REFUTED` → open entries in `issues.md` with `requiredFix` from reviewer/judge remediation → back to step 7 → re-review + re-judge. Do not set ready.
+   4. Clean only when judge is `VERIFIED`, `review.json` has `status: ready`, and `findings` is empty: `validate --strict`; `set-state ready`.
 9. Handoff: **Ready. Human check, then /sc-ship.** Continue `map next`. Squash is `/sc-ship` only.
 
 ```mermaid
@@ -106,7 +106,7 @@ flowchart TD
   I -->|fails| H
   I -->|clean| J["review + judge"]
   J -->|findings or REFUTED| H
-  J -->|clean| K["ready → HIL → ship"]
+  J -->|VERIFIED and empty findings| K["ready → HIL → ship"]
 ```
 
 ## Checkpoint commits
@@ -117,7 +117,7 @@ Auto-commit after every RED, GREEN, skip+evidence, combine, and material drain f
 
 - Never `/sc-ship`, merge, push, tag; never discuss/draft work mid-AFK.
 - One feature branch per mission id; Task-delegate product code/tests.
-- No ready without sc-judge, with `REFUTED`, with open issues, or with review findings.
+- Ready only after `sc-judge` `VERIFIED`, 0 open issues, and empty review findings (any severity blocks). Never ready on `REFUTED` or caveat soft-pass.
 - Must drain after plan+combine(+UI) until 0 open (sc-learn policy).
 - After 3 failed fix-verify on the same issue → human.
 
