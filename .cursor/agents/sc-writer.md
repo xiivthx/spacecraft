@@ -1,7 +1,7 @@
 ---
 name: sc-writer
 description: Writes and edits docs, prompts, messages, and other non-code prose. Use proactively for documentation and prompt craft; not for product code.
-model: claude-sonnet-5[effort=high]
+model: composer-2.5-fast
 readonly: false
 ---
 
