@@ -44,6 +44,84 @@ print(cmd)
   "hook could not parse command" \
   "The ship gate hook could not parse the shell command JSON from stdin. Fix the hook input or retry."
 
+# Resolve repo for closeout: Cursor's hook process cwd is often not the workspace.
+input_cwd=$(printf '%s' "$input" | python3 -c '
+import json, sys
+raw = sys.stdin.read()
+try:
+    data = json.loads(raw)
+except Exception:
+    print("")
+    raise SystemExit(0)
+if not isinstance(data, dict):
+    print("")
+    raise SystemExit(0)
+cwd = data.get("cwd") or data.get("working_directory") or ""
+print(cwd if isinstance(cwd, str) else "")
+' 2>/dev/null || true)
+
+input_root=$(printf '%s' "$input" | python3 -c '
+import json, sys
+raw = sys.stdin.read()
+try:
+    data = json.loads(raw)
+except Exception:
+    print("")
+    raise SystemExit(0)
+if not isinstance(data, dict):
+    print("")
+    raise SystemExit(0)
+for key in ("workspace_roots", "workspaceRoots", "roots"):
+    val = data.get(key)
+    if isinstance(val, list) and val:
+        first = val[0]
+        if isinstance(first, str) and first:
+            print(first)
+            raise SystemExit(0)
+        if isinstance(first, dict):
+            p = first.get("path") or first.get("uri") or ""
+            if isinstance(p, str) and p.startswith("file://"):
+                p = p[len("file://"):]
+            if isinstance(p, str) and p:
+                print(p)
+                raise SystemExit(0)
+for key in ("workspace_root", "workspaceRoot", "workspaceFolder", "project_dir", "projectDir"):
+    val = data.get(key)
+    if isinstance(val, str) and val:
+        print(val)
+        raise SystemExit(0)
+print("")
+' 2>/dev/null || true)
+
+hook_repo=
+for candidate in "$input_cwd" "$input_root"; do
+  if [ -n "$candidate" ] && [ -d "$candidate/.git" ]; then
+    hook_repo=$(CDPATH= cd -- "$candidate" 2>/dev/null && pwd)
+    break
+  fi
+done
+if [ -z "$hook_repo" ]; then
+  walk=$(pwd 2>/dev/null || true)
+  while [ -n "$walk" ] && [ "$walk" != "/" ]; do
+    if [ -d "$walk/.git" ]; then
+      hook_repo=$walk
+      break
+    fi
+    walk=$(CDPATH= cd -- "$walk/.." 2>/dev/null && pwd)
+  done
+fi
+if [ -z "$hook_repo" ]; then
+  cd_path=$(printf '%s' "$command" | python3 -c '
+import re, sys
+cmd = sys.stdin.read()
+m = re.search(r"(?:^|[;&|]|&&|\|\|)\s*cd\s+(/[^\s;|&]+)", cmd)
+print(m.group(1) if m else "")
+' 2>/dev/null || true)
+  if [ -n "$cd_path" ] && [ -d "$cd_path/.git" ]; then
+    hook_repo=$(CDPATH= cd -- "$cd_path" 2>/dev/null && pwd)
+  fi
+fi
+
 # Classify: real ship git first (never allowlist-bypass), then strict self-test.
 ship_class=$(printf '%s' "$command" | python3 -c '
 import re, sys
@@ -127,10 +205,15 @@ if [ "$QUICK_FLAG" = "1" ]; then
 fi
 
 # SPACECRAFT_SHIP=1 (mission ship): run closeout before allowing.
+# Prefer workspace repo (hook_repo); require regular file so a cwd like
+# ~/.cursor (where ./spacecraft is a directory) does not false-match -x.
 if [ -n "${SPACECRAFT_CLOSEOUT_CMD:-}" ]; then
   closeout_out=$(sh -c "$SPACECRAFT_CLOSEOUT_CMD" 2>&1)
   closeout_rc=$?
-elif [ -x ./spacecraft ]; then
+elif [ -n "$hook_repo" ] && [ -f "$hook_repo/spacecraft" ] && [ -x "$hook_repo/spacecraft" ]; then
+  closeout_out=$(CDPATH= cd -- "$hook_repo" && ./spacecraft closeout-check 2>&1)
+  closeout_rc=$?
+elif [ -f ./spacecraft ] && [ -x ./spacecraft ]; then
   closeout_out=$(./spacecraft closeout-check 2>&1)
   closeout_rc=$?
 else
