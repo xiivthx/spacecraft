@@ -1,0 +1,13 @@
+{
+  "planName": "judge-break-review-findings",
+  "missionId": "JBREAKREV",
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "noop",
+      "status": "done",
+      "acceptance": ["noop"],
+      "verify": ["true"]
+    }
+  ]
+}

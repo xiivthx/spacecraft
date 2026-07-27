@@ -16,6 +16,8 @@ Mission knowledge: issues, solutions, lessons. **Sole owner of issues triage pol
 
 Tracked seed only: `references/trust-seed/` (copy into `.space/trust/` when missing). Never write trust to `docs/`.
 
+**Process SoT:** `.cursor/rules/*.mdc` (behavior rulebook) ranks above `.space/trust/lessons.md` (trap ledger). Precedence: explicit user > approved draft (look) + spec (behavior) > rules > lessons > tests > code. Do not hand-patch around a lesson - promote repeated traps into a rule or machine check, then re-run. Lessons inform; they do not override always-on rules.
+
 ## When to use
 
 - Record / solve / file a finding during a mission
@@ -111,7 +113,7 @@ Before `set-state ready` and before ship release:
 - **Must**: Create tracking files at `planned` (or earlier); record findings as found; classify each.
 - **Must**: Follow the issues policy matrix above; clear all `open` before ready/ship.
 - **Must**: Migrate only high-signal solved/learned into `.space/trust/` at ship; reword lessons; skip duplicates and nits.
-- **Must**: Read `.space/trust/lessons.md` before inventing process (seed if missing). Keep trust files short.
+- **Must**: Read `.space/trust/lessons.md` before inventing process (seed if missing). Keep trust files short. Lessons do not override `.cursor/rules/*.mdc`; promote repeated traps into a rule or check instead of hand-patching.
 - **Must not**: Ship or ready with open issues; create GitHub Issues at ship for open debt; write trust into `docs/`; pad trust with mission diary noise.
 - **Must**: GitHub Issues = global registry for debt filed during run.
 - **Must**: ctx_index after mission tracking writes (best-effort).

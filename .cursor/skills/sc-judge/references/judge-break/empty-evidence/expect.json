@@ -1,0 +1,5 @@
+{
+  "id": "JBREAKEVID",
+  "predicate": "closeout-reject",
+  "mustContain": "no evidence captured"
+}

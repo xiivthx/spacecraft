@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.43.1 - 2026-07-28
+
+- Feat: Graph Engineering Core - process SoT precedence (`rules/*.mdc` > `lessons.md`), Graph vs Loop naming, agent-frontmatter model routing, deterministic judge-break fixtures (`make test-judge-break`)
+
 ## 0.43.0 - 2026-07-28
 
 - Feat: STORM Tier 0-3 lens pass - discuss checklist (Tier 0), sc-adviser Tier 1, parallel readonly Tier 2 (2-3 Tasks), sc-storm Tier 3 systematic research; greppable `## Lens pass` / skip in `decisions.md`; retarget sc-search from `/sc-research` to sc-storm

@@ -1,0 +1,13 @@
+{
+  "planName": "judge-break-empty-evidence",
+  "missionId": "JBREAKEVID",
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "noop",
+      "status": "done",
+      "acceptance": ["noop"],
+      "verify": ["true"]
+    }
+  ]
+}

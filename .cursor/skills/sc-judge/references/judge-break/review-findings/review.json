@@ -1,0 +1,14 @@
+{
+  "status": "ready",
+  "findings": [
+    {
+      "severity": "minor",
+      "blocksShip": false,
+      "summary": "Known-bad fixture finding"
+    }
+  ],
+  "releaseReadiness": {
+    "changelog": { "status": "ready" },
+    "specNote": { "status": "ready" }
+  }
+}
