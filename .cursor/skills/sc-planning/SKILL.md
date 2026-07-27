@@ -51,7 +51,7 @@ Use this exact sequence unless the user specifies otherwise:
    - Phase 1 (`plan-phase1.json` or first `plan-phaseN.json`) covers the highest-priority, blocking, or foundational work
    - Each phase is independently buildable and verifiable
    - Record the split rationale in `decisions.md` when planning writes phase files under an existing `Sizing: phases`
-   - **Must not** invent cross-feature layer waterfalls or `*-ux` roadmap seams
+   - **Must not** invent cross-feature layer waterfalls, a `*-ux` roadmap seam, or a `*-integrate` tip mid-plan
    - **Must not** call `spacecraft map new` / `map add` from planning
    - Mid-run multi-mission need → stop; `/sc-discuss` **Resize protocol** (mission-sizing)
 
@@ -90,7 +90,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 ### Edge cases
 
-- **>7 tasks needed** - (1) same-mission `plan-phaseN.json` when seams are not independently shippable and `Sizing: phases` is recorded (planning may write phase files); (2) if independent feature seams are needed → stop and hand to `/sc-discuss` + `references/mission-sizing.md` (multi-mission; discuss owns `spacecraft map` + Resize protocol). Never `map new` / invent missions from planning. Do not invent a cross-feature layer waterfall or a `*-ux` seam mid-plan.
+- **>7 tasks needed** - (1) same-mission `plan-phaseN.json` when seams are not independently shippable and `Sizing: phases` is recorded (planning may write phase files); (2) if independent feature seams are needed → stop and hand to `/sc-discuss` + `references/mission-sizing.md` (multi-mission; discuss owns `spacecraft map` + Resize protocol). Never `map new` / invent missions from planning. Do not invent a cross-feature layer waterfall, a `*-ux` seam, or a `*-integrate` tip mid-plan.
 - **Plan balloons mid-run** - Stop AFK planning expansion; recommend `/sc-discuss` to apply mission-sizing (phases vs multi-mission / Resize protocol). Do not silently add missions or call `spacecraft map`.
 - **Blocking question open** - Stop and route to `/sc-discuss` / sc-clarify. Do not produce `plan.json` with hidden assumptions.
 - **File paths uncertain** - Use map.json or inspect the repo. If still uncertain, note it in task `files` as `"<discover-during-implementation>"`.
@@ -108,7 +108,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - **Must**: File paths are real - verify with `ls` or glob before writing.
 - **Must not**: Soft prefer ≤7; reject any 8-9 exception band.
 - **Must not**: Call `spacecraft map new` / `map add` or invent multi-mission roadmaps from planning - hand independent-seam splits to `/sc-discuss` + mission-sizing.
-- **Must not**: Invent cross-feature layer waterfalls or `*-ux` roadmap seams when escaping ≤7 - use vertical feature seams per sc-discuss `references/mission-sizing.md`.
+- **Must not**: Invent cross-feature layer waterfalls, `*-ux` roadmap seams, or a `*-integrate` tip mid-plan when escaping ≤7 - use vertical feature seams (plus discuss-owned optional integrate) per sc-discuss `references/mission-sizing.md`.
 - **Must not**: Use vague tasks like "improve code", "add features", or one task that swallows the whole feature.
 - **Must not**: Fill gray areas with hidden assumptions. Record assumptions explicitly.
 - **Must not**: Create broad architecture plans unless the spec requires it.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.42.1 - 2026-07-27
+
+- Docs: encode optional roadmap `*-integrate` tip in mission-sizing (Must-when, skip, owns, must-not) with discuss/run/planning/workflow pointers and trust-seed lesson that per-tip combine is not whole-map reconcile
+
 ## 0.42.0 - 2026-07-27
 
 - Feat: split Cursor install into User vs Project layers - `install-global` generates `~/.cursor/spacecraft/USER-RULES.txt` and merges absolute-path safety hooks; `install-project` installs domain rules `300`-`620` + `session-start` without re-copying `alwaysApply`

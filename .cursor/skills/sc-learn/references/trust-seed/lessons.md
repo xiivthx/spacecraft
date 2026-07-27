@@ -10,3 +10,4 @@ Tracked seed for `.space/trust/lessons.md`. Keep this file **short** - only dura
 | 2026-07-21 | ≤7 tasks per plan phase is a hard Must; discuss sizes `phases` (`plan-phaseN`) or multi-mission seams - discuss owns map create/add | Soft "prefer ≤7" / 8-9 bands erase the limit; planning must not invent maps | M7ZR8E5V |
 | 2026-07-21 | Branch `feat/<id>/…` requires live mission artifacts before `/sc-ship` | Closeout cannot invent Verify after the fact | M7YB6X29 |
 | 2026-07-21 | Subsystem rewrites: keep regression tests for priority overrides and integrity checks; CHANGELOG is not proof behavior survived | Silent loss of `#38`/`#37`-class fixes after lean rewrites | M07SMYDMZ |
+| 2026-07-27 | Per-tip `/sc-run` combine does not replace a roadmap `*-integrate` tip when Must-when holds | Each seam's own combine only proves that seam; cross-seam drift needs a dedicated integrate pass | M8849HWY |

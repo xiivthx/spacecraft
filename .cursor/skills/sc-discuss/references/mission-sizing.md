@@ -25,7 +25,32 @@ Ask which concerns the requirement needs (omit absent ones):
 
 **Must not** create `*-ux` as a roadmap seam.
 
-**Order default:** `*-data` → `*-functional` → `*-ui`. Omit a seam when that concern is absent.
+## Optional integrate tip (fourth, non-visual)
+
+`*-integrate` is not a feature seam and not `*-ux` - it is an optional fourth roadmap tip, added only after the last feature seam, to reconcile a multi-seam map once every feature seam has shipped.
+
+| Tip | Mission title pattern | Owns |
+|-----|----------------------|------|
+| **integrate** (optional) | `<feature>-integrate` | cross-seam E2E Verify, dead code/path removal, route/contract alignment, cross-mission issue drain |
+
+**Must-when** (add `*-integrate` only if one holds):
+- The map has more than one feature seam and a later seam's contract could invalidate an earlier seam's assumptions
+- `*-ui` follows `*-functional` and the map needs a final cross-seam pass after `*-ui` ships
+- Discuss records known drift, or a signal that integrate is needed, at map create
+
+**Skip:** when the last tip's own combine already covers end-to-end behavior and there is no drift signal, do **not** add `*-integrate` - record `Integrate tip skipped: <reason>` in that mission's (or map-tip's) `decisions.md`.
+
+**Owns:** cross-seam E2E Verify; dead code/path removal; route/contract alignment; cross-mission issue drain.
+
+**Must not:**
+- Add new features
+- Reopen UX art direction (visual SoT stays with the `*-ui` draft)
+- Silently invent or resize the map mid-`/sc-run` - integrate is a discuss sizing decision like any other seam
+- Rewrite a shipped tip's spec without a recorded delta in `decisions.md`
+
+Per-mission combine (each tip's own `/sc-run` combine step) still runs as normal; `*-integrate` does not replace it - integrate is the cross-seam pass that runs after every feature seam has already combined on its own.
+
+**Order default:** `*-data` → `*-functional` → `*-ui` → optional `*-integrate` when present. Integrate never blocks UI work - it always comes after the last feature seam. Omit a seam (or the integrate tip) when that concern is absent.
 
 ## Decision tree
 
@@ -49,7 +74,7 @@ Then create the map under **Map creation (discuss only)** below. Discuss the cur
 1. Record intended `Sizing: roadmap <id>` (+ seams / rationale) - will copy onto every seam in step 5.
 2. For each needed seam title: `spacecraft new "<feature>-data|functional|ui"` (create stubs **before** `map add`).
 3. `spacecraft map new "<feature-or-roadmap-title>"` **unless** the human explicitly approved reusing an existing roadmap id. Never silently append to unrelated `map current`.
-4. `spacecraft map add <roadmap-id> <mission-id> --desc "<seam title>"` for each stub, in order `data` → `functional` → `ui` (omit absent).
+4. `spacecraft map add <roadmap-id> <mission-id> --desc "<seam title>"` for each stub, in order `data` → `functional` → `ui` → optional `integrate` when Must-when holds (omit absent). The `integrate` stub still needs its own `spacecraft new "<feature>-integrate"` before `map add`, same as any other seam - discuss-owned only.
 5. **Stub `decisions.md` on every seam** (tip and later) with the same:
    ```
    Sizing: roadmap <roadmap-id>
@@ -72,6 +97,7 @@ When planning or AFK discovers the mission must become multi-mission (or the map
    - **supersede** - archive or abandon current as wrong shape; create fresh seam stubs + new map
    - **re-tip** - current stays on map but is no longer tip; reorder / `map add` siblings; discuss the new tip
 4. Re-record `Sizing: roadmap <id>` on every involved mission; clear only the tip after its discuss gates.
+5. Discuss may also `map add` a `*-integrate` tip to an existing map when drift appears after map create (e.g. a later seam's contract diverged from an earlier one). Still discuss-only - never invent an integrate tip mid-`/sc-run` or from planning.
 
 ## Handoff by sizing
 
@@ -85,7 +111,8 @@ After tip `clarify-status clear`:
 ## Visual draft by seam
 
 - Draft HIL required for `*-ui` and for `Sizing: single` / `phases` when the mission is visual UI/FE.
-- `*-data` and `*-functional` tips: **non-visual** - record `UI draft skipped: non-visual seam (<data|functional>)` in that mission's `decisions.md`. `/sc-run` must not demand a draft for those tips.
+- `*-data`, `*-functional`, and `*-integrate` tips: **non-visual** - record `UI draft skipped: non-visual seam (<data|functional|integrate>)` in that mission's `decisions.md`. `/sc-run` must not demand a draft for those tips.
+- Integrate tip example: `UI draft skipped: non-visual seam (integrate)`.
 
 ## Record
 
@@ -104,7 +131,7 @@ Roadmap description should state feature name, seam order, and why split.
 ## Must not
 
 - Global layer roadmaps across unrelated features
-- Fourth `*-ux` roadmap seam
+- Fourth `*-ux` roadmap seam - the only sanctioned optional fourth tip is `*-integrate` reconcile, never `*-ux`
 - Soft "prefer ≤7" or 8-9 exception bands (≤7 remains a hard Must per phase)
 - Soft "roughly ≥4" for single-seam split (use hard ≥4)
 - Inventing roadmap create/resize mid-`/sc-run` or mid-plan without returning to `/sc-discuss`
