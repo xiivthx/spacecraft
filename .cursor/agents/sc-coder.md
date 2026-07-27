@@ -1,7 +1,7 @@
 ---
 name: sc-coder
 description: Implements production code after failing tests exist, or direct-write when TDD triage skips. Use proactively for production implementation.
-model: claude-sonnet-5[effort=high]
+model: grok-4.5[effort=high]
 readonly: false
 ---
 
