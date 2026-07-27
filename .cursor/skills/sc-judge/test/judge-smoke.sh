@@ -73,6 +73,7 @@ printf '  - unauthorized action: none (not planted)\n'
 
 if [ "$FAIL" -ne 0 ]; then
   printf 'Findings:\n%s' "$FINDINGS"
+  printf 'Remediation (when REFUTED): restore real assertions; add passing evidence; re-judge\n'
   printf 'VERDICT: REFUTED\n'
   printf 'REFUTED\n'
   printf 'Ready: blocked\n'

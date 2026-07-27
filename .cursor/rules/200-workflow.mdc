@@ -55,7 +55,7 @@ Clarify status: `open` | `clear` | `deferred` under mission dir.
 ## Lanes (pointers)
 
 - **Discuss:** `/sc-discuss` (sizing + spec, decisions, visual draft, mission brief before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft), `sc-discuss/references/mission-sizing.md`, `sc-discuss/references/mission-brief.md`.
-- **Mission:** `/sc-run` (roadmap queue or mission-only; plan → build → drain → review → ready). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (block on `REFUTED`). Shares INTENT / AUTH / TWINS / 3-cycle with Quick.
+- **Mission:** `/sc-run` (roadmap queue or mission-only; plan → build → drain → review → ready). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (ready only on `VERIFIED`). Shares INTENT / AUTH / TWINS / 3-cycle with Quick.
 - **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive (mission only).
 - **Quick:** `/sc-quick` - no mission artifacts; branch `<type>/<title>` → verify → commit → ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` (hook skips closeout). Still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle. Do not invent a mission stub.
 - **Debug:** reproduce E2E → falsify root cause → record in `issues.md`. Prefer Cursor Debug Mode for runtime evidence.
@@ -75,7 +75,7 @@ Orchestrator, not implementer. Task-delegate:
 | `sc-firmware` | STM32 C |
 | `sc-writer` | docs, prompts, messages, non-code prose |
 
-Patterns: visual draft (scenario-complete) approved in `/sc-discuss` before `/sc-run`; `/sc-run` **ports** look from approved draft (draft-parity UI recheck); tester before coder (one acceptance per pair); firmware for embedded; docs/prose triage skips → Task(`sc-writer`), not sc-coder; combine then issues drain; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (block on `REFUTED`); reviewer before ship.
+Patterns: visual draft (scenario-complete) approved in `/sc-discuss` before `/sc-run`; `/sc-run` **ports** look from approved draft (draft-parity UI recheck); tester before coder (one acceptance per pair); firmware for embedded; docs/prose triage skips → Task(`sc-writer`), not sc-coder; combine then issues drain; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (ready only on `VERIFIED`; `REFUTED` → fix plan → drain → re-judge); reviewer before ship.
 
 ## Inner-loop gates
 

@@ -1,6 +1,6 @@
 ---
 name: sc-judge
-description: "Adversarial prove gate before ready. Treat completion claims as claims; re-run evidence; diff scope vs plan; hunt weakened tests / false completion / unauthorized action. Verdict VERIFIED | VERIFIED WITH CAVEATS | REFUTED."
+description: "Adversarial prove gate before ready. Treat completion claims as claims; re-run evidence; diff scope vs plan; hunt weakened tests / false completion / unauthorized action. Verdict VERIFIED | REFUTED only."
 ---
 
 # sc-judge
@@ -14,15 +14,15 @@ Adversarial prove gate before `ready`: re-observe claimed completion. Never trus
 A single verdict for the mission (or scoped claim under review):
 
 ```
-VERDICT: VERIFIED | VERIFIED WITH CAVEATS | REFUTED
+VERDICT: VERIFIED | REFUTED
 ```
 
-Plus: fresh evidence ids, scope-diff notes, hunt findings, and (when not `VERIFIED`) the caveats or refutation reasons. Cursor-native skill only - no Claude-plugin dependency.
+Plus: fresh evidence ids, scope-diff notes, hunt findings, and (when `REFUTED`) the refutation reasons plus a remediation list for `issues.md`. Cursor-native skill only - no Claude-plugin dependency.
 
 ## Good / Bad
 
-- Good: treat every completion / "done" / "ready" claim as a claim; re-run claimed evidence commands and record fresh observation; diff actual change scope vs `plan.json` / spec acceptance; hunt weakened tests, false completion, unauthorized action; emit exactly one of the three verdicts; block `ready` on `REFUTED`
-- Bad: believing a prior report or evidence.jsonl line without re-running; inventing evidence; soft-shipping past `REFUTED`; replacing discuss/run/ship with a judge-only flow; expanding hunt into product redesign or trap-eval suites
+- Good: treat every completion / "done" / "ready" claim as a claim; re-run claimed evidence commands and record fresh observation; diff actual change scope vs `plan.json` / spec acceptance; hunt weakened tests, false completion, unauthorized action; emit exactly one of the two verdicts; allow `ready` **only** on `VERIFIED`; on `REFUTED` emit a fix plan and block ready until re-judged
+- Bad: believing a prior report or evidence.jsonl line without re-running; inventing evidence; soft-shipping past `REFUTED`; third verdicts or caveat soft-pass; replacing discuss/run/ship with a judge-only flow; expanding hunt into product redesign or trap-eval suites
 
 ## Verify
 
@@ -32,7 +32,7 @@ Before accepting a judge pass as proof:
 spacecraft evidence "judge-<mission-id>" -- <re-run of claimed commands>
 ```
 
-Confirm verdict string is exactly one of `VERIFIED` | `VERIFIED WITH CAVEATS` | `REFUTED`, hunt notes cover the three targets, and scope-diff vs plan/spec is recorded.
+Confirm verdict string is exactly one of `VERIFIED` | `REFUTED`, hunt notes cover the hunt targets, scope-diff vs plan/spec is recorded, and `Ready: allowed` only when verdict is `VERIFIED`.
 
 ## When to use
 
@@ -53,35 +53,34 @@ Use this exact sequence unless the user specifies otherwise:
 4. **Diff scope vs plan** - Compare the actual change set (diff / files touched) to `plan.json` tasks and `spec.md` acceptance. Flag work outside plan, missing acceptance coverage, or plan items marked done without matching fresh evidence.
 5. **Hunt** - Actively search for:
    - **weakened tests** - assertions removed, skipped, loosened, or replaced with tautologies so GREEN is cheap
-   - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, `issues.md` still has `Status: open` (any severity), related/regression/consequence findings parked instead of fixed, or `review.json` still has findings (including warnings)
+   - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, `issues.md` still has `Status: open` (any severity), related/regression/consequence findings parked instead of fixed, or `review.json` still has findings (including minor / warnings)
    - **unauthorized action** - outward push/deploy/publish/send (or similar) without quoted `AUTH:` and user authorization; ship/merge without `/sc-ship` gates
    - **draft drift (visual UI)** - when `UI draft approved: …` is recorded, treat "matches draft" / visual ready as a claim: REFUTE if product chrome clearly diverges from the approved draft (layout-only match) or required draft scenario states (`empty` / `error` / `few` / `many` / spec features) were never implemented or tested
 6. **Verdict** - Emit exactly one of:
-   - `VERIFIED` - fresh evidence passes; scope matches plan/spec; hunt clean; 0 open mission issues; 0 review findings
-   - `VERIFIED WITH CAVEATS` - prove holds with non-defect notes already recorded in `decisions.md` (e.g. known manual follow-up outside product). **Never** for warnings, open `issues.md`, review findings, or acceptance gaps - those are `REFUTED`
-   - `REFUTED` - material hunt hit, failed re-run, scope/acceptance mismatch, open mission issues, or leftover review findings
-7. **Ready gate** - If `REFUTED`, block `ready`. Do not soften to ship or ready.
+   - `VERIFIED` - perfect bar: fresh evidence passes; scope matches plan/spec; hunt clean; **0** open mission issues; **0** review findings (critical / important / minor - no warning band). Ready allowed (subject to other gates).
+   - `REFUTED` - any gap: material hunt hit, failed re-run, scope/acceptance mismatch, open mission issues, leftover review findings (any severity), or failed verify. Ready blocked.
+7. **Ready gate** - Allow `ready` **only** on `VERIFIED`. On `REFUTED`, block `ready` and emit a remediation list (each item mappable to `issues.md` with `requiredFix`) so `/sc-run` can drain → re-review → re-judge. Do not soften to ship or ready. No caveat / soft-pass verdict.
 
 ### Edge cases
 
 - **No claimed evidence commands** - `REFUTED` (or refuse `VERIFIED`).
 - **Evidence re-run fails** - Capture as fresh evidence; `REFUTED` until fixed and re-judged.
-- **Caveats** - Only non-defect `decisions.md` notes. Open issues, review findings (including warnings), acceptance failure ⇒ `REFUTED`.
+- **Non-defect `decisions.md` notes** - Allowed alongside `VERIFIED` as recorded decisions only. They do **not** create a third verdict. Unfinished follow-up work ⇒ open issue ⇒ `REFUTED`.
 - **Open issues / parked related** - Any `Status: open` ⇒ `REFUTED`. Mission-caused left open for ship ⇒ `REFUTED`.
+- **Any review finding** - Critical, important, or minor (including warnings) ⇒ `REFUTED` until findings are empty.
 - **Manual-only check** - Fresh manual observation note in evidence; do not invent output.
 - **Judge vs lifecycle** - Prove gate before `ready` inside run; does not own discuss/build/ship.
 
 ## Verdict contract
 
-Exactly these three strings (case and spacing as written):
+Exactly these two strings (case and spacing as written):
 
 | Verdict | Meaning | Ready |
 |---------|---------|-------|
-| `VERIFIED` | Claim re-observed and holds | Allowed (subject to other gates) |
-| `VERIFIED WITH CAVEATS` | Holds with listed non-defect `decisions.md` notes | Allowed only with those caveats recorded |
-| `REFUTED` | Claim fails re-observation or hunt | **Blocked** - do not set `ready` |
+| `VERIFIED` | Claim re-observed and holds at the perfect bar | **Allowed** (subject to other gates) |
+| `REFUTED` | Claim fails re-observation or hunt | **Blocked** - fix plan → drain → re-judge; do not set `ready` |
 
-No aliases (`PASS`, `FAIL`, `APPROVED`, etc.).
+No aliases (`PASS`, `FAIL`, `APPROVED`, `VERIFIED WITH CAVEATS`, etc.).
 
 ## Rules
 
@@ -89,8 +88,9 @@ No aliases (`PASS`, `FAIL`, `APPROVED`, etc.).
 - **Must**: Re-run claimed evidence commands; record fresh observation in `evidence.jsonl`.
 - **Must**: Diff actual change scope vs `plan.json` / spec acceptance before verdict.
 - **Must**: Hunt for weakened tests, false completion, unauthorized action, and (when visual UI) draft drift (use those phrases in findings so they are searchable).
-- **Must**: Emit verdict exactly as `VERIFIED` | `VERIFIED WITH CAVEATS` | `REFUTED`.
-- **Must**: When `REFUTED`, block `ready` (enforced by reviewer / `/sc-run`).
+- **Must**: Emit verdict exactly as `VERIFIED` | `REFUTED`.
+- **Must**: Allow `ready` only when verdict is `VERIFIED` (enforced by reviewer / `/sc-run`).
+- **Must**: When `REFUTED`, block `ready`, list remediation for `issues.md`, and require re-judge after drain.
 - **Must**: Preserve discuss / run / ship - judge is the prove gate, not a replacement lifecycle.
 - **Must**: ASCII hyphen-minus only; Cursor-native; no Claude-plugin dependency.
 - **Must**: Capture hunt misses as well as hits in the judge summary (what was checked).
@@ -119,8 +119,8 @@ Hunt:
   - unauthorized action: <none | findings>
   - draft drift (visual UI): <n/a | none | findings>
   - open issues / review findings: <none | N open / N findings>
-Caveats: <none | list>
-VERDICT: VERIFIED | VERIFIED WITH CAVEATS | REFUTED
+Remediation (when REFUTED): <none | list for issues.md with requiredFix>
+VERDICT: VERIFIED | REFUTED
 Ready: allowed | blocked
 ```
 
@@ -133,13 +133,14 @@ Before emitting a verdict:
 - [ ] Claimed evidence commands re-run; fresh observation recorded
 - [ ] Scope diffed against `plan.json` / spec acceptance
 - [ ] Hunt covered weakened tests, false completion, unauthorized action, and draft drift when visual UI
-- [ ] Verdict is exactly one of the three contract strings
-- [ ] If `REFUTED`, ready blocked stated explicitly
+- [ ] Verdict is exactly one of the two contract strings
+- [ ] `Ready: allowed` only when verdict is `VERIFIED`
+- [ ] If `REFUTED`, ready blocked and remediation listed explicitly
 
 ## References
 
 - `sc-verification` - fresh evidence capture mechanics
-- `/sc-run` - AFK path that must not set `ready` on `REFUTED`
+- `/sc-run` - AFK path that must set `ready` only on `VERIFIED`
 - `sc-reviewer` agent - release readiness; consume judge verdict (wiring)
 - `plan.json` / `spec.md` - acceptance and scope authority (behavior)
 - approved draft HTML - visual look authority when `UI draft approved` is recorded

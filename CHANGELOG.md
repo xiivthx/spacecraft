@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Docs: binary sc-judge - `VERIFIED` | `REFUTED` only; remove `VERIFIED WITH CAVEATS` soft-pass; ready only on `VERIFIED` with empty findings; `REFUTED` requires fix plan → drain → re-judge
+
 ## 0.42.3 - 2026-07-27
 
 - Chore: route high-volume agents to Cursor Models pool - `sc-writer` → Composer 2.5 Fast, `sc-coder` → Grok 4.5; keep tester/planner/gates on Other Models
