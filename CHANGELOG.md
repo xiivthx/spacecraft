@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.42.4 - 2026-07-28
 
 - Docs: binary sc-judge - `VERIFIED` | `REFUTED` only; remove `VERIFIED WITH CAVEATS` soft-pass; ready only on `VERIFIED` with empty findings; `REFUTED` requires fix plan → drain → re-judge
 
