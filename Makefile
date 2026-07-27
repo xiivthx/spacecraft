@@ -1,5 +1,5 @@
 .PHONY: build install install-cli install-project install-global smoke uninstall clean help \
-        test test-go test-config test-install test-gen-user-rules gate
+        test test-go test-config test-install test-gen-user-rules test-judge-break gate
 
 ROOT      := $(CURDIR)
 BIN       := $(ROOT)/spacecraft
@@ -10,9 +10,10 @@ PROJECT   ?= .
 help:
 	@echo "Spacecraft targets:"
 	@echo "  build           Build cmd/spacecraft -> ./spacecraft"
-	@echo "  test            Full verification: go tests + vet + gofmt + config + install smoke"
+	@echo "  test            Full verification: go tests + vet + gofmt + config + judge-break + install smoke"
 	@echo "  test-go         Go unit tests, go vet, gofmt check (cmd/spacecraft)"
 	@echo "  test-config     Static config smoke (mcp/hooks JSON, frontmatter, no commands/)"
+	@echo "  test-judge-break  Known-bad closeout fixtures must be rejected"
 	@echo "  test-install    Bootstrap/install smoke into a throwaway temp dir"
 	@echo "  test-gen-user-rules  RED/GREEN test for scripts/gen-user-rules.sh"
 	@echo "  gate            Go tests + Cursor hook unit tests (hooks_test.sh)"
@@ -24,7 +25,7 @@ help:
 	@echo "  clean           Remove built binary"
 
 # Full verification suite. Runs everything CI runs; humans use `make test`.
-test: test-go test-config test-install
+test: test-go test-config test-judge-break test-install
 	@echo "All tests passed."
 
 # Local pre-ship / PR gate: Go unit tests plus Cursor hook assertions.
@@ -42,6 +43,10 @@ test-go:
 
 test-config:
 	@sh $(ROOT)/scripts/config-smoke.sh "$(ROOT)"
+
+# Deterministic judge-break: known-bad fixtures must fail closeout-check.
+test-judge-break: build
+	@sh $(ROOT)/scripts/check-judge-break.sh "$(ROOT)" "$(BIN)"
 
 # Install the surface + build the CLI into a throwaway dir, then smoke it.
 # Temp dir lives under the repo (.tmp/, gitignored) so it works both in a
@@ -82,6 +87,7 @@ install-global: build install-cli
 	@test -f "$(GLOBAL)/skills/sc-quick/SKILL.md"
 	@test -f "$(GLOBAL)/skills/sc-storm/SKILL.md"
 	@test -f "$(GLOBAL)/skills/sc-discuss/references/lens-pass.md"
+	@test -f "$(GLOBAL)/skills/sc-judge/references/judge-break/open-issues/expect.json"
 	@python3 $(ROOT)/scripts/mcp-merge.py merge "$(GLOBAL)/mcp.json" "$(ROOT)/.cursor/mcp.json"
 	@sh $(ROOT)/scripts/install-global-hooks.sh "$(ROOT)" "$(GLOBAL)"
 	@sh $(ROOT)/scripts/gen-user-rules.sh "$(ROOT)/.cursor/rules" "$(GLOBAL)/spacecraft/USER-RULES.txt"

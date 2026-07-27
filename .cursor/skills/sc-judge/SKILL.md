@@ -95,6 +95,18 @@ No aliases (`PASS`, `FAIL`, `APPROVED`, `VERIFIED WITH CAVEATS`, etc.).
 - **Must**: ASCII hyphen-minus only; Cursor-native; no Claude-plugin dependency.
 - **Must**: Capture hunt misses as well as hits in the judge summary (what was checked).
 
+## Judge-break fixtures
+
+Known-bad packs under `references/judge-break/` prove the ready/ship exit gate **rejects** bad disk state (open issues, empty evidence, review findings, false completion). Deterministic only - no LLM.
+
+```
+make test-judge-break
+# or
+scripts/check-judge-break.sh [repo-root] [spacecraft-binary]
+```
+
+Run before claiming sc-judge skill or closeout predicate changes are safe. Adding a new reject path: add a fixture pack with `expect.json` (`id`, `mustContain`) plus minimal mission files.
+
 ## Out of scope
 
 This skill does NOT handle:
@@ -103,7 +115,7 @@ This skill does NOT handle:
 - Clarifying requirements or visual drafts - use `/sc-discuss`
 - AFK build orchestration - use `/sc-run`
 - Merge, tag, or ship - use `/sc-ship` only
-- Trap-eval suites or domain adapters (deferred missions)
+- Trap-eval suites, trajectory rubrics, or LLM-as-judge scoring of agent transcripts (deferred)
 
 ## Output format
 
@@ -145,3 +157,4 @@ Before emitting a verdict:
 - `plan.json` / `spec.md` - acceptance and scope authority (behavior)
 - approved draft HTML - visual look authority when `UI draft approved` is recorded
 - `evidence.jsonl` - append-only observations; judge appends re-runs
+- `references/judge-break/` - known-bad fixtures; `scripts/check-judge-break.sh`

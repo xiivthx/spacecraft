@@ -1,0 +1,13 @@
+{
+  "planName": "judge-break-open-issues",
+  "missionId": "JBREAKOPEN",
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "noop",
+      "status": "done",
+      "acceptance": ["noop"],
+      "verify": ["true"]
+    }
+  ]
+}

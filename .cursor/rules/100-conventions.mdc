@@ -12,6 +12,10 @@ alwaysApply: true
 
 Schemas: `docs/mission-artifacts.md`.
 
+## Model routing
+
+Agent frontmatter under `.cursor/agents/*.md` is the model-by-role source of truth. Ignore `.space/models.toml` if present (local/gitignored leftover; not read by skills or the CLI).
+
 ## Branches / Commits
 
 - Branch: `feat/<id>/<title>` while working. Never write on `main`.
