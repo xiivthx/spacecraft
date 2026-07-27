@@ -61,7 +61,7 @@ resolve → inspect → sizing gate → classify gaps → talk / ask / decide �
 
 1. Classify checklist concerns present: UX / UI / functional / database.
 2. Rough jigsaw count for a vertical slice.
-3. Choose `single` | `phases` | `roadmap` per the playbook (3 seams only when splitting: `*-data` → `*-functional` → `*-ui`). **Must** use `*-functional` on new maps; **Must not** add a `*-ux` seam.
+3. Choose `single` | `phases` | `roadmap` per the playbook (3 feature seams when splitting: `*-data` → `*-functional` → `*-ui`, plus an optional `*-integrate` tip after the last feature seam when Must-when holds). **Must** use `*-functional` on new maps; **Must not** add a `*-ux` seam.
 4. Record in `decisions.md`: `Sizing: single | phases | roadmap <id>` (+ seams/rationale when roadmap; + `Sizing phases: N - …` when phases).
 5. If roadmap: follow **Map creation (discuss only)** ordered steps in `references/mission-sizing.md` (`spacecraft new` stubs → `map new` unless human approved reuse → `map add` → stub `Sizing:` on every seam → discuss tip only). Never leave map create/resize to planning.
 
@@ -82,7 +82,7 @@ Detect from intent / `spec.md`. If visual:
 4. **Designer gate before human:** Task(`sc-designer`); check scenario coverage + port readiness; Commander applies critical/important fixes; re-check 375px. Do not present draft until this passes. Missing required states = critical - do not serve.
 5. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) until approved (max 3 human rounds). Each new draft re-runs designer gate.
 6. On approval: record `UI draft approved: <draft-file>` in `decisions.md` **only if** the scenario matrix is complete. Incomplete states → refuse approval; iterate draft.
-7. Skip draft for non-visual FE, or for `*-data` / `*-functional` seams: record `UI draft skipped: non-visual seam (<data|functional>)` or other skip reason.
+7. Skip draft for non-visual FE, or for `*-data` / `*-functional` / `*-integrate` seams: record `UI draft skipped: non-visual seam (<data|functional|integrate>)` or other skip reason (e.g. `UI draft skipped: non-visual seam (integrate)`).
 8. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome).
 
 ### Mission brief (before clear)

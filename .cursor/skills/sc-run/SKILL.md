@@ -17,7 +17,7 @@ Missions at `state=ready` (or stop on blocked / clarify / missing draft approval
 ## Good / Bad
 
 - Good: discuss clear first; plan → build → combine(+UI) → issues drain → review/judge; 0 open issues; empty findings; real evidence
-- Bad: shipping; discuss work mid-AFK; skip drain; ready with open issues or findings; ready without `sc-judge` or after `REFUTED`; invent phrase-echo RED for docs/prose; demanding UI draft on `*-data` / `*-functional` seams
+- Bad: shipping; discuss work mid-AFK; skip drain; ready with open issues or findings; ready without `sc-judge` or after `REFUTED`; invent phrase-echo RED for docs/prose; demanding UI draft on `*-data` / `*-functional` / `*-integrate` seams
 
 ## Verify
 
@@ -46,7 +46,7 @@ Canonical: `.cursor/rules/200-workflow.mdc` - discuss (HIL) → run (AFK) → hu
 2. Incomplete mission with `clarify-status` `open` → stop; `/sc-discuss`.
 3. Draft gate (visual only):
    - Require `UI draft approved: …` when the mission is visual UI/FE (`*-ui` title, or `Sizing: single|phases` without a non-visual skip).
-   - Do **not** require draft when `decisions.md` has `UI draft skipped: non-visual seam (data|functional)` or another recorded non-visual skip.
+   - Do **not** require draft when `decisions.md` has `UI draft skipped: non-visual seam (data|functional|integrate)` or another recorded non-visual skip. `*-integrate` tips use `UI draft skipped: non-visual seam (integrate)` - no draft demanded.
    - Missing required draft → stop; `/sc-discuss`.
 4. Soft gaps → `decisions.md`. No design-brief / draft-HTML discovery here.
 
