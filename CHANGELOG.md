@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.43.3 - 2026-07-28
+
+- Docs: layout bake-off (2–3 HTML candidates) + dimension lock in `sc-discuss` / `sc-ux-design`; designer and shared draft directives updated; record winner or skip before `UI draft approved`
+
 ## 0.43.2 - 2026-07-28
 
 - Chore: drop `sc-ux-design` art-direction packs (`swiss-grid`, `editorial`) and pack-selection HIL; draft assembly is `shared directives` → `DESIGN.md` → brief only
