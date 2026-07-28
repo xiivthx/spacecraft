@@ -60,20 +60,24 @@ Before clearing discuss on visual work (and before any UI implementation code):
 
 After design brief approval, before `/sc-run` / real implementation:
 
-1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), key components, and a full scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → `DESIGN.md` when present → brief/content tail). Do not generate draft HTML until the design brief is approved.
+1. **Layout bake-off (before detail polish):** Generate **2–3** standalone HTML layout candidates under `.space/missions/<id>/design/drafts/` so the human can pick structure before deep scenario/chrome polish. Name them `<name>-draft-v1-<layout-id>.html` (e.g. `list`, `board`, `split`). Each candidate must use the draft scaffold (`data-draft`, chrome outside framed surface) and brief tokens; show the **primary** happy-path surface with real component chrome (not wireframe boxes only). Full scenario matrix may wait until a winner is chosen. Serve the drafts dir; present candidates side-by-side (Cursor IDE browser or default browser). Record the pick in `decisions.md` as `Layout bake-off winner: <draft-file>` (or `Layout bake-off skipped: <reason>` when layout is already forced by `DESIGN.md`, borrow scope `layout`|`chrome`, or an explicit user-named structure). Do not skip bake-off silently.
 
-2. **Every draft MUST include**: `data-draft="true"`; scaffold with `[data-draft-chrome]` (banner, notes, scenario switcher, viewport toggles) **outside** a visible `[data-draft-frame]` that wraps `[data-draft-surface]` (production UI only); versioned filename (`<name>-draft-v1.html`); CSS custom properties for brief tokens on the surface; scenario matrix `data-state` panels inside the surface for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied). Each panel shows real component chrome - not layout boxes only.
+2. **Dimension lock (iteration):** After the winner is chosen (or bake-off skipped), refine **one visual dimension per human round** - exactly one of: `typography` | `color` | `layout` | `motion` | `spacing` | `chrome`. Lock the others. Do not change type + color + layout in the same pass (whack-a-mole). Prefer feedback like "list diffs vs reference/draft; focus: <dimension>" over "make it look better." Optional: keep refs under `design/refs/` labeled by dimension. Record the active lock when useful: `Dimension lock: <dimension>`.
 
-3. **Designer gate (required):** Task(`sc-designer`) on the draft. Commander applies critical and important fixes (`sc-designer` is readonly). Missing scenario states, missing scaffold/frame, or non-portable chrome = critical. Check all four viewport presets (375 / 768 / 1280 / 1536) before and after fixes. Do not serve or present the draft to the human until this gate passes.
+3. **Polish the winning draft** with a full **scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → `DESIGN.md` when present → brief/content tail). Do not generate draft HTML until the design brief is approved. Filename stays versioned (`<name>-draft-vN.html` or keep the bake-off winner name and bump `vN` on major edits).
 
-4. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
+4. **Every draft MUST include**: `data-draft="true"`; scaffold with `[data-draft-chrome]` (banner, notes, scenario switcher, viewport toggles) **outside** a visible `[data-draft-frame]` that wraps `[data-draft-surface]` (production UI only); versioned filename; CSS custom properties for brief tokens on the surface; after bake-off (or skip), scenario matrix `data-state` panels inside the surface for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied). Each panel shows real component chrome - not layout boxes only. Bake-off candidates may defer full matrix until the winner polish step.
 
-5. **Under `/sc-discuss`**: iterate (draft → designer → fix → human) until the human likes it. On approval, record `UI draft approved: <draft-file>` in `decisions.md` only when the scenario matrix is complete; then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
+5. **Designer gate (required):** Task(`sc-designer`) on the draft presented for approval (winner after bake-off, or sole draft when skipped). Commander applies critical and important fixes (`sc-designer` is readonly). Missing scenario states (on approval candidate), missing scaffold/frame, or non-portable chrome = critical. Check all four viewport presets (375 / 768 / 1280 / 1536) before and after fixes. Do not serve or present the **approval** draft to the human until this gate passes. Bake-off candidates may be shown for layout pick after a lighter scaffold/viewport sanity check; full designer gate still required before `UI draft approved`.
 
-6. **Under `/sc-run`**: do **not** invent or iterate draft HTML. Port look from the approved draft. If approval is missing, stop and recommend `/sc-discuss`.
+6. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
-7. **Iterate** in discuss until approved (max 3 human rounds - if still unapproved, escalate to user for direction). Each new draft version re-runs the designer gate before human HIL.
-8. **Before human approval**: exercise all four viewport presets (mobile 375, tablet 768, desktop 1280, widescreen 1536) via the draft toggles. If layout breaks at any preset, fix before asking for approval.
+7. **Under `/sc-discuss`**: iterate (draft → designer → fix → human) with dimension lock until the human likes it. On approval, record `UI draft approved: <draft-file>` in `decisions.md` only when the scenario matrix is complete **and** `Layout bake-off winner:` or `Layout bake-off skipped:` is recorded; then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
+
+8. **Under `/sc-run`**: do **not** invent or iterate draft HTML, and do **not** run layout bake-off. Port look from the approved draft. If approval is missing, stop and recommend `/sc-discuss`. Layout discovery belongs in discuss only.
+
+9. **Iterate** in discuss until approved (max 3 human rounds after bake-off winner - if still unapproved, escalate to user for direction). Each new draft version re-runs the designer gate before human HIL.
+10. **Before human approval**: exercise all four viewport presets (mobile 375, tablet 768, desktop 1280, widescreen 1536) via the draft toggles. If layout breaks at any preset, fix before asking for approval.
 
 ### DESIGN.md integration
 
@@ -133,16 +137,20 @@ Optional scripted audit (same Playwright family):
 
 ### Draft preview
 
-- **Must**: Generate a draft HTML preview showing layout + style tokens + key components + **scenario matrix**; obtain user approval before writing implementation code.
-- **Must**: Every draft HTML file includes: `data-draft="true"`; scaffold with `[data-draft-chrome]` outside a framed `[data-draft-surface]`; viewport toggles for 375 / 768 / 1280 / 1536; versioned filename; and `data-state` panels for empty, error, few, many, plus spec feature/behavior surfaces (loading when implied) **inside the surface**.
+- **Must**: Run a **layout bake-off** of 2–3 HTML candidates (distinct page structures, brief tokens, primary surface chrome) before deep scenario polish; record `Layout bake-off winner: <file>` or `Layout bake-off skipped: <reason>` in `decisions.md`.
+- **Must**: After bake-off (or skip), polish the winning draft with layout + style tokens + key components + **scenario matrix**; obtain user approval before writing implementation code.
+- **Must**: During draft iteration, apply **dimension lock** - change only one of `typography` | `color` | `layout` | `motion` | `spacing` | `chrome` per human round; do not restyle multiple dimensions in one pass.
+- **Must**: Every approval-candidate draft HTML file includes: `data-draft="true"`; scaffold with `[data-draft-chrome]` outside a framed `[data-draft-surface]`; viewport toggles for 375 / 768 / 1280 / 1536; versioned filename; and `data-state` panels for empty, error, few, many, plus spec feature/behavior surfaces (loading when implied) **inside the surface**.
 - **Must**: Keep explanatory copy outside the frame; port only `[data-draft-surface]`.
-- **Must**: Run Task(`sc-designer`) and apply critical/important fixes before serving or presenting any draft to the human.
+- **Must**: Run Task(`sc-designer`) and apply critical/important fixes before serving or presenting the **approval** draft to the human.
 - **Must**: Check draft layout at all four viewport presets before asking for approval.
-- **Must**: Own draft discovery under `/sc-discuss`; `/sc-run` requires `UI draft approved: …` already recorded (or non-visual skip).
-- **Must not**: Serve or present raw/unreviewed draft HTML to the human.
-- **Must not**: Record `UI draft approved` when required scenario states are missing or scaffold/frame/surface split is missing.
+- **Must**: Own draft discovery (including bake-off) under `/sc-discuss`; `/sc-run` requires `UI draft approved: …` already recorded (or non-visual skip) and must not invent layouts.
+- **Must not**: Serve or present raw/unreviewed approval-candidate draft HTML to the human.
+- **Must not**: Record `UI draft approved` when required scenario states are missing, scaffold/frame/surface split is missing, or bake-off winner/skip is missing.
+- **Must not**: Skip bake-off silently when layout is still open; use an explicit skip line when forced.
+- **Must not**: Prompt with vague "make it look better" - prefer dimension-scoped diffs vs reference or draft.
 - **Must**: Treat `[data-draft-surface]` in the approved draft as the **visual source of truth** for production implementation - port structure, tokens, spacing, type, and component chrome; do not invent a second visual system; do not port scaffold chrome.
-- **Must**: After 3 human draft rounds without approval, escalate to the user for direction instead of iterating indefinitely.
+- **Must**: After 3 human draft rounds without approval (post bake-off), escalate to the user for direction instead of iterating indefinitely.
 
 ### Visual recheck
 
@@ -163,6 +171,7 @@ Optional scripted audit (same Playwright family):
 - **Must**: Read `DESIGN.md` before any UI implementation work.
 - **Must**: Generate a candidate `DESIGN.md` when the project lacks one, during the design brief phase.
 - **Must**: After draft approval, sync `DESIGN.md` tokens from the approved draft before or during port, except when `DESIGN conflict: mission exception` is recorded (leave house unchanged).
+- **Must**: Keep house `DESIGN.md` focused (prefer ≤~200 lines of durable tokens/rules) - specificity beats sprawl; evolve the file when design changes, then regenerate UI from it.
 
 ## Out of scope
 
@@ -202,6 +211,8 @@ This skill does NOT handle:
 Before claiming UI implementation is ready:
 
 - [ ] Design brief + draft approved in `/sc-discuss` (`UI draft approved: …` in `decisions.md`)
+- [ ] Layout bake-off recorded (`Layout bake-off winner: …` or `Layout bake-off skipped: …`) before approval
+- [ ] Draft iteration used dimension lock (one of typography/color/layout/motion/spacing/chrome per round)
 - [ ] Approved draft uses scaffold (chrome outside framed `[data-draft-surface]`) + scenario matrix (`empty`, `error`, `few`, `many`, + spec features; loading when implied)
 - [ ] Draft checked at viewport presets 375 / 768 / 1280 / 1536
 - [ ] Draft passed Task(`sc-designer`) + critical/important fixes before human HIL

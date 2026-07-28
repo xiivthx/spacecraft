@@ -16,8 +16,8 @@ Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; one blocking question at a time; soft gaps → `decisions.md`; visual brief + scenario-complete draft with designer gate before human; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
-- Bad: implementing; writing `plan.json` AFK; shipping; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; quizzing the human instead of presenting Answers; cross-feature layer waterfalls or `*-ux` roadmap seams
+- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; one blocking question at a time; soft gaps → `decisions.md`; visual brief + layout bake-off (or skip) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
+- Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; quizzing the human instead of presenting Answers; cross-feature layer waterfalls or `*-ux` roadmap seams
 
 ## Verify
 
@@ -27,6 +27,7 @@ Human confirms spec (and draft when visual), then Accepts (or skip) the mission 
 spacecraft clarify-status clear
 # decisions.md contains "Sizing: single" OR "Sizing: phases" OR "Sizing: roadmap <id>"
 # visual: decisions.md contains "UI draft approved: <draft-file>" OR "UI draft skipped:"
+# visual (when draft approved): "Layout bake-off winner: …" OR "Layout bake-off skipped: …"
 # visual draft includes scenario matrix (empty, error, few, many, + spec features) when approved
 # decisions.md contains "Mission brief: accepted" OR "Mission brief: skipped - <reason>"
 # decisions.md contains "## Lens pass" OR "Lens pass skipped:"
@@ -53,7 +54,7 @@ Canonical: `.cursor/rules/200-workflow.mdc` - this skill is discuss HIL only. Ne
 ## Discuss loop
 
 ```
-resolve → inspect → sizing gate → lens-pass gate → classify gaps → talk / ask / decide → (visual: brief + draft → designer → fix → human HIL) → mission brief → clear → handoff
+resolve → inspect → sizing gate → lens-pass gate → classify gaps → talk / ask / decide → (visual: brief → bake-off → polish+scenarios → designer → dimension-locked fix → human HIL) → mission brief → clear → handoff
 ```
 
 ### Sizing gate
@@ -83,12 +84,14 @@ After sizing, apply `references/lens-pass.md` before deep spec work when trigger
 Detect from intent / `spec.md`. If visual:
 
 1. Read project `DESIGN.md` when present (house look SoT). If references (image/text) are supplied, record borrow scope (`mood` | `tokens` | `layout` | `chrome`) in `decisions.md`. If proposed style conflicts with `DESIGN.md`, ask once and record `DESIGN conflict: mission exception | update house | keep house`. Then sc-ux-design design brief (6 dimensions, aligned to effective house); human approval. No art-direction pack question - packs removed.
-2. Generate draft HTML under `.space/missions/<id>/design/drafts/` (not wireframe-only). Must use draft scaffold: explanations in `[data-draft-chrome]` outside a framed `[data-draft-surface]`; viewport toggles (375 / 768 / 1280 / 1536); **scenario matrix** with `data-state` panels inside the surface for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied); real component chrome in each panel. Check all four viewports. Follow sc-ux-design prompt assembly (`shared directives` → `DESIGN.md` → brief). Honor borrow scope - no silent full-chrome clone from references.
-3. **Designer gate before human:** Task(`sc-designer`); check scenario coverage + port readiness + scaffold/frame split; Commander applies critical/important fixes; re-check all four viewports. Do not present draft until this passes. Missing required states or missing production frame = critical - do not serve.
-4. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) until approved (max 3 human rounds). Each new draft re-runs designer gate.
-5. On approval: record `UI draft approved: <draft-file>` in `decisions.md` **only if** the scenario matrix is complete. Incomplete states → refuse approval; iterate draft.
-6. Skip draft for non-visual FE, or for `*-data` / `*-functional` / `*-integrate` seams: record `UI draft skipped: non-visual seam (<data|functional|integrate>)` or other skip reason (e.g. `UI draft skipped: non-visual seam (integrate)`).
-7. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome). Prefer draft surface chrome that maps cleanly to reusable `components/ui` primitives (button, field, banner, empty) so `/sc-run` can build component-first.
+2. **Layout bake-off:** After brief approval, generate **2–3** HTML layout candidates under `.space/missions/<id>/design/drafts/` (`<name>-draft-v1-<layout-id>.html`) with scaffold + brief tokens + primary surface chrome. Serve and let the human pick. Record `Layout bake-off winner: <file>` or `Layout bake-off skipped: <reason>` (forced by `DESIGN.md`, borrow `layout`|`chrome`, or user-named structure). Do not skip silently. Full scenario matrix may wait until the winner.
+3. **Polish winner** (sc-ux-design): full draft with scaffold (chrome outside framed surface); viewport toggles (375 / 768 / 1280 / 1536); **scenario matrix** for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async); real component chrome. Check all four viewports. Prompt assembly: `shared directives` → `DESIGN.md` → brief. Honor borrow scope - no silent full-chrome clone.
+4. **Dimension lock while iterating:** change only one of `typography` | `color` | `layout` | `motion` | `spacing` | `chrome` per human round. Prefer "list diffs vs draft/reference; focus: <dimension>" over "make it look better."
+5. **Designer gate before approval HIL:** Task(`sc-designer`) on the approval candidate; check scenario coverage + port readiness + scaffold/frame; Commander applies critical/important fixes; re-check all four viewports. Do not present the approval draft until this passes. Missing required states or missing production frame = critical - do not serve.
+6. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) with dimension lock until approved (max 3 human rounds after bake-off). Each new draft re-runs designer gate.
+7. On approval: record `UI draft approved: <draft-file>` in `decisions.md` **only if** the scenario matrix is complete and bake-off winner/skip is recorded. Incomplete states → refuse approval; iterate draft.
+8. Skip draft for non-visual FE, or for `*-data` / `*-functional` / `*-integrate` seams: record `UI draft skipped: non-visual seam (<data|functional|integrate>)` or other skip reason (e.g. `UI draft skipped: non-visual seam (integrate)`). Bake-off not required when draft is skipped.
+9. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome; no layout bake-off in run). Prefer draft surface chrome that maps cleanly to reusable `components/ui` primitives (button, field, banner, empty) so `/sc-run` can build component-first.
 
 ### Mission brief (before clear)
 
@@ -112,8 +115,10 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 ## Rules
 
 - Never `/sc-run` build, `/sc-ship`, merge, push, tag, or product implementation/tests (draft HTML only).
-- Never present draft before designer gate + critical/important fixes.
-- Never record `UI draft approved` when required scenario states are missing.
+- Never present approval draft before designer gate + critical/important fixes.
+- Never record `UI draft approved` when required scenario states are missing, or when bake-off winner/skip is missing on a visual draft path.
+- Never skip layout bake-off silently when layout is still open.
+- Never restyle multiple visual dimensions in one human draft round (dimension lock).
 - Never clear while mission brief undecided (unless skip recorded).
 - Never create `*-ux` roadmap seams or cross-feature layer waterfalls (see `references/mission-sizing.md`).
 - Prefer `spec.md` / `decisions.md` / `questions.md` over chat-only memory.
