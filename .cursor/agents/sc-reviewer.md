@@ -1,7 +1,7 @@
 ---
 name: sc-reviewer
+model: gpt-5.6-sol[context=272k,reasoning=high,fast=false]
 description: Reviews diff, evidence, and release readiness. Use proactively after build before ready/ship.
-model: gpt-5.6-sol
 readonly: true
 ---
 
