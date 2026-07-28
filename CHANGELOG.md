@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.43.2 - 2026-07-28
+
+- Chore: drop `sc-ux-design` art-direction packs (`swiss-grid`, `editorial`) and pack-selection HIL; draft assembly is `shared directives` → `DESIGN.md` → brief only
+- Docs: encode reference borrow scope (`mood` | `tokens` | `layout` | `chrome`) and `DESIGN.md` conflict outcomes (`mission exception` | `update house` | `keep house`) in discuss / ux-design / designer
+- Docs: require draft scaffold - explanations in `[data-draft-chrome]` outside framed `[data-draft-surface]`; viewport presets 375 / 768 / 1280 / 1536; port surface only
+- Docs: component-first FE slices - inventory draft chrome → reuse/upgrade per-app `components/ui` → compose page; Storybook optional catalog when present; no cross-repo kit by default
+
 ## 0.43.1 - 2026-07-28
 
 - Feat: Graph Engineering Core - process SoT precedence (`rules/*.mdc` > `lessons.md`), Graph vs Loop naming, agent-frontmatter model routing, deterministic judge-break fixtures (`make test-judge-break`)

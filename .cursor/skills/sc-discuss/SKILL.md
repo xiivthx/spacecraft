@@ -82,14 +82,13 @@ After sizing, apply `references/lens-pass.md` before deep spec work when trigger
 
 Detect from intent / `spec.md`. If visual:
 
-1. sc-ux-design design brief (6 dimensions); human approval.
-2. **Pack selection before draft HTML:** `swiss-grid`, `editorial`, or `none - custom brief only`. Record in `decisions.md`. Human or explicit brief choice only - no silent auto-matcher.
-3. Generate draft HTML under `.space/missions/<id>/design/drafts/` (not wireframe-only). Must include a **scenario matrix** with `data-state` panels for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied); real component chrome in each panel. Check 375px. Follow sc-ux-design prompt assembly.
-4. **Designer gate before human:** Task(`sc-designer`); check scenario coverage + port readiness; Commander applies critical/important fixes; re-check 375px. Do not present draft until this passes. Missing required states = critical - do not serve.
-5. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) until approved (max 3 human rounds). Each new draft re-runs designer gate.
-6. On approval: record `UI draft approved: <draft-file>` in `decisions.md` **only if** the scenario matrix is complete. Incomplete states → refuse approval; iterate draft.
-7. Skip draft for non-visual FE, or for `*-data` / `*-functional` / `*-integrate` seams: record `UI draft skipped: non-visual seam (<data|functional|integrate>)` or other skip reason (e.g. `UI draft skipped: non-visual seam (integrate)`).
-8. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome).
+1. Read project `DESIGN.md` when present (house look SoT). If references (image/text) are supplied, record borrow scope (`mood` | `tokens` | `layout` | `chrome`) in `decisions.md`. If proposed style conflicts with `DESIGN.md`, ask once and record `DESIGN conflict: mission exception | update house | keep house`. Then sc-ux-design design brief (6 dimensions, aligned to effective house); human approval. No art-direction pack question - packs removed.
+2. Generate draft HTML under `.space/missions/<id>/design/drafts/` (not wireframe-only). Must use draft scaffold: explanations in `[data-draft-chrome]` outside a framed `[data-draft-surface]`; viewport toggles (375 / 768 / 1280 / 1536); **scenario matrix** with `data-state` panels inside the surface for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied); real component chrome in each panel. Check all four viewports. Follow sc-ux-design prompt assembly (`shared directives` → `DESIGN.md` → brief). Honor borrow scope - no silent full-chrome clone from references.
+3. **Designer gate before human:** Task(`sc-designer`); check scenario coverage + port readiness + scaffold/frame split; Commander applies critical/important fixes; re-check all four viewports. Do not present draft until this passes. Missing required states or missing production frame = critical - do not serve.
+4. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) until approved (max 3 human rounds). Each new draft re-runs designer gate.
+5. On approval: record `UI draft approved: <draft-file>` in `decisions.md` **only if** the scenario matrix is complete. Incomplete states → refuse approval; iterate draft.
+6. Skip draft for non-visual FE, or for `*-data` / `*-functional` / `*-integrate` seams: record `UI draft skipped: non-visual seam (<data|functional|integrate>)` or other skip reason (e.g. `UI draft skipped: non-visual seam (integrate)`).
+7. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome). Prefer draft surface chrome that maps cleanly to reusable `components/ui` primitives (button, field, banner, empty) so `/sc-run` can build component-first.
 
 ### Mission brief (before clear)
 
