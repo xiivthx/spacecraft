@@ -101,6 +101,7 @@ document.querySelectorAll("[data-viewport-set]").forEach((btn) => {
 - Follow the brief's layout structure and type/color directions; when `DESIGN.md` exists, brief tokens must align with it unless `DESIGN conflict: mission exception` or `update house` is recorded.
 - Tokens in the **surface** (bg, surface, text, accent, danger; type pairing; spacing base) must match the brief / effective house. Flag drift rather than "improving" the palette silently.
 - After human approval, **`[data-draft-surface]`** is the **visual source of truth** for `/sc-run`: implementers **port** structure, tokens, spacing, type, and component chrome from the surface only. Never port `[data-draft-chrome]` / frame bezel / viewport toolbar.
+- Prefer surface chrome that maps to reusable product primitives (button, field, banner, empty, table) so `/sc-run` can upgrade or add `components/ui` first, then compose the page - not one-off page-only markup for shared controls.
 - Behavior, Verify, and acceptance remain owned by `spec.md`. If draft look and spec behavior conflict, stop and return to `/sc-discuss` - do not freestyle.
 
 ## Scenario matrix (Must)

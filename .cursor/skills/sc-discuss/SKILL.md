@@ -88,7 +88,7 @@ Detect from intent / `spec.md`. If visual:
 4. Serve via `serve-html.mjs`; iterate (draft → designer → fix → human) until approved (max 3 human rounds). Each new draft re-runs designer gate.
 5. On approval: record `UI draft approved: <draft-file>` in `decisions.md` **only if** the scenario matrix is complete. Incomplete states → refuse approval; iterate draft.
 6. Skip draft for non-visual FE, or for `*-data` / `*-functional` / `*-integrate` seams: record `UI draft skipped: non-visual seam (<data|functional|integrate>)` or other skip reason (e.g. `UI draft skipped: non-visual seam (integrate)`).
-7. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome).
+7. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome). Prefer draft surface chrome that maps cleanly to reusable `components/ui` primitives (button, field, banner, empty) so `/sc-run` can build component-first.
 
 ### Mission brief (before clear)
 
