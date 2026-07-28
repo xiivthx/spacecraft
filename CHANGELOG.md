@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.43.4 - 2026-07-28
+
+- Chore: retune agent frontmatter model routing (adviser opus-5, planner sonnet-5, coder/firmware grok-4.5, reviewer gpt-5.6-sol params, writer composer-2.5)
+- Fix: main-write hook resolves workspace via hook payload (`workspace_roots` / cwd) so feature-branch commits are not false-denied when Cursor hook cwd is `~/.cursor`
+
 ## 0.43.3 - 2026-07-28
 
 - Docs: layout bake-off (2–3 HTML candidates) + dimension lock in `sc-discuss` / `sc-ux-design`; designer and shared draft directives updated; record winner or skip before `UI draft approved`

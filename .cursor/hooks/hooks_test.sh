@@ -88,6 +88,23 @@ assert_perm "main-write: main denies push" "deny" "$(extract_perm "$out")"
 out=$(run_main "main" 'not-json')
 assert_perm "main-write: bad json denies" "deny" "$(extract_perm "$out")"
 
+# Without OVERRIDE: resolve branch via workspace_roots (Cursor hook cwd is often not the repo).
+out=$(
+  env -u SPACECRAFT_HOOK_BRANCH_OVERRIDE "$MAIN_WRITE" <<EOF
+{"command":"git commit -m x","workspace_roots":["$ROOT"]}
+EOF
+)
+# ROOT may be on main or a feature branch; only assert allow when not on main/master.
+cur=$(git -C "$ROOT" branch --show-current 2>/dev/null || true)
+case "$cur" in
+  main|master)
+    assert_perm "main-write: workspace_roots on main denies commit" "deny" "$(extract_perm "$out")"
+    ;;
+  *)
+    assert_perm "main-write: workspace_roots feat allows commit" "allow" "$(extract_perm "$out")"
+    ;;
+esac
+
 # --- check-ship-commands.sh ---
 out=$(run_ship "" '{"command":"git push"}')
 assert_perm "ship: without env denies push" "deny" "$(extract_perm "$out")"
