@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.43.2 - 2026-07-28
+
+- Chore: drop `sc-ux-design` art-direction packs (`swiss-grid`, `editorial`) and pack-selection HIL; draft assembly is `shared directives` → `DESIGN.md` → brief only
+- Docs: encode reference borrow scope (`mood` | `tokens` | `layout` | `chrome`) and `DESIGN.md` conflict outcomes (`mission exception` | `update house` | `keep house`) in discuss / ux-design / designer
+
 ## 0.43.1 - 2026-07-28
 
 - Feat: Graph Engineering Core - process SoT precedence (`rules/*.mdc` > `lessons.md`), Graph vs Loop naming, agent-frontmatter model routing, deterministic judge-break fixtures (`make test-judge-break`)

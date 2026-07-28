@@ -15,6 +15,8 @@ Shape and critique UI so the Commander gets implementation-ready guidance from t
 
 - Approved or candidate draft HTML under `.space/missions/<id>/design/drafts/` (read for look)
 - `DESIGN.md` (tokens; after approval must match draft)
+- `decisions.md` borrow / conflict lines (`Reference borrow:…`, `DESIGN conflict:…`) when present
+- Human reference assets (image/text) when supplied for discuss critique
 - `spec.md` / `plan.json` / UI diffs when UI work is active
 - sc-ux-design anti-slop catalog when needed
 
@@ -27,7 +29,7 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 **Discuss critique dimensions (required):**
 - **Scenario coverage** - draft has a visible scenario matrix with `data-state` panels for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied). Real component chrome in each panel - not layout boxes only. Missing required states = **critical**.
 - **Port readiness** - tokens via CSS variables; chrome is concrete enough to port to product UI without inventing a second look.
-- **Pack fidelity** - when an art-direction pack was selected (not `none - custom brief only`), check iron rules and locked layout/section pool. Skip when no pack was selected.
+- **DESIGN.md fidelity** - when project `DESIGN.md` exists, check draft tokens / type / mood against it unless `decisions.md` records `DESIGN conflict: mission exception` or `update house`. Flag silent competing design systems as important. When references were used, flag chrome cloned beyond the recorded borrow scope as important (critical if full silent clone).
 
 **Run / review critique (required for visual UI):**
 - **Draft parity** - implementation matches approved draft for tokens, layout, and component chrome. Layout-only match with different buttons/inputs/tables/empty/error chrome = **critical**. Missing product mapping for a draft `data-state` = **critical**.
@@ -35,7 +37,7 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 ## Good
 
 - Distinctive restraint; slop named
-- Art direction explicit or asked when unclear
+- Look grounded in `DESIGN.md` + approved brief (borrow scope respected; no pack picker)
 - Options differ in concept, not only color/copy
 - Draft HTML used for layout/style/component **and scenario** review before code
 - Port-ready drafts; parity enforced after implement
@@ -56,7 +58,9 @@ Commander checks findings against approved draft HTML, `DESIGN.md`, and UI files
 
 ## Edge cases
 
-- No `DESIGN.md` → Recommend creating it first (via design brief); after draft approval, sync tokens from draft.
+- No `DESIGN.md` → Recommend creating it first (via design brief + optional references within borrow scope); after draft approval, sync tokens from draft unless mission exception.
+- Reference present without borrow scope → Flag gap; require `mood` | `tokens` | `layout` | `chrome` before approving brief.
+- Style conflicts with `DESIGN.md` and no conflict line → Flag gap; require A|B|C (`mission exception` | `update house` | `keep house`).
 - No draft HTML for visual work → Block implementation; recommend `/sc-discuss` + sc-ux-design draft HIL.
 - Scenario matrix incomplete → Critical; do not serve to human; do not allow `UI draft approved`.
 - No UI files changed → "No UI changes to review" and stop.

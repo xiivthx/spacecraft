@@ -25,40 +25,42 @@ Activate on:
 When generating draft HTML, assemble the generation prompt in this **fixed order**:
 
 1. **Shared draft directives** - always load `references/shared-draft-directives.md` (tech + fidelity + scenario matrix + anti-slop alignment).
-2. **Pack body** - when an art-direction pack is selected, load that pack under `references/art-directions/<pack>/` (iron rules + locked layout/section pool). Skip this layer when the choice is none / custom brief only.
+2. **Design system** - when `DESIGN.md` exists at the project root (or package root for the UI), load it next as the house look / tokens / personality. If missing, skip this layer; the design brief phase must produce a candidate `DESIGN.md`.
 3. **Brief / content tail** - append the approved design brief, `spec.md` feature/state requirements, and any user-supplied copy or constraints last so they bind the earlier layers.
 
-Do not reverse or interleave these layers. Shared directives set how drafts are built; packs (optional) set structural personality; the brief/content tail is the mission-specific source of truth for tokens and copy during draft generation.
+Do not reverse or interleave these layers. Shared directives set how drafts are built; `DESIGN.md` is the project look SoT when present; the brief/content tail is the mission-specific layout, states, and copy for this draft.
 
 ### Design brief (forced checkpoint - `/sc-discuss`)
 
 Before clearing discuss on visual work (and before any UI implementation code):
 
-1. **Produce a design brief** covering 6 dimensions:
+1. **Read `DESIGN.md`** when present. Treat it as the default look (tokens, type, mood, principles). Do not ask the human to pick an art-direction pack - there are no packs.
+2. **References (image / text):** when the human supplies mood boards, screenshots, URLs, or prose references, extract cues into the brief. Never silent-clone full chrome from a reference. Require an explicit **borrow scope** (exactly one):
+   - `mood` - atmosphere, density, motion feel only
+   - `tokens` - mood + color / type / spacing
+   - `layout` - tokens + primary page structure
+   - `chrome` - layout + component look (buttons, tables, empty/error)
+   Default when the human wants "that vibe" without listing components: `mood` or `tokens`. Record `Reference borrow: <scope>` (and source path/URL if given) in `decisions.md`.
+3. **House conflict:** if proposed art/style conflicts with existing `DESIGN.md`, stop and ask once - do not silently override. Record exactly one outcome in `decisions.md`:
+   - `DESIGN conflict: mission exception` - this screen may diverge; leave `DESIGN.md` unchanged
+   - `DESIGN conflict: update house` - edit `DESIGN.md` to the new SoT, then align the brief
+   - `DESIGN conflict: keep house` - reject the new direction; brief stays on `DESIGN.md`
+   Explicit user choice wins over `DESIGN.md` only after A or B is recorded. Anti-slop catalog still wins unless a catalog exception is also recorded.
+4. **Produce a design brief** covering 6 dimensions (align to `DESIGN.md` when it exists and conflict outcome is not mission exception / update-pending; invent a candidate system when `DESIGN.md` is missing):
    - **Product metaphor and mood** - e.g., "studio dashboard", "reading room"
    - **Typography direction** - display + body pairing with rationale
    - **Color palette** - 3–5 tokens: bg, surface, text, accent, danger
    - **Layout structure** - first screen wireframe description
    - **Motion intent** - subtle / standard / none
    - **Spacing scale** - 4pt or 8pt base
-
-2. **Present the brief for user approval**. No implementation code until explicitly approved.
-
-### Art-direction pack selection (`/sc-discuss`)
-
-Before draft HTML generation, require explicit **pack selection** among:
-
-- `swiss-grid`
-- `editorial`
-- `none - custom brief only`
-
-Record the choice in `decisions.md` (e.g. `Art-direction pack: swiss-grid` or `Art-direction pack: none - custom brief only`). Human or explicit brief choice only - no silent keyword auto-matcher. Skip the pack body layer in Prompt assembly when the choice is `none - custom brief only`.
+   Include borrow scope and conflict outcome lines when applicable.
+5. **Present the brief for user approval**. No implementation code until explicitly approved. When `DESIGN.md` was missing, the brief includes a candidate `DESIGN.md` for approval (seeded from references within the chosen borrow scope when present).
 
 ### Draft preview (`/sc-discuss`)
 
-After design brief approval and pack selection, before `/sc-run` / real implementation:
+After design brief approval, before `/sc-run` / real implementation:
 
-1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), key components, and a full scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → pack body when selected → brief/content tail). Do not generate draft HTML until pack selection is recorded.
+1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), key components, and a full scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → `DESIGN.md` when present → brief/content tail). Do not generate draft HTML until the design brief is approved.
 
 2. **Every draft MUST include**: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`), CSS custom properties for brief tokens, and a visible **Scenario matrix** with `data-state="<name>"` panels covering at least: empty, error, few, many, plus feature/behavior surfaces from `spec.md` (and loading when async is implied). Each panel shows real component chrome - not layout boxes only.
 
@@ -76,8 +78,8 @@ After design brief approval and pack selection, before `/sc-run` / real implemen
 ### DESIGN.md integration
 
 1. **Read `DESIGN.md`** before any UI work.
-2. **If missing**, the design brief phase produces a candidate `DESIGN.md` for approval.
-3. After `UI draft approved`, **update `DESIGN.md` from the approved draft** (tokens, type, spacing) so product CSS matches the draft. Post-approval, the approved draft owns look; `DESIGN.md` is the extracted token doc, not a license to freestyle chrome.
+2. **If missing**, the design brief phase produces a candidate `DESIGN.md` for approval (from brief + reference borrow within scope).
+3. After `UI draft approved`, **update `DESIGN.md` from the approved draft** (tokens, type, spacing) so product CSS matches the draft - unless `DESIGN conflict: mission exception` was recorded (then leave house `DESIGN.md` alone; mission look lives in the approved draft only). On `DESIGN conflict: update house`, sync `DESIGN.md` to the new SoT from the approved draft. Post-approval, the approved draft owns look for port; `DESIGN.md` is the house token doc, not a license to freestyle chrome.
 
 ### Anti-slop detection & visual verification
 
@@ -113,22 +115,21 @@ Optional scripted audit (same Playwright family):
 
 ### Anti-slop
 
-- **Authority**: When an art-direction pack and `references/anti-slop-catalog.md` disagree, anti-slop-catalog is authoritative.
+- **Authority**: When `DESIGN.md` / brief guidance and `references/anti-slop-catalog.md` disagree, anti-slop-catalog is authoritative unless the human explicitly approved an exception in `decisions.md`.
 - **Must**: Run `npx impeccable detect` on all HTML output before claiming UI work is complete. Fix all CLI-detected violations before shipping.
 - **Must not**: Use any pattern flagged in `references/anti-slop-catalog.md` (purple-blue gradients, glassmorphism, nested cards, side-tab borders, cream/beige palettes, gradient text, hero eyebrows) without explicit user approval. Document intentional exceptions in `decisions.md`.
 - **Must not**: Use Inter/Geist/Space Grotesk as sole font without deliberate pairing.
 
 ### Design brief
 
+- **Must**: Read `DESIGN.md` when present and use it as the default look before drafting.
+- **Must**: When references are supplied, record exactly one borrow scope (`mood` | `tokens` | `layout` | `chrome`) in the brief and `decisions.md`.
+- **Must**: When proposed style conflicts with `DESIGN.md`, ask once and record `DESIGN conflict: mission exception | update house | keep house` before drafting.
 - **Must**: Produce a 6-dimension design brief before writing UI implementation code.
 - **Must**: Obtain explicit user approval on the brief before proceeding.
+- **Must not**: Silent-clone full chrome from a reference image or text when borrow scope is narrower.
+- **Must not**: Ask the human to pick an art-direction pack (packs removed - brief + `DESIGN.md` only).
 - **Must not**: Skip the brief checkpoint even for "quick" UI changes that affect visual design.
-
-### Pack selection
-
-- **Must**: Require explicit pack selection among `swiss-grid`, `editorial`, or `none - custom brief only` before draft HTML generation.
-- **Must**: Record pack selection in `decisions.md` (human or explicit brief choice only).
-- **Must not**: Use a silent keyword auto-matcher for pack selection. No silent keyword inference from the brief or copy.
 
 ### Draft preview
 
@@ -160,7 +161,7 @@ Optional scripted audit (same Playwright family):
 
 - **Must**: Read `DESIGN.md` before any UI implementation work.
 - **Must**: Generate a candidate `DESIGN.md` when the project lacks one, during the design brief phase.
-- **Must**: After draft approval, sync `DESIGN.md` tokens from the approved draft before or during port.
+- **Must**: After draft approval, sync `DESIGN.md` tokens from the approved draft before or during port, except when `DESIGN conflict: mission exception` is recorded (leave house unchanged).
 
 ## Out of scope
 
@@ -184,6 +185,8 @@ This skill does NOT handle:
 - **Layout**: [first screen wireframe]
 - **Motion**: [subtle/standard/none] - [reasoning]
 - **Spacing**: [4pt/8pt] base
+- **Reference borrow**: [mood|tokens|layout|chrome] - [source or none]
+- **DESIGN conflict**: [none|mission exception|update house|keep house]
 ```
 
 ### Visual verification (JSON)
@@ -213,7 +216,7 @@ Before claiming UI implementation is ready:
 ## References
 
 - `references/shared-draft-directives.md` - always-on draft prompt layer (tech, fidelity, scenario matrix, anti-slop alignment)
-- `references/art-directions/` - optional art-direction packs (loaded after shared directives when selected)
+- Project `DESIGN.md` - house look / tokens (loaded after shared directives when present)
 - `references/anti-slop-catalog.md` - all 46 impeccable.style patterns with detection methods and fixes
 - `references/animation-guidelines.md` - duration standards, easing rules, reduced-motion, anti-patterns
 - `scripts/serve-html.mjs` - local HTML draft preview server
