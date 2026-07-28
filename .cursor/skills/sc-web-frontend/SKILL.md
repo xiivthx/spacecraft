@@ -30,7 +30,7 @@ Use this exact sequence unless the user specifies otherwise:
    - If missing, stop and recommend `/sc-discuss` - do not invent draft mid-build
    - Skip only for non-visual FE (pure logic/hooks, no UI surface); record skip in `decisions.md`
 
-4. **Port from draft (visual SoT)** - Before coding chrome, open the approved draft HTML. Sync `DESIGN.md` tokens from the draft. Implement by **porting** structure, tokens, spacing, type, and component chrome - do not invent a second look that only "matches the brief." Map each draft `data-state` to real app states and tests. Behavior/Verify stay owned by `spec.md`; look/behavior conflict → stop and `/sc-discuss`.
+4. **Port from draft (visual SoT)** - Before coding chrome, open the approved draft HTML and port **`[data-draft-surface]` only** (ignore `[data-draft-chrome]` / frame bezel / viewport toolbar). Sync `DESIGN.md` tokens from the surface. Implement by **porting** structure, tokens, spacing, type, and component chrome - do not invent a second look that only "matches the brief." Map each draft `data-state` to real app states and tests. Behavior/Verify stay owned by `spec.md`; look/behavior conflict → stop and `/sc-discuss`.
 
 5. **Build by slice** - Implement one vertical feature slice at a time (RED-GREEN under `/sc-run`):
    - Component with its styles ported from the draft (co-located or Tailwind classes that match draft chrome)
@@ -59,7 +59,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
 - **Must**: Default to React + TypeScript + Vite + Tailwind CSS + Vitest when no stack is specified.
 - **Must**: For visual UI work, require approved draft HTML from `/sc-discuss` (sc-ux-design) before writing product UI code.
-- **Must**: Treat the approved draft as the **visual source of truth** - port structure, tokens, spacing, type, and component chrome; sync `DESIGN.md` from the draft.
+- **Must**: Treat `[data-draft-surface]` in the approved draft as the **visual source of truth** - port structure, tokens, spacing, type, and component chrome; sync `DESIGN.md` from the surface; never port scaffold chrome.
 - **Must not**: Freestyle alternate buttons/inputs/tables/empty/error chrome that only vaguely match the draft layout.
 - **Must**: Map each draft `data-state` (empty, error, few, many, + spec features) to product UI and/or tests.
 - **Must**: After visual UI implementation, pass Step 0 draft-parity then capture visual verification (`playwright-cli` or Cursor IDE browser; optional `visual-verify.mjs`) and functional test evidence before claiming done.

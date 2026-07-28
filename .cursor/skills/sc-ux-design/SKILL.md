@@ -62,9 +62,9 @@ After design brief approval, before `/sc-run` / real implementation:
 
 1. **Generate a standalone HTML draft** under `.space/missions/<id>/design/drafts/` that shows **layout, style tokens (colors/type/spacing), key components, and a full scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → `DESIGN.md` when present → brief/content tail). Do not generate draft HTML until the design brief is approved.
 
-2. **Every draft MUST include**: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename (`<name>-draft-v1.html`), CSS custom properties for brief tokens, and a visible **Scenario matrix** with `data-state="<name>"` panels covering at least: empty, error, few, many, plus feature/behavior surfaces from `spec.md` (and loading when async is implied). Each panel shows real component chrome - not layout boxes only.
+2. **Every draft MUST include**: `data-draft="true"`; scaffold with `[data-draft-chrome]` (banner, notes, scenario switcher, viewport toggles) **outside** a visible `[data-draft-frame]` that wraps `[data-draft-surface]` (production UI only); versioned filename (`<name>-draft-v1.html`); CSS custom properties for brief tokens on the surface; scenario matrix `data-state` panels inside the surface for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied). Each panel shows real component chrome - not layout boxes only.
 
-3. **Designer gate (required):** Task(`sc-designer`) on the draft. Commander applies critical and important fixes (`sc-designer` is readonly). Missing scenario states or non-portable chrome = critical. Check 375px before and after fixes. Do not serve or present the draft to the human until this gate passes.
+3. **Designer gate (required):** Task(`sc-designer`) on the draft. Commander applies critical and important fixes (`sc-designer` is readonly). Missing scenario states, missing scaffold/frame, or non-portable chrome = critical. Check all four viewport presets (375 / 768 / 1280 / 1536) before and after fixes. Do not serve or present the draft to the human until this gate passes.
 
 4. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
@@ -73,7 +73,7 @@ After design brief approval, before `/sc-run` / real implementation:
 6. **Under `/sc-run`**: do **not** invent or iterate draft HTML. Port look from the approved draft. If approval is missing, stop and recommend `/sc-discuss`.
 
 7. **Iterate** in discuss until approved (max 3 human rounds - if still unapproved, escalate to user for direction). Each new draft version re-runs the designer gate before human HIL.
-8. **Before human approval**: check the draft at 375px viewport width. If layout breaks at mobile, fix before asking for approval.
+8. **Before human approval**: exercise all four viewport presets (mobile 375, tablet 768, desktop 1280, widescreen 1536) via the draft toggles. If layout breaks at any preset, fix before asking for approval.
 
 ### DESIGN.md integration
 
@@ -85,7 +85,7 @@ After design brief approval, before `/sc-run` / real implementation:
 
 Run after implementation:
 
-**Step 0 - Draft parity** (before detection): Cross-check the implementation against the **approved draft HTML** (and brief tokens embedded there). Verify: color palette matches (no drift), typography pairing is intact, layout structure matches the draft, component chrome matches (buttons/inputs/tables/empty/error - not layout-only), motion intent is respected, and each draft `data-state` has a corresponding product state or test. Flag layout-only match with different chrome as blocking drift. Fix before running detectors.
+**Step 0 - Draft parity** (before detection): Cross-check the implementation against **`[data-draft-surface]`** in the approved draft HTML (ignore `[data-draft-chrome]` / frame bezel). Verify: color palette matches (no drift), typography pairing is intact, layout structure matches the surface, component chrome matches (buttons/inputs/tables/empty/error - not layout-only), motion intent is respected, and each draft `data-state` has a corresponding product state or test. Flag layout-only match with different chrome as blocking drift. Fix before running detectors.
 
 **Tier 1 - CLI** (36 rules + 5 browser-rendered via headless):
 `npx impeccable detect <html-file>` - catches 41 patterns, 5 need browser rendering.
@@ -134,13 +134,14 @@ Optional scripted audit (same Playwright family):
 ### Draft preview
 
 - **Must**: Generate a draft HTML preview showing layout + style tokens + key components + **scenario matrix**; obtain user approval before writing implementation code.
-- **Must**: Every draft HTML file includes: visible "DRAFT - Not Final" banner, `data-draft="true"` on root element, versioned filename, and `data-state` panels for empty, error, few, many, plus spec feature/behavior surfaces (loading when implied).
+- **Must**: Every draft HTML file includes: `data-draft="true"`; scaffold with `[data-draft-chrome]` outside a framed `[data-draft-surface]`; viewport toggles for 375 / 768 / 1280 / 1536; versioned filename; and `data-state` panels for empty, error, few, many, plus spec feature/behavior surfaces (loading when implied) **inside the surface**.
+- **Must**: Keep explanatory copy outside the frame; port only `[data-draft-surface]`.
 - **Must**: Run Task(`sc-designer`) and apply critical/important fixes before serving or presenting any draft to the human.
-- **Must**: Check draft layout at 375px viewport width before asking for approval.
+- **Must**: Check draft layout at all four viewport presets before asking for approval.
 - **Must**: Own draft discovery under `/sc-discuss`; `/sc-run` requires `UI draft approved: …` already recorded (or non-visual skip).
 - **Must not**: Serve or present raw/unreviewed draft HTML to the human.
-- **Must not**: Record `UI draft approved` when required scenario states are missing.
-- **Must**: Treat the approved draft as the **visual source of truth** for production implementation - port structure, tokens, spacing, type, and component chrome; do not invent a second visual system.
+- **Must not**: Record `UI draft approved` when required scenario states are missing or scaffold/frame/surface split is missing.
+- **Must**: Treat `[data-draft-surface]` in the approved draft as the **visual source of truth** for production implementation - port structure, tokens, spacing, type, and component chrome; do not invent a second visual system; do not port scaffold chrome.
 - **Must**: After 3 human draft rounds without approval, escalate to the user for direction instead of iterating indefinitely.
 
 ### Visual recheck
@@ -201,10 +202,11 @@ This skill does NOT handle:
 Before claiming UI implementation is ready:
 
 - [ ] Design brief + draft approved in `/sc-discuss` (`UI draft approved: …` in `decisions.md`)
-- [ ] Approved draft includes scenario matrix (`empty`, `error`, `few`, `many`, + spec features; loading when implied)
+- [ ] Approved draft uses scaffold (chrome outside framed `[data-draft-surface]`) + scenario matrix (`empty`, `error`, `few`, `many`, + spec features; loading when implied)
+- [ ] Draft checked at viewport presets 375 / 768 / 1280 / 1536
 - [ ] Draft passed Task(`sc-designer`) + critical/important fixes before human HIL
 - [ ] `DESIGN.md` synced from approved draft and applied
-- [ ] Implementation **ported** from approved draft (tokens, layout, chrome) - Step 0 draft-parity passed
+- [ ] Implementation **ported** from `[data-draft-surface]` only (tokens, layout, chrome) - Step 0 draft-parity passed
 - [ ] Each draft `data-state` mapped to product UI and/or tests
 - [ ] `npx impeccable detect` run - zero unfixed violations
 - [ ] 5 LLM-only patterns reviewed with concrete heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids)
