@@ -4,6 +4,8 @@ Always-on layer for draft HTML prompt assembly under `sc-ux-design`. Load this f
 
 These directives are spacecraft house rules for **how** drafts are built - not a default aesthetic. Typography, palette, and layout personality come from `DESIGN.md` (when present) and the approved brief.
 
+**Layout bake-off:** When generating bake-off candidates (2–3 layouts before winner polish), still follow Tech + scaffold below, but the **full scenario matrix** may be deferred until the winning draft is polished for approval. Candidates must show distinct page structures and real primary-surface chrome (not wireframe boxes). Approval drafts must meet the full scenario matrix rules.
+
 ## Tech
 
 - Output **standalone HTML** suitable for local preview (`serve-html.mjs`). Prefer self-contained markup (inline `<style>` or a single embedded stylesheet). Do not require a product app build, CDN framework stack, or React tree for the draft itself.

@@ -26,7 +26,9 @@ Grouped findings: critical blockers, important issues, polish, accessibility, ne
 
 For **layout / style / component** preview during `/sc-discuss`: require a standalone draft HTML (sc-ux-design). Critique runs **before** human HIL; Commander applies critical/important fixes (this agent is readonly), then serves the cleaned draft. Use a short clarifying question only for narrow copy/token choices that do not change layout.
 
-**Discuss critique dimensions (required):**
+**Bake-off vs approval:** When reviewing **layout bake-off candidates** (pre-winner pick), require scaffold split, viewport sanity, distinct page structures, and primary-surface chrome - do **not** block on full scenario matrix. When reviewing the **approval candidate** (winner after bake-off, or sole draft when skipped), require the full discuss critique dimensions below including scenario coverage.
+
+**Discuss critique dimensions (required for approval candidates):**
 - **Scenario coverage** - draft has a visible scenario matrix with `data-state` panels for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied). Real component chrome in each panel - not layout boxes only. Missing required states = **critical**.
 - **Scaffold split** - `[data-draft-chrome]` (notes/banner/viewport/scenario switcher) stays outside a visible `[data-draft-frame]`; portable UI lives only in `[data-draft-surface]`. Missing frame/surface or explanations mixed into the surface = **critical**.
 - **Viewport presets** - working toggles for 375 / 768 / 1280 / 1536 that resize the frame; surface usable at all four. Broken preset = **important** (critical if mobile or desktop unusable).
@@ -42,6 +44,7 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 - Look grounded in `DESIGN.md` + approved brief (borrow scope respected; no pack picker)
 - Options differ in concept, not only color/copy
 - Draft HTML used for layout/style/component **and scenario** review before code; production surface framed; notes outside
+- Bake-off candidates compared on structure; approval candidate scenario-complete
 - Port-ready drafts (`[data-draft-surface]` only); parity enforced after implement
 
 ## Bad
@@ -66,6 +69,7 @@ Commander checks findings against approved draft HTML, `DESIGN.md`, and UI files
 - Reference present without borrow scope → Flag gap; require `mood` | `tokens` | `layout` | `chrome` before approving brief.
 - Style conflicts with `DESIGN.md` and no conflict line → Flag gap; require A|B|C (`mission exception` | `update house` | `keep house`).
 - No draft HTML for visual work → Block implementation; recommend `/sc-discuss` + sc-ux-design draft HIL.
-- Scenario matrix incomplete → Critical; do not serve to human; do not allow `UI draft approved`.
+- Scenario matrix incomplete on an **approval** candidate → Critical; do not serve to human; do not allow `UI draft approved`. Bake-off candidates may omit full matrix.
+- Approval without `Layout bake-off winner:` or `Layout bake-off skipped:` in `decisions.md` → Flag gap; do not allow `UI draft approved`.
 - No UI files changed → "No UI changes to review" and stop.
 - No design decisions recorded → Flag as gap.
