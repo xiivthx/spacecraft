@@ -1,0 +1,10 @@
+#!/bin/sh
+# Fake curl on PATH for install-machine smoke.
+# Companion overrides must skip curl|sh; if this runs, record a marker and fail.
+markers="${SPACECRAFT_COMPANION_MARKERS:-}"
+if [ -n "$markers" ]; then
+  mkdir -p "$markers"
+  printf '%s\n' "$*" > "$markers/curl.called"
+fi
+echo "fake curl: unexpected network call: $*" >&2
+exit 99

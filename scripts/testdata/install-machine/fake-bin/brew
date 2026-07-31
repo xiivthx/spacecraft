@@ -1,0 +1,11 @@
+#!/bin/sh
+# Fake brew on PATH for install-machine smoke.
+# Records argv so tests can prove install-machine never runs
+# `brew install --cask cursor` (or similar Cursor app installs).
+markers="${SPACECRAFT_COMPANION_MARKERS:-}"
+if [ -n "$markers" ]; then
+  mkdir -p "$markers"
+  printf '%s\n' "$*" >> "$markers/brew.called"
+fi
+echo "fake brew: unexpected call: $*" >&2
+exit 99

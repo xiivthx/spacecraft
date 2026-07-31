@@ -1,4 +1,4 @@
-.PHONY: build install install-cli install-project install-global smoke uninstall clean help \
+.PHONY: build install install-cli install-project install-global install-machine smoke uninstall clean help \
         test test-go test-config test-install test-gen-user-rules test-judge-break gate
 
 ROOT      := $(CURDIR)
@@ -20,6 +20,7 @@ help:
 	@echo "  install         build + link CLI into ~/.local/bin + smoke check"
 	@echo "  install-project Install full .cursor surface into PROJECT=<dir> (default .)"
 	@echo "  install-global  Install agents + skills + MCP into ~/.cursor and link CLI (careful)"
+	@echo "  install-machine Build CLI + one-shot User-layer install via scripts/install-machine.sh"
 	@echo "  smoke           Run post-install smoke checks (PROJECT=<dir>)"
 	@echo "  uninstall       Remove CLI link + spacecraft MCP/agents/skills from ~/.cursor"
 	@echo "  clean           Remove built binary"
@@ -93,6 +94,10 @@ install-global: build install-cli
 	@sh $(ROOT)/scripts/gen-user-rules.sh "$(ROOT)/.cursor/rules" "$(GLOBAL)/spacecraft/USER-RULES.txt"
 	@echo "user rules -> $(GLOBAL)/spacecraft/USER-RULES.txt (paste into Settings > Rules > User Rules)"
 	@echo "Global install complete. Restart Cursor to pick up /sc-run, /sc-ship, /sc-quick, and sc-storm."
+
+# One-shot machine install: build CLI, then clone/update + User-layer via script.
+install-machine: build
+	@sh $(ROOT)/scripts/install-machine.sh
 
 smoke:
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"

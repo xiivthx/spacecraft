@@ -1,0 +1,28 @@
+#!/bin/sh
+# Fake rtk on PATH for install-machine smoke (wire + version).
+# Wire: rtk init -g --agent cursor  -> markers/rtk.wire
+# Version: rtk --version | version | -V  -> prints v0.0.2-fixture
+set -e
+markers="${SPACECRAFT_COMPANION_MARKERS:?SPACECRAFT_COMPANION_MARKERS required}"
+mkdir -p "$markers"
+version="v0.0.2-fixture"
+
+case "${1:-}" in
+  --version|version|-V)
+    printf '%s\n' "$version"
+    exit 0
+    ;;
+  init)
+    # Expect: init -g --agent cursor
+    if [ "${2:-}" = "-g" ] && [ "${3:-}" = "--agent" ] && [ "${4:-}" = "cursor" ]; then
+      printf '%s\n' "$*" > "$markers/rtk.wire"
+      exit 0
+    fi
+    echo "fake rtk: unexpected init args: $*" >&2
+    exit 2
+    ;;
+  *)
+    echo "fake rtk: unexpected args: $*" >&2
+    exit 2
+    ;;
+esac
