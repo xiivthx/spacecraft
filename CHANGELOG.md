@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.0 - 2026-07-31
+
+- Feat: `make install-machine` / `scripts/install-machine.sh` - one-shot new-PC User-layer install (durable clone, install-global, caveman/rtk/codegraph with Cursor wire, tokless-like Tools status, soft-fail companions)
+- Test: extend `make test-install` with fixture companions, soft-fail, flags, pollution, and docs markers
+- Docs: installation guide + README cover install-machine, companions, Tools status, and Node 18+ for caveman
+
 ## 0.43.4 - 2026-07-28
 
 - Chore: retune agent frontmatter model routing (adviser opus-5, planner sonnet-5, coder/firmware grok-4.5, reviewer gpt-5.6-sol params, writer composer-2.5)
