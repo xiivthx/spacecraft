@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.44.1 - 2026-07-31
+
+- Chore: retune `sc-tester` agent model to grok-4.5
+
 ## 0.44.0 - 2026-07-31
 
 - Feat: `make install-machine` / `scripts/install-machine.sh` - one-shot new-PC User-layer install (durable clone, install-global, caveman/rtk/codegraph with Cursor wire, tokless-like Tools status, soft-fail companions)
