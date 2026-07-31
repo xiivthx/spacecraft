@@ -15,13 +15,28 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 - Cursor
 - Git
 - Go 1.21 or newer when building the CLI from source
+- Node.js 18 or newer for the caveman companion install (`make install-machine`)
 - macOS or Linux
 
 ## Installation
 
-Spacecraft installs in two layers: a **User layer** (`make install-global`, once per machine) for agents, skills, MCP, the CLI, and global safety hooks - plus a generated `~/.cursor/spacecraft/USER-RULES.txt` you paste into Settings -> Rules -> User Rules so the `alwaysApply` rules apply in every workspace; and a **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo) for the domain rules (`300`-`620`), agents, skills, and project hooks.
+Spacecraft installs in two layers: a **User layer** (once per machine) for agents, skills, MCP, the CLI, and global safety hooks - plus a generated `~/.cursor/spacecraft/USER-RULES.txt` you paste into Settings -> Rules -> User Rules so the `alwaysApply` rules apply in every workspace; and a **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo) for the domain rules (`300`-`620`), agents, skills, and project hooks.
 
-Install into a project with the bootstrap script:
+**New PC** - User layer plus companion tools (caveman, rtk, codegraph) with Cursor wiring:
+
+```sh
+git clone https://github.com/xiivthx/spacecraft.git
+cd spacecraft
+make install-machine
+```
+
+User layer only:
+
+```sh
+make install-global
+```
+
+Project layer (per repo):
 
 ```sh
 ./bootstrap.sh /path/to/project
@@ -33,13 +48,7 @@ When working from a clone of this repository, build and install with:
 make install
 ```
 
-For the User layer (once per machine):
-
-```sh
-make install-global
-```
-
-See the [installation guide](docs/installation.md) for setup and verification details.
+See the [installation guide](docs/installation.md) for setup, companions, Tools status output, and verification details.
 
 ## Quick start
 

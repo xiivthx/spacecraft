@@ -9,15 +9,53 @@ Spacecraft is installed as Cursor project configuration plus a local CLI. Instal
 - `curl`
 - macOS or Linux
 - Go 1.21 or newer when building the CLI from source
+- Node.js 18 or newer for the caveman companion install (`make install-machine`)
 
 ## User layer vs Project layer
 
 Spacecraft installs in two layers:
 
-- **User layer** (`make install-global`, once per machine): agents, skills, MCP config, the CLI, and global safety hooks. It also generates `~/.cursor/spacecraft/USER-RULES.txt` from the five `alwaysApply` rules (`000-spacecraft`, `025-english-coach`, `050-style`, `100-conventions`, `200-workflow`). Paste that file's contents into Cursor Settings -> Rules -> User Rules once - that is how the `alwaysApply` rules take effect in every workspace, since Cursor does not read a repo's `alwaysApply: true` rules outside that repo.
+- **User layer** (`make install-global` or `make install-machine`, once per machine): agents, skills, MCP config, the CLI, and global safety hooks. It also generates `~/.cursor/spacecraft/USER-RULES.txt` from the five `alwaysApply` rules (`000-spacecraft`, `025-english-coach`, `050-style`, `100-conventions`, `200-workflow`). Paste that file's contents into Cursor Settings -> Rules -> User Rules once - that is how the `alwaysApply` rules take effect in every workspace, since Cursor does not read a repo's `alwaysApply: true` rules outside that repo.
 - **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): the domain/glob rules `300`-`620`, agents, skills, project hooks (including `session-start`), and a merged `.cursor/mcp.json`. It never copies the `alwaysApply` rules - those stay User layer only, so installing into many projects never re-duplicates them.
 
 Run the User layer install once per machine; each Project layer install is independent and repeatable.
+
+## New PC / install-machine
+
+For a fresh machine, install the User layer plus companion CLIs in one step:
+
+```sh
+git clone https://github.com/xiivthx/spacecraft.git
+cd spacecraft
+make install-machine
+```
+
+From an existing checkout you can also run `scripts/install-machine.sh` directly (`make install-machine` builds the CLI first).
+
+`make install-machine` invokes `scripts/install-machine.sh`, which:
+
+1. Clones or updates Spacecraft into a durable directory (`~/.local/share/spacecraft` by default; override with `SPACECRAFT_INSTALL_DIR`).
+2. Runs `make install-global` from that clone (User layer: agents, skills, MCP, CLI, hooks, `USER-RULES.txt`).
+3. Installs three companion tools and wires them to Cursor:
+   - **caveman** - official installer (requires Node.js 18+)
+   - **rtk** - official installer, then `rtk init -g --agent cursor`
+   - **codegraph** - official installer, then `codegraph install --target=cursor --yes`
+4. Prints a tokless-like **Tools** status box (checkmark or cross per tool, version when available).
+
+Accepted flags: `--agents cursor` and `--yes` for explicit non-interactive Cursor wiring. v1 has no interactive agent picker; the script is non-interactive by default.
+
+Companion installs **soft-fail**: a failed caveman, rtk, or codegraph step prints a warning and the script continues. The spacecraft User layer completes before companions run; the script exits non-zero only if the clone or User-layer install fails.
+
+**Does not:** install the Cursor app, or run Project-layer bootstrap on arbitrary repos. Per-repo setup stays `./bootstrap.sh` or `make install-project`.
+
+After install:
+
+- Ensure `~/.local/bin` is on your `PATH`.
+- Paste `~/.cursor/spacecraft/USER-RULES.txt` into Cursor Settings -> Rules -> User Rules.
+- Restart Cursor to pick up skills, hooks, and companion wiring.
+- Per project: run `codegraph init` in each repo you want indexed.
+
+Re-running `make install-machine` updates the durable clone in place and refreshes the User layer and companions.
 
 ## Install with bootstrap
 
@@ -59,11 +97,13 @@ make install
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-For the User layer - Cursor-wide agents, slash skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and other `sc-*` skills), and the `alwaysApply` rules:
+For the User layer only (no companions) - Cursor-wide agents, slash skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and other `sc-*` skills), and the `alwaysApply` rules:
 
 ```sh
 make install-global
 ```
+
+On a new PC, prefer [`make install-machine`](#new-pc--install-machine) to also install caveman, rtk, and codegraph with Cursor wiring.
 
 That copies `~/.cursor/agents/sc-*.md` and `~/.cursor/skills/sc-*/`, merges MCP into `~/.cursor/mcp.json`, links the CLI, installs global safety hooks (`check-main-write`, `check-ship-commands`) into `~/.cursor/hooks.json`, and generates `~/.cursor/spacecraft/USER-RULES.txt` from the five `alwaysApply` rules. Paste that file's contents into Cursor Settings -> Rules -> User Rules once so Commander, workflow, English coaching, style, and conventions apply in every workspace. Restart Cursor afterward. Unrelated skills and hooks (for example personal ones) are left alone.
 
