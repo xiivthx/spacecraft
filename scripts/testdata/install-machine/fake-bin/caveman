@@ -1,0 +1,16 @@
+#!/bin/sh
+# Fake caveman on PATH for install-machine smoke (version only; no Cursor wire).
+# Version: caveman --version | version | -V -> prints v0.0.1-fixture
+set -e
+version="v0.0.1-fixture"
+
+case "${1:-}" in
+  --version|version|-V|"")
+    printf '%s\n' "$version"
+    exit 0
+    ;;
+  *)
+    echo "fake caveman: unexpected args: $*" >&2
+    exit 2
+    ;;
+esac

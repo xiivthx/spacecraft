@@ -1,0 +1,33 @@
+#!/bin/sh
+# Fake codegraph on PATH for install-machine smoke (wire + version).
+# Wire: codegraph install --target=cursor --yes -> markers/codegraph.wire
+# Version: codegraph --version | version | -V -> prints v0.0.3-fixture
+set -e
+markers="${SPACECRAFT_COMPANION_MARKERS:?SPACECRAFT_COMPANION_MARKERS required}"
+mkdir -p "$markers"
+version="v0.0.3-fixture"
+
+case "${1:-}" in
+  --version|version|-V)
+    printf '%s\n' "$version"
+    exit 0
+    ;;
+  install)
+    # Expect: install --target=cursor --yes
+    if [ "${2:-}" = "--target=cursor" ] && [ "${3:-}" = "--yes" ]; then
+      printf '%s\n' "$*" > "$markers/codegraph.wire"
+      exit 0
+    fi
+    # Also accept split form: install --target cursor --yes
+    if [ "${2:-}" = "--target" ] && [ "${3:-}" = "cursor" ] && [ "${4:-}" = "--yes" ]; then
+      printf '%s\n' "$*" > "$markers/codegraph.wire"
+      exit 0
+    fi
+    echo "fake codegraph: unexpected install args: $*" >&2
+    exit 2
+    ;;
+  *)
+    echo "fake codegraph: unexpected args: $*" >&2
+    exit 2
+    ;;
+esac
