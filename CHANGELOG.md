@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.44.2 - 2026-08-01
+
+- Chore: slim always-on `000-spacecraft` / `200-workflow` rules to pointers (cut duplicate process prose)
+- Chore: drop unused codegraph from project `.cursor/mcp.json`
+- Chore: context-budget hygiene in `200-workflow`; slim `025` / `050` / `100` always-on rules
+- Chore: narrow globs on security / performance / firmware rules so they stop auto-attaching on every TS/C/test tree
+
 ## 0.44.1 - 2026-07-31
 
 - Chore: retune `sc-tester` agent model to grok-4.5

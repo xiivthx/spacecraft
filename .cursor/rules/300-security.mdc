@@ -4,12 +4,11 @@ alwaysApply: false
 globs:
   - "**/*auth*/**"
   - "**/*login*/**"
-  - "**/*api*/**"
+  - "**/api/**"
+  - "**/routes/**"
   - "**/*middleware*/**"
   - "**/*.env*"
   - "**/*secret*"
-  - "**/package.json"
-  - "**/Dockerfile"
 ---
 
 ## Security Review

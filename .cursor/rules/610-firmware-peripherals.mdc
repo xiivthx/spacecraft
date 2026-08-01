@@ -2,15 +2,14 @@
 description: Firmware peripherals - GPIO, IRQ, LCD, UART, SPI, LF/UHF protocol, DMA
 alwaysApply: false
 globs:
+  - "**/firmware/**"
   - "**/drivers/**"
   - "**/bsp/**"
   - "**/hal_if/**"
-  - "**/*radio*"
-  - "**/*lcd*"
-  - "**/*display*"
-  - "**/*gpio*"
-  - "**/*uart*"
-  - "**/*spi*"
+  - "**/Core/**"
+  - "**/*_radio*"
+  - "**/lcd*/**"
+  - "**/display*/**"
 ---
 
 ## Peripheral & Protocol Patterns

@@ -5,59 +5,12 @@ alwaysApply: true
 
 ## Coding Standards
 
-### Simplicity
-- Minimal code to solve the problem. No speculative features, no "for later" scaffolding.
-- Stdlib over dependency. One line over fifty. Delete over addition.
-- If you write 200 lines and it could be 50, rewrite it.
-- No interface with one implementation. No factory for one product. No config for a value that never changes.
-
-### Naming
-- Descriptive over clever. `getUserById` not `get`.
-- Boolean: `isLoading`, `hasError`, `shouldRetry`.
-- Event handlers: `handleClick`, `onSubmit`.
-- Acronyms: `userId` not `userID`, `apiUrl` not `apiURL`. Two-letter acronyms: `IO` stays uppercase.
-- File names: kebab-case (`user-auth.ts`). Component files: PascalCase (`UserAuth.tsx`).
-
-### Structure
-- Group by feature, not by type. `users/create.ts` not `services/userService.ts`.
-- One export per file unless tightly coupled helpers.
-- Index files for public API surface only. No barrel exports for internal code.
-- Tests co-located: `users/create.test.ts` next to `users/create.ts`.
-
-### Functions
-- Single responsibility. If you need "and" in the name, split it.
-- Max 20 lines. If longer, extract helpers.
-- Early returns over nested ifs. Guard clauses at the top.
-- Pure functions over side effects. Pass dependencies in, don't reach for globals.
-
-### Error Handling
-- Never swallow errors silently. Log or propagate.
-- Typed errors over string errors.
-- Handle errors at the boundary (API handler, event handler), not in every helper.
-- Error messages: say what went wrong AND what to do about it.
-
-### Types
-- No `any`. Use `unknown` and narrow with type guards.
-- Prefer `interface` over `type` for public APIs.
-- Readonly by default. `readonly` modifier, `Readonly<T>`, or immutable patterns.
-- Exhaustive switch/default: never leave a default case unimplemented.
-
-### Testing
-- Test behavior, not implementation. If refactoring breaks the test, the test is wrong.
-- One `describe` per feature, one `it` per behavior.
-- AAA pattern: Arrange, Act, Assert. Clear separation.
-- No test interdependency. Each test sets up its own state.
-
-### Comments
-- Explain WHY, not WHAT. The code says what; a comment earns its place only by saying why.
-- The best comment is often no comment - prefer a self-documenting name, type, or test over prose.
-- No provenance in source: no mission ids, `plan.json` task cites, `decisions.md` ceremony, draft SoT paths, or acceptance dates in comments. That belongs in commit messages and mission artifacts, not the code.
-- Delete dead code, don't comment it out.
-- No TODOs without a ticket reference: `TODO(#123): add retry logic`.
-- Delete-test for noise: if a comment restates the code or narrates what just changed, delete it - don't leave it behind.
-- Update or remove comments when code changes - stale comments are worse than none.
-
-### Console
-- No `console.log` in production code. Use a logger.
-- `console.error` for caught errors that need attention.
-- `console.warn` for deprecation or soft failures.
+- **Simplicity:** minimal code; stdlib over deps; delete over add; no one-impl interfaces / one-product factories / unused config.
+- **Naming:** descriptive; booleans `is`/`has`/`should`; handlers `handle*`/`on*`; acronyms `userId`/`apiUrl` (`IO` stays upper); files kebab-case; components PascalCase.
+- **Structure:** group by feature; one export per file (unless tight helpers); barrels for public API only; tests co-located (`*.test.ts`).
+- **Functions:** one job; max ~20 lines; early returns; pure over globals - pass deps in.
+- **Errors:** never swallow; typed over strings; handle at boundary; message = what failed + what to do.
+- **Types:** no `any` (narrow `unknown`); `interface` for public APIs; readonly by default; exhaustive switches.
+- **Tests:** behavior not impl; one `describe`/feature, one `it`/behavior; AAA; no shared mutable state across tests.
+- **Comments:** WHY only; no mission/plan/draft provenance in source; no commented-out dead code; `TODO(#n): …` only; delete restating noise.
+- **Console:** no `console.log` in prod; `console.error` / `console.warn` only when warranted.
