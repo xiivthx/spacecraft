@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.44.2 - 2026-08-01
+
+- Chore: slim always-on `000-spacecraft` / `200-workflow` rules to pointers (cut duplicate process prose)
+- Chore: drop unused codegraph from project `.cursor/mcp.json`
+
 ## 0.44.1 - 2026-07-31
 
 - Chore: retune `sc-tester` agent model to grok-4.5
