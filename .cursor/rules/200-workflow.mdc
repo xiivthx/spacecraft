@@ -3,6 +3,10 @@ description: Mission lifecycle, lane detection, workflow, release closeout
 alwaysApply: true
 ---
 
+## Context budget
+
+Conversation history usually dominates the window. Prefer a **new chat** when the phase changes (`/sc-discuss` → `/sc-run` → `/sc-ship`). Do not continue a long discuss thread into AFK run. Hand off with the one-line next action only.
+
 ## Lane Detection
 
 | User intent | Lane |

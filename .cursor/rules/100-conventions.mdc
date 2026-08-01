@@ -10,51 +10,34 @@ alwaysApply: true
 .space/    # missions/<id>/, archive/, roadmaps/
 ```
 
-Schemas: `docs/mission-artifacts.md`.
-
-## Model routing
-
-Agent frontmatter under `.cursor/agents/*.md` is the model-by-role source of truth. Ignore `.space/models.toml` if present (local/gitignored leftover; not read by skills or the CLI).
+Schemas: `docs/mission-artifacts.md`. Agent models: `.cursor/agents/*.md` SoT (ignore gitignored `.space/models.toml`).
 
 ## Branches / Commits
 
-- Branch: `feat/<id>/<title>` while working. Never write on `main`.
-- Before ship merge: rename to `feat/<title>` (strip mission id). See sc-ship.
-- Conventional Commits. Target 1-3 per branch, max 5. Rebase on `main` → verify → `git merge --no-ff`.
-- Do not put mission ids (`M…`) in git commit subjects or bodies (merge commits and checkpoints included).
+- Work on `feat/<id>/<title>` (never `main`). Before ship merge: rename to `feat/<title>`.
+- Conventional Commits; 1-3 per branch (max 5); rebase on `main` → `git merge --no-ff`.
+- No mission ids (`M…`) in commit subjects/bodies.
 
 ## Mission IDs
 
-`M` + base36 ms since 2026-01-01. Generate:
+`M` + base36 ms since 2026-01-01:
 
 ```
 node -e "const MS=Date.now()-new Date('2026-01-01').getTime();console.log('M'+MS.toString(36).toUpperCase())"
 ```
 
-## Artifacts
+## Artifacts / evidence
 
-Per mission under `.space/missions/<id>/`: `mission.json`, `spec.md`, `plan.json`, `evidence.jsonl`, optional `decisions.md` / `questions.md` / `review.json`. Roadmaps: `.space/roadmaps/<id>.json` via `spacecraft map`.
-
-Issues: policy in sc-learn; drain in sc-run. Ready/ship: 0 open `issues.md`; 0 review findings.
-
-## Evidence
+Mission dir: `mission.json`, `spec.md`, `plan.json`, `evidence.jsonl`, optional `decisions.md` / `questions.md` / `review.json`. Roadmaps via `spacecraft map`. Issues: sc-learn policy; sc-run drain. Ready/ship: 0 open issues, 0 review findings.
 
 ```
 spacecraft evidence <label> -- <command>
 spacecraft evidence --mission <id> <label> -- <command>
 ```
 
-Alias: `evi`. Output in evidence.jsonl must be real captured stdout - never fabricated.
+Alias `evi`. Evidence stdout must be real - never fabricated.
 
-## Standards
+## Standards / git safety
 
-- ASCII hyphen-minus (`-`) only; never Unicode em dash.
-- Bug fixes: reproduce E2E before fixing.
-- Fix lint/test failures and flakiness even if unrelated to current work.
-
-## Git Safety
-
-- Check dirty tree; do not revert unrelated user changes.
-- No git worktree → stop before product edits unless user accepts risk.
-- Check official docs before dependency changes.
-- `git branch --show-current` must be a feature branch before code edits.
+- ASCII hyphen-minus (`-`) only. Reproduce bugs E2E before fix. Fix lint/test/flake even if unrelated.
+- Check dirty tree; do not revert unrelated user changes. No worktree → stop before product edits unless user accepts risk. Check docs before dependency changes. Feature branch before code edits.

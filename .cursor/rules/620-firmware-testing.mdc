@@ -2,12 +2,12 @@
 description: Firmware testing - host unit test, target integration, HIL, CI
 alwaysApply: false
 globs:
-  - "**/test/**"
-  - "**/tests/**"
   - "**/*_test.c"
-  - "**/*Test*"
-  - "**/CMakeLists.txt"
-  - "**/Makefile"
+  - "**/*_tests.c"
+  - "**/test/**/*.c"
+  - "**/tests/**/*.c"
+  - "**/ceedling/**"
+  - "**/project.yml"
 ---
 
 ## Firmware Testing Strategy

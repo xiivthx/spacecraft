@@ -2,12 +2,12 @@
 description: Performance review - N+1 queries, memory leaks, bundle size, render optimization
 alwaysApply: false
 globs:
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.js"
+  - "**/*perf*/**"
+  - "**/*benchmark*/**"
+  - "**/queries/**"
   - "**/*.sql"
-  - "**/*.go"
-  - "**/package.json"
+  - "**/vite.config.*"
+  - "**/webpack*.js"
 ---
 
 ## Performance Review

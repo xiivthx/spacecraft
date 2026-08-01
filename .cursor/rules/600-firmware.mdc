@@ -2,14 +2,16 @@
 description: Firmware architecture, STM32 HAL, state machines, coding standards for embedded C
 alwaysApply: false
 globs:
-  - "**/*.c"
-  - "**/*.h"
-  - "**/*.s"
-  - "**/*.ld"
-  - "**/Makefile"
-  - "**/CMakeLists.txt"
+  - "**/firmware/**"
+  - "**/Core/**"
+  - "**/Drivers/**"
+  - "**/bsp/**"
+  - "**/CubeMX/**"
   - "**/STM32*"
+  - "**/*stm32*"
   - "**/.ioc"
+  - "**/*.ld"
+  - "**/*.s"
 ---
 
 ## Firmware Architecture - STM32 ARM Cortex-M
