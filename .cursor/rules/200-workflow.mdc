@@ -12,87 +12,56 @@ alwaysApply: true
 | Fix, debug, diagnose, broken, error, bug, crash, investigate | Debug |
 | Edit prompt, config, doc, small fix, human already made changes, just commit | Quick |
 
-## Cursor Mode Bridge
+| User intent | Cursor mode / action |
+|---|---|
+| Ask / clarify / visual draft | Agent + `/sc-discuss` |
+| Roadmap implement | Agent + `/sc-run` (after discuss clear) |
+| Bug hunt | Cursor Debug Mode |
+| Ship | Agent + `/sc-ship` |
+| Small edit / commit | Agent + `/sc-quick` |
 
-| User intent | Lane | Cursor mode / action |
-|---|---|---|
-| Ask / explain / clarify / visual draft | Discuss | Agent + `/sc-discuss` |
-| Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
-| Bug hunt | Debug | Cursor Debug Mode |
-| Ship | Ship | Agent + `/sc-ship` |
-| Small edit / commit | Quick | Agent + `/sc-quick` (no mission; still INTENT/AUTH/TWINS/3-cycle) |
+Prefer new session on phase change (discuss → run → ship). No non-blocking questions mid-AFK. Detail skills: `sc-discuss`, `sc-run`, `sc-ship`, `sc-quick`, `sc-mission`.
 
-After `/sc-discuss` clears clarify (and visual draft when required), prefer new session `/sc-run`; no non-blocking questions mid-AFK. Mission ship only via `/sc-ship`; no-mission small edits via `/sc-quick`. Detail: `.cursor/skills/sc-discuss`, `sc-run`, `sc-ship`, `sc-quick`, `sc-mission`.
-
-## Lifecycle (canonical)
+## Lifecycle
 
 ```
-/sc-discuss (HIL clear) → new session /sc-run (build → drain → ready) → human check → /sc-ship
+/sc-discuss (HIL clear) → new session /sc-run → human check → /sc-ship
 ```
 
-- **Discuss:** spec, decisions, visual draft HIL, mission brief (Accept/Adjust/Reject) → `clarify-status clear`. Handoff: `Spec clear. New session: /sc-run.`
-- **Run:** plan → build → combine(+UI) → issues drain → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.`
-- **Ship:** squash checkpoints ≤5, closeout, merge `--no-ff`, archive. Roadmap continues: `Next: new session → /sc-discuss <id>`
+- **Discuss** → `clarify-status clear`. Handoff: `Spec clear. New session: /sc-run.`
+- **Run** → plan → build → drain → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.`
+- **Ship** → squash ≤5, closeout, merge `--no-ff`, archive. Roadmap continues: `Next: new session → /sc-discuss <id>`
 
-Detail: `/sc-discuss`, `/sc-run`, `/sc-ship`. Issues policy: **sc-learn**; drain loop owned by **sc-run**. Local trust (gitignored): `.space/trust/lessons.md` - read before discuss/plan/run; seed from sc-learn `references/trust-seed/` if missing.
+Issues policy: **sc-learn**; drain: **sc-run**. Trust ledger: `.space/trust/lessons.md`. Roadmap CLI: `spacecraft map use|current|next`.
 
-`spacecraft map use|current|next` select and advance the roadmap.
+## Sizing / roadmap (hard Must)
 
-## Roadmap / issues
-
-- ≤7 jigsaw tasks per phase as a hard Must (not preference-only). Reject soft prefer ≤7; reject any 8-9 exception band.
-- When scope exceeds ≤7 (hard Must; not a higher or soft cap):
-  - Same-mission phase split: sequential `plan-phaseN.json` (or `plan-phase1.json`, …) under the mission when seams are not independently shippable. Discuss records `Sizing: phases`; planning may write the phase files.
-  - Multi-mission via mission-sizing (discuss sizing outcome, not a planning "create roadmap" ceremony): `/sc-discuss` applies `.cursor/skills/sc-discuss/references/mission-sizing.md` (`*-data` → `*-functional` → `*-ui` → optional `*-integrate` when present); discuss owns ordered map create (`new` stubs → `map new`/`add` → stub `Sizing:` on every seam); then AFK with `/sc-run <roadmap-id>`. `Sizing: single|phases` uses mission-only `/sc-run`. UX draft lives in the ui mission discuss - not a `*-ux` seam. Never cross-feature layer waterfalls. Planning must not `map new` - stop and `/sc-discuss` resize protocol.
-- Issues: record in mission `issues.md`; drain in `/sc-run` until 0 open (policy in sc-learn). Ready/ship: 0 open issues, 0 review findings. Fix issue #N: view → mission → spec → close after ship.
+≤7 jigsaw tasks per phase. Over that: same-mission `plan-phaseN.json` (`Sizing: phases`) or multi-mission via discuss mission-sizing (`*-data` → `*-functional` → `*-ui` → optional `*-integrate`). Planning must not `map new` - stop for `/sc-discuss` resize. Full protocol: `sc-discuss/references/mission-sizing.md`.
 
 ## Mission resolution
 
-Branch `feat/<id>/…` → `.space/missions/<id>/mission.json`. List: `ls .space/missions/`. State: `spacecraft set-state [id] <state>` (`state` alias). CLI: `evidence`/`evi`, `validate`/`val`, `roadmap`/`map`.
-
-Clarify status: `open` | `clear` | `deferred` under mission dir.
+Branch `feat/<id>/…` → `.space/missions/<id>/`. Clarify: `open` | `clear` | `deferred`. CLI: `evidence`/`evi`, `validate`/`val`, `roadmap`/`map`, `set-state`.
 
 ## Lanes (pointers)
 
-- **Discuss:** `/sc-discuss` (sizing + lens pass or skip, spec, decisions, visual draft, mission brief before clear). Detail: `sc-clarify`, `sc-ux-design` (brief/draft), `sc-discuss/references/mission-sizing.md`, `sc-discuss/references/mission-brief.md`, `sc-discuss/references/lens-pass.md`; Tier 3 open-domain research: sc-storm. sc-judge at ready stays Skeptic-only - no full STORM at ready.
-- **Mission:** `/sc-run` (roadmap queue or mission-only; plan → build → drain → review → ready). Detail: `sc-mission`, `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (ready only on `VERIFIED`). Shares INTENT / AUTH / TWINS / 3-cycle with Quick.
-- **Ship:** `/sc-ship` - validate, rebase, merge `--no-ff`, archive (mission only).
-- **Quick:** `/sc-quick` - no mission artifacts; branch `<type>/<title>` → verify → commit → ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` (hook skips closeout). Still git safety + tests; **does not skip** INTENT / AUTH / TWINS / 3-cycle. Do not invent a mission stub.
-- **Debug:** reproduce E2E → falsify root cause → record in `issues.md`. Prefer Cursor Debug Mode for runtime evidence.
+- **Discuss:** sizing, lens, spec, decisions, visual draft, mission brief. Skills: `sc-clarify`, `sc-ux-design`, `sc-storm` (Tier 3 research only).
+- **Mission:** plan → build → drain → review → ready. Skills: `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (ready only on `VERIFIED`).
+- **Ship / Quick / Debug:** see matching slash skill. Quick skips mission ceremony but not INTENT / AUTH / TWINS / 3-cycle.
 
 ## Subagent Delegation
 
-Orchestrator, not implementer. Task-delegate:
+Orchestrator, not implementer. Task: `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer` (+ `sc-judge` before ready), `sc-designer`, `sc-adviser`, `sc-firmware`, `sc-writer`.
 
-| Agent | Role |
-|---|---|
-| `sc-coder` | production code |
-| `sc-tester` | tests + evidence |
-| `sc-planner` | plan.json |
-| `sc-reviewer` | release readiness (requires `sc-judge` before ready) |
-| `sc-designer` | UI critique (required before discuss draft HIL; also run review) |
-| `sc-adviser` | complex design (discuss) |
-| `sc-firmware` | STM32 C |
-| `sc-writer` | docs, prompts, messages, non-code prose |
-
-Patterns: visual draft (scenario-complete) approved in `/sc-discuss` before `/sc-run`; `/sc-run` **ports** look from approved draft (draft-parity UI recheck); tester before coder (one acceptance per pair); firmware for embedded; docs/prose triage skips → Task(`sc-writer`), not sc-coder; combine then issues drain; UI visual + functional recheck in run; reviewer + `sc-judge` before ready (ready only on `VERIFIED`; `REFUTED` → fix plan → drain → re-judge); reviewer before ship.
+Patterns: draft approved in discuss before run; run ports look (draft-parity); tester before coder; writer for docs/prose triage skips; ready only on `VERIFIED`.
 
 ## Graph vs Loop
 
-Treat `/sc-run` and `/sc-ship` as a **graph**: named nodes (plan → build → combine → drain → review → judge → ready → ship), state on disk (`spec.md`, `plan.json`, `issues.md`, `evidence.jsonl`, `review.json`), and machine-checkable edge predicates (0 open issues, empty findings, `sc-judge` `VERIFIED`, `validate --strict`). Findings → `issues.md` → fix process (rule/lesson/check) → re-drain is the "fix the process, not only the instance" loop.
+`/sc-run` and `/sc-ship` are a **graph** (disk state + machine-checkable edges). Keep **loops** for discuss research, Debug, `sc-storm`, and `/sc-quick` one-offs.
 
-Keep **loops** when the shape is unknown or there is no mechanical judge: `/sc-discuss` research, Debug (reproduce → falsify), `sc-storm`, and `/sc-quick` one-offs. Do not invent fake exit conditions for exploration.
+## Inner-loop (Quick + Mission)
 
-Process SoT precedence (also `000-spacecraft`): `.cursor/rules/*.mdc` > `.space/trust/lessons.md` > tests > code. Do not hand-patch around a lesson - promote it.
-
-## Inner-loop gates
-
-Always-on for **Quick and Mission** alike (see also `000-spacecraft`). Quick skips mission ceremony (spec/plan/TDD/formal review) but not these gates:
-
-- **INTENT:** Before behavior-changing edits (code / check / spec), emit `INTENT:` with class + intended behavior. Authority when disagreement: explicit user > **approved draft (look)** + **spec (behavior)** > `.cursor/rules/*.mdc` > `.space/trust/lessons.md` > tests > current code. For visual UI, port from the approved draft; do not freestyle chrome. Look vs behavior conflict → `/sc-discuss`. "Make tests pass" alone is not intended behavior.
-- **AUTH:** Before push / deploy / publish / send, emit `AUTH:` with a quoted user authorization. Necessary but not sufficient for ship - `/sc-ship` or `/sc-quick`, hooks, and `SPACECRAFT_SHIP=1` still apply (`SPACECRAFT_QUICK=1` for quick). AUTH does not bypass those gates; merge/push/tag still require `SPACECRAFT_SHIP=1`.
-- **TWINS:** After defect fixes, emit `TWINS:` with project-wide search for the same construct / twin occurrences before claiming done. After **3 failed fix-verify cycles**, stop and hand back to human (no more looping).
+Also `000-spacecraft`. TWINS: after defect fixes, project-wide search for the same construct before claiming done. After **3 failed fix-verify cycles**, stop and hand back to human.
 
 ## Session Handoff
 
-Unfinished work: state, blockers, dirty git, next pickup. Prefer new session when phase changes (discuss → run → ship). End with recommended next action.
+State, blockers, dirty git, next pickup. End with recommended next action.
