@@ -8,9 +8,10 @@ alwaysApply: true
 ```
 .cursor/   # agents/, rules/, skills/, hooks/, mcp.json
 .space/    # missions/<id>/, archive/, roadmaps/
+DESIGN.md  # house look / tokens (UI globs → 150-design.mdc)
 ```
 
-Schemas: `docs/mission-artifacts.md`. Agent models: `.cursor/agents/*.md` SoT (ignore gitignored `.space/models.toml`).
+Schemas: `docs/mission-artifacts.md`. Agent models: `.cursor/agents/*.md` SoT (ignore gitignored `.space/models.toml`). Visual UI: read root `DESIGN.md` via `150-design.mdc` before generating components.
 
 ## Branches / Commits
 

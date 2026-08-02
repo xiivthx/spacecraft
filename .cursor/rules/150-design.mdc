@@ -1,0 +1,41 @@
+---
+description: DESIGN.md visual system - read before generating or editing UI
+alwaysApply: false
+globs:
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.vue"
+  - "**/*.svelte"
+  - "**/*.astro"
+  - "**/*.css"
+  - "**/*.html"
+  - "**/DESIGN.md"
+---
+
+# Design system (DESIGN.md)
+
+Read project-root `DESIGN.md` before generating or editing any visual UI. YAML front matter is normative for tokens; Markdown sections are how to apply them.
+
+## Apply from DESIGN.md
+
+- **Colors** - use only defined tokens/roles (semantic name + hex + usage). Do not invent palette entries.
+- **Typography** - follow type roles and pairings; do not default to Inter/system unless the file allows it.
+- **Layout / Spacing** - respect the spacing scale and layout model.
+- **Shapes / Elevation** - match radius and depth language (rules/tonal layers vs heavy shadow).
+- **Components** - implement documented variants and states (`default`, `hover`, `focus`, `disabled`, plus `error` / loading when specified). Missing states → inventing per-file patterns is a defect.
+- **Do's and Don'ts** - never violate this section.
+
+Prefer CSS custom properties / existing project styling that map to these tokens. Framework utilities must resolve to the same values.
+
+## Spacecraft authority
+
+- House look SoT: root `DESIGN.md` when present.
+- After `/sc-discuss` approval, mission look SoT is `[data-draft-surface]` in the approved draft - **port** structure, tokens, spacing, type, and chrome; do not freestyle a second look.
+- House vs proposed style conflict → stop; record exactly one of `DESIGN conflict: mission exception | update house | keep house` in `decisions.md` before drafting/implementing.
+- Anti-slop catalog (sc-ux-design) wins over vague aesthetic preference unless an exception is recorded.
+- Visual product UI needs draft approval (or a recorded non-visual skip). No mid-build competing design system.
+
+## Missing or ambiguous DESIGN.md
+
+- Missing → produce a candidate via `/sc-discuss` + sc-ux-design design brief; do not silently invent house tokens in product code.
+- Ambiguous token → prefer `name (#hex): usage` specificity; tighten `DESIGN.md` rather than guessing.

@@ -48,8 +48,8 @@ Branch `feat/<id>/…` → `.space/missions/<id>/`. Clarify: `open` | `clear` | 
 
 ## Lanes (pointers)
 
-- **Discuss:** sizing, lens, spec, decisions, visual draft, mission brief. Skills: `sc-clarify`, `sc-ux-design`, `sc-storm` (Tier 3 research only).
-- **Mission:** plan → build → drain → review → ready. Skills: `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (ready only on `VERIFIED`).
+- **Discuss:** sizing, lens, spec, decisions, visual draft, mission brief. Skills: `sc-clarify`, `sc-ux-design`, `sc-storm` (Tier 3 research only). House look: root `DESIGN.md` + `150-design.mdc` on UI globs.
+- **Mission:** plan → build → drain → review → ready. Skills: `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (ready only on `VERIFIED`). Port look from approved draft; sync tokens into `DESIGN.md`.
 - **Ship / Quick / Debug:** see matching slash skill. Quick skips mission ceremony but not INTENT / AUTH / TWINS / 3-cycle.
 
 ## Subagent Delegation
