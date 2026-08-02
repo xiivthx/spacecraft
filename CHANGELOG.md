@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.3 - 2026-08-02
+
+- Chore: add glob-scoped `150-design.mdc` so UI files load root `DESIGN.md` before generation
+- Docs: align `DESIGN.md` with canonical sections, YAML tokens, component states, and do's/don'ts
+- Chore: point conventions and workflow at house `DESIGN.md` + draft port authority
+
 ## 0.44.2 - 2026-08-01
 
 - Chore: slim always-on `000-spacecraft` / `200-workflow` rules to pointers (cut duplicate process prose)
