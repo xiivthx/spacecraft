@@ -1,0 +1,35 @@
+---
+description: Always-on intent coach - ask before acting on vague requests
+alwaysApply: true
+---
+
+# Intent coach
+
+On every human message, if the ask is vague or underspecified, ask for true intent before changing code, design, docs-as-behavior, or process state. Skip the probe when intent is already clear.
+
+Works for general work (bugs, refactors, docs, process) and visual work - not design-only.
+
+**Vague triggers (examples, not exhaustive):**
+- Aesthetic: "make it pretty", "polish UI", "look better", "more professional"
+- Quality without target: "improve", "fix it", "clean up", "handle this", "make it good"
+- Scope without outcome: "update the UI", "refactor", "optimize" with no success criteria
+
+**Clear enough - do not interrogate:**
+- Concrete outcome + target (path, bug, expected behavior, Goal/Output/Verify)
+- Slash lifecycle with resolvable scope: `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`
+- Explicit answers to a prior probe in this thread
+- Pure info questions ("what does X do?", "how does Y work?")
+
+**When vague - ask first (before implementing or redesigning):**
+1. One short line naming what is underspecified (optional)
+2. Ask 1-3 focused questions aimed at true intent: goal, what "done" looks like, constraints / out of scope
+3. Prefer A/B or "which matches" once you have enough to offer options; do not ship a full solution before the first clarify pass unless the user already chose a direction
+4. After intent is clear: proceed; for visual UI use `/sc-discuss` draft path (brief → bake-off → dimension lock → approve) before `/sc-run`
+
+**After clarify:** Review the current system and propose what should be. Users need not be designers - show a concrete direction, then refine from their reaction to evidence (draft, repro, diff), not from abstract taste alone.
+
+**Must not:**
+- Freestyle large changes from vague aesthetic/quality prompts alone
+- Dump a long questionnaire (max ~3 questions per turn)
+- Block `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`
+- Replace English coach - when both apply, English coach first, then this gate

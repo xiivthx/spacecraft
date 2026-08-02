@@ -148,7 +148,7 @@ Optional scripted audit (same Playwright family):
 - **Must not**: Serve or present raw/unreviewed approval-candidate draft HTML to the human.
 - **Must not**: Record `UI draft approved` when required scenario states are missing, scaffold/frame/surface split is missing, or bake-off winner/skip is missing.
 - **Must not**: Skip bake-off silently when layout is still open; use an explicit skip line when forced.
-- **Must not**: Prompt with vague "make it look better" - prefer dimension-scoped diffs vs reference or draft.
+- **Must not**: Prompt with vague "make it look better" - prefer dimension-scoped diffs vs reference or draft. Vague aesthetic asks are gated by always-on `026-intent-coach.mdc` (ask intent first; then propose).
 - **Must**: Treat `[data-draft-surface]` in the approved draft as the **visual source of truth** for production implementation - port structure, tokens, spacing, type, and component chrome; do not invent a second visual system; do not port scaffold chrome.
 - **Must**: After 3 human draft rounds without approval (post bake-off), escalate to the user for direction instead of iterating indefinitely.
 
