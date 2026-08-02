@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Feat: always-on intent coach (`.cursor/rules/026-intent-coach.mdc`) - ask for true intent before acting on vague requests; wire into `USER-RULES` generation
+- Docs: installation lists six `alwaysApply` User-layer rules (adds `026-intent-coach`)
+
 ## 0.44.3 - 2026-08-02
 
 - Chore: add glob-scoped `150-design.mdc` so UI files load root `DESIGN.md` before generation

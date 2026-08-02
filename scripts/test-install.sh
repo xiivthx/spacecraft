@@ -58,8 +58,8 @@ test -f "$tmp/.cursor/hooks/session-start.sh" \
 echo "  ok   install-project places domain rules 300-620 + session-start hook"
 
 # T4 acceptance 2: install-project does NOT copy alwaysApply rules (000/025/
-# 050/100/200) into a project target distinct from the source repo.
-for rule in 000-spacecraft 025-english-coach 050-style 100-conventions 200-workflow; do
+# 026/050/100/200) into a project target distinct from the source repo.
+for rule in 000-spacecraft 025-english-coach 026-intent-coach 050-style 100-conventions 200-workflow; do
   if [ -f "$tmp/.cursor/rules/$rule.mdc" ]; then
     echo "FAIL: install-project copied alwaysApply rule $rule.mdc into project target $tmp"
     exit 1
@@ -95,11 +95,11 @@ echo "  ok   install-global installs sc-run, sc-ship, sc-quick, sc-storm, lens-p
 user_rules="$fake_home/.cursor/spacecraft/USER-RULES.txt"
 test -f "$user_rules" \
   || { echo "FAIL: install-global did not write $user_rules"; exit 1; }
-for marker in 'Spacecraft' 'English prompt coach' 'Coding Standards' 'Project Structure' 'Lane Detection' 'lens pass' 'Graph vs Loop' 'Model routing'; do
+for marker in 'Spacecraft' 'English prompt coach' 'Intent coach' 'Coding Standards' 'Project Structure' 'Lane Detection' 'Graph vs Loop' 'Context budget'; do
   grep -q "$marker" "$user_rules" \
     || { echo "FAIL: USER-RULES.txt missing marker: $marker"; exit 1; }
 done
-echo "  ok   install-global generates USER-RULES.txt with five-source markers (+ lens pass, Graph vs Loop, Model routing)"
+echo "  ok   install-global generates USER-RULES.txt with six-source markers (+ Graph vs Loop, Context budget)"
 
 if [ -f "$fake_home/.cursorrules" ]; then
   echo "FAIL: install-global wrote legacy ~/.cursorrules"

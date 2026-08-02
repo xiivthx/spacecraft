@@ -32,7 +32,7 @@ if [ "$TARGET_ABS" = "$SRC_ABS" ]; then
 else
   mkdir -p "$TARGET_ABS/.cursor/rules" "$TARGET_ABS/.cursor/agents" "$TARGET_ABS/.cursor/skills"
   # Project layer gets domain/glob rules only (300-620); alwaysApply rules
-  # (000/025/050/100/200) are User layer via install-global's USER-RULES.txt.
+  # (000/025/026/050/100/200) are User layer via install-global's USER-RULES.txt.
   for rule in "$SRC_ABS"/.cursor/rules/*.mdc; do
     [ -f "$rule" ] || continue
     grep -q '^alwaysApply: true$' "$rule" && continue
