@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.44.4 - 2026-08-02
 
 - Feat: always-on intent coach (`.cursor/rules/026-intent-coach.mdc`) - ask for true intent before acting on vague requests; wire into `USER-RULES` generation
 - Docs: installation lists six `alwaysApply` User-layer rules (adds `026-intent-coach`)
