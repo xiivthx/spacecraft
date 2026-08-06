@@ -16,7 +16,7 @@ Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; one blocking question at a time; soft gaps → `decisions.md`; visual brief + layout bake-off (or skip) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
+- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); on-demand test-data design via `test-data-design.md` when variable-level fixtures matter (not a clear gate); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; one blocking question at a time; soft gaps → `decisions.md`; visual brief + layout bake-off (or skip) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
 - Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping many testability questions in one turn; quizzing the human instead of presenting Answers; cross-feature layer waterfalls or `*-ux` roadmap seams
 
 ## Verify
@@ -152,6 +152,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 | Mission sizing / roadmap split | `references/mission-sizing.md` |
 | Requirement testability | `references/requirement-testability.md` |
 | SFDIPOT coverage review (existing tests vs requirement) | `references/sfdipot-coverage.md` (on-demand; not a soft gate) |
+| Test data design (variable-level fixtures) | `references/test-data-design.md` (on-demand; not a soft gate) |
 | HTSM strategy (slim) | `references/htsm-strategy.md` |
 | Requirement delta / RCRCRC | `references/rcrcrc-impact.md` |
 | Draft HTML / visual-verify | sc-ux-design |

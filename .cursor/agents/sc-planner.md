@@ -15,6 +15,7 @@ Turn `spec.md` into a jigsaw `plan.json` (≤7 tasks per phase) the Commander ca
 
 - `spec.md`, `questions.md`, `decisions.md`
 - When present in `decisions.md`: structured Test Ideas buckets (Positive / Negative / Edge / Overlooked) and Implementation pitfalls from `## Testability pass`; Top risks / Charter ideas from `## Strategy pass`; Testing Priorities from `## RCRCRC pass` - prefer edge/negative/overlooked slices alongside charter/RCRCRC priorities when ordering jigsaw tasks / acceptance
+- When `## Test data design` is present, prefer Boundary/Negative/Security-shaped rows when shaping edge/negative acceptance checks (do not invent Verify; do not expand past sizing)
 - `outputs/map.json` if present
 - Clarify status
 - If Testability is `Not Testable` and Verify/acceptance still soft → stop; recommend `/sc-discuss` (do not invent bars)
