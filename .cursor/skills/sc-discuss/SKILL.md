@@ -16,7 +16,7 @@ Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear; RCRCRC when two requirement versions exist; one blocking question at a time; soft gaps → `decisions.md`; visual brief + layout bake-off (or skip) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
+- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear; strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; one blocking question at a time; soft gaps → `decisions.md`; visual brief + layout bake-off (or skip) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
 - Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping many testability questions in one turn; quizzing the human instead of presenting Answers; cross-feature layer waterfalls or `*-ux` roadmap seams
 
 ## Verify
@@ -32,6 +32,7 @@ spacecraft clarify-status clear
 # decisions.md contains "Mission brief: accepted" OR "Mission brief: skipped - <reason>"
 # decisions.md contains "## Lens pass" OR "Lens pass skipped:"
 # decisions.md contains "## Testability pass" OR "Testability pass skipped:"
+# decisions.md contains "## Strategy pass" OR "Strategy pass skipped:"
 # when two requirement versions: "## RCRCRC pass" OR "RCRCRC pass skipped:"
 ```
 
@@ -56,7 +57,7 @@ Canonical: `.cursor/rules/200-workflow.mdc` - this skill is discuss HIL only. Ne
 ## Discuss loop
 
 ```
-resolve → inspect → sizing gate → lens-pass gate → testability soft gate → (RCRCRC when two versions) → classify gaps → talk / ask / decide → (visual: brief → bake-off → polish+scenarios → designer → dimension-locked fix → human HIL) → mission brief → clear → handoff
+resolve → inspect → sizing gate → lens-pass gate → testability soft gate → strategy soft gate → (RCRCRC when two versions) → classify gaps → talk / ask / decide → (visual: brief → bake-off → polish+scenarios → designer → dimension-locked fix → human HIL) → mission brief → clear → handoff
 ```
 
 ### Sizing gate
@@ -77,6 +78,10 @@ After sizing, apply `references/lens-pass.md` before deep spec work when trigger
 
 After lens-pass, apply `references/requirement-testability.md` when triggers fire (soft/missing Verify, new feature with behavioral uncertainty, human asks for requirement review, mission brief probe finds Verify skim risk). Otherwise record `Testability pass skipped: <reason>`. Park question candidates in `questions.md`; ask via sc-clarify one at a time. Do not clear while Testability is `Not Testable` and Verify is still soft/missing.
 
+### Strategy soft gate
+
+After testability, apply `references/htsm-strategy.md` when triggers fire (greenfield, multi-platform matrix, security/PII/compliance, critical integrations/SLOs, human asks for test strategy). Otherwise record `Strategy pass skipped: <reason>`. Strategy incompleteness does not block clear the way `Not Testable` + soft Verify does. Do not invent Verify from charters.
+
 ### RCRCRC (when two versions)
 
 When existing and updated requirements are both available (human paste, mid-mission rewrite, recoverable prior `spec.md`), apply `references/rcrcrc-impact.md` and record `## RCRCRC pass`. If only one version: record `RCRCRC pass skipped: Need both existing and updated requirements to perform RCRCRC analysis.` (or equivalent). Not required when there is no requirement delta.
@@ -88,8 +93,9 @@ When existing and updated requirements are both available (human paste, mid-miss
 3. Soft gaps → assumptions in `decisions.md` (do not block clear alone).
 4. Lens pass or skip: `## Lens pass (<topic>)` per `references/lens-pass.md` OR `Lens pass skipped: <reason>`.
 5. Testability pass or skip: `## Testability pass` per `references/requirement-testability.md` OR `Testability pass skipped: <reason>`.
-6. RCRCRC when two versions: `## RCRCRC pass` per `references/rcrcrc-impact.md` OR `RCRCRC pass skipped: …`.
-7. Deep architecture: Task(`sc-adviser`) with Tier 1 lens pass; high-stakes may use Tier 2; open-domain systematic research → sc-storm (Tier 3). Keep `clarify-status open` while blockers or unapproved visual draft remain.
+6. Strategy pass or skip: `## Strategy pass` per `references/htsm-strategy.md` OR `Strategy pass skipped: <reason>`.
+7. RCRCRC when two versions: `## RCRCRC pass` per `references/rcrcrc-impact.md` OR `RCRCRC pass skipped: …`.
+8. Deep architecture: Task(`sc-adviser`) with Tier 1 lens pass; high-stakes may use Tier 2; open-domain systematic research → sc-storm (Tier 3). Keep `clarify-status open` while blockers or unapproved visual draft remain.
 
 ### Visual design (when UI/FE)
 
@@ -118,7 +124,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 
 ### Exit
 
-1. No open blocking questions; Verify present; `Sizing: …` recorded; `## Lens pass` or `Lens pass skipped:` recorded; `## Testability pass` or `Testability pass skipped:` recorded; when two requirement versions, `## RCRCRC pass` or `RCRCRC pass skipped:` recorded; visual approved or skip recorded; mission brief accepted or skip recorded. Do not clear while Testability is `Not Testable` and Verify soft/missing.
+1. No open blocking questions; Verify present; `Sizing: …` recorded; `## Lens pass` or `Lens pass skipped:` recorded; `## Testability pass` or `Testability pass skipped:` recorded; `## Strategy pass` or `Strategy pass skipped:` recorded; when two requirement versions, `## RCRCRC pass` or `RCRCRC pass skipped:` recorded; visual approved or skip recorded; mission brief accepted or skip recorded. Do not clear while Testability is `Not Testable` and Verify soft/missing.
 2. `spacecraft clarify-status clear`.
 3. Handoff by sizing (`references/mission-sizing.md`):
    - `Sizing: roadmap <id>` → **Spec clear. New session: `/sc-run <id>`.**
@@ -145,6 +151,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 | Blocking questions | sc-clarify |
 | Mission sizing / roadmap split | `references/mission-sizing.md` |
 | Requirement testability | `references/requirement-testability.md` |
+| HTSM strategy (slim) | `references/htsm-strategy.md` |
 | Requirement delta / RCRCRC | `references/rcrcrc-impact.md` |
 | Draft HTML / visual-verify | sc-ux-design |
 | Draft critique | Task(`sc-designer`) |
@@ -161,5 +168,6 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 - `references/mission-brief.md`
 - `references/lens-pass.md`
 - `references/requirement-testability.md`
+- `references/htsm-strategy.md`
 - `references/rcrcrc-impact.md`
 - sc-storm
