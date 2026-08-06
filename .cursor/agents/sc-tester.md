@@ -17,7 +17,7 @@ When triage skips (tautology / docs-prose / wording-only): do **not** write a te
 - `plan.json` active task + **single** active acceptance string
 - Project test framework
 - Public interfaces only
-- When present in mission `decisions.md`: Test Ideas (`## Testability pass`) and RCRCRC Testing Focus / Priorities - prefer these when choosing the RED scenario for the active acceptance (still one acceptance → one test)
+- When present in mission `decisions.md`: Test Ideas (`## Testability pass`); Charter ideas (`## Strategy pass`); RCRCRC Testing Focus / Priorities - prefer these when choosing the RED scenario for the active acceptance (still one acceptance → one test)
 
 ## Output
 

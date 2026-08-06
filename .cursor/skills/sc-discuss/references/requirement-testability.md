@@ -29,7 +29,7 @@ Testability pass skipped: <reason>
 
 ## Good / Bad
 
-- Good: measurable outcomes; machine-checkable Verify when possible; question candidates classified and parked; one blocking ask via sc-clarify at a time; Test Ideas usable by sc-planner / sc-tester
+- Good: measurable outcomes; machine-checkable Verify when possible; question candidates classified and parked; one blocking ask via sc-clarify at a time; Test Ideas risk-driven (SFDIPOT/quality-informed) when those apply; usable by sc-planner / sc-tester
 - Bad: inventing Verify; dumping many questions in one user-facing turn; expertise cosplay; clearing while `Not Testable` and Verify still soft/missing
 
 ## Verify
@@ -70,13 +70,44 @@ Testability pass skipped: <reason>
    - Ask only the most blocking via sc-clarify (one at a time: Question / Why it matters / Recommendation / If accepted)
    - Non-blocking → assumption in `decisions.md`; researchable → read code / sc-search first
 
-4. **Fill remaining sections**
+4. **SFDIPOT scan** (silent checklist - fuels Risks and Test Ideas; do not add new top-level `decisions.md` sections)
+
+   Scan Product Elements; note only what applies. For each relevant area: key area example + risk + coverage idea (charter-style, concrete).
+
+   | Area | Scan for |
+   |------|----------|
+   | Structure | Components, modules, layers, boundaries |
+   | Function | Capabilities, workflows, business rules |
+   | Data | Inputs, outputs, persistence, migrations, integrity |
+   | Interfaces | APIs, UI surfaces, events, contracts |
+   | Platform | OS, browser, device, runtime, deployment target |
+   | Operations | Install, config, monitoring, support, recovery |
+   | Time/Timing | Concurrency, latency, timeouts, scheduling, ordering |
+
+5. **Quality criteria scan** (silent checklist - fuels Risks and Test Ideas; do not add new top-level `decisions.md` sections)
+
+   Scan quality dimensions; note only what applies. For each relevant criterion: what it means HERE + failure to guard + check/experiment.
+
+   | Criterion | Scan for |
+   |-----------|----------|
+   | Capability | Does it do what users need? |
+   | Reliability | Failures, recovery, consistency |
+   | Usability | Learnability, errors, accessibility |
+   | Charisma | Delight, trust, polish (when product-relevant) |
+   | Security | Authz, data exposure, abuse |
+   | Scalability | Load, growth, resource limits |
+   | Compatibility | Versions, platforms, integrations |
+   | Performance | Speed, throughput, resource use |
+   | Installability | Setup, upgrade, rollback |
+   | Development | Testability, maintainability, operability |
+
+6. **Fill remaining sections** (use SFDIPOT/quality scan output in Risks and Test Ideas bullets)
    - **Notes** - observations that affect understanding
-   - **Risks** - if unclear or incomplete, what breaks in build/ship
-   - **Test Ideas** - high-level scenarios (happy path, edges, failure); keep them behavioral
+   - **Risks** - if unclear or incomplete, what breaks in build/ship; include SFDIPOT/quality-informed risks when those apply
+   - **Test Ideas** - high-level scenarios (happy path, edges, failure); risk-driven and charter-style when SFDIPOT/quality apply; keep them behavioral
    - **Requirement Bugs** - flaws, contradictions, ambiguities in the requirement itself
 
-5. **Record** - write `## Testability pass` (or skip) to `decisions.md`. Tighten `spec.md` Verify when the human confirms fixes.
+7. **Record** - write `## Testability pass` (or skip) to `decisions.md`. Tighten `spec.md` Verify when the human confirms fixes.
 
 ## Clear rule
 

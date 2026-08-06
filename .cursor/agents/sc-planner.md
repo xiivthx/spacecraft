@@ -14,7 +14,7 @@ Turn `spec.md` into a jigsaw `plan.json` (≤7 tasks per phase) the Commander ca
 ## Inputs
 
 - `spec.md`, `questions.md`, `decisions.md`
-- When present in `decisions.md`: Test Ideas from `## Testability pass`; Testing Priorities from `## RCRCRC pass` - prefer these when ordering jigsaw tasks / acceptance
+- When present in `decisions.md`: Test Ideas from `## Testability pass`; Top risks / Charter ideas from `## Strategy pass`; Testing Priorities from `## RCRCRC pass` - prefer these when ordering jigsaw tasks / acceptance
 - `outputs/map.json` if present
 - Clarify status
 - If Testability is `Not Testable` and Verify/acceptance still soft → stop; recommend `/sc-discuss` (do not invent bars)

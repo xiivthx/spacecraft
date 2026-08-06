@@ -41,7 +41,7 @@ Use this exact sequence unless the user specifies otherwise:
 2. **Read inputs** - Before producing `plan.json`, read:
    - `spec.md` - what needs to be built
    - `questions.md` - any open blocking questions
-   - `decisions.md` - recorded choices and assumptions; when present, prefer **Test Ideas** from `## Testability pass` and **Testing Priorities** from `## RCRCRC pass` when ordering jigsaw tasks / acceptance
+   - `decisions.md` - recorded choices and assumptions; when present, prefer **Test Ideas** from `## Testability pass`, **Top risks** / **Charter ideas** from `## Strategy pass`, and **Testing Priorities** from `## RCRCRC pass` when ordering jigsaw tasks / acceptance
    - `outputs/map.json` - project structure survey (if present, see Map integration below)
    - If a blocking clarification question is open, stop - route to `/sc-discuss` / sc-clarify.
    - If `## Testability pass` says `Not Testable` and Verify/acceptance still soft, stop - hand `/sc-discuss` to tighten Verify (do not invent acceptance bars).
@@ -101,7 +101,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 ## Rules
 
 - **Must**: Resolve mission before planning.
-- **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`. Prefer Test Ideas / RCRCRC Testing Priorities from `decisions.md` when present.
+- **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`. Prefer Test Ideas / Strategy Top risks / Charter ideas / RCRCRC Testing Priorities from `decisions.md` when present.
 - **Must**: Stop if a blocking clarification is open - route to `/sc-discuss` / sc-clarify.
 - **Must**: Stop if Testability is `Not Testable` and acceptance/Verify still soft - hand `/sc-discuss`; do not invent bars.
 - **Must**: ≤7 tasks per phase as a hard Must (not preference-only). Use `plan-phaseN.json` when `Sizing: phases`; else hand multi-mission to `/sc-discuss`.
@@ -150,7 +150,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 - [ ] Mission resolved
 - [ ] `spec.md`, `questions.md`, `decisions.md`, `map.json` (if present) read
-- [ ] Test Ideas / RCRCRC priorities from `decisions.md` considered when present
+- [ ] Test Ideas / Strategy Top risks / Charter ideas / RCRCRC priorities from `decisions.md` considered when present
 - [ ] No blocking clarification open
 - [ ] Not planning against soft Verify while Testability is `Not Testable`
 - [ ] Plan has ≤7 jigsaw tasks per phase (split if needed)
