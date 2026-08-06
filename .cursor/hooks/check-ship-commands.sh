@@ -195,7 +195,7 @@ QUICK_FLAG=$(printf '%s' "$ship_flags" | cut -f2)
 # Real git merge|push|tag: require SPACECRAFT_SHIP=1, then closeout (unless quick lane).
 if [ "$SHIP_FLAG" != "1" ]; then
   deny \
-    "Ship gate blocked this command. Run /sc-ship (or /sc-quick ship) and set SPACECRAFT_SHIP=1 only for gated git merge/push/tag, then unset it." \
+    "Ship gate blocked this command. Run /sc-ship or /sc-quick and set SPACECRAFT_SHIP=1 only for gated git merge/push/tag, then unset it." \
     "Do not merge, push, or tag unless the user explicitly requested ship via /sc-ship or /sc-quick. Prefix gated git with SPACECRAFT_SHIP=1 (and SPACECRAFT_QUICK=1 for no-mission /sc-quick), then unset after."
 fi
 

@@ -40,7 +40,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Before committing/merging/releasing, run `spacecraft git-info`.
 - **Must not**: Write product changes on `main`. If on `main` when mutation is requested, create a work branch.
 - **Must not**: Auto-run `git init`, create worktrees, rebase, merge, tag, or push unless asked.
-- **Must**: Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. AUTH is necessary but not sufficient for ship - still requires `/sc-ship` or `/sc-quick`, ship hooks, and `SPACECRAFT_SHIP=1` (`SPACECRAFT_QUICK=1` for quick). AUTH does not bypass those gates.
+- **Must**: Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. Mission local ship still requires `/sc-ship` + hooks + `SPACECRAFT_SHIP=1`. `/sc-quick` authorizes local merge/tag in that lane (hooks + `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`); push still needs separate AUTH. AUTH does not bypass ship hooks.
 
 ### Branching
 

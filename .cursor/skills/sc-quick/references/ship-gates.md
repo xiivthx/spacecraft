@@ -42,7 +42,7 @@
 - Scope needs discuss/run
 - Dirty unrelated files staged
 - Secrets in diff
-- Ship without user authorization
+- Invoked without `/sc-quick` (do not auto-detect quick ship from casual chat)
 - `SPACECRAFT_SHIP=1` without `SPACECRAFT_QUICK=1` on a no-mission branch (closeout will fail — set both)
 
 ## Error handling
