@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.8 - 2026-08-06
+
+- Docs: structured Test Ideas (Positive/Negative/Edge/Overlooked) + Implementation pitfalls in testability pass
+- Docs: on-demand SFDIPOT coverage review (`sfdipot-coverage.md`) for existing tests vs requirement
+- Docs: wire structured Test Ideas / pitfalls into planner, tester, planning, judge; pointer from HTSM strategy
+
 ## 0.44.7 - 2026-08-06
 
 - Docs: enrich testability pass with SFDIPOT + quality-criteria heuristics for Risks / Test Ideas
