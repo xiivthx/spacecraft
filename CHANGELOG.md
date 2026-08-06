@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.44.7 - 2026-08-06
+
+- Docs: enrich testability pass with SFDIPOT + quality-criteria heuristics for Risks / Test Ideas
+- Docs: slim HTSM Strategy soft gate (`htsm-strategy.md`) for high-risk missions
+- Docs: wire strategy into sc-discuss exit Verify, sc-planning, sc-planner, and sc-tester
+- Docs: note strategy as a discuss decision job in prompting guide and README
+
 ## 0.44.6 - 2026-08-06
 
 - Docs: discuss soft gates for requirement testability and RCRCRC impact (`requirement-testability.md`, `rcrcrc-impact.md`)
