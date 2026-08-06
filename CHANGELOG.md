@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.6 - 2026-08-06
+
+- Docs: discuss soft gates for requirement testability and RCRCRC impact (`requirement-testability.md`, `rcrcrc-impact.md`)
+- Docs: wire testability / RCRCRC into sc-discuss exit Verify, sc-planning, sc-planner, and sc-tester
+- Docs: note testability and RCRCRC as discuss decision jobs in prompting guide and README
+
 ## 0.44.5 - 2026-08-06
 
 - Chore: drop lessons ledger (`learned.md`, `.space/trust/lessons.md`, init seed, skim/SoT ranks)
