@@ -36,4 +36,4 @@ Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (se
 
 Role names (Commander, Coder, Tester) are routing contracts, not expertise claims.
 
-**Note:** Lens pass = five decision jobs that write `## Lens pass` or `Lens pass skipped:` in `decisions.md` - not expertise cosplay. See `.cursor/skills/sc-discuss/references/lens-pass.md` and sc-storm (Tier 3).
+**Note:** Lens pass = five decision jobs that write `## Lens pass` or `Lens pass skipped:` in `decisions.md` - not expertise cosplay. See `.cursor/skills/sc-discuss/references/lens-pass.md` and sc-storm (Tier 3). Testability pass and RCRCRC pass are the same class of discuss decision jobs (`## Testability pass` / `## RCRCRC pass` or skips) - not QA personas. See `requirement-testability.md` and `rcrcrc-impact.md`.

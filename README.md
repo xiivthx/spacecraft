@@ -63,7 +63,7 @@ Open the project in Cursor. User-facing slash skills are `/sc-discuss`, `/sc-run
 
 Flow:
 
-1. `/sc-discuss` - size (`Sizing: single|phases|roadmap`), lens pass or skip (`## Lens pass` / `Lens pass skipped:`), clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
+1. `/sc-discuss` - size (`Sizing: single|phases|roadmap`), lens pass or skip (`## Lens pass` / `Lens pass skipped:`), testability pass or skip (`## Testability pass` / `Testability pass skipped:`), RCRCRC when two requirement versions (`## RCRCRC pass` / skip), clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
 2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (or `/sc-run` mission-only for single/phases). Jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review. Visual UI/FE: requires draft already approved in discuss (not for `*-data` / `*-functional` seams); then screenshots/visual + functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
 3. Human checks the ready work.
 4. `/sc-ship` validates and closes out only when explicitly requested.
