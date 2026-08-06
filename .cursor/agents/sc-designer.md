@@ -1,7 +1,7 @@
 ---
 name: sc-designer
+model: gpt-5.6-sol[reasoning=high,fast=false]
 description: UI critique and anti-slop review. Use proactively for UI work. Approved draft is visual SoT; DESIGN.md holds extracted tokens.
-model: claude-sonnet-5[effort=high]
 readonly: true
 ---
 

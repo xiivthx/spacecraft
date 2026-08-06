@@ -1,6 +1,6 @@
 ---
 name: sc-reviewer
-model: gpt-5.6-sol[reasoning=high,fast=false]
+model: claude-sonnet-5[thinking=true,effort=high]
 description: Reviews diff, evidence, and release readiness. Use proactively after build before ready/ship.
 readonly: true
 ---
@@ -80,5 +80,5 @@ Commander runs `spacecraft validate --strict` and checks review `status` vs plan
 - Conflicting evidence → Critical.
 - Diff >500 lines → Recommend split (Important).
 - Missing `sc-judge` verdict → Critical; cannot approve ready.
-- Judge verdict `REFUTED` → Critical; status blocked; list `requiredFix` per finding for issues drain; do not set ready.
+- Judge verdict `REFUTED` → Critical; status blocked; list `requiredFix` per finding for `/sc-run` to fix; do not set ready.
 - Any leftover finding (including minor) → status blocked; do not set ready.

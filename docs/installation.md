@@ -191,9 +191,6 @@ Then begin in Cursor:
   missions/
   archive/
   roadmaps/
-  trust/                   # local source of trust (lessons.md, solved.md); seeded by init
 ```
-
-Trust is not committed. Tracked seed: `.cursor/skills/sc-learn/references/trust-seed/`. Agents read `.space/trust/lessons.md` before inventing process.
 
 The Spacecraft repository also contains the CLI source at `cmd/spacecraft/`.

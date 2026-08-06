@@ -74,8 +74,7 @@ Set state with `spacecraft set-state [mission-id] <new-state>` (mission-id optio
 - **Must**: If "close session" is ambiguous and work appears ready, recommend ship; do not merge automatically.
 - **Must**: Treat ship/release/merge/finish-mission/close-branch requests as release closeout prep. Block closeout when gates are incomplete.
 - **Must**: After successful release closeout, archive shipped mission artifacts under `.space/archive/` unless the user asks to keep the full live mission folder.
-- **Must**: After merge, run `spacecraft set-state shipped` to trigger archive and close GitHub issues. Capture evidence of the command output showing issue closing results.
-- **Must**: Never claim GitHub issues are closed without running the actual command and capturing evidence. Verify by checking command output for "Issues: X closed" message.
+- **Must**: After merge, run `spacecraft set-state shipped` to trigger archive. Capture evidence of the command output.
 - **Must**: Keep mission artifacts small and human-readable.
 - **Must**: Prefer explicit evidence over narrative claims.
 - **Must**: After creating or updating spec.md, plan.json, decisions.md, or questions.md, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort, non-blocking -- warn on failure). See sc-memory for label format and conventions.
@@ -92,7 +91,6 @@ This skill does NOT handle:
 - Clarification questions and visual draft ownership - use `/sc-discuss` (sc-clarify protocol inside)
 - Debugging or bug diagnosis - use sc-debug
 - Code review - handled by reviewer subagent
-- Knowledge capture and migration - use sc-learn
 - Cross-mission memory, artifact indexing conventions, ctx_search/ctx_index wrapping - use sc-memory
 
 ## Output format

@@ -29,7 +29,7 @@ node -e "const MS=Date.now()-new Date('2026-01-01').getTime();console.log('M'+MS
 
 ## Artifacts / evidence
 
-Mission dir: `mission.json`, `spec.md`, `plan.json`, `evidence.jsonl`, optional `decisions.md` / `questions.md` / `review.json`. Roadmaps via `spacecraft map`. Issues: sc-learn policy; sc-run drain. Ready/ship: 0 open issues, 0 review findings.
+Mission dir: `mission.json`, `spec.md`, `plan.json`, `evidence.jsonl`, optional `decisions.md` / `questions.md` / `review.json`. Roadmaps via `spacecraft map`. Findings: fix in `/sc-run` and report in summary. Ready/ship: 0 review findings.
 
 ```
 spacecraft evidence <label> -- <command>

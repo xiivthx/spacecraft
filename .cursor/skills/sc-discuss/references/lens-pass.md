@@ -8,7 +8,7 @@ Five STORM lenses as **decision jobs** that produce greppable artifacts in `deci
 | Academic | Known patterns, literature, formal tradeoff framing |
 | Skeptic | Failure modes, hidden assumptions, what we might be wrong about |
 | Economist | Cost, scope, ongoing tax, build vs defer |
-| Historian | Prior decisions in `.space/trust/lessons.md` and repo history (`none found` allowed) |
+| Historian | Prior decisions in repo history and mission `decisions.md` (`none found` allowed) |
 
 ## When required (any one)
 
@@ -40,7 +40,7 @@ Use exactly this shape when a lens pass runs (one `## Lens pass` block per topic
 - Academic: …
 - Skeptic: …
 - Economist: …
-- Historian: …  # skim .space/trust/lessons.md; none found allowed
+- Historian: …  # repo history / decisions.md; none found allowed
 - Synthesis: <one path + what we reject>
 - Lens tier used: 0|1|2|3
 ```

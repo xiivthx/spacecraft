@@ -17,7 +17,7 @@ Shipped mission on `main` (or blocked with exact missing gates). Never infer shi
 ## Good / Bad
 
 - Good: squash checkpoints ≤5; `validate --strict` + `closeout-check` pass; CHANGELOG + version bump; strip branch to `<type>/<title>`; `SPACECRAFT_SHIP=1`
-- Bad: ship without ready/closeout; open `issues.md` or review findings; create GitHub Issues at ship for parked debt; merge while still `<type>/<id>/<title>`
+- Bad: ship without ready/closeout; review findings present; merge while still `<type>/<id>/<title>`
 
 ## Verify
 
@@ -26,7 +26,7 @@ spacecraft validate --strict
 spacecraft closeout-check
 ```
 
-Both exit 0 before merge. Closeout enforces 0 open issues and empty review findings.
+Both exit 0 before merge. Closeout enforces empty review findings (and other closeout gates).
 
 ## Lifecycle
 
@@ -58,9 +58,9 @@ Do not push rewritten history unless user asks.
 
 ### 2. Release commit
 
-One commit: sc-learn migration + CHANGELOG + version bump.
+One commit: CHANGELOG + version bump.
 
-1. If any `issues.md` entry is `open` → **block** (file/fix in `/sc-run`, re-ready). Migrate solved/learned only (sc-learn).
+1. If `review.json` still has findings → **block** (fix in `/sc-run`, re-ready).
 2. Update CHANGELOG.md; bump version; commit.
 
 ### 3. Merge

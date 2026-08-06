@@ -73,7 +73,7 @@ After sizing, apply `references/lens-pass.md` before deep spec work when trigger
 
 ### Spec and decisions
 
-1. Ensure `spec.md` has Goal, Output, Good vs Bad, Verify (machine-checkable where possible). Skim `.space/trust/lessons.md` before inventing process (sc-learn: seed if missing).
+1. Ensure `spec.md` has Goal, Output, Good vs Bad, Verify (machine-checkable where possible).
 2. Blocking ambiguity: sc-clarify (one question at a time); record in `questions.md` / `decisions.md`.
 3. Soft gaps → assumptions in `decisions.md` (do not block clear alone).
 4. Lens pass or skip: `## Lens pass (<topic>)` per `references/lens-pass.md` OR `Lens pass skipped: <reason>`.

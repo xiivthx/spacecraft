@@ -33,10 +33,10 @@ Prefer new session on phase change (discuss → run → ship). No non-blocking q
 ```
 
 - **Discuss** → `clarify-status clear`. Handoff: `Spec clear. New session: /sc-run.`
-- **Run** → plan → build → drain → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.`
+- **Run** → plan → build → fix → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.`
 - **Ship** → squash ≤5, closeout, merge `--no-ff`, archive. Roadmap continues: `Next: new session → /sc-discuss <id>`
 
-Issues policy: **sc-learn**; drain: **sc-run**. Trust ledger: `.space/trust/lessons.md`. Roadmap CLI: `spacecraft map use|current|next`.
+Findings: fix in `/sc-run` and report in the summary (no issue ledgers). Roadmap CLI: `spacecraft map use|current|next`.
 
 ## Sizing / roadmap (hard Must)
 
@@ -49,7 +49,7 @@ Branch `feat/<id>/…` → `.space/missions/<id>/`. Clarify: `open` | `clear` | 
 ## Lanes (pointers)
 
 - **Discuss:** sizing, lens, spec, decisions, visual draft, mission brief. Skills: `sc-clarify`, `sc-ux-design`, `sc-storm` (Tier 3 research only). House look: root `DESIGN.md` + `150-design.mdc` on UI globs.
-- **Mission:** plan → build → drain → review → ready. Skills: `sc-planning`, `sc-tdd`, `sc-verification`, `sc-learn`, `sc-judge` (ready only on `VERIFIED`). Port look from approved draft; sync tokens into `DESIGN.md`.
+- **Mission:** plan → build → fix → review → ready. Skills: `sc-planning`, `sc-tdd`, `sc-verification`, `sc-judge` (ready only on `VERIFIED`). Port look from approved draft; sync tokens into `DESIGN.md`.
 - **Ship / Quick / Debug:** see matching slash skill. Quick skips mission ceremony but not INTENT / AUTH / TWINS / 3-cycle.
 
 ## Subagent Delegation

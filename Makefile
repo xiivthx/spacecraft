@@ -88,7 +88,7 @@ install-global: build install-cli
 	@test -f "$(GLOBAL)/skills/sc-quick/SKILL.md"
 	@test -f "$(GLOBAL)/skills/sc-storm/SKILL.md"
 	@test -f "$(GLOBAL)/skills/sc-discuss/references/lens-pass.md"
-	@test -f "$(GLOBAL)/skills/sc-judge/references/judge-break/open-issues/expect.json"
+	@test -f "$(GLOBAL)/skills/sc-judge/references/judge-break/empty-evidence/expect.json"
 	@python3 $(ROOT)/scripts/mcp-merge.py merge "$(GLOBAL)/mcp.json" "$(ROOT)/.cursor/mcp.json"
 	@sh $(ROOT)/scripts/install-global-hooks.sh "$(ROOT)" "$(GLOBAL)"
 	@sh $(ROOT)/scripts/gen-user-rules.sh "$(ROOT)/.cursor/rules" "$(GLOBAL)/spacecraft/USER-RULES.txt"

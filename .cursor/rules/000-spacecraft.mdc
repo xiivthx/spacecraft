@@ -34,9 +34,9 @@ Keep **Goal**, **Output**, **Good vs Bad**, and **Verify** clear. Soft gaps mid-
 
 Before behavior-changing edits (code, checks, or spec), state `INTENT:` with class + intended behavior. "Make tests pass" alone is not intended behavior.
 
-Authority when disagreement: **explicit user > approved draft (look) + spec (behavior) > `.cursor/rules/*.mdc` > `.space/trust/lessons.md` > tests > current code**. Look vs behavior conflict → `/sc-discuss`.
+Authority when disagreement: **explicit user > approved draft (look) + spec (behavior) > `.cursor/rules/*.mdc` > tests > current code**. Look vs behavior conflict → `/sc-discuss`.
 
-Process SoT: `.cursor/rules/*.mdc` > `.space/trust/lessons.md` (seed from sc-learn `references/trust-seed/` if missing). Promote repeated traps into a rule or machine check - do not hand-patch around a lesson.
+Process SoT: `.cursor/rules/*.mdc`. Promote repeated traps into a rule or machine check - do not hand-patch around a one-off.
 
 ### AUTH:
 
@@ -46,7 +46,7 @@ Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quo
 
 **Never:** merge/tag/delete branches without `/sc-ship` or `/sc-quick`; auto-detect ship intent; implement Mission work before `spec.md` + `plan.json`; write on `main`; write product code/tests in Commander; drive-by refactors; delete dead code unless asked; expose secrets; outward push/deploy/publish/send without `AUTH:`.
 
-**Always:** feature branch; verify with tests; missions resolve from branch → `.space/missions/<id>/`; record issues in `issues.md`; ready/ship with 0 open issues and 0 review findings; emit `INTENT:` before behavior-changing edits.
+**Always:** feature branch; verify with tests; missions resolve from branch → `.space/missions/<id>/`; fix findings and report them in the run/ship summary; ready/ship with 0 review findings; emit `INTENT:` before behavior-changing edits.
 
 ## Communication
 
