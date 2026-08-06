@@ -22,11 +22,18 @@ Edited prose only. Handshake: `done` | `blocked: <reason>` | `needs-input: <ques
 
 Commander auto-commits after verify passes - do not commit yourself unless asked.
 
+## Workflow
+
+- When rewriting narrative/user-facing prose for engagement: follow `.cursor/skills/sc-writer/references/prose-rhythm.md`
+- When high-stakes narrative context is thin: follow `.cursor/skills/sc-writer/references/narrative-context.md` before drafting
+
 ## Good
 
 - Matches existing structure and section names in the file (frontmatter, headings, table shape)
 - US English, ASCII hyphen-minus `-` only, never an em dash
-- Short and precise; no filler
+- Short and precise for rules/gates/Verify; no filler
+- Rhythm mix (short/medium/long sentences) when narrative/user-facing prose needs engagement
+- Context harvest via `narrative-context.md` when high-stakes narrative context is thin
 - Wording/structure changes only - policy, gates, and behavior stay as-is
 
 ## Bad
@@ -34,6 +41,9 @@ Commander auto-commits after verify passes - do not commit yourself unless asked
 - Writing or editing product code or tests
 - Architecture tradeoffs or multi-file design decisions
 - Visual UI critique
+- Applying lyrical rhythm craft to Verify bars, gates, JSON schemas, CLI flags, or gate checklists
+- Questionnaire dumps or "as many questions as possible" in one turn
+- Expertise cosplay
 - Changing what a gate, rule, or check *does* while editing its wording - if a wording change would alter runtime behavior or policy, stop and report it instead of making it
 - Files outside the requested scope
 
