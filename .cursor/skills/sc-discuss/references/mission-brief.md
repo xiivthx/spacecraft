@@ -44,8 +44,10 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 
 ### Answer style (required two beats)
 
-1. **Feynman** - one plain sentence a smart friend would get
+1. **Feynman** - one plain sentence a smart friend would get; prefer natural rhythm (not a stack of same-length fragments) - still one sentence, not an essay
 2. **Technical** - exact Verify bar, limits, out-of-scope, file/API names when they matter
+
+Do not turn briefs into speeches. Fuller narrative rewrite → sc-writer `prose-rhythm.md`.
 
 Harness missions: frame as **product behavior**, never "which markdown line".
 

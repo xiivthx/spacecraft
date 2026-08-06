@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.12 - 2026-08-06
+
+- Docs: on-demand prose-rhythm craft for narrative rewrite (short/medium/long sentence mix)
+- Docs: on-demand narrative-context harvest before high-stakes draft
+- Docs: thin sc-writer skill + wire agent, prompting, mission-brief Answer style
+
 ## 0.44.11 - 2026-08-06
 
 - Docs: on-demand test-oracles craft (FEW HICCUPPS) for problem recognition
