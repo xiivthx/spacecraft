@@ -17,7 +17,8 @@ When triage skips (tautology / docs-prose / wording-only): do **not** write a te
 - `plan.json` active task + **single** active acceptance string
 - Project test framework
 - Public interfaces only
-- When present in mission `decisions.md`: Test Ideas (`## Testability pass`); Charter ideas (`## Strategy pass`); RCRCRC Testing Focus / Priorities - prefer these when choosing the RED scenario for the active acceptance (still one acceptance → one test)
+- When present in mission `decisions.md`: structured Test Ideas buckets (Positive / Negative / Edge / Overlooked from `## Testability pass`); Implementation pitfalls from `## Testability pass`; Charter ideas (`## Strategy pass`); RCRCRC Testing Focus / Priorities - prefer these when choosing the RED scenario for the active acceptance (still one acceptance → one test)
+- If Commander asks for coverage review of existing tests vs requirement, follow `sc-discuss/references/sfdipot-coverage.md` (tester may report gaps; does not invent new acceptances)
 
 ## Output
 
