@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.44.11 - 2026-08-06
+
+- Docs: on-demand test-oracles craft (FEW HICCUPPS) for problem recognition
+- Docs: wire into discuss, testability, strategy, defect-finding, tester, reviewer, prompting
+
 ## 0.44.10 - 2026-08-06
 
 - Docs: on-demand defect-finding craft (`defect-finding.md`) - impact-first findings for review.json / run summary
