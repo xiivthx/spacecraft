@@ -64,7 +64,7 @@ Strategy pass skipped: <reason>
 
 2. **Partial info** - proceed with explicit Assumptions; park Open Questions in `questions.md`; ask only high-impact via sc-clarify (one at a time).
 
-3. **Fill slim template** - prefer concrete charter-style ideas over generics. Top risks use L x I (Likelihood x Impact).
+3. **Fill slim template** - prefer concrete charter-style ideas over generics. Top risks use L x I (Likelihood x Impact). Generating strategy uses SFDIPOT highlights in `SFDIPOT highlights:`; reviewing **existing tests** against the requirement uses `sfdipot-coverage.md` (on-demand - not a discuss gate).
 
 4. **Techniques vocabulary** - may appear inside Charter ideas / Quality coverage (exploratory charters, boundary, state/flow, API checks, property-based, perf, security probes, a11y, compat, chaos, data integrity, observability) - do **not** require a Techniques-by-Area matrix by default.
 

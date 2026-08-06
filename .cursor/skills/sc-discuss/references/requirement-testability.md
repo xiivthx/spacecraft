@@ -16,7 +16,12 @@ Chat summary plus greppable artifact in `decisions.md`:
 - Fixes needed: <concrete Verify/acceptance changes, or none>
 - Notes: …
 - Risks: …
-- Test Ideas: …
+- Test Ideas:
+  - Positive: …
+  - Negative: …
+  - Edge: …
+  - Overlooked: …
+- Implementation pitfalls: …
 - Requirement Bugs: …
 - Question queue: <count> parked in questions.md (blocking N / non-blocking M / researchable K)
 ```
@@ -29,8 +34,8 @@ Testability pass skipped: <reason>
 
 ## Good / Bad
 
-- Good: measurable outcomes; machine-checkable Verify when possible; question candidates classified and parked; one blocking ask via sc-clarify at a time; Test Ideas risk-driven (SFDIPOT/quality-informed) when those apply; usable by sc-planner / sc-tester
-- Bad: inventing Verify; dumping many questions in one user-facing turn; expertise cosplay; clearing while `Not Testable` and Verify still soft/missing
+- Good: measurable outcomes; machine-checkable Verify when possible; question candidates classified and parked; one blocking ask via sc-clarify at a time; structured Test Ideas (Positive/Negative/Edge/Overlooked) risk-driven when SFDIPOT/quality apply; Implementation pitfalls distinct from Requirement Bugs; usable by sc-planner / sc-tester
+- Bad: inventing Verify; essay dumps instead of structured Test Ideas; dumping many questions in one user-facing turn; expertise cosplay; clearing while `Not Testable` and Verify still soft/missing
 
 ## Verify
 
@@ -101,10 +106,16 @@ Testability pass skipped: <reason>
    | Installability | Setup, upgrade, rollback |
    | Development | Testability, maintainability, operability |
 
-6. **Fill remaining sections** (use SFDIPOT/quality scan output in Risks and Test Ideas bullets)
+6. **Fill remaining sections** (use SFDIPOT/quality scan output in Risks and Test Ideas)
    - **Notes** - observations that affect understanding
    - **Risks** - if unclear or incomplete, what breaks in build/ship; include SFDIPOT/quality-informed risks when those apply
-   - **Test Ideas** - high-level scenarios (happy path, edges, failure); risk-driven and charter-style when SFDIPOT/quality apply; keep them behavioral
+   - **Test Ideas** - structured buckets (Positive / Negative / Edge / Overlooked). Default format per idea (compact, planner-usable): `Scenario: … | Steps: … | Expected: …`. UI/user-facing may use story form: `As a [role], when I …, then …` plus brief Notes (risk/edge/usability). Bucket mapping:
+     - **Positive** - happy path
+     - **Negative** - invalid input, error handling, permission denial
+     - **Edge** - rare/boundary conditions
+     - **Overlooked** - cases testers often miss (includes exploratory / creative paths; deep exploratory charters may also live under Strategy pass Charter ideas)
+     - When UI/visual: if draft or screenshot available, extract UI elements/flows into ideas; else note in Notes or pass `Notes: No screenshot/draft - scenarios based only on textual requirement.`
+   - **Implementation pitfalls** - short checklist of potential bugs/pitfalls in **implementing** the requirement (UI, data handling, error messaging, perf, security, etc.) - **distinct** from Requirement Bugs (flaws in the requirement text itself)
    - **Requirement Bugs** - flaws, contradictions, ambiguities in the requirement itself
 
 7. **Record** - write `## Testability pass` (or skip) to `decisions.md`. Tighten `spec.md` Verify when the human confirms fixes.
