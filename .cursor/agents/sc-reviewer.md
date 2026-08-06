@@ -82,6 +82,7 @@ Commander runs `spacecraft validate --strict` and checks review `status` vs plan
 - Check: evidence proves acceptance? behavior vs config? tool output trusted? acceptance skipped?
 - **Must** follow `.cursor/skills/sc-judge/SKILL.md` before approving ready.
 - **Must** for critical/important findings: follow `.cursor/skills/sc-run/references/defect-finding.md` (impact-first `title`, user `impact`, `requiredFix`, 2-3 `retest` ideas). Minor may stay compact (`severity`, `file`, `issue`, `requiredFix`).
+- When problem judgment is ambiguous, may use `sc-discuss/references/test-oracles.md` before filing critical/important findings - still follow `defect-finding.md` for schema.
 - **Must not** set `status: ready` / releaseReadiness ready unless judge verdict is `VERIFIED` and findings are empty - handshake blocked otherwise.
 
 ## References

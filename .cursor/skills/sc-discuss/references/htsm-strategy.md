@@ -79,3 +79,9 @@ Strategy pass skipped: <reason>
 
 - **Must**: record `## Strategy pass` OR `Strategy pass skipped:` before discuss clear
 - **Must not**: expertise cosplay; always-on full 10-section essay; replace testability, RCRCRC, lens, or sc-clarify; invent Verify
+
+## Related
+
+- After exploring a charter outcome, optional `test-oracles.md` to judge if an observation is a problem (FEW HICCUPPS - on-demand; not a discuss gate)
+- Test Ideas buckets: `requirement-testability.md`
+- Defect filing: `sc-run/references/defect-finding.md`

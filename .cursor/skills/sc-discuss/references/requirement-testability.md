@@ -113,7 +113,7 @@ Testability pass skipped: <reason>
      - **Positive** - happy path
      - **Negative** - invalid input, error handling, permission denial
      - **Edge** - rare/boundary conditions
-     - **Overlooked** - cases testers often miss (includes exploratory / creative paths; deep exploratory charters may also live under Strategy pass Charter ideas)
+     - **Overlooked** - cases testers often miss (includes exploratory / creative paths; deep exploratory charters may also live under Strategy pass Charter ideas). When "why is this a problem" needs grounding, optionally run `test-oracles.md` - do not invent Verify.
      - When concrete **variable values** matter (paths, dates, numbers, strings, authz inputs), optionally run `test-data-design.md` and/or use its inspiration checklist to fuel Edge / Negative / Overlooked ideas - do not invent Verify from data rows. Boundary ≈ Edge; Security/Pen samples map to Negative or Overlooked.
      - When UI/visual: if draft or screenshot available, extract UI elements/flows into ideas; else note in Notes or pass `Notes: No screenshot/draft - scenarios based only on textual requirement.`
    - **Implementation pitfalls** - short checklist of potential bugs/pitfalls in **implementing** the requirement (UI, data handling, error messaging, perf, security, etc.) - **distinct** from Requirement Bugs (flaws in the requirement text itself)
