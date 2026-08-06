@@ -40,7 +40,7 @@ Process SoT: `.cursor/rules/*.mdc`. Promote repeated traps into a rule or machin
 
 ### AUTH:
 
-Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization. Necessary but not sufficient for ship: still need `/sc-ship` or `/sc-quick`, hooks, and `SPACECRAFT_SHIP=1` (`SPACECRAFT_QUICK=1` for quick).
+Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization. Local mission ship still needs explicit `/sc-ship` + hooks + `SPACECRAFT_SHIP=1`. `/sc-quick` authorizes local merge/tag in that lane (hooks + `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`); push still needs separate AUTH.
 
 ## Boundaries
 

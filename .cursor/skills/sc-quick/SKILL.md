@@ -1,6 +1,6 @@
 ---
 name: sc-quick
-description: "No-mission fast lane for manual edits/fixes/docs: branch → verify → commit → ship. Invoke as /sc-quick."
+description: "No-mission fast lane for manual edits/fixes/docs: branch → verify → commit → ship in one pass. Invoke as /sc-quick."
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Goal
 
-Ship small, obvious changes **without a mission**: no `spacecraft new`, no spec/plan/TDD/formal review/closeout-check. Still use git safety, Conventional Commits, self-review, and an explicit ship step.
+Ship small, obvious changes **without a mission**: no `spacecraft new`, no spec/plan/TDD/formal review/closeout-check. Still use git safety, Conventional Commits, and self-review. Invoking `/sc-quick` runs the full lane through local merge + tag - no separate ship step.
 
 ## Output
 
@@ -28,10 +28,9 @@ Self-review of `git diff` + project tests when code changed (or note docs-only s
 ```
 /sc-quick
 /sc-quick <short description>
-/sc-quick ship
 ```
 
-`$ARGUMENTS` = optional title/description, or `ship` to finish an in-progress quick branch.
+`$ARGUMENTS` = optional title/description for the work branch / summary.
 
 ## When to use
 
@@ -72,6 +71,8 @@ git checkout -b <type>/<short-title>
 `<type>`: `docs` | `fix` | `chore` | `style` | rarely `feat` (only if truly tiny).  
 **No** `M…` mission id segment. Example: `docs/gpio-mapping-real-pins`.
 
+If already on a quick work branch with the intended commits, skip recreate and continue from verify → ship.
+
 ### 2. Edit / adopt changes
 
 - Implement the requested edit, **or** take the user’s existing dirty files.
@@ -108,9 +109,11 @@ Target **1–2** commits (max 3):
 
 Body: `-` bullets, lowercase start, no mission ids.
 
-### 6. Ship (explicit only)
+### 6. Ship (automatic)
 
-Ship only when the user says **ship** / **merge** / `/sc-quick ship` (or equivalent). AUTH with a **quoted** user phrase.
+Invoking `/sc-quick` **is** the ship authorization for this lane. After verify + commits succeed, merge and tag in the same run - do **not** wait for a second “ship” / “merge” message.
+
+AUTH: quote the user’s `/sc-quick` invocation (or equivalent quick-lane request).
 
 ```
 git rebase main          # or origin/main when available
@@ -125,7 +128,7 @@ unset SPACECRAFT_SHIP SPACECRAFT_QUICK
 
 Bump policy: docs/chore → next **patch** tag; tiny fix → patch; do not invent major/minor without user ask.
 
-**Do not push** unless the user explicitly asks. Push still needs AUTH + `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`.
+**Do not push** unless the user explicitly asks. Push still needs separate AUTH + `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`.
 
 Full gate lists: `references/ship-gates.md`.
 
@@ -135,7 +138,6 @@ Full gate lists: `references/ship-gates.md`.
 - Write attempt on `main` for product commits
 - Secrets or unsafe staging
 - Self-review finds critical issues
-- User did not authorize ship
 - Mission already in flight for the same work → prefer `/sc-ship`
 
 ## Errors
@@ -159,7 +161,7 @@ Commits: …
 Tag: vX.Y.Z
 Files: …
 Verify: <tests or docs-only>
-AUTH: "<quoted user ship phrase>"
+AUTH: "<quoted /sc-quick invocation>"
 Next: new session → /sc-discuss <id>   # when roadmap has next
 # or: Next: push? / done               # no current roadmap / all complete
 ```
