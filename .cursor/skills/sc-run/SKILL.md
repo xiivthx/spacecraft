@@ -71,12 +71,12 @@ Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing dra
    1. Triage via sc-tdd; record `skip: <reason>` when tautology (docs/prose/wording-only).
    2. **TDD:** RED Task(`sc-tester`) → checkpoint → GREEN Task(`sc-coder`/`sc-firmware`) → evidence → checkpoint.
    3. **Skip:** direct write - Task(`sc-writer`) for docs/prose/wording-only, Task(`sc-coder`) for other tautologies - → evidence with task `verify` → one checkpoint. No phrase-harness scripts.
-   4. **Findings mid-build:** fix now (especially if it blocks current acceptance or the suite). Note each fix for the run summary.
+   4. **Findings mid-build:** fix now (especially if it blocks current acceptance or the suite). When recording/reporting defects, use impact-first craft from `references/defect-finding.md` (especially critical/important). Note each fix for the run summary.
    5. Mark task `done` only when all its acceptances pass.
 5. **Combine:** refactor; full suite; evidence. Fix any new failures. Checkpoint.
 6. **UI recheck (visual UI/FE):** sc-ux-design Step 0 **draft-parity** (side-by-side vs approved draft: tokens, layout, component chrome, scenario states) + Tier 3 visual (`playwright-cli` primary) + functional suite. Layout-only match with different chrome, or missing draft `data-state` coverage in the product, → fix now. No ready yet.
 7. **Fix pass** - until suite (+ UI if UI) is clean:
-   1. Fix mission-caused / suite-breaking / touched-path defects.
+   1. Fix mission-caused / suite-breaking / touched-path defects. For critical/important findings, follow `references/defect-finding.md` (impact-first title, user impact, 2-3 retest ideas).
    2. Unrelated preexisting that is not suite-breaking and not on touched path → note in summary only.
    3. Same issue fails fix-verify **3** times or hard blocker → stop to human.
 8. **Review + sc-judge** (only after suite clean):
@@ -117,3 +117,4 @@ Auto-commit after every RED, GREEN, skip+evidence, combine, and material fix. Co
 - sc-judge - ready prove gate
 - sc-ux-design - post-build visual QC + draft-parity
 - sc-web-frontend - port look from approved draft
+- `references/defect-finding.md` - actionable defect findings for review/summary

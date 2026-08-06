@@ -31,7 +31,7 @@ Scan all in-scope source and manifest files for the patterns in the Rules sectio
 
 ### 3. Classify findings
 
-For each match, assign severity (`critical` / `high` / `medium` / `low` / `informational`) and an OWASP category when applicable.
+For each match, assign checklist priority (Critical / High / Medium / Low / informational), map to house severity (`critical` / `important` / `minor`), and an OWASP category when applicable. Informational stays scan-note only unless promoted.
 
 ### 4. Report
 
@@ -111,16 +111,22 @@ Add findings to the task output or `evidence.jsonl` notes.
 Scope: <files reviewed>
 Patterns: <list of pattern categories used>
 Findings:
-  - Severity: critical/high/medium/low/info
+  - Severity: critical | important | minor
+    Title: <impact-first, ≤12 words - required for critical/important>
     Category: <OWASP category or pattern type>
     File: <path>
     Line: <number>
     Pattern: <matched pattern or heuristic>
     Evidence: <short snippet>
-    Fix: <concrete remediation>
+    Issue: <attack vector in plain English>
+    Impact: <user/system effect - required for critical/important>
+    Fix: <concrete remediation = requiredFix>
+    Retest: <2-3 local verify ideas - required for critical/important>
 Summary:
   Total: <n>
   Critical: <n>
+  Important: <n>
+  Minor: <n>
   By category: <counts>
 Recommendation: pass / fix-before-merge / block
 ```
@@ -132,13 +138,14 @@ Recommendation: pass / fix-before-merge / block
 - [ ] Hardcoded secrets scan completed on source and config files
 - [ ] SQL/command injection patterns checked
 - [ ] Manifest and lock files reviewed for suspicious version patterns
-- [ ] Findings classified by severity and OWASP category
+- [ ] Findings classified by house severity (critical / important / minor) and OWASP category
 - [ ] Each finding includes file path, line, evidence snippet, and fix guidance
 - [ ] No dynamic audit tools executed
 - [ ] Results recorded in task output or `evidence.jsonl`
 
 ## References
 
+- `.cursor/skills/sc-run/references/defect-finding.md` - house finding craft for review.json / run summary
 - OWASP Top 10 (2021) - https://owasp.org/Top10/
 - CWE/SANS Top 25 - https://cwe.mitre.org/top25/
 - OWASP Cheat Sheet Series - https://cheatsheetseries.owasp.org/

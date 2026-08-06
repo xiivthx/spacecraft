@@ -37,6 +37,8 @@ Activate on these triggers:
 
 ### When reviewing code
 
+On-demand only (not every silent scan): when a human pastes a snippet to analyze/explain, or asks for a beginner-friendly walkthrough, follow `references/code-walkthrough.md`. Routine diff review stays on the checklist below.
+
 1. `references/code-smell.md` - scan the diff for smells
 2. `references/solid-principles.md` - flag SRP/DIP violations (most common)
 3. `references/clean-code.md` - naming consistency, calisthenics rules
@@ -112,3 +114,4 @@ Before committing code:
 - `references/architecture.md` - dependency rule, feature-first, ports-adapters
 - `references/object-design.md` - stereotypes, Tell Don't Ask, value objects vs entities
 - `references/design-patterns.md` - when patterns help, when they hurt
+- `references/code-walkthrough.md` - on-demand snippet analysis and beginner explanation (not silent SOLID default)
