@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.44.13 - 2026-08-06
+
+- Docs: on-demand prompt-refine craft (Pass/Caution/Fail diagnose → rewrite) for agent/skill/rule prompts
+- Docs: wire into sc-writer skill/agent and prompting guide
+
 ## 0.44.12 - 2026-08-06
 
 - Docs: on-demand prose-rhythm craft for narrative rewrite (short/medium/long sentence mix)

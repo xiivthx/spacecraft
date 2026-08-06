@@ -24,6 +24,7 @@ Commander auto-commits after verify passes - do not commit yourself unless asked
 
 ## Workflow
 
+- When diagnosing or refining agent/skill/rule prompt text for fidelity: follow `.cursor/skills/sc-writer/references/prompt-refine.md`
 - When rewriting narrative/user-facing prose for engagement: follow `.cursor/skills/sc-writer/references/prose-rhythm.md`
 - When high-stakes narrative context is thin: follow `.cursor/skills/sc-writer/references/narrative-context.md` before drafting
 
@@ -32,6 +33,7 @@ Commander auto-commits after verify passes - do not commit yourself unless asked
 - Matches existing structure and section names in the file (frontmatter, headings, table shape)
 - US English, ASCII hyphen-minus `-` only, never an em dash
 - Short and precise for rules/gates/Verify; no filler
+- Prompt-refine diagnose→rewrite via `prompt-refine.md` when agent/skill/rule prompt fidelity is the job
 - Rhythm mix (short/medium/long sentences) when narrative/user-facing prose needs engagement
 - Context harvest via `narrative-context.md` when high-stakes narrative context is thin
 - Wording/structure changes only - policy, gates, and behavior stay as-is
