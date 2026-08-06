@@ -61,8 +61,21 @@ When designing schemas, writing migrations, or optimizing queries:
 
 ## Finding Format
 
-For every schema or query review, report:
-- File path and line
-- Severity: Critical / High / Medium
-- The issue and impact
-- Recommended fix with example code
+Report confirmed findings only. Map checklist priority to house severity, then use craft in `.cursor/skills/sc-run/references/defect-finding.md` when findings feed `review.json` / run summary.
+
+| Checklist | House |
+|---|---|
+| Critical | critical |
+| High | important |
+| Medium | minor |
+
+For every finding:
+- `severity`: critical | important | minor
+- `title`: impact-first, ≤12 words (required for critical/important)
+- `file` + line
+- `issue`: problem + why it matters
+- `impact`: user/system effect (critical/important)
+- `requiredFix`: recommended fix with example code
+- `retest`: 2-3 local verify ideas (critical/important)
+
+Minor may stay compact: severity, file, issue, requiredFix.

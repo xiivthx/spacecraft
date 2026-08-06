@@ -26,7 +26,7 @@ Use this sequence during implementation or review:
 1. **Scope scan** - Read the current task's `plan.json`, `spec.md`, and `evidence.jsonl`. Only flag issues tied to changed code or accepted risk.
 2. **Static pattern scan** - Walk the diff for the categories below. Look at call sites, not just declarations.
 3. **Quantify if possible** - Prefer measurements over guesses. If a benchmark, bundle analyzer output, or memory profile exists, reference it in the finding.
-4. **Classify and report** - Group every finding by category and severity.
+4. **Classify and report** - Group every finding by category; map checklist priority to house severity (`critical` / `important` / `minor`).
 5. **Propose a fix** - Give one concrete remediation per finding. Do not block on hypothetical optimizations outside the task scope.
 
 ## Rules
@@ -67,25 +67,32 @@ Use this sequence during implementation or review:
 
 ```
 Performance scan: <scope>
-Severity: [critical / high / medium / low / note]
 
 N+1 / query:
-  <file:line> - <pattern> - <fix>
+  - Severity: critical | important | minor
+    Title: <impact-first - required for critical/important>
+    File: <path>:<line>
+    Issue: <performance impact in plain English>
+    Impact: <user/system effect - required for critical/important>
+    Fix: <concrete remediation = requiredFix>
+    Retest: <2-3 local verify ideas - required for critical/important>
 
 Memory:
-  <file:line> - <pattern> - <fix>
+  <same per-finding fields>
 
 Bundle:
-  <file:line> - <pattern> - <fix>
+  <same per-finding fields>
 
 Render:
-  <file:line> - <pattern> - <fix>
+  <same per-finding fields>
 
 Hot path:
-  <file:line> - <pattern> - <fix>
+  <same per-finding fields>
 
 Verdict: [clean / fix-now / fix-in-follow-up / measure-first]
 ```
+
+Low-priority observations that do not warrant a review finding stay as scan notes (not filed with house severity).
 
 ## Checklist
 
@@ -98,10 +105,11 @@ Before claiming performance work done:
 - [ ] Hot paths checked for blocking work, deep clones, JSON serialization, and allocations
 - [ ] Findings reference `plan.json` scope or `spec.md` acceptance criteria
 - [ ] Any measured evidence from `evidence.jsonl` is cited
-- [ ] Verdict and severity assigned for each finding
+- [ ] Verdict and house severity (critical / important / minor) assigned for each finding
 
 ## References
 
+- `.cursor/skills/sc-run/references/defect-finding.md` - house finding craft for review.json / run summary
 - React performance optimization - https://react.dev/reference/react/useMemo, https://react.dev/reference/react/memo
 - Eager loading patterns (ActiveRecord) - https://guides.rubyonrails.org/active_record_querying.html#eager-loading-associations
 - Bundle analysis - https://github.com/webpack/webpack-bundle-analyzer, https://github.com/nicedoc/vite-bundle-analyzer

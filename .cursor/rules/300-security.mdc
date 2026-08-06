@@ -57,10 +57,23 @@ When reviewing or implementing code touching auth, API endpoints, database queri
 
 ## Finding Format
 
-For every finding, report:
-- File path and line number
-- Severity: Critical / High / Medium / Low
-- The attack vector in plain English
-- A specific code fix, not just a description
+Report confirmed findings only (do not speculate). Map checklist priority to house severity, then use craft in `.cursor/skills/sc-run/references/defect-finding.md` when findings feed `review.json` / run summary.
 
-Only report confirmed findings. Do not speculate.
+| Checklist | House |
+|---|---|
+| Critical | critical |
+| High | critical |
+| Medium | important |
+| Low | minor |
+| informational | scan note only (not review.json unless promoted) |
+
+For every finding:
+- `severity`: critical | important | minor
+- `title`: impact-first, ≤12 words (required for critical/important)
+- `file` + line
+- `issue`: attack vector in plain English (problem + why)
+- `impact`: user/system effect (critical/important)
+- `requiredFix`: specific code fix, not just description
+- `retest`: 2-3 local verify ideas (critical/important)
+
+Minor may stay compact: severity, file, issue, requiredFix.

@@ -35,9 +35,18 @@ Decide if mission diff + evidence satisfy spec/plan acceptance so the Commander 
   "findings": [
     {
       "severity": "critical" | "important" | "minor",
+      "title": "Impact-first under 12 words",
       "file": "path/to/file",
-      "issue": "Description. Research: 'research needed: <query>'",
-      "requiredFix": "What to do"
+      "issue": "2-3 lines: problem + why. Research: 'research needed: <query>'",
+      "repro": ["Step 1", "Step 2"],
+      "impact": "User-facing effect",
+      "businessRisk": "One short line when critical/important",
+      "requiredFix": "What to do",
+      "retest": ["Verify idea 1", "Evidence label or manual check"],
+      "notes": "Optional; evidence path or attach / evidence",
+      "environment": "unspecified",
+      "version": "unspecified",
+      "reproducible": "evidence: label or manual: n/n"
     }
   ]
 }
@@ -51,6 +60,7 @@ Handshake: `status: ready` **only if** `judgeVerdict` is `VERIFIED` **and** `fin
 - Evidence proves acceptance (behavior, not config-only)
 - `sc-judge` run before any `ready` approval; `ready` only when verdict is `VERIFIED` and findings empty
 - Unfamiliar APIs → `research needed:` (do not guess)
+- Findings actionable and impact-clear without inventing unreproduced details
 
 ## Bad
 
@@ -59,6 +69,7 @@ Handshake: `status: ready` **only if** `judgeVerdict` is `VERIFIED` **and** `fin
 - Approving `ready` without `sc-judge`, or when verdict is not `VERIFIED`
 - Soft-pass / caveat approval when hunt or findings are non-empty
 - Trusting tool output without checking acceptance
+- Inventing repro, version, or environment; expertise cosplay
 
 ## Verify
 
@@ -70,7 +81,13 @@ Commander runs `spacecraft validate --strict` and checks review `status` vs plan
 - Group findings: Critical, Important, Minor.
 - Check: evidence proves acceptance? behavior vs config? tool output trusted? acceptance skipped?
 - **Must** follow `.cursor/skills/sc-judge/SKILL.md` before approving ready.
+- **Must** for critical/important findings: follow `.cursor/skills/sc-run/references/defect-finding.md` (impact-first `title`, user `impact`, `requiredFix`, 2-3 `retest` ideas). Minor may stay compact (`severity`, `file`, `issue`, `requiredFix`).
 - **Must not** set `status: ready` / releaseReadiness ready unless judge verdict is `VERIFIED` and findings are empty - handshake blocked otherwise.
+
+## References
+
+- `.cursor/skills/sc-run/references/defect-finding.md` - actionable defect findings for review/summary
+- `.cursor/skills/sc-judge/SKILL.md` - adversarial prove gate before ready
 
 ## Edge cases
 

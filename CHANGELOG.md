@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.44.10 - 2026-08-06
+
+- Docs: on-demand defect-finding craft (`defect-finding.md`) - impact-first findings for review.json / run summary
+- Docs: wire defect-finding into sc-reviewer and sc-run fix/summary
+- Docs: align security/performance/database finding formats to house severity + defect-finding craft
+- Docs: wire sc-security / sc-performance output severity to critical|important|minor
+- Docs: on-demand code walkthrough (`code-walkthrough.md`) for pasted snippets and beginner explanation
+- Docs: wire code-walkthrough into sc-solid and prompting guide
+
 ## 0.44.9 - 2026-08-06
 
 - Docs: on-demand test data design (`test-data-design.md`) - variable-level Positive/Negative/Boundary/Exploratory/Security rows mapping to Test Ideas
