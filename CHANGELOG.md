@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.44.14 - 2026-08-07
+
+- Feat: `/sc-quick` ships locally in one pass (merge + tag) without a separate ship step; push still explicit
+
 ## 0.44.13 - 2026-08-06
 
 - Docs: on-demand prompt-refine craft (Pass/Caution/Fail diagnose → rewrite) for agent/skill/rule prompts
