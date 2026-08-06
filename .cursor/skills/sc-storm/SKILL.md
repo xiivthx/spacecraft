@@ -20,7 +20,7 @@ Handshake: `done` | `blocked: <reason>` | `needs-input: <question>`
 
 ## Good / Bad
 
-- Good: framed question; primary sources preferred; five lens bullets are jobs not personas; one Synthesis path; feeds discuss only; Historian skims `.space/trust/lessons.md`
+- Good: framed question; primary sources preferred; five lens bullets are jobs not personas; one Synthesis path; feeds discuss only; Historian uses repo history / prior decisions
 - Bad: lifecycle slash peer to discuss/run/ship/quick; always-on; product code; inventing Verify; stuck API / deprecation lookups (use sc-search); full STORM at ready (sc-judge stays Skeptic-only)
 
 ## Verify
@@ -46,7 +46,7 @@ Commander confirms Synthesis is one path and Verify bar still comes from spec + 
 1. **Resolve mission** - `spacecraft resolve` or explicit id; read `spec.md`, `decisions.md`.
 2. **Frame question** - one decision-shaped question; if Verify is preference-bound, flag for sc-clarify - do not invent bars.
 3. **Gather sources** - `WebSearch` / `WebFetch` (sc-search-style escalation); prefer official docs, papers, primary posts; note contradictions.
-4. **Draft five lens notes** - Practitioner, Academic, Skeptic, Economist, Historian (skim `.space/trust/lessons.md`).
+4. **Draft five lens notes** - Practitioner, Academic, Skeptic, Economist, Historian (repo history / prior decisions; `none found` allowed).
 5. **Debate contradictions** - reconcile or state what remains contested; still one Synthesis path.
 6. **Write** `research-brief.md` in the mission dir (question, sources list, lens notes, synthesis).
 7. **Copy** Synthesis + five bullets into `decisions.md` as `## Lens pass (<topic>)` per `references/lens-pass.md`; set `Lens tier used: 3`.

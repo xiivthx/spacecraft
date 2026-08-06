@@ -1,5 +1,0 @@
-{
-  "id": "JBREAKOPEN",
-  "predicate": "closeout-reject",
-  "mustContain": "open issue"
-}

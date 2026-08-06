@@ -72,7 +72,7 @@ test -f "$tmp/.cursor/skills/sc-storm/SKILL.md" \
   || { echo "FAIL: install-project missing sc-storm skill"; exit 1; }
 test -f "$tmp/.cursor/skills/sc-discuss/references/lens-pass.md" \
   || { echo "FAIL: install-project missing sc-discuss/references/lens-pass.md"; exit 1; }
-test -f "$tmp/.cursor/skills/sc-judge/references/judge-break/open-issues/expect.json" \
+test -f "$tmp/.cursor/skills/sc-judge/references/judge-break/empty-evidence/expect.json" \
   || { echo "FAIL: install-project missing sc-judge judge-break fixtures"; exit 1; }
 echo "  ok   install-project installs sc-storm, discuss lens-pass, and judge-break"
 
@@ -88,7 +88,7 @@ for skill in sc-run sc-ship sc-quick sc-storm; do
 done
 test -f "$fake_home/.cursor/skills/sc-discuss/references/lens-pass.md" \
   || { echo "FAIL: install-global missing sc-discuss/references/lens-pass.md"; exit 1; }
-test -f "$fake_home/.cursor/skills/sc-judge/references/judge-break/open-issues/expect.json" \
+test -f "$fake_home/.cursor/skills/sc-judge/references/judge-break/empty-evidence/expect.json" \
   || { echo "FAIL: install-global missing sc-judge judge-break fixtures"; exit 1; }
 echo "  ok   install-global installs sc-run, sc-ship, sc-quick, sc-storm, lens-pass, and judge-break"
 

@@ -17,7 +17,7 @@ A single verdict for the mission (or scoped claim under review):
 VERDICT: VERIFIED | REFUTED
 ```
 
-Plus: fresh evidence ids, scope-diff notes, hunt findings, and (when `REFUTED`) the refutation reasons plus a remediation list for `issues.md`. Cursor-native skill only - no Claude-plugin dependency.
+Plus: fresh evidence ids, scope-diff notes, hunt findings, and (when `REFUTED`) the refutation reasons plus a remediation list for `/sc-run` to fix. Cursor-native skill only - no Claude-plugin dependency.
 
 ## Good / Bad
 
@@ -53,20 +53,19 @@ Use this exact sequence unless the user specifies otherwise:
 4. **Diff scope vs plan** - Compare the actual change set (diff / files touched) to `plan.json` tasks and `spec.md` acceptance. Flag work outside plan, missing acceptance coverage, or plan items marked done without matching fresh evidence.
 5. **Hunt** - Actively search for:
    - **weakened tests** - assertions removed, skipped, loosened, or replaced with tautologies so GREEN is cheap
-   - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, `issues.md` still has `Status: open` (any severity), related/regression/consequence findings parked instead of fixed, or `review.json` still has findings (including minor / warnings)
+   - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, defects left unfixed, or `review.json` still has findings (including minor / warnings)
    - **unauthorized action** - outward push/deploy/publish/send (or similar) without quoted `AUTH:` and user authorization; ship/merge without `/sc-ship` gates
    - **draft drift (visual UI)** - when `UI draft approved: …` is recorded, treat "matches draft" / visual ready as a claim: REFUTE if product chrome clearly diverges from the approved draft (layout-only match) or required draft scenario states (`empty` / `error` / `few` / `many` / spec features) were never implemented or tested
 6. **Verdict** - Emit exactly one of:
-   - `VERIFIED` - perfect bar: fresh evidence passes; scope matches plan/spec; hunt clean; **0** open mission issues; **0** review findings (critical / important / minor - no warning band). Ready allowed (subject to other gates).
-   - `REFUTED` - any gap: material hunt hit, failed re-run, scope/acceptance mismatch, open mission issues, leftover review findings (any severity), or failed verify. Ready blocked.
-7. **Ready gate** - Allow `ready` **only** on `VERIFIED`. On `REFUTED`, block `ready` and emit a remediation list (each item mappable to `issues.md` with `requiredFix`) so `/sc-run` can drain → re-review → re-judge. Do not soften to ship or ready. No caveat / soft-pass verdict.
+   - `VERIFIED` - perfect bar: fresh evidence passes; scope matches plan/spec; hunt clean; **0** review findings (critical / important / minor - no warning band). Ready allowed (subject to other gates).
+   - `REFUTED` - any gap: material hunt hit, failed re-run, scope/acceptance mismatch, leftover review findings (any severity), or failed verify. Ready blocked.
+7. **Ready gate** - Allow `ready` **only** on `VERIFIED`. On `REFUTED`, block `ready` and emit a remediation list so `/sc-run` can fix → re-review → re-judge. Do not soften to ship or ready. No caveat / soft-pass verdict.
 
 ### Edge cases
 
 - **No claimed evidence commands** - `REFUTED` (or refuse `VERIFIED`).
 - **Evidence re-run fails** - Capture as fresh evidence; `REFUTED` until fixed and re-judged.
-- **Non-defect `decisions.md` notes** - Allowed alongside `VERIFIED` as recorded decisions only. They do **not** create a third verdict. Unfinished follow-up work ⇒ open issue ⇒ `REFUTED`.
-- **Open issues / parked related** - Any `Status: open` ⇒ `REFUTED`. Mission-caused left open for ship ⇒ `REFUTED`.
+- **Non-defect `decisions.md` notes** - Allowed alongside `VERIFIED` as recorded decisions only. They do **not** create a third verdict. Unfinished follow-up work ⇒ `REFUTED`.
 - **Any review finding** - Critical, important, or minor (including warnings) ⇒ `REFUTED` until findings are empty.
 - **Manual-only check** - Fresh manual observation note in evidence; do not invent output.
 - **Judge vs lifecycle** - Prove gate before `ready` inside run; does not own discuss/build/ship.
@@ -78,7 +77,7 @@ Exactly these two strings (case and spacing as written):
 | Verdict | Meaning | Ready |
 |---------|---------|-------|
 | `VERIFIED` | Claim re-observed and holds at the perfect bar | **Allowed** (subject to other gates) |
-| `REFUTED` | Claim fails re-observation or hunt | **Blocked** - fix plan → drain → re-judge; do not set `ready` |
+| `REFUTED` | Claim fails re-observation or hunt | **Blocked** - fix → re-judge; do not set `ready` |
 
 No aliases (`PASS`, `FAIL`, `APPROVED`, `VERIFIED WITH CAVEATS`, etc.).
 
@@ -90,14 +89,14 @@ No aliases (`PASS`, `FAIL`, `APPROVED`, `VERIFIED WITH CAVEATS`, etc.).
 - **Must**: Hunt for weakened tests, false completion, unauthorized action, and (when visual UI) draft drift (use those phrases in findings so they are searchable).
 - **Must**: Emit verdict exactly as `VERIFIED` | `REFUTED`.
 - **Must**: Allow `ready` only when verdict is `VERIFIED` (enforced by reviewer / `/sc-run`).
-- **Must**: When `REFUTED`, block `ready`, list remediation for `issues.md`, and require re-judge after drain.
+- **Must**: When `REFUTED`, block `ready`, list remediation for `/sc-run` to fix, and require re-judge after fixes.
 - **Must**: Preserve discuss / run / ship - judge is the prove gate, not a replacement lifecycle.
 - **Must**: ASCII hyphen-minus only; Cursor-native; no Claude-plugin dependency.
 - **Must**: Capture hunt misses as well as hits in the judge summary (what was checked).
 
 ## Judge-break fixtures
 
-Known-bad packs under `references/judge-break/` prove the ready/ship exit gate **rejects** bad disk state (open issues, empty evidence, review findings, false completion). Deterministic only - no LLM.
+Known-bad packs under `references/judge-break/` prove the ready/ship exit gate **rejects** bad disk state (empty evidence, review findings, false completion). Deterministic only - no LLM.
 
 ```
 make test-judge-break
@@ -130,8 +129,8 @@ Hunt:
   - false completion: <none | findings>
   - unauthorized action: <none | findings>
   - draft drift (visual UI): <n/a | none | findings>
-  - open issues / review findings: <none | N open / N findings>
-Remediation (when REFUTED): <none | list for issues.md with requiredFix>
+  - review findings: <none | N findings>
+Remediation (when REFUTED): <none | list for /sc-run to fix>
 VERDICT: VERIFIED | REFUTED
 Ready: allowed | blocked
 ```

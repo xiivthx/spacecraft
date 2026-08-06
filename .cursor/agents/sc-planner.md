@@ -1,6 +1,6 @@
 ---
 name: sc-planner
-model: claude-sonnet-5[thinking=true,effort=high]
+model: gpt-5.6-sol[reasoning=high,fast=false]
 description: Converts mission spec into executable plan.json. Use proactively for spec decomposition.
 readonly: true
 ---

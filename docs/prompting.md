@@ -11,7 +11,7 @@ Clarity over prompting tricks. Keep always-on rules short; put long detail in sk
 | `.cursor/skills/*/SKILL.md` | On demand | Workflows (lifecycle `/sc-*` are Skills with `disable-model-invocation: true`, not `.cursor/commands/`) |
 | `.cursor/agents/*.md` | Subagent Task | Job contracts |
 
-Lifecycle detail: `.cursor/rules/200-workflow.mdc` + slash skills. Issues drain is part of `/sc-run` before ready (policy: sc-learn). Do not restate the always-on clarity rule inside every agent.
+Lifecycle detail: `.cursor/rules/200-workflow.mdc` + slash skills. `/sc-run` fixes findings before ready and reports them in the summary (no issue ledgers). Do not restate the always-on clarity rule inside every agent.
 
 ## Spec Contract
 

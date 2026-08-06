@@ -71,17 +71,6 @@ One JSON object per line:
 
 Roadmap ID: lowercase kebab-case from title. Manage with `spacecraft roadmap` (`map` alias).
 
-## Trust (`.space/trust/` - local, gitignored)
-
-Project source of trust for agents. Lives under `.space/` (fully gitignored - do not commit). Seed from `.cursor/skills/sc-learn/references/trust-seed/` when missing (`spacecraft init` creates empty trust files).
-
-| File | Role |
-|------|------|
-| `lessons.md` | Must-read general principles before discuss/plan/run |
-| `solved.md` | Project-specific fixes migrated on ship |
-
-Ship (sc-learn) appends mission `solved.md` / `learned.md` here - not to `docs/`.
-
 ## Other
 
 - `spec.md` - what and why (free-form markdown)
@@ -90,4 +79,4 @@ Ship (sc-learn) appends mission `solved.md` / `learned.md` here - not to `docs/`
 
 ## Inner-loop / judge
 
-Quick and Mission both apply INTENT / AUTH / TWINS and the 3-cycle stop. Capture judge evidence with a label that includes `judge` (e.g. `judge-<mission-id>` or `judge-pass-validate`). `output` must be real command stdout - never hand-written. AUTH does not bypass ship hooks or `SPACECRAFT_SHIP=1`.
+Quick and Mission both apply INTENT / AUTH / TWINS and the 3-cycle stop. Capture judge evidence with a label that includes `judge` (e.g. `judge-<mission-id>` or `judge-pass-validate`). `output` must be real command stdout - never hand-written. AUTH does not bypass ship hooks or `SPACECRAFT_SHIP=1`. Findings are fixed in `/sc-run` and listed in the run/ship summary.

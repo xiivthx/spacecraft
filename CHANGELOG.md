@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.44.5 - 2026-08-06
+
+- Chore: drop lessons ledger (`learned.md`, `.space/trust/lessons.md`, init seed, skim/SoT ranks)
+- Chore: drop issues/solved ledgers and `sc-learn`; `/sc-run` fixes findings and reports them in the summary
+- Chore: closeout no longer gates on `issues.md`; remove open-issues judge-break fixture
+- Docs: drop redundant do-not phrasing that named deleted issue ledgers
+- Chore: retune `sc-designer` / `sc-planner` / `sc-reviewer` agent models
+
 ## 0.44.4 - 2026-08-02
 
 - Feat: always-on intent coach (`.cursor/rules/026-intent-coach.mdc`) - ask for true intent before acting on vague requests; wire into `USER-RULES` generation
