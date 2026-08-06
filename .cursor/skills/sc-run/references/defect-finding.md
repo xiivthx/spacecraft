@@ -122,6 +122,7 @@ When bug description is ambiguous (repro, version, environment, impact):
 - Used by `sc-reviewer` + `/sc-run` fix/summary
 - `retest` ideas: borrow from Test Ideas buckets (Positive / Negative / Edge) in `decisions.md` when present
 - SFDIPOT / Platform context: `sfdipot-coverage.md`, mission `spec.md`
+- Optional oracle grounding for `issue`/`impact` "why": `sc-discuss/references/test-oracles.md`; optional `notes` may cite fired oracle letters - never invent oracles without observation
 
 ### Domain scans
 
