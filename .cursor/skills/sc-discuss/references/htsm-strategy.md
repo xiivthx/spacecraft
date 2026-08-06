@@ -66,7 +66,7 @@ Strategy pass skipped: <reason>
 
 3. **Fill slim template** - prefer concrete charter-style ideas over generics. Top risks use L x I (Likelihood x Impact). Generating strategy uses SFDIPOT highlights in `SFDIPOT highlights:`; reviewing **existing tests** against the requirement uses `sfdipot-coverage.md` (on-demand - not a discuss gate).
 
-4. **Techniques vocabulary** - may appear inside Charter ideas / Quality coverage (exploratory charters, boundary, state/flow, API checks, property-based, perf, security probes, a11y, compat, chaos, data integrity, observability) - do **not** require a Techniques-by-Area matrix by default.
+4. **Techniques vocabulary** - may appear inside Charter ideas / Quality coverage (exploratory charters, boundary, state/flow, API checks, property-based, perf, security probes, a11y, compat, chaos, data integrity, observability, test-data matrices) - do **not** require a Techniques-by-Area matrix by default.
 
 5. **Full Strategy Template** (10 sections: Project Environment detail, Techniques matrix, Environments strategy, Risk Register owners, Reporting/Exit, 12-step implementation) **only if human explicitly asks** - then write optional mission artifact `.space/missions/<id>/test-strategy.md` and still keep a slim `## Strategy pass` summary in `decisions.md`.
 

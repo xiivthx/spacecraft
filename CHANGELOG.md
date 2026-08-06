@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.44.9 - 2026-08-06
+
+- Docs: on-demand test data design (`test-data-design.md`) - variable-level Positive/Negative/Boundary/Exploratory/Security rows mapping to Test Ideas
+- Docs: wire test-data design into testability pointer, planner, tester, planning, prompting
+
 ## 0.44.8 - 2026-08-06
 
 - Docs: structured Test Ideas (Positive/Negative/Edge/Overlooked) + Implementation pitfalls in testability pass

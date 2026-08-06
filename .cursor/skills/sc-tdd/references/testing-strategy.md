@@ -139,6 +139,12 @@ Evidence labels: prefer `integration:composition:<flow-name>` so review can see 
 
 ---
 
+## Test data diversity
+
+When designing fixtures, prefer category diversity (positive / negative / boundary / exploratory / security-shaped) over many near-duplicate happy paths. See `sc-discuss/references/test-data-design.md`.
+
+---
+
 ## Common Mistakes
 
 | Mistake | Fix |
