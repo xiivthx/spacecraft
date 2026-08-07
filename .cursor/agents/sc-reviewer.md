@@ -84,11 +84,13 @@ Commander runs `spacecraft validate --strict` and checks review `status` vs plan
 - **Must** for critical/important findings: follow `.cursor/skills/sc-run/references/defect-finding.md` (impact-first `title`, user `impact`, `requiredFix`, 2-3 `retest` ideas). Minor may stay compact (`severity`, `file`, `issue`, `requiredFix`).
 - When problem judgment is ambiguous, may use `sc-discuss/references/test-oracles.md` before filing critical/important findings - still follow `defect-finding.md` for schema.
 - **Must not** set `status: ready` / releaseReadiness ready unless judge verdict is `VERIFIED` and findings are empty - handshake blocked otherwise.
+- **Visual UI missions:** Consume `sc-designer` findings structured per `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (per-dimension `pass` | `fail` | `uncertain`). Any **`uncertain` on a required UI dimension** ⇒ critical finding; `status: blocked`. No `ready` without clear `pass` on required dimensions and judge `VERIFIED`. Preserve `review.json` schema.
 
 ## References
 
 - `.cursor/skills/sc-run/references/defect-finding.md` - actionable defect findings for review/summary
 - `.cursor/skills/sc-judge/SKILL.md` - adversarial prove gate before ready
+- `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` - five-gate UX/UI review for visual missions
 
 ## Edge cases
 
@@ -100,3 +102,4 @@ Commander runs `spacecraft validate --strict` and checks review `status` vs plan
 - Missing `sc-judge` verdict → Critical; cannot approve ready.
 - Judge verdict `REFUTED` → Critical; status blocked; list `requiredFix` per finding for `/sc-run` to fix; do not set ready.
 - Any leftover finding (including minor) → status blocked; do not set ready.
+- Visual UI: `uncertain` on a required dimension from designer/review gates → Critical; status blocked (fail-closed).
