@@ -55,6 +55,7 @@ Use this exact sequence unless the user specifies otherwise:
    - **weakened tests** - assertions removed, skipped, loosened, or replaced with tautologies so GREEN is cheap
    - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, defects left unfixed, or `review.json` still has findings (including minor / warnings)
    - **unauthorized action** - outward push/deploy/publish/send (or similar) without quoted `AUTH:` and user authorization; ship/merge without `/sc-ship` gates
+   - **mission-review dimensions** - apply five gates from `.cursor/skills/sc-run/references/mission-review-gates.md` (deterministic first, per-dimension pass/fail). REFUTE if any required dimension is `fail` or **`uncertain`** (fail-closed - note `uncertain` in hunt reasons; never `VERIFIED` on uncertain mission-review ready): evidence-fresh, validate-strict, scope-vs-plan, test-quality (when tests exist), acceptance-behavior, security-when-in-scope (when auth/API/secrets/deps touched; no dynamic CVE tools - heuristic `sc-security` only), perf-when-in-scope (when perf paths touched; measure-first without evidence), unauthorized-action
    - **draft drift (visual UI)** - when `UI draft approved: …` is recorded, treat "matches draft" / visual ready as a claim. Apply five gates from `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (deterministic first, per-dimension pass/fail). REFUTE if product chrome clearly diverges from the approved draft (layout-only match), required draft scenario states (`empty` / `error` / `few` / `many` / spec features) were never implemented or tested, or any required visual dimension is `fail` or **`uncertain`** (fail-closed - note `uncertain` in hunt reasons; never `VERIFIED` on uncertain visual ready)
    - **SFDIPOT blind spots (optional aid)** - when `## Testability pass` Test Ideas or `## Strategy pass` Charter ideas exist, may use `sc-discuss/references/sfdipot-coverage.md` to hunt coverage gaps. Blind-spot suggestions alone do **not** justify `REFUTED`. `REFUTED` only when claimed acceptance or Test Idea coverage maps to a **Missing** SFDIPOT area asserted done without fresh evidence (false completion)
    - **Test data gaps (optional aid)** - missing `## Test data design` rows alone do **not** justify `REFUTED`
@@ -69,6 +70,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Evidence re-run fails** - Capture as fresh evidence; `REFUTED` until fixed and re-judged.
 - **Non-defect `decisions.md` notes** - Allowed alongside `VERIFIED` as recorded decisions only. They do **not** create a third verdict. Unfinished follow-up work ⇒ `REFUTED`.
 - **Any review finding** - Critical, important, or minor (including warnings) ⇒ `REFUTED` until findings are empty.
+- **Mission-review uncertain** - `uncertain` on evidence-fresh, validate-strict, scope-vs-plan, test-quality (when required), acceptance-behavior, security-when-in-scope (when required), perf-when-in-scope (when required), or unauthorized-action ⇒ `REFUTED` (fail-closed). No third verdict; record `uncertain` in hunt reasons only.
 - **Visual UI uncertain** - `uncertain` on draft-parity or any required UX/UI dimension ⇒ `REFUTED` (fail-closed). No third verdict; record `uncertain` in hunt reasons only.
 - **Manual-only check** - Fresh manual observation note in evidence; do not invent output.
 - **Judge vs lifecycle** - Prove gate before `ready` inside run; does not own discuss/build/ship.
@@ -89,7 +91,8 @@ No aliases (`PASS`, `FAIL`, `APPROVED`, `VERIFIED WITH CAVEATS`, etc.).
 - **Must**: Treat completion / "done" / "ready" claims as claims to re-observe - never trust the report alone.
 - **Must**: Re-run claimed evidence commands; record fresh observation in `evidence.jsonl`.
 - **Must**: Diff actual change scope vs `plan.json` / spec acceptance before verdict.
-- **Must**: Hunt for weakened tests, false completion, unauthorized action, and (when visual UI) draft drift per `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (use those phrases in findings so they are searchable).
+- **Must**: Hunt for weakened tests, false completion, unauthorized action, mission-review dimensions per `.cursor/skills/sc-run/references/mission-review-gates.md`, and (when visual UI) draft drift per `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (use those phrases in findings so they are searchable).
+- **Must**: On mission review, treat `uncertain` on any required dimension as `REFUTED` (fail-closed) - never `VERIFIED`.
 - **Must**: On visual UI, treat `uncertain` draft-parity or visual-ready claims as `REFUTED` (fail-closed) - never `VERIFIED`.
 - **Must**: Emit verdict exactly as `VERIFIED` | `REFUTED`.
 - **Must**: Allow `ready` only when verdict is `VERIFIED` (enforced by reviewer / `/sc-run`).
@@ -132,6 +135,7 @@ Hunt:
   - weakened tests: <none | findings>
   - false completion: <none | findings>
   - unauthorized action: <none | findings>
+  - mission-review dimensions: <none | findings>
   - draft drift (visual UI): <n/a | none | findings>
   - review findings: <none | N findings>
 Remediation (when REFUTED): <none | list for /sc-run to fix>
@@ -147,7 +151,7 @@ Before emitting a verdict:
 - [ ] Completion claims listed as claims, not trusted reports
 - [ ] Claimed evidence commands re-run; fresh observation recorded
 - [ ] Scope diffed against `plan.json` / spec acceptance
-- [ ] Hunt covered weakened tests, false completion, unauthorized action, and draft drift when visual UI
+- [ ] Hunt covered weakened tests, false completion, unauthorized action, mission-review dimensions, and draft drift when visual UI
 - [ ] Verdict is exactly one of the two contract strings
 - [ ] `Ready: allowed` only when verdict is `VERIFIED`
 - [ ] If `REFUTED`, ready blocked and remediation listed explicitly
@@ -159,6 +163,7 @@ Before emitting a verdict:
 - `sc-reviewer` agent - release readiness; consume judge verdict (wiring)
 - `plan.json` / `spec.md` - acceptance and scope authority (behavior)
 - approved draft HTML - visual look authority when `UI draft approved` is recorded
+- `.cursor/skills/sc-run/references/mission-review-gates.md` - five-gate mission review (fail-closed; sibling to UX gates)
 - `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` - five-gate visual UI review (fail-closed)
 - `evidence.jsonl` - append-only observations; judge appends re-runs
 - `references/judge-break/` - known-bad fixtures; `scripts/check-judge-break.sh`

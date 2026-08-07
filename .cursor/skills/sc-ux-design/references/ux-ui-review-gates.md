@@ -103,3 +103,4 @@ Prior `UI draft approved` or visual evidence does not grandfather later runs wit
 - `references/anti-slop-catalog.md` - deterministic slop patterns and fixes
 - `references/shared-draft-directives.md` - draft scaffold, scenario matrix, responsive structure
 - `docs/ux-ui-review.md` - short human-facing overview
+- `.cursor/skills/sc-run/references/mission-review-gates.md` - sibling for evidence / scope / acceptance review (all missions)

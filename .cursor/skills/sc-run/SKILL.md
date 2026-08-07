@@ -80,10 +80,11 @@ Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing dra
    2. Unrelated preexisting that is not suite-breaking and not on touched path → note in summary only.
    3. Same issue fails fix-verify **3** times or hard blocker → stop to human.
 8. **Review + sc-judge** (only after suite clean):
-   1. Task(`sc-reviewer`); UI also Task(`sc-designer`).
-   2. Run sc-judge; evidence label including `judge`. Verdict is binary: `VERIFIED` | `REFUTED` (no caveats).
-   3. Any findings (any severity) or `REFUTED` → fix remediation now → re-review + re-judge. Do not set ready.
-   4. Clean only when judge is `VERIFIED`, `review.json` has `status: ready`, and `findings` is empty: `validate --strict`; `set-state ready`.
+   1. **Deterministic pre-review (required):** `spacecraft validate --strict`; confirm done tasks have matching `evidence.jsonl`; when scope matches, run/capture security and/or performance machine-first evidence per `.cursor/skills/sc-run/references/mission-review-gates.md` (Commander-side read-only checks; then heuristic `Task(sc-security)` when auth/API/secrets/deps touched - do not violate `sc-security` no-dynamic-tools rule).
+   2. Task(`sc-reviewer`) consuming `mission-review-gates` (+ Task(`sc-designer`) / `ux-ui-review-gates` when visual UI).
+   3. Run sc-judge; evidence label including `judge`. Verdict is binary: `VERIFIED` | `REFUTED` (no caveats).
+   4. Any findings (any severity) or `REFUTED` → fix remediation now → re-review + re-judge. Do not set ready.
+   5. Clean only when judge is `VERIFIED`, `review.json` has `status: ready`, and `findings` is empty: `validate --strict`; `set-state ready`.
 9. Handoff: **Ready. Human check, then /sc-ship.** Include a short **Fixes** list in the summary. Continue `map next`. Squash is `/sc-ship` only.
 
 ```mermaid
@@ -94,7 +95,8 @@ flowchart TD
   D --> E{"suite clean?"}
   E -->|no| F["fix"]
   F --> D
-  E -->|yes| J["review + judge"]
+  E -->|yes| P["deterministic pre-review"]
+  P --> J["review + judge"]
   J -->|findings or REFUTED| F
   J -->|VERIFIED and empty findings| K["ready → HIL → ship"]
 ```
@@ -118,3 +120,4 @@ Auto-commit after every RED, GREEN, skip+evidence, combine, and material fix. Co
 - sc-ux-design - post-build visual QC + draft-parity
 - sc-web-frontend - port look from approved draft
 - `references/defect-finding.md` - actionable defect findings for review/summary
+- `references/mission-review-gates.md` - five-gate mission review; deterministic pre-review before reviewer

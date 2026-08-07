@@ -24,4 +24,4 @@ Full dimension table, machine vs critique split, and output format:
 
 `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md`
 
-Related: `sc-designer` agent, `sc-ux-design` skill, `sc-judge` draft drift, `anti-slop-catalog.md`, `shared-draft-directives.md`.
+Related: `sc-designer` agent, `sc-ux-design` skill, `sc-judge` draft drift, `anti-slop-catalog.md`, `shared-draft-directives.md`, `mission-review-gates.md` (sibling for every mission).
