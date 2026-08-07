@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.44.16 - 2026-08-07
+
+- Docs: add task/phase/roadmap split formula to sc-planning (no wall-clock time gate)
+- Docs: mission-sizing pointer for task granularity; wire split heuristics into sc-planner
+
 ## 0.44.15 - 2026-08-07
 
 - Docs: ground UI drafts in product context, reference extract, and Context fidelity before bake-off
