@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.15 - 2026-08-07
+
+- Docs: ground UI drafts in product context, reference extract, and Context fidelity before bake-off
+- Docs: require Responsive ladder across all four viewport presets (not frame-resize-only)
+- Docs: sc-designer critique for product continuity, reference extract, and responsive ladder
+
 ## 0.44.14 - 2026-08-07
 
 - Feat: `/sc-quick` ships locally in one pass (merge + tag) without a separate ship step; push still explicit

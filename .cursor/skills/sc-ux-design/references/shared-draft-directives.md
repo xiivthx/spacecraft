@@ -78,6 +78,51 @@ Include working toggles that resize **only** `[data-draft-frame]` (not the whole
 - Surface content must remain usable at **all four** widths (no horizontal overflow, no edge-flush body text, no broken columns). Check all four before human HIL - not mobile alone.
 - Minimal inline script is allowed for viewport toggles and scenario switching only.
 
+### Responsive layout (Must)
+
+Changing `[data-draft-frame]` width **Must** visibly change surface **structure** for multi-region UIs at **every** preset - not only scale or squeeze the same desktop grid into a narrower frame.
+
+**Responsive ladder (all four presets):**
+
+| Preset | Width | Expectation (multi-region UI) |
+|--------|-------|-------------------------------|
+| mobile | 375 | Single column / stacked; nav as drawer/bottom/collapsed; no side-by-side dense tool chrome |
+| tablet | 768 | Intermediate organization - not identical to mobile squeeze and not identical to full desktop; often 1.5-2 column or condensed shell |
+| desktop | 1280 | Full multi-region / persistent nav / multi-column as brief requires |
+| widescreen | 1536 | Use extra width deliberately (wider content measure, optional extra column/panel, or constrained max-width + calm margins) - **Must not** be a stretched clone of desktop with empty dead space or unreadably wide lines |
+
+- Prefer CSS `@media` on the surface keyed to frame widths. The viewport toggle script should set `data-viewport` on `[data-draft-frame]` (and optionally on `[data-draft-surface]`) so CSS can target `[data-draft-frame][data-viewport="mobile"]` etc. and style descendants.
+- Viewport toggle changing frame width alone is never enough at **any** preset.
+- Adjacent presets **Must not** be pixel-squeezed copies of each other when the UI has multi-region chrome - each step shows intentional adaptation (structure, density, nav treatment, column count, and/or content measure).
+- Pairwise 375-vs-1280 alone is **insufficient** as the gate.
+- Horizontal squeeze of one preset into another without reflow = incomplete draft.
+- Check all four presets before human HIL.
+- Single-column pages may keep one column but **Must** still adapt density, spacing, and nav treatment at **each** of the four presets (not identical chrome at all widths). Record in chrome notes: `Responsive: single-column - density/nav adapt only`.
+
+Example CSS pattern (adapt selectors to brief layout):
+
+```css
+/* mobile: stack, drawer nav */
+[data-draft-frame][data-viewport="mobile"] [data-draft-surface] .app-shell { flex-direction: column; }
+[data-draft-frame][data-viewport="mobile"] [data-draft-surface] .app-sidebar { display: none; }
+[data-draft-frame][data-viewport="mobile"] [data-draft-surface] .app-nav-drawer { display: block; }
+
+/* tablet: condensed shell, intermediate columns */
+[data-draft-frame][data-viewport="tablet"] [data-draft-surface] .app-shell { flex-direction: row; }
+[data-draft-frame][data-viewport="tablet"] [data-draft-surface] .app-sidebar { width: 64px; }
+[data-draft-frame][data-viewport="tablet"] [data-draft-surface] .app-nav-drawer { display: none; }
+[data-draft-frame][data-viewport="tablet"] [data-draft-surface] .app-main { grid-template-columns: 1fr; }
+
+/* desktop: full multi-region */
+[data-draft-frame][data-viewport="desktop"] [data-draft-surface] .app-shell { flex-direction: row; }
+[data-draft-frame][data-viewport="desktop"] [data-draft-surface] .app-sidebar { width: 240px; display: block; }
+[data-draft-frame][data-viewport="desktop"] [data-draft-surface] .app-main { grid-template-columns: 1fr 1fr; }
+
+/* widescreen: deliberate extra width - not stretched desktop */
+[data-draft-frame][data-viewport="widescreen"] [data-draft-surface] .app-main { max-width: 72rem; margin-inline: auto; }
+[data-draft-frame][data-viewport="widescreen"] [data-draft-surface] .app-main { grid-template-columns: 1fr 1fr 320px; }
+```
+
 Example toggle behavior (adapt as needed):
 
 ```js
@@ -86,8 +131,10 @@ document.querySelectorAll("[data-viewport-set]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const key = btn.getAttribute("data-viewport-set");
     const frame = document.querySelector("[data-draft-frame]");
+    const surface = document.querySelector("[data-draft-surface]");
     frame.style.width = widths[key] + "px";
     frame.setAttribute("data-viewport", key);
+    if (surface) surface.setAttribute("data-viewport", key);
     document.querySelectorAll("[data-viewport-set]").forEach((b) => {
       b.setAttribute("aria-pressed", String(b === btn));
     });
@@ -99,7 +146,8 @@ document.querySelectorAll("[data-viewport-set]").forEach((btn) => {
 
 - Treat project **`DESIGN.md`** (when present) as the house look SoT for tokens, type pairing, mood, and principles. Do not invent a competing design system unless `decisions.md` records `DESIGN conflict: mission exception` or `update house`.
 - Treat the approved **design brief** and any user-supplied copy, names, and constraints as source of truth for mission-specific layout, states, and copy during draft generation. Do not invent product claims, metrics, schedules, or brand lines the brief did not supply.
-- **References:** honor the recorded borrow scope only (`mood` | `tokens` | `layout` | `chrome`). Do not silent-clone full chrome from a reference when scope is narrower. Default vibe-only borrows stop at `mood` or `tokens`.
+- **References:** honor the recorded borrow scope only (`mood` | `tokens` | `layout` | `chrome`). When `design/refs/extract.md` exists, treat extract rows as the mechanical source for reference cues (see `references/reference-extract.md`); do not silent-clone full chrome from a reference when scope is narrower. Default vibe-only borrows stop at `mood` or `tokens`.
+- **Product context:** when `decisions.md` records `Product context:` (not greenfield skip), draft surfaces must reflect the parent shell, nav, and nearby page patterns from the listed paths - not a disconnected marketing shell on in-app screens.
 - Follow the brief's layout structure and type/color directions; when `DESIGN.md` exists, brief tokens must align with it unless `DESIGN conflict: mission exception` or `update house` is recorded.
 - Tokens in the **surface** (bg, surface, text, accent, danger; type pairing; spacing base) must match the brief / effective house. Flag drift rather than "improving" the palette silently.
 - After human approval, **`[data-draft-surface]`** is the **visual source of truth** for `/sc-run`: implementers **port** structure, tokens, spacing, type, and component chrome from the surface only. Never port `[data-draft-chrome]` / frame bezel / viewport toolbar.
