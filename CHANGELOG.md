@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.44.17 - 2026-08-07
+
+- Docs: strengthen mission brief with Spec Mirror, stake coverage map, one-breath, and pre-mortem Wrong-if
+
 ## 0.44.16 - 2026-08-07
 
 - Docs: add task/phase/roadmap split formula to sc-planning (no wall-clock time gate)
