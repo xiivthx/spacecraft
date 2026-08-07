@@ -16,8 +16,8 @@ Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); on-demand test-data design via `test-data-design.md` when variable-level fixtures matter (not a clear gate); on-demand oracle evaluation via `test-oracles.md` when problem judgment needs grounding (not a clear gate); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; one blocking question at a time; soft gaps → `decisions.md`; visual brief + product context + reference extract (when refs) + context fidelity + layout bake-off (or skip) + responsive ladder (all four presets) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief (I/Q/A) then Accept/Adjust/Reject before clear
-- Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping many testability questions in one turn; quizzing the human instead of presenting Answers; cross-feature layer waterfalls or `*-ux` roadmap seams
+- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); on-demand test-data design via `test-data-design.md` when variable-level fixtures matter (not a clear gate); on-demand oracle evaluation via `test-oracles.md` when problem judgment needs grounding (not a clear gate); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; one blocking question at a time; soft gaps → `decisions.md`; visual brief + product context + reference extract (when refs) + context fidelity + layout bake-off (or skip) + responsive ladder (all four presets) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief via Spec Mirror + stake map + one-breath + I/Q/A (Feynman + technical; pre-mortem Wrong-if when non-trivial) then Accept/Adjust/Reject before clear
+- Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping many testability questions in one turn; quizzing the human instead of presenting Answers; hollow briefs (Feynman-only Answers, no Wrong-if when required, Spec Mirror soft/empty yet posed); cross-feature layer waterfalls or `*-ux` roadmap seams
 
 ## Verify
 
@@ -115,7 +115,7 @@ Detect from intent / `spec.md`. If visual:
 
 ### Mission brief (before clear)
 
-Follow `references/mission-brief.md`. Present Information / Question / Answer cards (Feynman + technical); human **Accept | Adjust | Reject**.
+Follow `references/mission-brief.md`. Spec Mirror → stake coverage map → one-breath + I/Q/A cards (Feynman + technical; pre-mortem Wrong-if when non-trivial); human **Accept | Adjust | Reject**. Optional teach-back after Accept. Empty/soft Spec Mirror slots that block AFK → return to sc-clarify, do not invent brief completeness.
 
 - Accept → record `Mission brief: accepted` (then clear if other gates hold)
 - Adjust → record `Mission brief: adjust - <summary>`; update spec/decisions; re-brief; do not clear
