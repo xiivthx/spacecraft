@@ -52,6 +52,10 @@ Per-mission combine (each tip's own `/sc-run` combine step) still runs as normal
 
 **Order default:** `*-data` → `*-functional` → `*-ui` → optional `*-integrate` when present. Integrate never blocks UI work - it always comes after the last feature seam. Omit a seam (or the integrate tip) when that concern is absent.
 
+## Task granularity (planning pointer)
+
+This file owns mission sizing (single / phases / roadmap). Task-level split heuristics - units, when to split a task, task shape, no wall-clock time - live in `sc-planning` **Split formula** (workflow step 3). Planning obeys `Sizing:` recorded here; do not duplicate this decision tree in planning prompts.
+
 ## Decision tree
 
 **Always size** on every `/sc-discuss` (not only large asks). Default `Sizing: single` when the work fits one mission.

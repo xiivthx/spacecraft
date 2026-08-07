@@ -58,6 +58,35 @@ Use this exact sequence unless the user specifies otherwise:
 
    **Jigsaw rule:** prefer one plan task per independently testable slice (form fields, remember-me, submit, API, errors, theme), not one task for the whole feature. `/sc-run` runs RED then GREEN once per acceptance item.
 
+   ### Split formula
+
+   **Units (no wall-clock time):**
+   - Acceptance = 1 RED→GREEN cycle; independently verifiable
+   - Task = 1 behavioral jigsaw slice; 1-3 acceptance; 1 clear verify + evidence
+   - Phase = same mission / one ship story; ≤7 tasks; `plan-phaseN.json`
+   - Roadmap seam = independently shippable mission: `*-data` → `*-functional` → `*-ui` (+ optional `*-integrate`)
+
+   **Must not** use wall-clock minutes as a split gate.
+
+   **Split a task when any hold:**
+   1. acceptance would exceed 3
+   2. Verify needs a different command / proof surface
+   3. real hard dependency belongs in `dependsOn` as a prior task
+   4. happy path vs material error/edge/security path each need their own cycle
+   5. touches a shared/dangerous surface that deserves separate evidence
+   6. look (approved draft) vs behavior (spec) would conflict → hand `/sc-discuss`
+
+   **Do not split** only to look finer-grained.
+
+   **Task shape (Must):** 1 task = 1 independently testable behavioral slice + ≤3 acceptance + 1 exact verify + evidence + files directly touched + `dependsOn` only when order is real.
+
+   **Sizing ladder (discuss owns; planning obeys):** single / phases / roadmap decision tree is SoT in `sc-discuss/references/mission-sizing.md`. Planning **Must not** invent roadmap / `map new` / `map add` - stop → `/sc-discuss` Resize protocol.
+
+   **Checklist (when planning must stop for discuss sizing):**
+   - A. Can this be 1 behavioral slice with ≤3 acceptance + 1 verify? YES → one task; NO → split
+   - B. After tasking, count ≤7 for one capability / one ship story? YES → single; NO → C
+   - C. Can data/functional/ui ship and verify on their own (or one seam ≥4, or draft blocks other work)? YES → roadmap (discuss); NO → phases
+
    Each task:
    - `id` - use the mission's compact sortable ID scheme (`T1`, `T2`, ... or match existing task numbering in the plan)
    - `title` - imperative, names the slice (e.g., "Bind username and password inputs with validation" not "Implement login")
@@ -166,4 +195,5 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 - `decisions.md` - recorded choices and assumptions
 - `outputs/map.json` - project structure survey (optional input)
 - `spacecraft missions` - list missions and confirm IDs
-- sc-discuss `references/mission-sizing.md` - single vs phases vs multi-mission (discuss owns map)
+- sc-discuss `references/mission-sizing.md` - single vs phases vs multi-mission decision tree (discuss owns map; planning obeys)
+- **Split formula** (workflow step 3) - task granularity, units, when to split; mission sizing stays in mission-sizing.md
