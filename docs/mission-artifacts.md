@@ -75,7 +75,7 @@ Roadmap ID: lowercase kebab-case from title. Manage with `spacecraft roadmap` (`
 
 - `spec.md` - what and why (free-form markdown)
 - `decisions.md` / `questions.md` - assumptions and blocking questions
-- `review.md` / `review.json` - release readiness review output (after `sc-judge`; ready only when verdict is `VERIFIED` and findings empty)
+- `review.md` / `review.json` - release readiness review output (after `sc-judge`; ready only when verdict is `VERIFIED` and findings empty). Mission review: `.cursor/skills/sc-run/references/mission-review-gates.md` (overview `docs/mission-review.md`). Visual UI: UX/UI review gates (`.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md`; overview `docs/ux-ui-review.md`)
 
 ## Inner-loop / judge
 

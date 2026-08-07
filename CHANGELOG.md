@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.44.18 - 2026-08-07
+
+- Docs: add fail-closed UX/UI review gates (deterministic first, per-dimension pass/fail/uncertain)
+- Docs: add fail-closed mission review gates with deterministic pre-review before sc-reviewer
+
 ## 0.44.17 - 2026-08-07
 
 - Docs: strengthen mission brief with Spec Mirror, stake coverage map, one-breath, and pre-mortem Wrong-if

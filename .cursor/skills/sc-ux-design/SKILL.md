@@ -179,6 +179,12 @@ Optional scripted audit (same Playwright family):
 - **Must**: Treat `[data-draft-surface]` in the approved draft as the **visual source of truth** for production implementation - port structure, tokens, spacing, type, and component chrome; do not invent a second visual system; do not port scaffold chrome.
 - **Must**: After 3 human draft rounds without approval (post bake-off), escalate to the user for direction instead of iterating indefinitely.
 
+### Review gates
+
+- **Must**: Apply `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (five gates) for discuss designer gate, run visual QC, and review/judge visual ready.
+- **Must**: Run deterministic tiers (Step 0, `npx impeccable detect`, scenario `data-state` / mapping, scripted audits) before LLM taste on each dimension.
+- **Must**: Per-dimension `pass` | `fail` | `uncertain` + short reason - no numeric scores. **`uncertain` on a required dimension blocks `ready`** (fail-closed; treat as fail for approval and judge).
+
 ### Visual recheck
 
 - **Must**: After visual UI implementation, run Step 0 draft-parity against the approved draft, then Tier 3 with `playwright-cli` (preferred) or Cursor IDE browser (fallback); record screenshot paths.
@@ -263,6 +269,7 @@ Before claiming UI implementation is ready:
 - `references/shared-draft-directives.md` - always-on draft prompt layer (tech, fidelity, responsive structure, scenario matrix, anti-slop alignment)
 - `references/reference-extract.md` - on-demand gate when human supplies reference images/screenshots/URLs
 - Project `DESIGN.md` - house look / tokens (loaded after shared directives when present)
+- `references/ux-ui-review-gates.md` - five-gate UX/UI review protocol (dimensions, fail-closed verdicts, calibration)
 - `references/anti-slop-catalog.md` - all 46 impeccable.style patterns with detection methods and fixes
 - `references/animation-guidelines.md` - duration standards, easing rules, reduced-motion, anti-patterns
 - `scripts/serve-html.mjs` - local HTML draft preview server

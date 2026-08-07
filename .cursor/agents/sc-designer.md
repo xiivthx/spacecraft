@@ -41,6 +41,8 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 **Run / review critique (required for visual UI):**
 - **Draft parity** - implementation matches approved draft **`[data-draft-surface]`** for tokens, layout, and component chrome (ignore scaffold chrome). Layout-only match with different buttons/inputs/tables/empty/error chrome = **critical**. Missing product mapping for a draft `data-state` = **critical**.
 
+**UX/UI review gates (required):** Follow `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (five gates). Prefer machine-checkable evidence (scaffold attrs, `data-state` matrix, `npx impeccable detect`, viewport/overflow checks, evidence paths) before taste judgments. Critique = per-dimension `pass` | `fail` | `uncertain` + short reason - no 1-5 scores. **`uncertain` on a required dimension for the current phase = critical blocker** for approval and the ready path (fail-closed). Use the output snippet in that reference.
+
 ## Good
 
 - Distinctive restraint; slop named
