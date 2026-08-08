@@ -8,8 +8,7 @@ Spacecraft is installed as Cursor project configuration plus a local CLI. Instal
 - Git
 - `curl`
 - macOS or Linux
-- Go 1.21 or newer when building the CLI from source
-- Node.js 18 or newer for the caveman companion install (`make install-machine`)
+- Node.js 18 or newer for the CLI (`cli/spacecraft.mjs`) and companion installs (`make install-machine`)
 
 ## User layer vs Project layer
 
@@ -30,7 +29,7 @@ cd spacecraft
 make install-machine
 ```
 
-From an existing checkout you can also run `scripts/install-machine.sh` directly (`make install-machine` builds the CLI first).
+From an existing checkout you can also run `scripts/install-machine.sh` directly (`make install-machine` links the Node CLI first).
 
 `make install-machine` invokes `scripts/install-machine.sh`, which:
 
@@ -71,7 +70,7 @@ To bootstrap the current directory:
 ./bootstrap.sh
 ```
 
-The bootstrap installer prepares project-local `.cursor/` and `.space/` content and installs the repository CLI when a compatible prebuilt binary is available. This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
+The bootstrap installer prepares project-local `.cursor/` and `.space/` content and links the Node CLI (`cli/spacecraft.mjs`) when Node.js is on `PATH`, then runs project smoke checks against that link. This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
 
 You can also run the published bootstrap script from the target project:
 
@@ -91,7 +90,7 @@ cd spacecraft
 make install
 ```
 
-`make install` builds the Go CLI from `cmd/spacecraft/` and installs Spacecraft for use from Cursor and your shell. Ensure `~/.local/bin` is on `PATH` if your shell cannot find `spacecraft`:
+`make install` links the Node CLI (`cli/spacecraft.mjs`) and installs Spacecraft for use from Cursor and your shell. Ensure `~/.local/bin` is on `PATH` if your shell cannot find `spacecraft`:
 
 ```sh
 export PATH="$HOME/.local/bin:$PATH"
@@ -101,6 +100,13 @@ For the User layer only (no companions) - Cursor-wide agents, slash skills (`/sc
 
 ```sh
 make install-global
+```
+
+Default User-layer skills are lean-core (lifecycle + process). Lean reconcile is destructive for spacecraft-managed domain packs under `~/.cursor/skills` - it prunes encyclopedia skills outside the allowlist. Unrelated files under `~/.cursor` stay put. Opt in to domain encyclopedias with `SPACECRAFT_SKILL_PROFILE=full` or `make install-global FULL=1` (documented `--full` equivalent):
+
+```sh
+SPACECRAFT_SKILL_PROFILE=full make install-global
+# or: make install-global FULL=1
 ```
 
 On a new PC, prefer [`make install-machine`](#new-pc--install-machine) to also install caveman, rtk, and codegraph with Cursor wiring.
@@ -115,7 +121,7 @@ make install-project PROJECT=/path/to/project
 
 Both install the domain/glob rules (`300`-`620`), agents, skills, and project hooks (including `session-start`) - never the `alwaysApply` rules, which are User layer only.
 
-To build without installing:
+To link the Node CLI in the checkout without a full install:
 
 ```sh
 make build
@@ -135,19 +141,19 @@ test -f .cursor/hooks.json
 test -d .space
 ```
 
-Confirm the CLI:
+Confirm the Node CLI (linked entry or `PATH`):
 
 ```sh
 spacecraft help
 ```
 
-When using the repository binary directly:
+From a checkout or bootstrap target that has the `./spacecraft` link:
 
 ```sh
 ./spacecraft help
 ```
 
-The help output should begin with `Spacecraft mission helper` and list the mission, evidence, validation, and roadmap commands.
+The help output should begin with `Spacecraft mission helper` and list the mission, evidence, validation, and roadmap commands. Smoke after bootstrap uses the same Node CLI path - Node.js 18+ on `PATH` is enough for that check.
 
 ## Verify Cursor discovery
 
@@ -193,4 +199,4 @@ Then begin in Cursor:
   roadmaps/
 ```
 
-The Spacecraft repository also contains the CLI source at `cmd/spacecraft/`.
+The Spacecraft repository CLI lives at `cli/spacecraft.mjs` (stdlib Node; zero npm CLI dependencies).

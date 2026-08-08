@@ -14,13 +14,12 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 
 - Cursor
 - Git
-- Go 1.21 or newer when building the CLI from source
-- Node.js 18 or newer for the caveman companion install (`make install-machine`)
+- Node.js 18 or newer for the CLI (`cli/spacecraft.mjs`) and companion installs (`make install-machine`)
 - macOS or Linux
 
 ## Installation
 
-Spacecraft installs in two layers: a **User layer** (once per machine) for agents, skills, MCP, the CLI, and global safety hooks - plus a generated `~/.cursor/spacecraft/USER-RULES.txt` you paste into Settings -> Rules -> User Rules so the `alwaysApply` rules apply in every workspace; and a **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo) for the domain rules (`300`-`620`), agents, skills, and project hooks.
+Spacecraft installs in two layers: a **User layer** (once per machine) for agents, skills, MCP, the CLI, and global safety hooks - plus a generated `~/.cursor/spacecraft/USER-RULES.txt` you paste into Settings -> Rules -> User Rules so the six `alwaysApply` rules (including English and intent coaches) apply in every workspace; and a **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo) for the domain rules (`300`-`620`), agents, skills, and project hooks.
 
 **New PC** - User layer plus companion tools (caveman, rtk, codegraph) with Cursor wiring:
 
@@ -30,13 +29,20 @@ cd spacecraft
 make install-machine
 ```
 
-User layer only:
+User layer only (default **lean**: lifecycle + process skills):
 
 ```sh
 make install-global
 ```
 
-Project layer (per repo):
+Lean reconcile prunes spacecraft-managed domain encyclopedia skills under `~/.cursor/skills` that sit outside the lean allowlist; unrelated files under `~/.cursor` stay put. Opt in to domain encyclopedias with `--full` via `SPACECRAFT_SKILL_PROFILE=full` or `make install-global FULL=1`:
+
+```sh
+SPACECRAFT_SKILL_PROFILE=full make install-global
+# or: make install-global FULL=1
+```
+
+Project layer (per repo) still installs domain packs locally - no User `--full` required:
 
 ```sh
 ./bootstrap.sh /path/to/project
@@ -48,7 +54,7 @@ When working from a clone of this repository, build and install with:
 make install
 ```
 
-See the [installation guide](docs/installation.md) for setup, companions, Tools status output, and verification details.
+See the [installation guide](docs/installation.md) for setup, lean vs full profiles, companions, Tools status output, and verification details.
 
 ## Quick start
 
@@ -107,7 +113,7 @@ The always-on Spacecraft rules act as Commander and route work to these agents.
 
 ## CLI
 
-Run the repository binary as `./spacecraft`, or use `spacecraft` after installation.
+The CLI is Node (`cli/spacecraft.mjs`). Run the checkout link as `./spacecraft`, or use `spacecraft` after installation.
 
 | Command | Purpose |
 |---|---|
@@ -120,8 +126,6 @@ Run the repository binary as `./spacecraft`, or use `spacecraft` after installat
 | `spacecraft status` | Show mission status |
 | `spacecraft flow` | Show the resolved mission workflow snapshot |
 | `spacecraft bind-branch [selector]` | Bind the current branch to a mission |
-| `spacecraft git-info` | Show Git worktree status |
-| `spacecraft git-suggest [type] [slug]` | Suggest branch and commit conventions |
 | `spacecraft set-state [mission-id] <new-state>` | Set mission state (mission-id optional when resolved from branch or current), alias: `state` |
 | `spacecraft clarify-status <open\|clear\|deferred>` | Set clarification status |
 | `spacecraft evidence [--mission <id>] <label> -- <command...>` | Run a command and capture evidence, alias: `evi` |
@@ -160,8 +164,8 @@ Use the CLI as the source of truth for current syntax:
   missions/<id>/         spec, plan, decisions, evidence, and review artifacts
   archive/               shipped mission archives
   roadmaps/              multi-mission roadmaps
-cmd/spacecraft/          Go CLI source and tests
-spacecraft               repository CLI binary
+cli/                     Node CLI entry (spacecraft.mjs) and tests
+spacecraft               repository CLI link (cli/spacecraft.mjs)
 bootstrap.sh             project bootstrap installer
 Makefile                 build and install targets
 ```
@@ -185,7 +189,7 @@ No-mission small edits use `/sc-quick` on branch `<type>/<title>` (no mission id
 
 Before claiming mission build complete, prefer `spacecraft validate --strict`. Before mission merge, run `spacecraft closeout-check` (or `ship-check`). With `SPACECRAFT_SHIP=1` alone, the Cursor ship hook re-runs closeout before allowing `git merge` / `git push` / `git tag`. With both `SPACECRAFT_SHIP=1` and `SPACECRAFT_QUICK=1`, closeout is skipped (quick lane only).
 
-Local gate (Go tests + hook unit tests):
+Local gate (Node CLI tests + hook unit tests):
 
 ```sh
 make gate

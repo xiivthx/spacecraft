@@ -19,9 +19,72 @@ set -e
 # Prefer pipefail so curl|sh does not mask curl failures (dash may lack it).
 (set -o pipefail) 2>/dev/null && set -o pipefail
 
+# Keep HOME absolute before make -C / companion `cd` (relative HOME nests under clone).
+case "$HOME" in
+  /*) ;;
+  *) HOME="$(pwd)/$HOME"; export HOME ;;
+esac
+
+# Absolutize PATH entries so fixture fake-bin survives companion `cd`.
+_abs_path=
+IFS=:
+for _p in ${PATH:-/usr/bin:/bin}; do
+  [ -n "$_p" ] || continue
+  case "$_p" in
+    /*) _a=$_p ;;
+    *) _a="$(pwd)/$_p" ;;
+  esac
+  if [ -n "$_abs_path" ]; then
+    _abs_path="$_abs_path:$_a"
+  else
+    _abs_path="$_a"
+  fi
+done
+unset IFS _p _a
+PATH="$_abs_path"
+export PATH
+unset _abs_path
+
 INSTALL_DIR="${SPACECRAFT_INSTALL_DIR:-$HOME/.local/share/spacecraft}"
 REPO_URL="${SPACECRAFT_REPO:-https://github.com/xiivthx/spacecraft.git}"
 REPO_REF="${SPACECRAFT_REF:-main}"
+
+# Keep paths absolute: companion install `cd`s away from the caller cwd.
+case "$INSTALL_DIR" in
+  /*) ;;
+  *) INSTALL_DIR="$(pwd)/$INSTALL_DIR" ;;
+esac
+if [ -n "${SPACECRAFT_CLONE_SRC:-}" ]; then
+  case "$SPACECRAFT_CLONE_SRC" in
+    /*) ;;
+    *) SPACECRAFT_CLONE_SRC="$(pwd)/$SPACECRAFT_CLONE_SRC" ;;
+  esac
+fi
+if [ -n "${SPACECRAFT_CAVEMAN_INSTALL:-}" ]; then
+  case "$SPACECRAFT_CAVEMAN_INSTALL" in
+    /*) ;;
+    *) SPACECRAFT_CAVEMAN_INSTALL="$(pwd)/$SPACECRAFT_CAVEMAN_INSTALL" ;;
+  esac
+fi
+if [ -n "${SPACECRAFT_RTK_INSTALL:-}" ]; then
+  case "$SPACECRAFT_RTK_INSTALL" in
+    /*) ;;
+    *) SPACECRAFT_RTK_INSTALL="$(pwd)/$SPACECRAFT_RTK_INSTALL" ;;
+  esac
+fi
+if [ -n "${SPACECRAFT_CODEGRAPH_INSTALL:-}" ]; then
+  case "$SPACECRAFT_CODEGRAPH_INSTALL" in
+    /*) ;;
+    *) SPACECRAFT_CODEGRAPH_INSTALL="$(pwd)/$SPACECRAFT_CODEGRAPH_INSTALL" ;;
+  esac
+fi
+if [ -n "${SPACECRAFT_COMPANION_MARKERS:-}" ]; then
+  case "$SPACECRAFT_COMPANION_MARKERS" in
+    /*) ;;
+    *) SPACECRAFT_COMPANION_MARKERS="$(pwd)/$SPACECRAFT_COMPANION_MARKERS" ;;
+  esac
+  export SPACECRAFT_COMPANION_MARKERS
+fi
 
 CAVEMAN_INSTALL_URL="https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh"
 RTK_INSTALL_URL="https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh"
