@@ -44,8 +44,9 @@ if [ -f "$fake_home/.cursorrules" ]; then
 fi
 echo "  ok   no legacy ~/.cursorrules"
 
-# T4 acceptance 1: install-project places domain rules 300-620 + the
-# session-start hook into a project target distinct from the source repo.
+# T4/T5: install-project places domain rules 300-620 + the session-start
+# hook into a project target distinct from the source repo. Runs before any
+# User-layer install-global / --full, so project domain does not depend on it.
 for rule in 300-security 400-performance 500-database 600-firmware \
   610-firmware-peripherals 620-firmware-testing; do
   test -f "$tmp/.cursor/rules/$rule.mdc" \
@@ -56,6 +57,16 @@ grep -q 'session-start.sh' "$hooks" \
 test -f "$tmp/.cursor/hooks/session-start.sh" \
   || { echo "FAIL: install-project did not copy session-start.sh into $tmp/.cursor/hooks/"; exit 1; }
 echo "  ok   install-project places domain rules 300-620 + session-start hook"
+
+# T5: project-layer install also lands domain encyclopedia skills (lean User
+# layer omits these; project bootstrap must not require SPACECRAFT_SKILL_PROFILE=full).
+project_skills="$tmp/.cursor/skills"
+project_domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware"
+for skill in $project_domain_skills; do
+  test -f "$project_skills/$skill/SKILL.md" \
+    || { echo "FAIL: install-project missing domain skill $skill under $project_skills (project layer must include domain packs without User --full)"; exit 1; }
+done
+echo "  ok   install-project places domain encyclopedia skills (no User --full required)"
 
 # T4 acceptance 2: install-project does NOT copy alwaysApply rules (000/025/
 # 026/050/100/200) into a project target distinct from the source repo.
@@ -91,6 +102,59 @@ test -f "$fake_home/.cursor/skills/sc-discuss/references/lens-pass.md" \
 test -f "$fake_home/.cursor/skills/sc-judge/references/judge-break/empty-evidence/expect.json" \
   || { echo "FAIL: install-global missing sc-judge judge-break fixtures"; exit 1; }
 echo "  ok   install-global installs sc-run, sc-ship, sc-quick, sc-storm, lens-pass, and judge-break"
+
+# Lean User-layer skill allowlist (default install-global / global-sync):
+# lifecycle + process only; domain encyclopedias stay out of ~/.cursor/skills.
+global_skills="$fake_home/.cursor/skills"
+lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer sc-architect sc-ux-design sc-diagram"
+domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware"
+for skill in $lean_skills; do
+  test -f "$global_skills/$skill/SKILL.md" \
+    || { echo "FAIL: lean install-global missing lean-core skill $skill under $global_skills"; exit 1; }
+done
+for skill in $domain_skills; do
+  if [ -e "$global_skills/$skill" ]; then
+    echo "FAIL: lean install-global installed domain skill $skill under $global_skills (expected omit)"
+    exit 1
+  fi
+done
+echo "  ok   install-global lean allowlist: lean-core present, domain encyclopedias omitted"
+
+# T3: re-running lean install-global prunes spacecraft-owned domain skills that
+# sit outside the lean allowlist; unrelated paths under GLOBAL stay put.
+mkdir -p "$global_skills/sc-solid"
+printf '%s\n' '# seeded-for-lean-prune' > "$global_skills/sc-solid/SKILL.md"
+printf '%s\n' 'user-keep' > "$fake_home/.cursor/user-unrelated-global.txt"
+HOME="$fake_home" make -C "$ROOT" install-global \
+  GLOBAL="$fake_home/.cursor" LOCAL_BIN="$fake_home/.local/bin" BIN="$BIN"
+if [ -e "$global_skills/sc-solid" ]; then
+  echo "FAIL: lean install-global left domain skill sc-solid under $global_skills (expected prune)"
+  exit 1
+fi
+test -f "$fake_home/.cursor/user-unrelated-global.txt" \
+  || { echo "FAIL: lean install-global removed unrelated $fake_home/.cursor/user-unrelated-global.txt"; exit 1; }
+echo "  ok   lean install-global prunes domain skills; preserves unrelated GLOBAL paths"
+
+# T3 docs: warn that lean reconcile removes spacecraft-owned domain packs.
+if ! grep -Eqi 'prune|destructive' "$ROOT/docs/installation.md"; then
+  echo "FAIL: docs/installation.md missing prune/destructive warning for lean reconcile"
+  exit 1
+fi
+echo "  ok   installation.md warns lean reconcile is destructive for domain packs"
+
+# T4: SPACECRAFT_SKILL_PROFILE=full (documented --full equivalent) installs
+# domain encyclopedias; lean default inventory diverges (omits after reconcile).
+HOME="$fake_home" SPACECRAFT_SKILL_PROFILE=full make -C "$ROOT" install-global \
+  GLOBAL="$fake_home/.cursor" LOCAL_BIN="$fake_home/.local/bin" BIN="$BIN"
+test -f "$global_skills/sc-solid/SKILL.md" \
+  || { echo "FAIL: install-global with SPACECRAFT_SKILL_PROFILE=full missing domain skill sc-solid under $global_skills"; exit 1; }
+HOME="$fake_home" make -C "$ROOT" install-global \
+  GLOBAL="$fake_home/.cursor" LOCAL_BIN="$fake_home/.local/bin" BIN="$BIN"
+if [ -e "$global_skills/sc-solid" ]; then
+  echo "FAIL: lean install-global after full left domain skill sc-solid under $global_skills (lean/full inventories must diverge)"
+  exit 1
+fi
+echo "  ok   install-global full keeps domain encyclopedias; lean omits"
 
 user_rules="$fake_home/.cursor/spacecraft/USER-RULES.txt"
 test -f "$user_rules" \
@@ -734,9 +798,15 @@ grep -Fq 'scripts/install-machine.sh' "$makefile_dry" \
     cat "$makefile_dry"
     exit 1
   }
-# Must depend on build/CLI somehow (recipe shows go build and/or build prereq).
-if ! grep -Eq 'go build|install-cli' "$makefile_dry"; then
-  echo "FAIL: make -n install-machine dry-run does not show CLI build (go build / install-cli)"
+# Must wire the Node CLI (recipe shows install-cli and/or spacecraft.mjs).
+if ! grep -Eqi 'install-cli|spacecraft\.mjs|node' "$makefile_dry"; then
+  echo "FAIL: make -n install-machine dry-run does not show Node CLI wire (install-cli / spacecraft.mjs)"
+  echo "--- make -n stdout/stderr ---"
+  cat "$makefile_dry"
+  exit 1
+fi
+if grep -Fq 'go build' "$makefile_dry"; then
+  echo "FAIL: make -n install-machine dry-run still invokes go build"
   echo "--- make -n stdout/stderr ---"
   cat "$makefile_dry"
   exit 1

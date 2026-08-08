@@ -48,6 +48,10 @@ Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quo
 
 **Always:** feature branch; verify with tests; missions resolve from branch → `.space/missions/<id>/`; fix findings and report them in the run/ship summary; ready/ship with 0 review findings; emit `INTENT:` before behavior-changing edits.
 
+### Cut hygiene
+
+When deleting a feature, command, or doc surface: rewrite surviving rules, skills, agents, help, README, and tests as the **current** product only. Do not leave tombstones: "formerly", "no longer", "removed", "deprecated in favor of", "do not use X", "omits X", or named absences of the deleted thing. Describe what agents **do** now (e.g. use plain `git status`) without mentioning the deleted command by name. Tests cover the kept surface + generic unknown-command behavior; they do not name deleted commands.
+
 ## Communication
 
 Technical substance only. Short nonessential updates. ASCII hyphen-minus (`-`), never Unicode em dash. Exact paths/commands. Ask only when blocked by a real decision.
