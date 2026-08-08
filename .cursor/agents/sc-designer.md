@@ -1,8 +1,6 @@
 ---
 name: sc-designer
-model: grok-4.5[effort=high,fast=false]
 description: UI critique and anti-slop review. Use proactively for UI work. Approved draft is visual SoT; DESIGN.md holds extracted tokens.
-readonly: true
 ---
 
 # Designer

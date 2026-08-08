@@ -1,6 +1,5 @@
 ---
 name: sc-firmware
-model: grok-4.5[effort=high,fast=false]
 description: STM32 embedded C (F4/F7/H7). Use proactively for HAL/LL, CubeMX, peripherals.
 ---
 
