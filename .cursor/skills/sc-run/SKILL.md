@@ -74,7 +74,7 @@ Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing dra
    4. **Findings mid-build:** fix now (especially if it blocks current acceptance or the suite). When recording/reporting defects, use impact-first craft from `references/defect-finding.md` (especially critical/important). Note each fix for the run summary.
    5. Mark task `done` only when all its acceptances pass.
 5. **Combine:** refactor; full suite; evidence. Fix any new failures. Checkpoint.
-6. **UI recheck (visual UI/FE):** sc-ux-design Step 0 **draft-parity** (side-by-side vs approved draft: tokens, layout, component chrome, scenario states) + Tier 3 visual (`playwright-cli` primary) + functional suite. Layout-only match with different chrome, or missing draft `data-state` coverage in the product, → fix now. No ready yet.
+6. **UI recheck (visual UI/FE):** Start the app → Tier 3 on the **running product URL** (`playwright-cli` primary; open real product routes; live screenshots at 375 / 768 / 1280, + 1536 when multi-region) → capture matching draft-surface screenshots (serve/open approved draft HTML; `[data-draft-surface]` only; same viewports) → record **both** path sets → Step 0 **draft-parity** (side-by-side LLM/browser compare draft vs live: tokens, layout, component chrome, scenario states) → Task(`sc-designer`) live critique (**live-product** + **draft-parity**, both image sets + live URL) → fix critical/important → re-capture paired evidence → then review. Layout-only match with different chrome, missing draft `data-state` coverage in the product, or missing paired screenshots → fix now. Draft HTML serve alone does not satisfy live-product; draft-parity requires the pair. Pair with the functional suite. No ready yet.
 7. **Fix pass** - until suite (+ UI if UI) is clean:
    1. Fix mission-caused / suite-breaking / touched-path defects. For critical/important findings, follow `references/defect-finding.md` (impact-first title, user impact, 2-3 retest ideas).
    2. Unrelated preexisting that is not suite-breaking and not on touched path → note in summary only.
@@ -118,7 +118,7 @@ Auto-commit after every RED, GREEN, skip+evidence, combine, and material fix. Co
 
 - `/sc-discuss`, `/sc-ship`
 - sc-judge - ready prove gate
-- sc-ux-design - post-build visual QC + draft-parity
+- sc-ux-design - post-build live product QC + draft-parity
 - sc-web-frontend - port look from approved draft
 - `references/defect-finding.md` - actionable defect findings for review/summary
 - `references/mission-review-gates.md` - five-gate mission review; deterministic pre-review before reviewer

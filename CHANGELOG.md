@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.47.1 - 2026-08-09
+
+- Docs: live product UX review fail-closed before visual ready; require paired draft-surface + live screenshot compare for draft-parity
+- Docs: surface-relevant scenario matrix; include `empty`/`few`/`many` when the surface presents a variable-length collection
+
 ## 0.47.0 - 2026-08-08
 
 - Feat: first-use `ensureProjectReady` soft-runs `codegraph init` when no index; warn and continue on missing binary or failure

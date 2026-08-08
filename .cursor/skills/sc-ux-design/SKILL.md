@@ -16,7 +16,7 @@ Activate on:
 - **"Visual verify" / "visual test" / "browser check"** - playwright-cli / Cursor IDE browser visual verification (post-build)
 - **"UI quality check"** - comprehensive UX quality review
 - During `/sc-discuss` for visual UI/FE - design brief + draft checkpoint
-- During `/sc-run` after visual implementation - Tier 3 recheck + draft-parity (not draft discovery)
+- During `/sc-run` after visual implementation - Tier 3 live product recheck + draft-parity (not draft discovery)
 
 ## Workflow
 
@@ -86,7 +86,7 @@ After design brief approval, before `/sc-run` / real implementation:
 
 5. **Polish the winning draft** with a full **scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. Assemble the draft prompt per **Prompt assembly** above (shared directives → `DESIGN.md` when present → brief/content tail). Do not generate draft HTML until the design brief is approved. Filename stays versioned (`<name>-draft-vN.html` or keep the bake-off winner name and bump `vN` on major edits).
 
-6. **Every draft MUST include**: `data-draft="true"`; scaffold with `[data-draft-chrome]` (banner, notes, scenario switcher, viewport toggles) **outside** a visible `[data-draft-frame]` that wraps `[data-draft-surface]` (production UI only); versioned filename; CSS custom properties for brief tokens on the surface; after bake-off (or skip), scenario matrix `data-state` panels inside the surface for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied). Each panel shows real component chrome - not layout boxes only. Bake-off candidates may defer full matrix until the winner polish step.
+6. **Every draft MUST include**: `data-draft="true"`; scaffold with `[data-draft-chrome]` (banner, notes, scenario switcher, viewport toggles) **outside** a visible `[data-draft-frame]` that wraps `[data-draft-surface]` (production UI only); versioned filename; CSS custom properties for brief tokens on the surface; after bake-off (or skip), a **surface-relevant** scenario matrix of `data-state` panels inside the surface (happy path + failure/degraded the surface can enter; `loading` when async; `empty`/`few`/`many` when the surface presents a variable-length collection; plus feature/behavior surfaces from `spec.md`). Each panel shows real component chrome - not layout boxes only. Bake-off candidates may defer full matrix until the winner polish step.
 
 7. **Designer gate (required):** Task(`sc-designer`) on the draft presented for approval (winner after bake-off, or sole draft when skipped). Commander applies critical and important fixes (`sc-designer` is readonly). Missing scenario states (on approval candidate), missing scaffold/frame, non-portable chrome, product-continuity gaps (brownfield), missing extract when borrow is set, or frame-resize-only / squeeze-only responsive structure at **any** preset = critical. Check all four viewport presets (375 / 768 / 1280 / 1536) and **Responsive ladder** - size-appropriate organization at each preset, not pairwise mobile-vs-desktop only - before and after fixes. Do not serve or present the **approval** draft to the human until this gate passes. Bake-off candidates may be shown for layout pick after a lighter scaffold/viewport/responsive-ladder sanity check; full designer gate still required before `UI draft approved`.
 
@@ -109,7 +109,7 @@ After design brief approval, before `/sc-run` / real implementation:
 
 Run after implementation:
 
-**Step 0 - Draft parity** (before detection): Cross-check the implementation against **`[data-draft-surface]`** in the approved draft HTML (ignore `[data-draft-chrome]` / frame bezel). Verify: color palette matches (no drift), typography pairing is intact, layout structure matches the surface, component chrome matches (buttons/inputs/tables/empty/error - not layout-only), motion intent is respected, and each draft `data-state` has a corresponding product state or test. Flag layout-only match with different chrome as blocking drift. Fix before running detectors.
+**Step 0 - Draft parity** (before detection): Capture **paired** evidence, then compare. Serve/open the approved draft HTML and screenshot **`[data-draft-surface]`** (ignore `[data-draft-chrome]` / frame bezel) at the same viewports used for live (375 / 768 / 1280, + 1536 when multi-region). Capture matching live product screenshots (Tier 3). Record **both** path sets in evidence / `decisions.md`. Side-by-side LLM/browser compare draft vs live for tokens, layout, component chrome, and applicable scenario states. Also verify: color palette matches (no drift), typography pairing is intact, layout structure matches the surface, component chrome matches (buttons/inputs/tables/empty/error - not layout-only), motion intent is respected, and each draft `data-state` has a corresponding product state or test. Flag layout-only match with different chrome as blocking drift. Missing pair ⇒ draft-parity fail/uncertain. Fix before running detectors.
 
 **Tier 1 - CLI** (36 rules + 5 browser-rendered via headless):
 `npx impeccable detect <html-file>` - catches 41 patterns, 5 need browser rendering.
@@ -121,18 +121,21 @@ Run after implementation:
 - **Hero metric layout**: Big number + small label + three supporting stats in a row? If not real data → flag.
 - **Identical card grids**: Same-sized cards repeated with icon + heading + text? If no differentiation → flag.
 
-**Tier 3 - Browser visual check** (**required** after visual UI implementation):
+**Tier 3 - Live product visual check** (**required** after visual UI implementation):
+
+Target the **running product URL** (start the app; open real product routes). Draft HTML serve alone is not live product review and does not satisfy **live-product** for ready.
 
 Canonical browser matrix (do not expand):
 1. **Vitest + happy-dom** — behavior only (not visual pixels)
-2. **`playwright-cli`** — primary real-browser visual / interact (`open` → `snapshot` / `screenshot`; resize 375/768/1280); compare app screenshots to approved draft states (side-by-side LLM/browser review)
+2. **`playwright-cli`** — primary real-browser visual / interact on the product URL (`open` → `snapshot` / `screenshot`; resize 375/768/1280, + 1536 when multi-region); also capture draft-surface shots at those same viewports; side-by-side LLM/browser compare draft vs live
 3. **Cursor IDE browser** (`cursor-ide-browser` MCP) — fallback when `playwright-cli` cannot run
 
 Optional scripted audit (same Playwright family):  
-`node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <html-file-or-url>`  
-(3 viewports, overflow/clip audits, JSON report). Install: `cd .cursor/skills/sc-ux-design && npm install`.
+`node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <product-url>`  
+(3 viewports, overflow/clip audits, JSON report). Install: `cd .cursor/skills/sc-ux-design && npm install`. Prefer a product URL here when claiming live-product.
 
-- Capture screenshot paths in evidence / `decisions.md`; fix blocking visual issues and draft-parity gaps before `ready`.
+- Capture **paired** draft-surface + live screenshot paths in evidence / `decisions.md`; Task(`sc-designer`) live critique (**live-product** + draft-parity) with both image sets plus live URL; fix blocking visual issues, live-product gaps, and draft-parity gaps before `ready`.
+- **live-product** and **draft-parity** (paired evidence + side-by-side compare) pass required before claiming UI ready (fail-closed; `uncertain` or missing pair blocks).
 - **Do not use** system Chrome headless or browser-use/CDP for Tier 3 (removed from the official matrix).
 
 ## Rules
@@ -166,7 +169,7 @@ Optional scripted audit (same Playwright family):
 - **Must**: Use responsive CSS so **all four presets** (375 / 768 / 1280 / 1536) show size-appropriate organization for multi-region UIs - not frame-resize-only or squeeze-only at any preset. Adjacent presets must show intentional adaptation (structure, density, nav, column count, and/or content measure). Document `Responsive: single-column - density/nav adapt only` when single-column is intentional (still adapt density/spacing/nav at each preset).
 - **Must**: After bake-off (or skip), polish the winning draft with layout + style tokens + key components + **scenario matrix**; obtain user approval before writing implementation code.
 - **Must**: During draft iteration, apply **dimension lock** - change only one of `typography` | `color` | `layout` | `motion` | `spacing` | `chrome` per human round; do not restyle multiple dimensions in one pass.
-- **Must**: Every approval-candidate draft HTML file includes: `data-draft="true"`; scaffold with `[data-draft-chrome]` outside a framed `[data-draft-surface]`; viewport toggles for 375 / 768 / 1280 / 1536; versioned filename; and `data-state` panels for empty, error, few, many, plus spec feature/behavior surfaces (loading when implied) **inside the surface**.
+- **Must**: Every approval-candidate draft HTML file includes: `data-draft="true"`; scaffold with `[data-draft-chrome]` outside a framed `[data-draft-surface]`; viewport toggles for 375 / 768 / 1280 / 1536; versioned filename; and surface-relevant `data-state` panels **inside the surface** (happy path + failure/degraded the surface can enter; `loading` when implied; `empty`/`few`/`many` when variable-length collection; plus spec feature/behavior surfaces).
 - **Must**: Keep explanatory copy outside the frame; port only `[data-draft-surface]`.
 - **Must**: Run Task(`sc-designer`) and apply critical/important fixes before serving or presenting the **approval** draft to the human.
 - **Must**: Check draft layout at all four viewport presets before asking for approval; confirm **Responsive ladder** - size-appropriate organization at each preset, not pairwise mobile-vs-desktop only.
@@ -187,8 +190,9 @@ Optional scripted audit (same Playwright family):
 
 ### Visual recheck
 
-- **Must**: After visual UI implementation, run Step 0 draft-parity against the approved draft, then Tier 3 with `playwright-cli` (preferred) or Cursor IDE browser (fallback); record screenshot paths.
-- **Must**: Flag layout-only match with different chrome, or missing draft states in the product, as blocking issues.
+- **Must**: After visual UI implementation, start the app and run Tier 3 against the **running product URL** with `playwright-cli` (preferred) or Cursor IDE browser (fallback); capture live screenshots; serve/open the approved draft and capture `[data-draft-surface]` shots at the same viewports; record **both** path sets; side-by-side LLM/browser compare; then Step 0 draft-parity; then Task(`sc-designer`) for **live-product** + draft-parity with both image sets plus live URL.
+- **Must**: Require **live-product** pass and **draft-parity** pass (paired draft-surface + live screenshots + side-by-side compare) before claiming UI ready. Draft HTML serve alone does not satisfy live product review.
+- **Must**: Flag layout-only match with different chrome, or missing draft states in the product, as blocking issues. Missing paired screenshot evidence ⇒ draft-parity fail/uncertain (fail-closed for ready).
 - **Must**: Pair visual recheck with functional tests (Vitest/RTL or project suite) via `spacecraft evidence` before claiming UI ready.
 - **Must not**: Use system Chrome headless or browser-use/CDP as the visual gate.
 
@@ -251,7 +255,7 @@ Before claiming UI implementation is ready:
 - [ ] Design brief + draft approved in `/sc-discuss` (`UI draft approved: …` in `decisions.md`)
 - [ ] Layout bake-off recorded (`Layout bake-off winner: …` or `Layout bake-off skipped: …`) before approval
 - [ ] Draft iteration used dimension lock (one of typography/color/layout/motion/spacing/chrome per round)
-- [ ] Approved draft uses scaffold (chrome outside framed `[data-draft-surface]`) + scenario matrix (`empty`, `error`, `few`, `many`, + spec features; loading when implied)
+- [ ] Approved draft uses scaffold (chrome outside framed `[data-draft-surface]`) + surface-relevant scenario matrix (happy path + failure/degraded the surface can enter; loading when implied; `empty`/`few`/`many` when collection; + spec features)
 - [ ] Draft checked at viewport presets 375 / 768 / 1280 / 1536; **Responsive ladder** verified at all four (size-appropriate organization; no squeeze-only adjacent presets; widescreen deliberate)
 - [ ] Draft passed Task(`sc-designer`) + critical/important fixes before human HIL
 - [ ] `DESIGN.md` synced from approved draft and applied
@@ -261,7 +265,9 @@ Before claiming UI implementation is ready:
 - [ ] 5 LLM-only patterns reviewed with concrete heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids)
 - [ ] Animation: durations in range, easing rules followed, reduced-motion respected
 - [ ] No banned fonts (Inter/Geist/Space Grotesk) without deliberate pairing
-- [ ] Tier 3 visual verification via `playwright-cli` or Cursor IDE browser; paths recorded; side-by-side vs draft
+- [ ] Tier 3 live product verification on running product URL via `playwright-cli` or Cursor IDE browser; live screenshot paths recorded
+- [ ] Draft-surface screenshots captured at matching viewports; both path sets recorded; side-by-side draft vs live compare passed (draft-parity)
+- [ ] Task(`sc-designer`) live critique: **live-product** + draft-parity pass with paired image sets (fail-closed)
 - [ ] Functional tests passed with `spacecraft evidence`
 
 ## References
