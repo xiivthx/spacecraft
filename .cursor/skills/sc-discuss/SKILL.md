@@ -16,8 +16,8 @@ Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); on-demand test-data design via `test-data-design.md` when variable-level fixtures matter (not a clear gate); on-demand oracle evaluation via `test-oracles.md` when problem judgment needs grounding (not a clear gate); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; one blocking question at a time; soft gaps → `decisions.md`; visual brief + product context + reference extract (when refs) + context fidelity + layout bake-off (or skip) + responsive ladder (all four presets) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief via Spec Mirror + stake map + one-breath + I/Q/A (Feynman + technical; pre-mortem Wrong-if when non-trivial) then Accept/Adjust/Reject before clear
-- Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping many testability questions in one turn; quizzing the human instead of presenting Answers; hollow briefs (Feynman-only Answers, no Wrong-if when required, Spec Mirror soft/empty yet posed); cross-feature layer waterfalls or `*-ux` roadmap seams
+- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); on-demand test-data design via `test-data-design.md` when variable-level fixtures matter (not a clear gate); on-demand oracle evaluation via `test-oracles.md` when problem judgment needs grounding (not a clear gate); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; frontier rounds via sc-clarify (≤3 independent blocking questions per turn; serial when dependent); Verify / architecture / scope soft gaps stay on the open frontier until settled or explicitly deferred; true soft gaps → `decisions.md`; visual brief + product context + reference extract (when refs) + context fidelity + layout bake-off (or skip) + responsive ladder (all four presets) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief via Spec Mirror + stake map + one-breath + I/Q/A (Feynman + technical; pre-mortem Wrong-if when non-trivial) then Accept/Adjust/Reject before clear
+- Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping the full testability queue or more than a frontier round (≤3 independent) in one turn; quizzing the human instead of presenting Answers; hollow briefs (Feynman-only Answers, no Wrong-if when required, Spec Mirror soft/empty yet posed); cross-feature layer waterfalls or `*-ux` roadmap seams
 
 ## Verify
 
@@ -76,7 +76,7 @@ After sizing, apply `references/lens-pass.md` before deep spec work when trigger
 
 ### Testability soft gate
 
-After lens-pass, apply `references/requirement-testability.md` when triggers fire (soft/missing Verify, new feature with behavioral uncertainty, human asks for requirement review, mission brief probe finds Verify skim risk). Otherwise record `Testability pass skipped: <reason>`. Park question candidates in `questions.md`; ask via sc-clarify one at a time. Do not clear while Testability is `Not Testable` and Verify is still soft/missing.
+After lens-pass, apply `references/requirement-testability.md` when triggers fire (soft/missing Verify, new feature with behavioral uncertainty, human asks for requirement review, mission brief probe finds Verify skim risk). Otherwise record `Testability pass skipped: <reason>`. Park question candidates in `questions.md`; ask via sc-clarify frontier rounds (≤3 independent; serial when dependent). Do not clear while Testability is `Not Testable` and Verify is still soft/missing.
 
 ### Strategy soft gate
 
@@ -89,8 +89,8 @@ When existing and updated requirements are both available (human paste, mid-miss
 ### Spec and decisions
 
 1. Ensure `spec.md` has Goal, Output, Good vs Bad, Verify (machine-checkable where possible).
-2. Blocking ambiguity: sc-clarify (one question at a time); record in `questions.md` / `decisions.md`.
-3. Soft gaps → assumptions in `decisions.md` (do not block clear alone).
+2. Blocking ambiguity: sc-clarify frontier rounds (≤3 independent; serial when dependent); record in `questions.md` / `decisions.md`.
+3. Soft gaps: Verify / architecture / in-out scope → open frontier until settled or explicitly deferred (do not silently assume). True soft gaps → assumptions in `decisions.md` (do not block clear alone).
 4. Lens pass or skip: `## Lens pass (<topic>)` per `references/lens-pass.md` OR `Lens pass skipped: <reason>`.
 5. Testability pass or skip: `## Testability pass` per `references/requirement-testability.md` OR `Testability pass skipped: <reason>`.
 6. Strategy pass or skip: `## Strategy pass` per `references/htsm-strategy.md` OR `Strategy pass skipped: <reason>`.
@@ -141,7 +141,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 - Never restyle multiple visual dimensions in one human draft round (dimension lock).
 - Never clear while mission brief undecided (unless skip recorded).
 - Never clear while Testability is `Not Testable` and Verify is still soft/missing.
-- Never dump the full testability question queue in one user-facing turn - park and ask via sc-clarify one at a time.
+- Never dump the full testability question queue in one user-facing turn - park in `questions.md` and ask via sc-clarify frontier rounds (≤3 independent; serial when dependent).
 - Never create `*-ux` roadmap seams or cross-feature layer waterfalls (see `references/mission-sizing.md`).
 - Prefer `spec.md` / `decisions.md` / `questions.md` over chat-only memory.
 - One mission focus per discuss session.

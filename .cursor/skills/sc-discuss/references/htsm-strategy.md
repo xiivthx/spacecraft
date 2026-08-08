@@ -19,7 +19,7 @@ Chat summary plus greppable artifact in `decisions.md`:
 - Quality → risk → coverage: …
 - Charter ideas (3–7): …
 - Assumptions: …  # or none
-- Open questions: …  # park detail in questions.md; ask via sc-clarify one at a time
+- Open questions: …  # park detail in questions.md; ask via sc-clarify frontier (≤3 independent; serial when dependent)
 ```
 
 Or skip:
@@ -62,7 +62,7 @@ Strategy pass skipped: <reason>
 
 1. **Read** - `spec.md` + `decisions.md` (incl. `## Testability pass` when present). If application context missing/trivial → respond ONLY: `Application context missing or insufficient - please provide: product summary, target users, key workflows, platforms, key constraints, dates, and critical integrations.` Keep clarify open; record skip or leave open per discuss norms.
 
-2. **Partial info** - proceed with explicit Assumptions; park Open Questions in `questions.md`; ask only high-impact via sc-clarify (one at a time).
+2. **Partial info** - proceed with explicit Assumptions for true soft gaps; park Open Questions in `questions.md`; ask high-impact via sc-clarify frontier rounds (≤3 independent; serial when dependent). Verify / architecture / scope gaps stay on the frontier until settled or explicitly deferred.
 
 3. **Fill slim template** - prefer concrete charter-style ideas over generics. Top risks use L x I (Likelihood x Impact). Generating strategy uses SFDIPOT highlights in `SFDIPOT highlights:`; reviewing **existing tests** against the requirement uses `sfdipot-coverage.md` (on-demand - not a discuss gate).
 

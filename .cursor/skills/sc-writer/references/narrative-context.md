@@ -26,7 +26,7 @@ Narrative context skipped: <reason>
 
 ## Good / Bad
 
-- Good: scan provided context first; exactly one blocking question at a time via sc-clarify (or 1-3 intent-coach questions when not inside clarify); outline before draft; authenticity over hype; vivid concrete detail over adjectives; optional `prose-rhythm.md` on draft
+- Good: scan provided context first; blocking asks via sc-clarify frontier rounds (≤3 independent; serial when dependent), or 1-3 intent-coach questions when not inside clarify; outline before draft; authenticity over hype; vivid concrete detail over adjectives; optional `prose-rhythm.md` on draft
 - Bad: ask "as many questions as possible" in one turn; expertise cosplay; invent biographical facts; replace sc-clarify; always-on gate; force Jobs commencement themes into every doc; Unicode em dash
 
 ## Verify
@@ -47,7 +47,7 @@ When run: `## Narrative context` block OR `Narrative context skipped:` with reas
 
 ## Procedure
 
-1. **Scan** - read provided context. If too thin to draft well → harvest via sc-clarify (exactly one blocking question at a time) or intent-coach style 1-3 questions when not inside clarify. Park extras in `questions.md` when mission-scoped.
+1. **Scan** - read provided context. If too thin to draft well → harvest via sc-clarify frontier rounds (≤3 independent; serial when dependent) when inside clarify or intent-coach style 1-3 questions when not inside clarify. Park extras in `questions.md` when mission-scoped.
 2. **Structure** - map to beginning/middle/end inspired by strong commencement-style speeches (without cosplay): connecting dots / love-and-loss-or-stakes / mortality-or-urgency adapted to product/mission context - only when relevant; do not force Jobs themes into every doc.
 3. **Outline** - beginning / middle / end before drafting.
 4. **Draft** - then draft (optionally run `prose-rhythm.md` on the draft).
@@ -56,7 +56,7 @@ When run: `## Narrative context` block OR `Narrative context skipped:` with reas
 ## Must / Must not
 
 - **Must**: Outline before drafting when context harvest runs
-- **Must**: One blocking question at a time inside sc-clarify
+- **Must**: Inside sc-clarify, ask frontier rounds only (≤3 independent; serial when dependent)
 - **Must**: Park open questions in `questions.md` when mission-scoped
 - **Must not**: Ask "as many questions as possible" in one turn
 - **Must not**: Expertise cosplay
