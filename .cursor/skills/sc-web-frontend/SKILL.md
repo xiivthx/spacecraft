@@ -26,7 +26,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 3. **UI draft gate (hard)** - For any visual layout/style/component work, require `/sc-discuss` approval first (sc-ux-design brief + draft HTML):
    - `decisions.md` must contain `UI draft approved: <path>` (or recorded non-visual skip)
-   - Open the approved draft; confirm scenario matrix (`empty`, `error`, `few`, `many`, + spec features) is present
+   - Open the approved draft; confirm the surface-relevant scenario matrix (applicable `data-state` panels per draft + `spec.md`) is present
    - If missing, stop and recommend `/sc-discuss` - do not invent draft mid-build
    - Skip only for non-visual FE (pure logic/hooks, no UI surface); record skip in `decisions.md`
 
@@ -60,7 +60,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: For visual UI work, require approved draft HTML from `/sc-discuss` (sc-ux-design) before writing product UI code.
 - **Must**: Treat `[data-draft-surface]` in the approved draft as the **visual source of truth** - port structure, tokens, spacing, type, and component chrome; sync `DESIGN.md` from the surface; never port scaffold chrome.
 - **Must not**: Freestyle alternate buttons/inputs/tables/empty/error chrome that only vaguely match the draft layout.
-- **Must**: Map each draft `data-state` (empty, error, few, many, + spec features) to product UI and/or tests.
+- **Must**: Map each draft `data-state` (surface-relevant set from the approved draft + `spec.md`) to product UI and/or tests.
 - **Must**: After visual UI implementation, pass Step 0 draft-parity then capture visual verification (`playwright-cli` or Cursor IDE browser; optional `visual-verify.mjs`) and functional test evidence before claiming done.
 - **Must not**: Use system Chrome headless or browser-use/CDP for visual verification.
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
@@ -115,7 +115,7 @@ Use this checklist when reviewing frontend code:
 ```
 Stack: React + TypeScript + Vite + Tailwind CSS + Vitest
 Draft: approved <path> | skip non-visual: <reason>
-Port: tokens/layout/chrome from draft surface; states mapped: empty|error|few|many|…
+Port: tokens/layout/chrome from draft surface; states mapped: <applicable data-state list>
 UI primitives: reused|upgraded|added under components/ui: <list>
 Page: composed from primitives + feature components
   Props: <typed interface>

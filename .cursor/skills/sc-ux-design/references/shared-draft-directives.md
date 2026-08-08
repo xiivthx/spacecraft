@@ -59,7 +59,7 @@ Humans must see at a glance what is **production UI** vs **annotation**. Use thi
 - Put **all** explanatory copy (why this state, token callouts, "this is a draft", designer notes) in `[data-draft-chrome]` / `[data-draft-notes]` - **outside** the frame.
 - Put **only** production-looking UI inside `[data-draft-surface]`. No long prose tutorials inside the surface.
 - `[data-draft-frame]` must show a clear visible border (device bezel). Label it visually as the production preview (e.g. small chrome caption "Production surface" outside or on the bezel - caption stays chrome, not surface).
-- Scenario **switcher** (buttons/links listing empty/error/few/many/…) lives in chrome. Scenario **panels** (`data-state="…"`) live inside the surface. Switching scenarios must not require resizing the browser window.
+- Scenario **switcher** (buttons/links listing the applicable states for that draft) lives in chrome. Scenario **panels** (`data-state="…"`) live inside the surface. Switching scenarios must not require resizing the browser window.
 - Do not style scaffold chrome with product tokens in a way that could be mistaken for UI - keep chrome visually distinct (neutral meta UI).
 
 ### Viewport presets (Must)
@@ -156,15 +156,20 @@ document.querySelectorAll("[data-viewport-set]").forEach((btn) => {
 
 ## Scenario matrix (Must)
 
-Every visual draft must include a visible **Scenario matrix** with labeled panels using `data-state="<name>"` for each primary UI surface in scope. Required states (minimum):
+Every visual draft must include a visible **Scenario matrix** with labeled `data-state="<name>"` panels for states the primary surface can enter per `spec.md` and surface shape.
 
-- `empty` - empty data
-- `error` - error / failure handling
-- `few` - few data
-- `many` - many / dense data
-- feature / behavior surfaces called out in `spec.md` (key interactive states as static panels when live interaction is not draftable)
+Include:
+- Happy path (`default` or equivalent)
+- Failure and degraded states the surface can enter (e.g. `error`, `reduced-motion` when the spec calls for them)
+- `loading` when async work is implied
+- `empty`, `few`, `many` when the surface presents a variable-length collection (list, table, feed, or item cards)
+- Feature and behavior surfaces from `spec.md`
 
-Include `loading` / pending when the spec implies async work. Each panel must show **real component chrome** (buttons, inputs, tables, empty states, error banners) - not layout boxes only - and must live **inside** `[data-draft-surface]`. Missing required states block designer pass, human serve, and `UI draft approved`.
+Chrome notes: `Scenario matrix: <states>` (optional short note when collection density states do not apply).
+
+Gate: missing an applicable state = critical (designer pass, human serve, and `UI draft approved` require the applicable set).
+
+Each panel must show **real component chrome** (buttons, inputs, tables, empty states, error banners) - not layout boxes only - and must live **inside** `[data-draft-surface]`.
 
 ## Anti-slop alignment
 

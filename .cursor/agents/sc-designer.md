@@ -27,7 +27,7 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 **Bake-off vs approval:** When reviewing **layout bake-off candidates** (pre-winner pick), require scaffold split, viewport sanity, distinct page structures, primary-surface chrome, and **Responsive ladder** across all four presets (375 / 768 / 1280 / 1536) for multi-region UIs - do **not** block on full scenario matrix. When reviewing the **approval candidate** (winner after bake-off, or sole draft when skipped), require the full discuss critique dimensions below including scenario coverage.
 
 **Discuss critique dimensions (required for approval candidates):**
-- **Scenario coverage** - draft has a visible scenario matrix with `data-state` panels for empty, error, few, many, plus feature/behavior surfaces from `spec.md` (loading when async is implied). Real component chrome in each panel - not layout boxes only. Missing required states = **critical**.
+- **Scenario coverage** - draft has a visible **surface-relevant** scenario matrix with `data-state` panels per `spec.md` + primary surface shape: happy path + failure/degraded the surface can enter; `loading` when async is implied; `empty`/`few`/`many` when the surface presents a variable-length collection; plus feature/behavior surfaces from `spec.md`. Real component chrome in each panel - not layout boxes only. Missing an applicable state = **critical** (gate checks applicable states only).
 - **Scaffold split** - `[data-draft-chrome]` (notes/banner/viewport/scenario switcher) stays outside a visible `[data-draft-frame]`; portable UI lives only in `[data-draft-surface]`. Missing frame/surface or explanations mixed into the surface = **critical**.
 - **Viewport presets** - working toggles for 375 / 768 / 1280 / 1536 that resize the frame; surface usable at all four. Broken preset = **important** (critical if mobile or desktop unusable).
 - **Responsive ladder** - all four presets (375 / 768 / 1280 / 1536) **Must** show size-appropriate organization for multi-region UI. Expectations: mobile = single column / stacked / drawer nav; tablet = intermediate (not mobile squeeze, not full desktop); desktop = full multi-region as brief requires; widescreen = deliberate extra width (measure control, optional extra column/panel, or max-width + margins) - not stretched desktop with dead space or unreadably wide lines. Frame-resize-only or squeeze-only at **any** preset; adjacent presets pixel-squeezed copies; any preset unusable/overflowing = **critical**. Single-column exception only when chrome notes record `Responsive: single-column - density/nav adapt only` (still must adapt density/spacing/nav at each preset).
@@ -57,7 +57,7 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 - Silent mood/theme assumptions
 - Generic decoration (purple gradients, cream boards, nested cards, cramped padding)
 - Approving visual UI work from prose alone when a draft HTML would show layout/style
-- Approving happy-path-only drafts missing empty/error/few/many
+- Approving happy-path-only drafts that omit applicable scenario states
 - Approving squeeze-only or identical organization across adjacent presets for multi-region UI without documented single-column exception
 - Approving product UI that freestyles chrome away from the approved draft
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Docs: surface-relevant scenario matrix; include `empty`/`few`/`many` when the surface presents a variable-length collection
+
 ## 0.47.0 - 2026-08-08
 
 - Feat: first-use `ensureProjectReady` soft-runs `codegraph init` when no index; warn and continue on missing binary or failure

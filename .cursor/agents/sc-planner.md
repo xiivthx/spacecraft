@@ -65,7 +65,7 @@ Rules for slices:
 - **Do not split** only to look finer-grained; **Must not** use wall-clock time as a split gate
 - Use `dependsOn` for real order (e.g. API before submit wiring)
 - Theme/visual may note TDD skip when pure styling with no behavior; still verify against **approved draft** (not brief alone)
-- Prefer plan tasks that cover draft scenario states (empty/error/few/many and spec features) when visual UI is in scope
+- Prefer plan tasks that cover the draft's surface-relevant scenario states (applicable `data-state` panels per `spec.md` + surface shape, including collection density when presented) when visual UI is in scope
 - If >7 slices needed → (1) same-mission `plan-phaseN.json` when not independently shippable and `Sizing: phases` is recorded (planner may write phase files; discuss owns the phases decision); (2) if independent feature seams are needed → stop and recommend `/sc-discuss` + mission-sizing Resize protocol (`*-data` → `*-functional` → `*-ui`). Sizing ladder SoT: `sc-discuss/references/mission-sizing.md`. Never create or resize a roadmap (`spacecraft map`) from the planner - discuss owns map create/add. Do not invent cross-feature layer missions or a `*-ux` seam.
 
 ## Good
