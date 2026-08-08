@@ -37,10 +37,10 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 - **DESIGN.md fidelity** - when project `DESIGN.md` exists, check draft tokens / type / mood against it unless `decisions.md` records `DESIGN conflict: mission exception` or `update house`. Flag silent competing design systems as important. When references were used, flag chrome cloned beyond the recorded borrow scope as important (critical if full silent clone).
 
 **Run / review critique (required for visual UI):**
-- **Draft parity** - implementation matches approved draft **`[data-draft-surface]`** for tokens, layout, and component chrome (ignore scaffold chrome). Layout-only match with different buttons/inputs/tables/empty/error chrome = **critical**. Missing product mapping for a draft `data-state` = **critical**.
-- **Live product quality** - critique house look and draft chrome on the **live** product (running URL + screenshots): anti-slop on live, hierarchy and clutter, first-viewport composition when landing/marketing, a11y blockers visible in shots. Require live product URL and screenshot inputs for run critique. Missing live evidence on run = **critical**.
+- **Draft parity** - implementation matches approved draft **`[data-draft-surface]`** for tokens, layout, and component chrome (ignore scaffold chrome). Require **paired** draft-surface + live screenshots at matching viewports as critique inputs; side-by-side LLM/browser compare for tokens, layout, component chrome, and applicable scenario states. Layout-only match with different buttons/inputs/tables/empty/error chrome = **critical**. Missing product mapping for a draft `data-state` = **critical**. Missing pair (draft-surface shots or live shots or either path set) = **critical**.
+- **Live product quality** - critique house look and draft chrome on the **live** product (running URL + screenshots): anti-slop on live, hierarchy and clutter, first-viewport composition when landing/marketing, a11y blockers visible in shots. Require live product URL and screenshot inputs for run critique. Missing live evidence on run = **critical**. Live shots also feed the draft-parity pair.
 
-**UX/UI review gates (required):** Follow `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (five gates). Prefer machine-checkable evidence (scaffold attrs, `data-state` matrix, `npx impeccable detect`, viewport/overflow checks, running product URL, screenshot paths) before taste judgments. Critique = per-dimension `pass` | `fail` | `uncertain` + short reason - no 1-5 scores. **`uncertain` on a required dimension for the current phase = critical blocker** for approval and the ready path (fail-closed). Use the output snippet in that reference (include **live-product** on run).
+**UX/UI review gates (required):** Follow `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (five gates). Prefer machine-checkable evidence (scaffold attrs, `data-state` matrix, `npx impeccable detect`, viewport/overflow checks, running product URL, paired draft-surface + live screenshot paths) before taste judgments. Critique = per-dimension `pass` | `fail` | `uncertain` + short reason - no 1-5 scores. **`uncertain` on a required dimension for the current phase = critical blocker** for approval and the ready path (fail-closed). Use the output snippet in that reference (include **live-product** and draft-parity on run).
 
 ## Good
 
@@ -50,7 +50,7 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 - Draft HTML used for layout/style/component **and scenario** review before code; production surface framed; notes outside
 - Bake-off candidates compared on structure and **Responsive ladder** (all four presets); approval candidate scenario-complete
 - Port-ready drafts (`[data-draft-surface]` only); parity enforced after implement
-- Run critique uses live product URL + screenshots; **live-product** and draft-parity both addressed
+- Run critique uses live product URL + paired draft-surface and live screenshots; **live-product** and draft-parity both addressed via side-by-side compare
 
 ## Bad
 
@@ -62,7 +62,7 @@ For **layout / style / component** preview during `/sc-discuss`: require a stand
 - Approving happy-path-only drafts that omit applicable scenario states
 - Approving squeeze-only or identical organization across adjacent presets for multi-region UI without documented single-column exception
 - Approving product UI that freestyles chrome away from the approved draft
-- Soft-passing run critique without live product URL and screenshot evidence
+- Soft-passing run critique without live product URL, paired draft-surface + live screenshots, or side-by-side compare
 
 ## Verify
 
@@ -82,5 +82,6 @@ Commander checks findings against approved draft HTML, `DESIGN.md`, live product
 - Scenario matrix incomplete on an **approval** candidate → Critical; do not serve to human; do not allow `UI draft approved`. Bake-off candidates may omit full matrix.
 - Approval without `Layout bake-off winner:` or `Layout bake-off skipped:` in `decisions.md` → Flag gap; do not allow `UI draft approved`.
 - No UI files changed → "No UI changes to review" and stop.
-- Run critique missing live product URL or screenshot evidence → Critical on run; do not pass **live-product**.
+- Run critique missing live product URL or live screenshot evidence → Critical on run; do not pass **live-product**.
+- Run critique missing paired draft-surface screenshots (or either path set of the draft vs live pair) → Critical on run; do not pass draft-parity.
 - No design decisions recorded → Flag as gap.

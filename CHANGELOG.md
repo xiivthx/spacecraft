@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Docs: live product UX review fail-closed before visual ready
+- Docs: live product UX review fail-closed before visual ready; require paired draft-surface + live screenshot compare for draft-parity
 - Docs: surface-relevant scenario matrix; include `empty`/`few`/`many` when the surface presents a variable-length collection
 
 ## 0.47.0 - 2026-08-08

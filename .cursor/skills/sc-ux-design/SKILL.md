@@ -109,7 +109,7 @@ After design brief approval, before `/sc-run` / real implementation:
 
 Run after implementation:
 
-**Step 0 - Draft parity** (before detection): Cross-check the implementation against **`[data-draft-surface]`** in the approved draft HTML (ignore `[data-draft-chrome]` / frame bezel). Verify: color palette matches (no drift), typography pairing is intact, layout structure matches the surface, component chrome matches (buttons/inputs/tables/empty/error - not layout-only), motion intent is respected, and each draft `data-state` has a corresponding product state or test. Flag layout-only match with different chrome as blocking drift. Fix before running detectors.
+**Step 0 - Draft parity** (before detection): Capture **paired** evidence, then compare. Serve/open the approved draft HTML and screenshot **`[data-draft-surface]`** (ignore `[data-draft-chrome]` / frame bezel) at the same viewports used for live (375 / 768 / 1280, + 1536 when multi-region). Capture matching live product screenshots (Tier 3). Record **both** path sets in evidence / `decisions.md`. Side-by-side LLM/browser compare draft vs live for tokens, layout, component chrome, and applicable scenario states. Also verify: color palette matches (no drift), typography pairing is intact, layout structure matches the surface, component chrome matches (buttons/inputs/tables/empty/error - not layout-only), motion intent is respected, and each draft `data-state` has a corresponding product state or test. Flag layout-only match with different chrome as blocking drift. Missing pair ⇒ draft-parity fail/uncertain. Fix before running detectors.
 
 **Tier 1 - CLI** (36 rules + 5 browser-rendered via headless):
 `npx impeccable detect <html-file>` - catches 41 patterns, 5 need browser rendering.
@@ -127,15 +127,15 @@ Target the **running product URL** (start the app; open real product routes). Dr
 
 Canonical browser matrix (do not expand):
 1. **Vitest + happy-dom** — behavior only (not visual pixels)
-2. **`playwright-cli`** — primary real-browser visual / interact on the product URL (`open` → `snapshot` / `screenshot`; resize 375/768/1280, + 1536 when multi-region); compare live app screenshots to approved draft states (side-by-side LLM/browser review)
+2. **`playwright-cli`** — primary real-browser visual / interact on the product URL (`open` → `snapshot` / `screenshot`; resize 375/768/1280, + 1536 when multi-region); also capture draft-surface shots at those same viewports; side-by-side LLM/browser compare draft vs live
 3. **Cursor IDE browser** (`cursor-ide-browser` MCP) — fallback when `playwright-cli` cannot run
 
 Optional scripted audit (same Playwright family):  
 `node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <product-url>`  
 (3 viewports, overflow/clip audits, JSON report). Install: `cd .cursor/skills/sc-ux-design && npm install`. Prefer a product URL here when claiming live-product.
 
-- Capture screenshot paths in evidence / `decisions.md`; Task(`sc-designer`) live critique (**live-product** + draft-parity); fix blocking visual issues, live-product gaps, and draft-parity gaps before `ready`.
-- **live-product** pass required before claiming UI ready (fail-closed; `uncertain` blocks).
+- Capture **paired** draft-surface + live screenshot paths in evidence / `decisions.md`; Task(`sc-designer`) live critique (**live-product** + draft-parity) with both image sets plus live URL; fix blocking visual issues, live-product gaps, and draft-parity gaps before `ready`.
+- **live-product** and **draft-parity** (paired evidence + side-by-side compare) pass required before claiming UI ready (fail-closed; `uncertain` or missing pair blocks).
 - **Do not use** system Chrome headless or browser-use/CDP for Tier 3 (removed from the official matrix).
 
 ## Rules
@@ -190,9 +190,9 @@ Optional scripted audit (same Playwright family):
 
 ### Visual recheck
 
-- **Must**: After visual UI implementation, start the app and run Tier 3 against the **running product URL** with `playwright-cli` (preferred) or Cursor IDE browser (fallback); record screenshot paths; then Step 0 draft-parity; then Task(`sc-designer`) for **live-product** + draft-parity.
-- **Must**: Require **live-product** pass before claiming UI ready. Draft HTML serve alone does not satisfy live product review.
-- **Must**: Flag layout-only match with different chrome, or missing draft states in the product, as blocking issues.
+- **Must**: After visual UI implementation, start the app and run Tier 3 against the **running product URL** with `playwright-cli` (preferred) or Cursor IDE browser (fallback); capture live screenshots; serve/open the approved draft and capture `[data-draft-surface]` shots at the same viewports; record **both** path sets; side-by-side LLM/browser compare; then Step 0 draft-parity; then Task(`sc-designer`) for **live-product** + draft-parity with both image sets plus live URL.
+- **Must**: Require **live-product** pass and **draft-parity** pass (paired draft-surface + live screenshots + side-by-side compare) before claiming UI ready. Draft HTML serve alone does not satisfy live product review.
+- **Must**: Flag layout-only match with different chrome, or missing draft states in the product, as blocking issues. Missing paired screenshot evidence ⇒ draft-parity fail/uncertain (fail-closed for ready).
 - **Must**: Pair visual recheck with functional tests (Vitest/RTL or project suite) via `spacecraft evidence` before claiming UI ready.
 - **Must not**: Use system Chrome headless or browser-use/CDP as the visual gate.
 
@@ -265,8 +265,9 @@ Before claiming UI implementation is ready:
 - [ ] 5 LLM-only patterns reviewed with concrete heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids)
 - [ ] Animation: durations in range, easing rules followed, reduced-motion respected
 - [ ] No banned fonts (Inter/Geist/Space Grotesk) without deliberate pairing
-- [ ] Tier 3 live product verification on running product URL via `playwright-cli` or Cursor IDE browser; paths recorded; side-by-side vs draft
-- [ ] Task(`sc-designer`) live critique: **live-product** + draft-parity pass (fail-closed)
+- [ ] Tier 3 live product verification on running product URL via `playwright-cli` or Cursor IDE browser; live screenshot paths recorded
+- [ ] Draft-surface screenshots captured at matching viewports; both path sets recorded; side-by-side draft vs live compare passed (draft-parity)
+- [ ] Task(`sc-designer`) live critique: **live-product** + draft-parity pass with paired image sets (fail-closed)
 - [ ] Functional tests passed with `spacecraft evidence`
 
 ## References

@@ -33,8 +33,8 @@ Required dimensions depend on phase (discuss vs run). Mark **required** when the
 | **Draft / scaffold readiness** | required | n/a | `data-draft`, `[data-draft-chrome]` outside `[data-draft-frame]` / `[data-draft-surface]`; viewport toggles present; `Layout bake-off winner:` or skip in `decisions.md` | Scaffold clarity, port readiness, notes outside surface |
 | **Scenario coverage** | required (approval candidate) | required | Surface-relevant `data-state` panels per `spec.md` + primary surface shape (happy path + failure/degraded the surface can enter; `loading` when async; `empty`/`few`/`many` when variable-length collection; + spec features); product mapping or tests per applicable state | Real component chrome vs layout boxes; gate checks applicable states only |
 | **Responsive ladder** | required (multi-region UI) | required when UI ships | Four presets 375 / 768 / 1280 / 1536; frame resize works; overflow/clip scripts at breakpoints | Size-appropriate organization; not pixel-squeezed adjacent presets; widescreen measure control |
-| **Draft parity** | n/a | required | CSS token variables vs draft; `data-state` mapping; Step 0 checklist; screenshot paths in evidence | Layout-only match with different chrome; subtle spacing/type drift |
-| **Live product review** | n/a | **required** | Running product URL reachable; screenshot paths in evidence; viewports 375 / 768 / 1280 captured (+ 1536 when multi-region) | House look and draft chrome on live; anti-slop on live; hierarchy and clutter; first-viewport composition when landing/marketing; a11y blockers visible in shots |
+| **Draft parity** | n/a | required | Paired draft-surface + live screenshots at matching viewports (375 / 768 / 1280, + 1536 when multi-region): serve/open approved draft HTML and capture `[data-draft-surface]` (ignore chrome/frame); capture matching live product shots; both path sets in evidence / `decisions.md`; CSS token variables vs draft; `data-state` mapping; Step 0 checklist. Missing pair ⇒ `fail` / `uncertain` | Side-by-side LLM/browser compare of draft vs live for tokens, layout, component chrome, and applicable scenario states; layout-only match with different chrome; subtle spacing/type drift |
+| **Live product review** | n/a | **required** | Running product URL reachable; live screenshot paths in evidence at 375 / 768 / 1280 (+ 1536 when multi-region); those live shots also feed the draft-parity pair | House look and draft chrome on live; anti-slop on live; hierarchy and clutter; first-viewport composition when landing/marketing; a11y blockers visible in shots |
 | **Anti-slop / catalog** | recommended | required | `npx impeccable detect` (Tier 1 CLI + browser-rendered rules) | Tier 2 heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids) |
 | **Accessibility blockers** | when in scope | when in scope | Obvious missing labels on form controls in HTML; `prefers-reduced-motion` respected in CSS | Contrast/focus/keyboard gaps when visually obvious in draft or product |
 | **Motion intent vs draft** | when motion in brief | required when motion in brief | `prefers-reduced-motion`; duration/easing within `animation-guidelines.md` | Motion feel matches brief/draft intent |
@@ -56,7 +56,7 @@ Rules:
 
 - No 1-5 scores or numeric rubrics.
 - Critique output may still label `uncertain` in notes for human follow-up.
-- `sc-judge`: uncertain draft-parity, live-product, or visual ready claim ⇒ `REFUTED` (note `uncertain` in hunt reasons). No third verdict string.
+- `sc-judge`: uncertain draft-parity, live-product, or visual ready claim ⇒ `REFUTED` (note `uncertain` in hunt reasons). Missing paired draft-surface + live screenshot evidence for draft-parity ⇒ `REFUTED`. No third verdict string.
 - `sc-reviewer`: `uncertain` on a required UI dimension ⇒ critical finding; `status: blocked`.
 
 ## Output snippet (reviewers / designers)
@@ -97,7 +97,7 @@ Re-run relevant gates when any of these change:
 
 Prior `UI draft approved` or visual evidence does not grandfather later runs without fresh Step 0 / Tier 3 live product evidence / judge re-run.
 
-Include when claiming visual ready: fresh live product evidence from the running product URL (routes opened, screenshots in evidence). Live-product for ready requires the product app; draft HTML serve alone does not satisfy that dimension.
+Include when claiming visual ready: fresh live product evidence from the running product URL (routes opened, live screenshots in evidence) **and** paired draft-surface screenshots at the same viewports for draft-parity side-by-side compare. Live-product for ready requires the product app; draft HTML serve alone does not satisfy that dimension. Draft-parity pass requires both path sets recorded.
 
 ## Cross-links
 

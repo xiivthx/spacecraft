@@ -18,7 +18,7 @@ Spacecraft harness process for missions with visual UI. This is not a product fe
 | `/sc-run` | Draft-parity (Step 0), anti-slop, Tier 3 live product review on the running product URL |
 | Review / judge | `sc-reviewer` findings; `sc-judge` draft drift hunt |
 
-**Live product review** is required before visual `ready`: start the app, open real product routes, capture screenshots, and pass the **live-product** dimension (fail-closed). Draft HTML serve alone does not satisfy that gate. Human browser check stays after ready.
+**Live product review** is required before visual `ready`: start the app, open real product routes, capture screenshots, and pass the **live-product** dimension (fail-closed). Draft HTML serve alone does not satisfy that gate. **Draft parity** also requires paired draft-surface + live screenshots at matching viewports and a side-by-side compare before ready. Human browser check stays after ready.
 
 ## Source of truth for agents
 

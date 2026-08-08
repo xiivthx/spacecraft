@@ -72,7 +72,7 @@ Open the project in Cursor. User-facing slash skills are `/sc-discuss`, `/sc-run
 Flow:
 
 1. `/sc-discuss` - size (`Sizing: single|phases|roadmap`), lens pass or skip (`## Lens pass` / `Lens pass skipped:`), testability pass or skip (`## Testability pass` / `Testability pass skipped:`), strategy pass or skip (`## Strategy pass` / `Strategy pass skipped:`), RCRCRC when two requirement versions (`## RCRCRC pass` / skip), clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
-2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (or `/sc-run` mission-only for single/phases). Jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review. Visual UI/FE: requires draft already approved in discuss (not for `*-data` / `*-functional` seams); then live product review on the running app URL (Tier 3 + designer **live-product**) plus draft-parity and functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
+2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (or `/sc-run` mission-only for single/phases). Jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review. Visual UI/FE: requires draft already approved in discuss (not for `*-data` / `*-functional` seams); then live product review on the running app URL (Tier 3 + designer **live-product**) plus draft-parity (paired draft-surface vs live screenshots, side-by-side) and functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
 3. Human checks the ready work.
 4. `/sc-ship` validates and closes out only when explicitly requested.
 
@@ -204,7 +204,7 @@ On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft st
 User-facing slash skills: **`/sc-discuss`**, **`/sc-run`**, **`/sc-ship`**, and **`/sc-quick`**.
 
 - **HIL discuss:** `/sc-discuss` - clarify, decide, approve visual draft HTML
-- **AFK run:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits; UI missions require prior draft approval and live product review (running URL + **live-product**) with draft-parity and functional evidence
+- **AFK run:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits; UI missions require prior draft approval and live product review (running URL + **live-product**) with paired draft-parity compare and functional evidence
 - **HIL ship:** final check + `/sc-ship`
 - **Quick (no mission):** `/sc-quick` - manual edits/fixes/docs; branch → verify → commit → local ship in one pass (no mission artifacts or closeout; push still explicit)
 - **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, sc-storm, …)
