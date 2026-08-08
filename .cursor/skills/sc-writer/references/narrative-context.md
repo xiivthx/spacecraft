@@ -69,5 +69,5 @@ When run: `## Narrative context` block OR `Narrative context skipped:` with reas
 
 - Rhythm rewrite after draft: `prose-rhythm.md`
 - Blocking questions: `sc-clarify`
-- Mission brief Answer style: `sc-discuss/references/mission-brief.md`
+- Mission brief bullet style (Goal / Will do / Impact / Extra): `sc-discuss/references/mission-brief.md`
 - Inspiration (structure lessons from memorable commencement speeches, e.g. Jobs 2005): craft only, not persona

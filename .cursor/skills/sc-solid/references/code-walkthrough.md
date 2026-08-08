@@ -8,7 +8,7 @@ Give a structured, concise read of a code snippet: compliance, risks, and option
 
 ## Output
 
-Compact headings matching the seven steps below. **Beginner Explanation** last - only when triggered (human asks, or mission-brief Feynman Answers).
+Compact headings matching the seven steps below. **Beginner Explanation** last - only when triggered (human asks, or mission-brief plain Goal bullets need a teach-back).
 
 ```
 ## Compliance

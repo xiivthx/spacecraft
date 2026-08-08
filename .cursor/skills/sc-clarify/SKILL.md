@@ -32,7 +32,7 @@ Activate inside `/sc-discuss` (or when ambiguity blocks plan/build) for:
 - **Resolve decisions before planning** - blocking questions for planning phase
 - **Record decisions from a discussion** - capture choices in `decisions.md`
 
-Mission brief presents Answers and does not quiz - grilling lives here.
+Mission brief presents Goal / Will do / Impact / Extra bullets and does not quiz - grilling lives here.
 
 ## Workflow
 
