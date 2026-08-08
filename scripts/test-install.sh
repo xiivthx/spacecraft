@@ -27,6 +27,17 @@ printf '%s\n' '{"version":1,"hooks":{"beforeShellExecution":[{"command":".cursor
 HOME="$fake_home" sh "$ROOT/scripts/install-cursor.sh" "$tmp" "$ROOT"
 sh "$ROOT/scripts/smoke.sh" "$tmp" "$BIN"
 
+# First .space create via install-cursor: git init (if needed) + .space/ in .gitignore.
+if [ ! -d "$tmp/.git" ] && ! git -C "$tmp" rev-parse --git-dir >/dev/null 2>&1; then
+  echo "FAIL: install into empty project did not initialize git (missing .git)"
+  exit 1
+fi
+if [ ! -f "$tmp/.gitignore" ] || ! grep -Eq '^[[:space:]]*\.space/?[[:space:]]*$' "$tmp/.gitignore"; then
+  echo "FAIL: install into empty project .gitignore missing .space/ entry"
+  exit 1
+fi
+echo "  ok   install-project ensures git + .space/ in .gitignore"
+
 hooks="$tmp/.cursor/hooks.json"
 if ! grep -q 'user-unrelated.sh' "$hooks"; then
   echo "FAIL: install clobbered pre-existing hooks (user-unrelated.sh missing)"
@@ -69,8 +80,8 @@ done
 echo "  ok   install-project places domain encyclopedia skills (no User --full required)"
 
 # T4 acceptance 2: install-project does NOT copy alwaysApply rules (000/025/
-# 026/050/100/200) into a project target distinct from the source repo.
-for rule in 000-spacecraft 025-english-coach 026-intent-coach 050-style 100-conventions 200-workflow; do
+# 026/027/050/100/200) into a project target distinct from the source repo.
+for rule in 000-spacecraft 025-english-coach 026-intent-coach 027-th-en-hil 050-style 100-conventions 200-workflow; do
   if [ -f "$tmp/.cursor/rules/$rule.mdc" ]; then
     echo "FAIL: install-project copied alwaysApply rule $rule.mdc into project target $tmp"
     exit 1
@@ -159,11 +170,11 @@ echo "  ok   install-global full keeps domain encyclopedias; lean omits"
 user_rules="$fake_home/.cursor/spacecraft/USER-RULES.txt"
 test -f "$user_rules" \
   || { echo "FAIL: install-global did not write $user_rules"; exit 1; }
-for marker in 'Spacecraft' 'English prompt coach' 'Intent coach' 'Coding Standards' 'Project Structure' 'Lane Detection' 'Graph vs Loop' 'Context budget'; do
+for marker in 'Spacecraft' 'English prompt coach' 'Intent coach' 'Thai + simple English HIL' 'Coding Standards' 'Project Structure' 'Lane Detection' 'Graph vs Loop' 'Context budget'; do
   grep -q "$marker" "$user_rules" \
     || { echo "FAIL: USER-RULES.txt missing marker: $marker"; exit 1; }
 done
-echo "  ok   install-global generates USER-RULES.txt with six-source markers (+ Graph vs Loop, Context budget)"
+echo "  ok   install-global generates USER-RULES.txt with seven-source markers (+ Graph vs Loop, Context budget)"
 
 if [ -f "$fake_home/.cursorrules" ]; then
   echo "FAIL: install-global wrote legacy ~/.cursorrules"

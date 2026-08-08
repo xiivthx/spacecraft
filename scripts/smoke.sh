@@ -39,6 +39,19 @@ for d in missions archive roadmaps; do
   fi
 done
 
+# 2b. Project-git ensure (install / first .space create).
+if [ -d "$TARGET/.git" ] || git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1; then
+  pass "git repo present"
+else
+  bad "git repo missing (.git / rev-parse)"
+fi
+if [ -f "$TARGET/.gitignore" ] && grep -Eq '^[[:space:]]*\.space/?[[:space:]]*$' "$TARGET/.gitignore"; then
+  pass ".gitignore ignores .space/"
+else
+  bad ".gitignore missing .space/ entry"
+fi
+
+
 # 3. JSON parses.
 if [ -f "$TARGET/.cursor/mcp.json" ]; then
   if python3 -m json.tool "$TARGET/.cursor/mcp.json" >/dev/null 2>&1; then

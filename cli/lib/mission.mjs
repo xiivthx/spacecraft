@@ -1,10 +1,12 @@
 import {
+  existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
   writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
+import { ensureProjectReady, ensureSpaceIgnored } from './project-git.mjs';
 import {
   currentFile,
   gitShowCurrentBranch,
@@ -88,7 +90,14 @@ function hasHelpFlag(args) {
 
 export function initCmd(spaceDir) {
   try {
+    const projectRoot = path.dirname(spaceDir);
+    if (!existsSync(spaceDir)) {
+      ensureProjectReady(projectRoot);
+    } else {
+      ensureSpaceIgnored(projectRoot);
+    }
     mkdirSync(path.join(spaceDir, 'missions'), { recursive: true });
+    mkdirSync(path.join(spaceDir, 'archive'), { recursive: true });
     mkdirSync(path.join(spaceDir, 'roadmaps'), { recursive: true });
   } catch (err) {
     console.error('spacecraft init:', err.message);

@@ -26,6 +26,8 @@ Works for general work (bugs, refactors, docs, process) and visual work - not de
 3. Prefer A/B or "which matches" once you have enough to offer options; do not ship a full solution before the first clarify pass unless the user already chose a direction
 4. After intent is clear: proceed; for visual UI use `/sc-discuss` draft path (brief → bake-off → dimension lock → approve) before `/sc-run`
 
+Intent probes use Thai-mix HIL per `027-th-en-hil.mdc` (Thai sentences with simple English terms in-line; caveman-terse).
+
 **After clarify:** Review the current system and propose what should be. Users need not be designers - show a concrete direction, then refine from their reaction to evidence (draft, repro, diff), not from abstract taste alone.
 
 **Must not:**

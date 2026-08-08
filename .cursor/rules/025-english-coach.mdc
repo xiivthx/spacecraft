@@ -22,4 +22,4 @@ Natural spoken US English; keep meaning; leave paths/code/commands/quotes alone.
 **English:** Nice - that reads naturally.
 ```
 
-Limits: coach block short; never a full lesson; skip pure non-English with no English to fix (optional one-line if they mixed and wanted English); never block `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`.
+Limits: coach block short; never a full lesson; skip pure non-English with no English to fix (optional one-line if they mixed and wanted English); never block `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`. Agent→human HIL wording (asks, choices, handoffs) is governed by `027-th-en-hil.mdc` (Thai-mix in-sentence + caveman); this coach still coaches the human's English first when both apply.

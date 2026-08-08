@@ -39,7 +39,8 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Before git work on a mission, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <number|id|title>` or `SPACECRAFT_MISSION`. Skip resolve for `/sc-quick`.
 - **Must**: Before committing/merging/releasing, inspect git state with plain git (`git status`, `git rev-parse`, etc.).
 - **Must not**: Write product changes on `main`. If on `main` when mutation is requested, create a work branch.
-- **Must not**: Auto-run `git init`, create worktrees, rebase, merge, tag, or push unless asked.
+- **Must not**: Ad-hoc `git init` (agents inventing repo setup). **May**: spacecraft `ensureProjectReady`, `spacecraft init`, and bootstrap / `install-cursor` run `git init` when the project is not yet a git repo.
+- **Must not**: Auto-create worktrees, rebase, merge, tag, or push unless asked.
 - **Must**: Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. Mission local ship still requires `/sc-ship` + hooks + `SPACECRAFT_SHIP=1`. `/sc-quick` authorizes local merge/tag in that lane (hooks + `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`); push still needs separate AUTH. AUTH does not bypass ship hooks.
 
 ### Branching

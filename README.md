@@ -5,7 +5,7 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 ## What it provides
 
 - Mission workflow from scope and planning through implementation, verification, review, and shipping
-- Local mission artifacts and evidence under `.space/`
+- Local mission artifacts and evidence under `.space/` (gitignored; first-use ensure may `git init` and write starter `.gitignore` from `templates/gitignore`)
 - Cursor-native rules, agents, skills, hooks, and MCP configuration under `.cursor/`
 - Git safety with feature branches, Conventional Commits, and an explicit ship gate
 - Specialized support for application development, testing, design, architecture, and embedded firmware
@@ -19,7 +19,7 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 
 ## Installation
 
-Spacecraft installs in two layers: a **User layer** (once per machine) for agents, skills, MCP, the CLI, and global safety hooks - plus a generated `~/.cursor/spacecraft/USER-RULES.txt` you paste into Settings -> Rules -> User Rules so the six `alwaysApply` rules (including English and intent coaches) apply in every workspace; and a **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo) for the domain rules (`300`-`620`), agents, skills, and project hooks.
+Spacecraft installs in two layers: a **User layer** (once per machine) for agents, skills, MCP, the CLI, and global safety hooks - plus a generated `~/.cursor/spacecraft/USER-RULES.txt` you paste into Settings -> Rules -> User Rules so the seven `alwaysApply` rules (including English, intent, and Thai + simple English HIL coaches) apply in every workspace; and a **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo) for the domain rules (`300`-`620`), agents, skills, and project hooks.
 
 **New PC** - User layer plus companion tools (caveman, rtk, codegraph) with Cursor wiring:
 
@@ -47,6 +47,8 @@ Project layer (per repo) still installs domain packs locally - no User `--full` 
 ```sh
 ./bootstrap.sh /path/to/project
 ```
+
+Bootstrap / `install-cursor` first `.space` create also ensures git (init if needed) and starter `.gitignore` with `.space/`.
 
 When working from a clone of this repository, build and install with:
 
@@ -117,7 +119,7 @@ The CLI is Node (`cli/spacecraft.mjs`). Run the checkout link as `./spacecraft`,
 
 | Command | Purpose |
 |---|---|
-| `spacecraft init` | Initialize `.space/` mission state |
+| `spacecraft init` | Initialize `.space/` (git init if needed; starter `.gitignore` with `.space/` on first create) |
 | `spacecraft new <title>` | Create a mission with a generated ID |
 | `spacecraft missions` | List missions |
 | `spacecraft use <number\|id\|title>` | Select the current mission |
