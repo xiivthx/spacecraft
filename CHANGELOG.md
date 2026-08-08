@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.45.0 - 2026-08-08
+
+- Feat!: zero-dep Node CLI at `cli/spacecraft.mjs`; make, CI, and install run on Node (BREAKING: Node 18+)
+- Feat: lean User-layer skill install + prune; `FULL=1` / `--full` for domain encyclopedias; project layer still gets domain packs
+- Docs: cut hygiene always-on; skills use plain git for worktree checks
+- Fix: `check-judge-break` absolutizes `BIN`
+
 ## 0.44.19 - 2026-08-08
 
 - Docs: drop pinned model frontmatter from spacecraft Task agents (inherit Cursor model selection)
