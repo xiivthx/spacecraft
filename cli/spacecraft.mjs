@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { archiveCmd } from './lib/archive.mjs';
 import { closeoutCmd } from './lib/closeout.mjs';
 import { eviCmd } from './lib/evi.mjs';
@@ -15,6 +17,7 @@ import {
   statusCmd,
   useCmd,
 } from './lib/mission.mjs';
+import { ensureProjectReady, ensureSpaceIgnored } from './lib/project-git.mjs';
 import { resolveMission, spaceDirFromCwd } from './lib/resolve.mjs';
 import { clarifyStatusCmd, stateCmd } from './lib/state.mjs';
 import { valCmd } from './lib/val.mjs';
@@ -136,6 +139,17 @@ if (!IMPLEMENTED.has(command)) {
 }
 
 const cwd = process.cwd();
+try {
+  if (!existsSync(path.join(cwd, '.space'))) {
+    ensureProjectReady(cwd);
+  } else {
+    ensureSpaceIgnored(cwd);
+  }
+} catch (err) {
+  console.error(`spacecraft: ${err.message}`);
+  process.exit(1);
+}
+
 const spaceDir = spaceDirFromCwd(cwd);
 const mid = resolveMission(cwd);
 const code = dispatch(command, args.slice(1), spaceDir, cwd, mid);

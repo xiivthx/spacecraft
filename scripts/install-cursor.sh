@@ -24,15 +24,24 @@ fi
 
 echo "Installing spacecraft into $TARGET_ABS"
 
-# .space mission state scaffold (idempotent).
+# .space mission state scaffold (idempotent). Detect first create before mkdir
+# so ensure matches CLI: ready (template gitignore + git init) vs ignore (append).
+SPACE_WAS_MISSING=0
+[ -d "$TARGET_ABS/.space" ] || SPACE_WAS_MISSING=1
 mkdir -p "$TARGET_ABS/.space/missions" "$TARGET_ABS/.space/archive" "$TARGET_ABS/.space/roadmaps"
+if [ "$SPACE_WAS_MISSING" -eq 1 ]; then
+  node "$SRC_ABS/cli/ensure-project-git.mjs" --ready "$TARGET_ABS"
+else
+  node "$SRC_ABS/cli/ensure-project-git.mjs" --ignore "$TARGET_ABS"
+fi
+
 
 if [ "$TARGET_ABS" = "$SRC_ABS" ]; then
   echo "  source == target; config already in place, scaffolding .space only"
 else
   mkdir -p "$TARGET_ABS/.cursor/rules" "$TARGET_ABS/.cursor/agents" "$TARGET_ABS/.cursor/skills"
   # Project layer gets domain/glob rules only (300-620); alwaysApply rules
-  # (000/025/026/050/100/200) are User layer via install-global's USER-RULES.txt.
+  # (000/025/026/027/050/100/200) are User layer via install-global's USER-RULES.txt.
   for rule in "$SRC_ABS"/.cursor/rules/*.mdc; do
     [ -f "$rule" ] || continue
     grep -q '^alwaysApply: true$' "$rule" && continue

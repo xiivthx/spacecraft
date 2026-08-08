@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.46.0 - 2026-08-08
+
+- Feat: first `.space` create runs `git init` (when needed) and writes starter `.gitignore` from `templates/gitignore` (always ignores `.space/`)
+- Feat: CLI pre-dispatch and `install-cursor` / bootstrap share `ensureProjectReady` / `ensureSpaceIgnored`
+- Feat: alwaysApply Thai-mix HIL (`027-th-en-hil`) + caveman terse chat; USER-RULES seven sources
+- Docs: sc-git may allow spacecraft ensure/init/bootstrap `git init`; agents still must not ad-hoc init
+
 ## 0.45.1 - 2026-08-08
 
 - Docs: sc-clarify design-tree + frontier rounds (max 3 independent; serial when dependent)
