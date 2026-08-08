@@ -70,7 +70,7 @@ To bootstrap the current directory:
 ./bootstrap.sh
 ```
 
-The bootstrap installer prepares project-local `.cursor/` and `.space/` content and links the Node CLI (`cli/spacecraft.mjs`) when Node.js is on `PATH`, then runs project smoke checks against that link. On first `.space` create it ensures a git repo (`git init` when needed) and a starter `.gitignore` from `templates/gitignore` (always ignores `.space/`). This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
+The bootstrap installer prepares project-local `.cursor/` and `.space/` content and links the Node CLI (`cli/spacecraft.mjs`) when Node.js is on `PATH`, then runs project smoke checks against that link. On first `.space` create it ensures a git repo (`git init` when needed), a starter `.gitignore` from `templates/gitignore` (always ignores `.space/`), and may soft-run `codegraph init` when no index (`.codegraph/`) exists - missing binary or failure warns and continues. This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
 
 You can also run the published bootstrap script from the target project:
 
@@ -175,7 +175,7 @@ If the target does not have mission state yet:
 spacecraft init
 ```
 
-First-use ensure (`spacecraft init`, any CLI command when `.space/` is missing, and project bootstrap / `install-cursor`) runs `ensureProjectReady`: `git init` if the directory is not already a repo, scaffolds `.space/`, and writes starter `.gitignore` from `templates/gitignore` (includes `.space/`). When `.space/` already exists, later ensure only adds a `.space/` line to `.gitignore` if missing - it does not replace the whole file.
+First-use ensure (`spacecraft init`, any CLI command when `.space/` is missing, and project bootstrap / `install-cursor`) runs `ensureProjectReady`: `git init` if the directory is not already a repo, scaffolds `.space/`, writes starter `.gitignore` from `templates/gitignore` (includes `.space/`), and may soft-run `codegraph init` when no index (`.codegraph/`) exists - missing binary or failure warns and continues. When `.space/` already exists, later ensure only adds a `.space/` line to `.gitignore` if missing - it does not replace the whole file.
 
 Then begin in Cursor:
 

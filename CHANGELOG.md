@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.47.0 - 2026-08-08
+
+- Feat: first-use `ensureProjectReady` soft-runs `codegraph init` when no index; warn and continue on missing binary or failure
+- Feat: ignore `.codegraph/` in starter template and root `.gitignore`
+- Docs: alwaysApply rules require Thai for agent-to-human chat (simple English tech terms may stay in-line)
+
 ## 0.46.0 - 2026-08-08
 
 - Feat: first `.space` create runs `git init` (when needed) and writes starter `.gitignore` from `templates/gitignore` (always ignores `.space/`)

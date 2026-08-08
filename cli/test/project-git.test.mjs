@@ -5,6 +5,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
+  chmodSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -20,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const entryPath = path.join(repoRoot, 'cli', 'spacecraft.mjs');
 const gitignoreTemplatePath = path.join(repoRoot, 'templates', 'gitignore');
+const CODEGRAPH_DB = path.join('.codegraph', 'codegraph.db');
 
 function emptyProjectRoot() {
   return mkdtempSync(path.join(os.tmpdir(), 'spacecraft-project-git-'));
@@ -42,6 +44,83 @@ function isolatedGitEnv(dir) {
     GIT_TERMINAL_PROMPT: '0',
     XDG_CONFIG_HOME: xdgConfig,
   };
+}
+
+/**
+ * PATH stub: fake `codegraph` that logs argv to a marker file and optionally
+ * creates `.codegraph/codegraph.db` under project path arg or cwd.
+ */
+function installFakeCodegraph({ exitCode = 0, createDb = true } = {}) {
+  const binDir = mkdtempSync(path.join(os.tmpdir(), 'spacecraft-codegraph-bin-'));
+  const markerPath = path.join(binDir, 'codegraph-argv.log');
+  const scriptPath = path.join(binDir, 'codegraph');
+  const markerQ = JSON.stringify(markerPath);
+  const createDbBlock = createDb
+    ? `
+root="."
+for arg in "$@"; do
+  case "$arg" in
+    -*) ;;
+    *)
+      if [ -d "$arg" ]; then root="$arg"; break; fi
+      ;;
+  esac
+done
+mkdir -p "$root/.codegraph"
+: > "$root/.codegraph/codegraph.db"
+`
+    : '';
+  writeFileSync(
+    scriptPath,
+    `#!/bin/sh
+printf '%s\\n' "$*" >> ${markerQ}
+${createDbBlock}
+exit ${exitCode}
+`,
+  );
+  chmodSync(scriptPath, 0o755);
+  return { binDir, markerPath, scriptPath };
+}
+
+function pathWithoutCodegraphBin() {
+  const parts = (process.env.PATH || '').split(path.delimiter).filter(Boolean);
+  return parts
+    .filter((dir) => !existsSync(path.join(dir, 'codegraph')))
+    .join(path.delimiter);
+}
+
+function withPath(binDirOrPath, fn) {
+  const prev = process.env.PATH;
+  process.env.PATH = binDirOrPath;
+  try {
+    return fn();
+  } finally {
+    process.env.PATH = prev;
+  }
+}
+
+function captureStderr(fn) {
+  const lines = [];
+  const origError = console.error;
+  const origWarn = console.warn;
+  console.error = (...args) => {
+    lines.push(args.map(String).join(' '));
+  };
+  console.warn = (...args) => {
+    lines.push(args.map(String).join(' '));
+  };
+  try {
+    const value = fn();
+    return { value, stderr: lines.join('\n') };
+  } finally {
+    console.error = origError;
+    console.warn = origWarn;
+  }
+}
+
+function readMarker(markerPath) {
+  if (!existsSync(markerPath)) return '';
+  return readFileSync(markerPath, 'utf8');
 }
 
 function runGit(dir, args) {
@@ -170,5 +249,114 @@ test('CLI init: no .space/.git scaffolds dirs and ensures git + .gitignore', () 
     assert.match(readFileSync(gitignorePath, 'utf8'), /^\.space\/$/m);
   } finally {
     cleanup(dir);
+  }
+});
+
+test('ensureProjectReady: soft-runs codegraph init when index missing', async () => {
+  const dir = emptyProjectRoot();
+  const fake = installFakeCodegraph();
+  try {
+    assert.equal(existsSync(path.join(dir, CODEGRAPH_DB)), false);
+
+    const { ensureProjectReady } = await import('../lib/project-git.mjs');
+    withPath(`${fake.binDir}${path.delimiter}${process.env.PATH || ''}`, () => {
+      ensureProjectReady(dir);
+    });
+
+    assert.ok(
+      existsSync(path.join(dir, CODEGRAPH_DB)),
+      'ensureProjectReady must leave .codegraph/codegraph.db after soft init',
+    );
+    const marker = readMarker(fake.markerPath);
+    assert.match(marker, /\binit\b/, 'fake codegraph must be invoked with init');
+    assert.ok(isGitRepo(dir), 'git init outcome must remain');
+    assert.ok(existsSync(path.join(dir, '.gitignore')), 'template .gitignore must remain');
+    assert.equal(
+      readFileSync(path.join(dir, '.gitignore'), 'utf8'),
+      readFileSync(gitignoreTemplatePath, 'utf8'),
+      'first ensure must still write template .gitignore',
+    );
+  } finally {
+    cleanup(dir);
+    cleanup(fake.binDir);
+  }
+});
+
+test('ensureProjectReady: skips codegraph init when index already exists', async () => {
+  const dir = emptyProjectRoot();
+  const fake = installFakeCodegraph();
+  try {
+    mkdirSync(path.join(dir, '.codegraph'), { recursive: true });
+    writeFileSync(path.join(dir, CODEGRAPH_DB), '');
+
+    const { ensureProjectReady } = await import('../lib/project-git.mjs');
+    withPath(`${fake.binDir}${path.delimiter}${process.env.PATH || ''}`, () => {
+      ensureProjectReady(dir);
+    });
+
+    const marker = readMarker(fake.markerPath);
+    assert.equal(
+      marker.trim(),
+      '',
+      'ensureProjectReady must not invoke codegraph when index exists',
+    );
+    assert.ok(isGitRepo(dir));
+    assert.ok(existsSync(path.join(dir, '.gitignore')));
+  } finally {
+    cleanup(dir);
+    cleanup(fake.binDir);
+  }
+});
+
+test('ensureProjectReady: missing codegraph binary still succeeds', async () => {
+  const dir = emptyProjectRoot();
+  try {
+    const { ensureProjectReady } = await import('../lib/project-git.mjs');
+    const stripped = pathWithoutCodegraphBin();
+    const { stderr } = captureStderr(() => {
+      assert.doesNotThrow(() => {
+        withPath(stripped, () => {
+          ensureProjectReady(dir);
+        });
+      }, 'missing codegraph must not throw from ensureProjectReady');
+    });
+
+    assert.ok(isGitRepo(dir), 'must still create .git');
+    assert.ok(existsSync(path.join(dir, '.gitignore')), 'must still write .gitignore');
+    assert.equal(
+      readFileSync(path.join(dir, '.gitignore'), 'utf8'),
+      readFileSync(gitignoreTemplatePath, 'utf8'),
+    );
+    assert.match(
+      stderr,
+      /codegraph/i,
+      'missing codegraph binary must warn on stderr',
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('ensureProjectReady: failed codegraph init warns and still succeeds', async () => {
+  const dir = emptyProjectRoot();
+  const fake = installFakeCodegraph({ exitCode: 1, createDb: false });
+  try {
+    const { ensureProjectReady } = await import('../lib/project-git.mjs');
+    const { stderr } = captureStderr(() => {
+      withPath(`${fake.binDir}${path.delimiter}${process.env.PATH || ''}`, () => {
+        ensureProjectReady(dir);
+      });
+    });
+
+    assert.ok(isGitRepo(dir), 'failed init must not block git');
+    assert.ok(existsSync(path.join(dir, '.gitignore')), 'failed init must not block gitignore');
+    assert.match(
+      stderr,
+      /codegraph/i,
+      'failed codegraph init must warn on stderr',
+    );
+  } finally {
+    cleanup(dir);
+    cleanup(fake.binDir);
   }
 });

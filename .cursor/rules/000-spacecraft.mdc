@@ -27,7 +27,7 @@ Keep **Goal**, **Output**, **Good vs Bad**, and **Verify** clear. Soft gaps mid-
 - Quality over speed. Surgical changes only.
 - Always-on US English coaching (`025-english-coach.mdc`).
 - Always-on intent coaching (`026-intent-coach.mdc`) - ask before acting on vague requests.
-- Always-on Thai-mix HIL + caveman terse chat (`027-th-en-hil.mdc`) - Thai sentences with simple English terms in-line.
+- Always-on Thai agent→human chat + caveman terse replies (`027-th-en-hil.mdc`) - talk to the user in Thai; simple English tech terms may stay in-line.
 
 ## Inner-loop gates (Fable)
 
@@ -55,4 +55,4 @@ When deleting a feature, command, or doc surface: rewrite surviving rules, skill
 
 ## Communication
 
-Technical substance only. Short nonessential updates. ASCII hyphen-minus (`-`), never Unicode em dash. Exact paths/commands. Ask only when blocked by a real decision. User-facing HIL asks, choices, and handoffs use Thai-mix (Thai + simple English terms in-line, caveman-terse) per `027-th-en-hil.mdc`.
+Technical substance only. Short nonessential updates. ASCII hyphen-minus (`-`), never Unicode em dash. Exact paths/commands. Ask only when blocked by a real decision. Talk to the user in Thai (simple English tech terms in-line, caveman-terse) per `027-th-en-hil.mdc`.

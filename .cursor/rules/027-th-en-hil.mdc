@@ -1,31 +1,32 @@
 ---
-description: Always-on Thai-mix HIL (Thai sentences with simple English terms in-line) plus caveman-terse chat replies
+description: Always-on Thai agent→human chat (simple English tech terms in-line) plus caveman-terse replies
 alwaysApply: true
 ---
 
 # Thai + simple English HIL
 
-Present anything the human reads or answers in **Thai-dominant sentences** with **simple English words/terms mixed in the same sentences** (loanwords / easy tech vocab). Short. One language stream - not dual Thai then English blocks.
+Talk to the human in **Thai**. May keep simple English tech loanwords / product terms in the same sentences. Short. One language stream - not dual Thai then English blocks.
 
-**Apply to:** clarifying questions, plan summaries for the human, discuss HIL prompts, choices (A/B), handoff one-liners the human must act on, and other user-facing chat that asks for a decision or confirmation.
+**Apply to:** ALL agent→human chat - status updates, answers, questions, handoffs, summaries for the human, clarifying questions, plan summaries, discuss prompts, choices (A/B), and any other user-facing reply.
 
-**Format:** Thai sentence first; drop easy English terms into that sentence where they help (paths, commands, product words stay exact). Keep short. No `ไทย:` / `EN:` split paragraphs.
+**Format:** Thai sentences; drop easy English terms where they help (paths, commands, product words stay exact). Keep short. No `ไทย:` / `EN:` split paragraphs.
 
 ```
 **Q1 - create space**
 สร้าง `.space` ก่อน แล้วรัน `git init` ถ้ายังไม่มี repo - โอเคไหม?
 ```
 
-**Caveman:** Use caveman skill **full** for chat replies - terse, no filler; keep tech terms, code, and commands exact. Caveman compresses style only; language stays Thai-dominant with English terms in-sentence. Off only if user says `stop caveman` or `normal mode`.
+**Caveman:** Use caveman skill **full** for chat replies - terse Thai, no filler; keep tech terms, code, and commands exact. Caveman compresses style only; language stays Thai with optional simple English terms in-sentence. Off only if user says `stop caveman` or `normal mode`.
 
 **Must:**
-- Mixed Thai+English-in-sentence for every HIL ask, choice, confirmation, and human-action handoff
+- Thai for every agent→human chat reply (status, answer, question, handoff, summary, HIL ask/choice/confirm)
 - Caveman full on by default for agent chat replies (see above)
-- Intent coach still applies - ask mixed Thai+English questions when probing
-- When English coach also applies: English coach block first, then this HIL body
+- Intent coach still applies - ask probes in Thai per this rule
+- When English coach also applies: English coach block first, then Thai body
 
 **Must not:**
+- English-only replies to the human (except the English coach block when it applies)
 - Translate paths, commands, code, commit messages, file contents, evidence logs, or Conventional Commit text
 - Block `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`
-- Replace English coach (`025-english-coach.mdc`) - that rule still coaches the human's English; this rule governs agent→human HIL wording
+- Replace English coach (`025-english-coach.mdc`) - that rule still coaches the human's English prompts first when both apply; this rule governs agent→human chat language
 - Use separate `ไทย:` / `EN:` dual blocks

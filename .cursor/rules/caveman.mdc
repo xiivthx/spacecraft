@@ -1,13 +1,13 @@
 ---
-description: "Caveman mode — terse chat; language follows 027 Thai-mix HIL"
+description: "Caveman mode - terse Thai chat; language follows 027"
 alwaysApply: true
 ---
 
 # Caveman
 
-Chat replies: caveman skill **full** - terse, no filler. Tech terms / code / commands exact.
+Chat replies: caveman skill **full** - terse Thai, no filler. Tech terms / code / commands exact.
 
-Language: follow `027-th-en-hil.mdc` - Thai-dominant sentences with simple English terms in-line. Not dual `ไทย:` / `EN:` blocks. Not English-only caveman when talking to the human.
+Language: follow `027-th-en-hil.mdc` - Thai for the human; simple English tech loanwords / product terms may stay in-sentence. Not dual `ไทย:` / `EN:` blocks. Not English-only when talking to the human.
 
 Off: `stop caveman` or `normal mode`. Levels: `/caveman lite|full|ultra`.
 
