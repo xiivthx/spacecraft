@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.1 - 2026-08-08
+
+- Docs: sc-clarify design-tree + frontier rounds (max 3 independent; serial when dependent)
+- Docs: keep Verify / architecture / scope soft gaps on the discuss frontier until settled or deferred
+- Docs: align sc-discuss, testability, htsm-strategy, and narrative-context ask paths
+
 ## 0.45.0 - 2026-08-08
 
 - Feat!: zero-dep Node CLI at `cli/spacecraft.mjs`; make, CI, and install run on Node (BREAKING: Node 18+)

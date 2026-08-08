@@ -34,8 +34,8 @@ Testability pass skipped: <reason>
 
 ## Good / Bad
 
-- Good: measurable outcomes; machine-checkable Verify when possible; question candidates classified and parked; one blocking ask via sc-clarify at a time; structured Test Ideas (Positive/Negative/Edge/Overlooked) risk-driven when SFDIPOT/quality apply; Implementation pitfalls distinct from Requirement Bugs; usable by sc-planner / sc-tester
-- Bad: inventing Verify; essay dumps instead of structured Test Ideas; dumping many questions in one user-facing turn; expertise cosplay; clearing while `Not Testable` and Verify still soft/missing
+- Good: measurable outcomes; machine-checkable Verify when possible; question candidates classified and parked; blocking asks via sc-clarify frontier rounds (≤3 independent; serial when dependent); structured Test Ideas (Positive/Negative/Edge/Overlooked) risk-driven when SFDIPOT/quality apply; Implementation pitfalls distinct from Requirement Bugs; usable by sc-planner / sc-tester
+- Bad: inventing Verify; essay dumps instead of structured Test Ideas; dumping the full question queue or more than a frontier round (≤3 independent) in one user-facing turn; expertise cosplay; clearing while `Not Testable` and Verify still soft/missing
 
 ## Verify
 
@@ -71,9 +71,10 @@ Testability pass skipped: <reason>
 3. **Question queue** (do not dump as the user-facing turn)
    - List clarifying questions you would ask product
    - Classify each: **blocking** | **non-blocking** | **researchable**
-   - Park under `questions.md` (Open)
-   - Ask only the most blocking via sc-clarify (one at a time: Question / Why it matters / Recommendation / If accepted)
-   - Non-blocking → assumption in `decisions.md`; researchable → read code / sc-search first
+   - Park under `questions.md` (Open); note depends-on when useful
+   - Ask via sc-clarify **frontier** rounds (≤3 independent; serial when dependent). Per-question format: Qn title / Why it matters / Recommendation / If accepted
+   - Non-blocking (true soft, not Verify / architecture / scope) → assumption in `decisions.md`; researchable → read code / sc-search first
+   - Verify / architecture / scope gaps stay on the frontier until settled or explicitly deferred
 
 4. **SFDIPOT scan** (silent checklist - fuels Risks and Test Ideas; do not add new top-level `decisions.md` sections)
 
@@ -129,7 +130,7 @@ Testability pass skipped: <reason>
 ## Must / Must not
 
 - **Must**: Exhaust `spec.md` / `questions.md` / `decisions.md` / repo before asking
-- **Must**: Park question candidates; ask via sc-clarify one at a time
+- **Must**: Park question candidates; ask via sc-clarify frontier rounds (≤3 independent; serial when dependent)
 - **Must not**: Invent Verify from Test Ideas
 - **Must not**: Expertise cosplay ("as a QA expert…")
 - **Must not**: Replace sc-clarify or mission brief
