@@ -40,7 +40,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 6. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
 
-7. **Verify (visual / draft-parity)** - After visual UI work: sc-ux-design Step 0 draft-parity (side-by-side vs approved draft **surface** - tokens, layout, chrome, states) then Tier 3 via `playwright-cli` (preferred) or Cursor IDE browser (fallback); optional `visual-verify.mjs`. Layout-only match with different chrome, or missing draft states, is blocking. Record screenshot paths in evidence / `decisions.md`. Fix before ready. Do not use system Chrome headless or browser-use/CDP.
+7. **Verify (visual / live-product + draft-parity)** - After visual UI work: start the app → Tier 3 on the **running product URL** via `playwright-cli` (preferred) or Cursor IDE browser (fallback); optional `visual-verify.mjs` against that URL → Step 0 draft-parity (side-by-side vs approved draft **surface** - tokens, layout, chrome, states) → Task(`sc-designer`) live critique (**live-product** + draft-parity). Layout-only match with different chrome, or missing draft states, is blocking. Record product URL + screenshot paths in evidence / `decisions.md`. Draft HTML serve alone does not satisfy live-product. Fix before ready. Do not use system Chrome headless or browser-use/CDP.
 
 8. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
 
@@ -61,8 +61,9 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Treat `[data-draft-surface]` in the approved draft as the **visual source of truth** - port structure, tokens, spacing, type, and component chrome; sync `DESIGN.md` from the surface; never port scaffold chrome.
 - **Must not**: Freestyle alternate buttons/inputs/tables/empty/error chrome that only vaguely match the draft layout.
 - **Must**: Map each draft `data-state` (surface-relevant set from the approved draft + `spec.md`) to product UI and/or tests.
-- **Must**: After visual UI implementation, pass Step 0 draft-parity then capture visual verification (`playwright-cli` or Cursor IDE browser; optional `visual-verify.mjs`) and functional test evidence before claiming done.
+- **Must**: After visual UI implementation, capture live product URL evidence (Tier 3 on running routes) and obtain Task(`sc-designer`) **live-product** pass, then pass Step 0 draft-parity, then functional test evidence before claiming done.
 - **Must not**: Use system Chrome headless or browser-use/CDP for visual verification.
+- **Must not**: Claim visual done from draft HTML serve alone - live-product requires the running product URL.
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
 - **Must**: Prefer small vertical **feature** slices over broad horizontal scaffolding; within each slice, build or upgrade `components/ui` primitives before composing the page.
 - **Must**: Prefer reusing the project's per-app `components/ui/` catalog for draft-named chrome; do not install third-party UI kits (daisyUI, MUI, …) or create a cross-repo design-system package without user approval.
@@ -124,7 +125,7 @@ Page: composed from primitives + feature components
 Verify:
   npx vitest run → PASS
   npm run build → PASS
-  draft-parity + visual-verify / screenshots → PASS
+  live-product (product URL + screenshots) + draft-parity + designer pass → PASS
 Evidence: <label>
 ```
 
@@ -142,7 +143,8 @@ Before claiming frontend work done:
 - [ ] Styles applied via Tailwind utility classes, scoped to component
 - [ ] If the project has Storybook, new `ui/*` primitives have stories (catalog aid - not a ship gate)
 - [ ] Component / functional tests pass (`npx vitest run` or project suite)
-- [ ] Draft-parity + visual recheck: `playwright-cli` or Cursor IDE browser screenshots captured
+- [ ] Live product recheck: running product URL opened; `playwright-cli` or Cursor IDE browser screenshots at 375 / 768 / 1280 (+ 1536 when multi-region)
+- [ ] Task(`sc-designer`) **live-product** + draft-parity pass
 - [ ] Build passes (`npm run build`)
 - [ ] Evidence captured with `spacecraft evidence`
 - [ ] No unapproved dependencies

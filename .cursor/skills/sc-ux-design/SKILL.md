@@ -16,7 +16,7 @@ Activate on:
 - **"Visual verify" / "visual test" / "browser check"** - playwright-cli / Cursor IDE browser visual verification (post-build)
 - **"UI quality check"** - comprehensive UX quality review
 - During `/sc-discuss` for visual UI/FE - design brief + draft checkpoint
-- During `/sc-run` after visual implementation - Tier 3 recheck + draft-parity (not draft discovery)
+- During `/sc-run` after visual implementation - Tier 3 live product recheck + draft-parity (not draft discovery)
 
 ## Workflow
 
@@ -121,18 +121,21 @@ Run after implementation:
 - **Hero metric layout**: Big number + small label + three supporting stats in a row? If not real data → flag.
 - **Identical card grids**: Same-sized cards repeated with icon + heading + text? If no differentiation → flag.
 
-**Tier 3 - Browser visual check** (**required** after visual UI implementation):
+**Tier 3 - Live product visual check** (**required** after visual UI implementation):
+
+Target the **running product URL** (start the app; open real product routes). Draft HTML serve alone is not live product review and does not satisfy **live-product** for ready.
 
 Canonical browser matrix (do not expand):
 1. **Vitest + happy-dom** — behavior only (not visual pixels)
-2. **`playwright-cli`** — primary real-browser visual / interact (`open` → `snapshot` / `screenshot`; resize 375/768/1280); compare app screenshots to approved draft states (side-by-side LLM/browser review)
+2. **`playwright-cli`** — primary real-browser visual / interact on the product URL (`open` → `snapshot` / `screenshot`; resize 375/768/1280, + 1536 when multi-region); compare live app screenshots to approved draft states (side-by-side LLM/browser review)
 3. **Cursor IDE browser** (`cursor-ide-browser` MCP) — fallback when `playwright-cli` cannot run
 
 Optional scripted audit (same Playwright family):  
-`node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <html-file-or-url>`  
-(3 viewports, overflow/clip audits, JSON report). Install: `cd .cursor/skills/sc-ux-design && npm install`.
+`node .cursor/skills/sc-ux-design/scripts/visual-verify.mjs <product-url>`  
+(3 viewports, overflow/clip audits, JSON report). Install: `cd .cursor/skills/sc-ux-design && npm install`. Prefer a product URL here when claiming live-product.
 
-- Capture screenshot paths in evidence / `decisions.md`; fix blocking visual issues and draft-parity gaps before `ready`.
+- Capture screenshot paths in evidence / `decisions.md`; Task(`sc-designer`) live critique (**live-product** + draft-parity); fix blocking visual issues, live-product gaps, and draft-parity gaps before `ready`.
+- **live-product** pass required before claiming UI ready (fail-closed; `uncertain` blocks).
 - **Do not use** system Chrome headless or browser-use/CDP for Tier 3 (removed from the official matrix).
 
 ## Rules
@@ -187,7 +190,8 @@ Optional scripted audit (same Playwright family):
 
 ### Visual recheck
 
-- **Must**: After visual UI implementation, run Step 0 draft-parity against the approved draft, then Tier 3 with `playwright-cli` (preferred) or Cursor IDE browser (fallback); record screenshot paths.
+- **Must**: After visual UI implementation, start the app and run Tier 3 against the **running product URL** with `playwright-cli` (preferred) or Cursor IDE browser (fallback); record screenshot paths; then Step 0 draft-parity; then Task(`sc-designer`) for **live-product** + draft-parity.
+- **Must**: Require **live-product** pass before claiming UI ready. Draft HTML serve alone does not satisfy live product review.
 - **Must**: Flag layout-only match with different chrome, or missing draft states in the product, as blocking issues.
 - **Must**: Pair visual recheck with functional tests (Vitest/RTL or project suite) via `spacecraft evidence` before claiming UI ready.
 - **Must not**: Use system Chrome headless or browser-use/CDP as the visual gate.
@@ -261,7 +265,8 @@ Before claiming UI implementation is ready:
 - [ ] 5 LLM-only patterns reviewed with concrete heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids)
 - [ ] Animation: durations in range, easing rules followed, reduced-motion respected
 - [ ] No banned fonts (Inter/Geist/Space Grotesk) without deliberate pairing
-- [ ] Tier 3 visual verification via `playwright-cli` or Cursor IDE browser; paths recorded; side-by-side vs draft
+- [ ] Tier 3 live product verification on running product URL via `playwright-cli` or Cursor IDE browser; paths recorded; side-by-side vs draft
+- [ ] Task(`sc-designer`) live critique: **live-product** + draft-parity pass (fail-closed)
 - [ ] Functional tests passed with `spacecraft evidence`
 
 ## References

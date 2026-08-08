@@ -15,8 +15,10 @@ Spacecraft harness process for missions with visual UI. This is not a product fe
 | Phase | Use |
 |-------|-----|
 | `/sc-discuss` | Designer gate before `UI draft approved` |
-| `/sc-run` | Draft-parity (Step 0), anti-slop, Tier 3 visual verify |
+| `/sc-run` | Draft-parity (Step 0), anti-slop, Tier 3 live product review on the running product URL |
 | Review / judge | `sc-reviewer` findings; `sc-judge` draft drift hunt |
+
+**Live product review** is required before visual `ready`: start the app, open real product routes, capture screenshots, and pass the **live-product** dimension (fail-closed). Draft HTML serve alone does not satisfy that gate. Human browser check stays after ready.
 
 ## Source of truth for agents
 
