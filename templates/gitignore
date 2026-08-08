@@ -58,3 +58,4 @@ Thumbs.db
 
 # Spacecraft
 .space/
+.codegraph/

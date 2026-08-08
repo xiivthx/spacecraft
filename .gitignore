@@ -58,9 +58,9 @@ Thumbs.db
 
 # Spacecraft
 .space/
+.codegraph/
 
 # Repo-local
 /spacecraft
 signs/
-.codegraph/spacecraft
 bin/

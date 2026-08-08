@@ -5,7 +5,7 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 ## What it provides
 
 - Mission workflow from scope and planning through implementation, verification, review, and shipping
-- Local mission artifacts and evidence under `.space/` (gitignored; first-use ensure may `git init` and write starter `.gitignore` from `templates/gitignore`)
+- Local mission artifacts and evidence under `.space/` (gitignored; first-use ensure may `git init`, write starter `.gitignore` from `templates/gitignore`, and soft-run `codegraph init` when no `.codegraph/` index exists - warn and continue on missing binary or failure)
 - Cursor-native rules, agents, skills, hooks, and MCP configuration under `.cursor/`
 - Git safety with feature branches, Conventional Commits, and an explicit ship gate
 - Specialized support for application development, testing, design, architecture, and embedded firmware
@@ -48,7 +48,7 @@ Project layer (per repo) still installs domain packs locally - no User `--full` 
 ./bootstrap.sh /path/to/project
 ```
 
-Bootstrap / `install-cursor` first `.space` create also ensures git (init if needed) and starter `.gitignore` with `.space/`.
+Bootstrap / `install-cursor` first `.space` create also ensures git (init if needed), starter `.gitignore` with `.space/`, and may soft-run `codegraph init` when no `.codegraph/` index exists (warn and continue on missing binary or failure).
 
 When working from a clone of this repository, build and install with:
 
@@ -119,7 +119,7 @@ The CLI is Node (`cli/spacecraft.mjs`). Run the checkout link as `./spacecraft`,
 
 | Command | Purpose |
 |---|---|
-| `spacecraft init` | Initialize `.space/` (git init if needed; starter `.gitignore` with `.space/` on first create) |
+| `spacecraft init` | Initialize `.space/` (git init if needed; starter `.gitignore` with `.space/` on first create; may soft-run `codegraph init` when no `.codegraph/` index) |
 | `spacecraft new <title>` | Create a mission with a generated ID |
 | `spacecraft missions` | List missions |
 | `spacecraft use <number\|id\|title>` | Select the current mission |

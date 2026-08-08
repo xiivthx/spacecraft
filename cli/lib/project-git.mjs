@@ -62,14 +62,36 @@ function writeGitignoreFromTemplate(projectRoot) {
   copyFileSync(templatePath, path.join(projectRoot, '.gitignore'));
 }
 
+/** Soft-run `codegraph init` when the index DB is missing; never throw. */
+function ensureCodegraph(projectRoot) {
+  if (existsSync(path.join(projectRoot, '.codegraph', 'codegraph.db'))) return;
+  const result = spawnSync('codegraph', ['init'], {
+    cwd: projectRoot,
+    encoding: 'utf8',
+  });
+  if (result.error?.code === 'ENOENT') {
+    console.error('warning: codegraph not found; skip index init');
+    return;
+  }
+  if (result.status !== 0) {
+    const detail = (result.stderr || result.stdout || result.error?.message || '').trim();
+    console.error(
+      detail
+        ? `warning: codegraph init failed: ${detail}`
+        : 'warning: codegraph init failed',
+    );
+  }
+}
+
 /**
  * First `.space` create: scaffold dirs, git init if needed, overwrite `.gitignore`
- * from `templates/gitignore`.
+ * from `templates/gitignore`, soft-init codegraph when missing.
  */
 export function ensureProjectReady(projectRoot) {
   ensureSpaceDirs(projectRoot);
   ensureGitRepo(projectRoot);
   writeGitignoreFromTemplate(projectRoot);
+  ensureCodegraph(projectRoot);
 }
 
 /**
