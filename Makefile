@@ -1,5 +1,5 @@
 .PHONY: build install install-cli install-project install-global install-machine smoke uninstall clean help \
-        test test-go test-config test-install test-gen-user-rules test-judge-break gate
+        test test-cli test-config test-install test-gen-user-rules test-judge-break gate
 
 ROOT      := $(CURDIR)
 BIN       := $(ROOT)/spacecraft
@@ -9,38 +9,33 @@ PROJECT   ?= .
 
 help:
 	@echo "Spacecraft targets:"
-	@echo "  build           Build cmd/spacecraft -> ./spacecraft"
-	@echo "  test            Full verification: go tests + vet + gofmt + config + judge-break + install smoke"
-	@echo "  test-go         Go unit tests, go vet, gofmt check (cmd/spacecraft)"
+	@echo "  build           Link Node CLI (cli/spacecraft.mjs) -> ./spacecraft"
+	@echo "  test            Full verification: Node CLI tests + config + judge-break + install smoke"
+	@echo "  test-cli        Node CLI unit tests (cli/test/)"
 	@echo "  test-config     Static config smoke (mcp/hooks JSON, frontmatter, no commands/)"
 	@echo "  test-judge-break  Known-bad closeout fixtures must be rejected"
 	@echo "  test-install    Bootstrap/install smoke into a throwaway temp dir"
 	@echo "  test-gen-user-rules  RED/GREEN test for scripts/gen-user-rules.sh"
-	@echo "  gate            Go tests + Cursor hook unit tests (hooks_test.sh)"
+	@echo "  gate            Node CLI tests + Cursor hook unit tests (hooks_test.sh)"
 	@echo "  install         build + link CLI into ~/.local/bin + smoke check"
 	@echo "  install-project Install full .cursor surface into PROJECT=<dir> (default .)"
-	@echo "  install-global  Install agents + skills + MCP into ~/.cursor and link CLI (careful)"
-	@echo "  install-machine Build CLI + one-shot User-layer install via scripts/install-machine.sh"
+	@echo "  install-global  Install agents + lean-core skills + MCP into ~/.cursor (careful)"
+	@echo "                  SPACECRAFT_SKILL_PROFILE=full (or FULL=1) keeps domain encyclopedias"
+	@echo "  install-machine Link Node CLI + one-shot User-layer install via scripts/install-machine.sh"
 	@echo "  smoke           Run post-install smoke checks (PROJECT=<dir>)"
 	@echo "  uninstall       Remove CLI link + spacecraft MCP/agents/skills from ~/.cursor"
-	@echo "  clean           Remove built binary"
+	@echo "  clean           Remove ./spacecraft CLI link"
 
 # Full verification suite. Runs everything CI runs; humans use `make test`.
-test: test-go test-config test-judge-break test-install
+test: test-cli test-config test-judge-break test-install
 	@echo "All tests passed."
 
-# Local pre-ship / PR gate: Go unit tests plus Cursor hook assertions.
-gate: test-go
+# Local pre-ship / PR gate: Node CLI tests plus Cursor hook assertions.
+gate: test-cli
 	bash $(ROOT)/.cursor/hooks/hooks_test.sh
 
-test-go:
-	go -C $(ROOT)/cmd/spacecraft test ./...
-	go -C $(ROOT)/cmd/spacecraft vet ./...
-	@unformatted=$$(gofmt -l $(ROOT)/cmd/spacecraft); \
-	if [ -n "$$unformatted" ]; then \
-		echo "gofmt needs to run on:"; echo "$$unformatted"; exit 1; \
-	fi
-	@echo "gofmt clean"
+test-cli:
+	node --test $(ROOT)/cli/test/*.test.mjs
 
 test-config:
 	@sh $(ROOT)/scripts/config-smoke.sh "$(ROOT)"
@@ -60,9 +55,10 @@ test-gen-user-rules:
 	@sh $(ROOT)/scripts/test-gen-user-rules.sh "$(ROOT)"
 
 build:
-	cd $(ROOT)/cmd/spacecraft && go build -o $(BIN) .
+	chmod +x $(ROOT)/cli/spacecraft.mjs
+	ln -sf $(ROOT)/cli/spacecraft.mjs $(BIN)
 
-# Safe default: build the CLI, link it, and validate. Config stays project-local
+# Safe default: wire the Node CLI, link it, and validate. Config stays project-local
 # (this repo already carries .cursor/ and .space/).
 install: build install-cli smoke
 
@@ -76,27 +72,35 @@ install-project:
 	@sh $(ROOT)/scripts/install-cursor.sh "$(PROJECT)" "$(ROOT)"
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"
 
-# Global Cursor install. Never writes ~/.cursorrules. Copies agents + skills,
-# merges MCP servers; leaves unrelated global config untouched.
+# Global Cursor install. Never writes ~/.cursorrules. Copies agents + skills
+# (SPACECRAFT_SKILL_PROFILE=lean default; FULL=1 or SPACECRAFT_SKILL_PROFILE=full
+# for domain encyclopedias); merges MCP servers; leaves unrelated global config
+# untouched. Lean reconcile prunes spacecraft-managed domain packs under skills/.
+# FULL=1 is a documented --full equivalent for make install-global.
 install-global: build install-cli
-	@sh $(ROOT)/scripts/global-sync.sh "$(ROOT)" "$(GLOBAL)" agents install
-	@echo "agents -> $(GLOBAL)/agents"
-	@sh $(ROOT)/scripts/global-sync.sh "$(ROOT)" "$(GLOBAL)" skills install
-	@echo "skills -> $(GLOBAL)/skills (sc-*)"
-	@test -f "$(GLOBAL)/skills/sc-run/SKILL.md"
-	@test -f "$(GLOBAL)/skills/sc-ship/SKILL.md"
-	@test -f "$(GLOBAL)/skills/sc-quick/SKILL.md"
-	@test -f "$(GLOBAL)/skills/sc-storm/SKILL.md"
-	@test -f "$(GLOBAL)/skills/sc-discuss/references/lens-pass.md"
-	@test -f "$(GLOBAL)/skills/sc-judge/references/judge-break/empty-evidence/expect.json"
-	@python3 $(ROOT)/scripts/mcp-merge.py merge "$(GLOBAL)/mcp.json" "$(ROOT)/.cursor/mcp.json"
-	@sh $(ROOT)/scripts/install-global-hooks.sh "$(ROOT)" "$(GLOBAL)"
-	@sh $(ROOT)/scripts/gen-user-rules.sh "$(ROOT)/.cursor/rules" "$(GLOBAL)/spacecraft/USER-RULES.txt"
-	@echo "user rules -> $(GLOBAL)/spacecraft/USER-RULES.txt (paste into Settings > Rules > User Rules)"
-	@echo "Global install complete. Restart Cursor to pick up /sc-run, /sc-ship, /sc-quick, and sc-storm."
+	@profile="$(SPACECRAFT_SKILL_PROFILE)"; \
+	if [ "$(FULL)" = "1" ]; then profile=full; fi; \
+	if [ -z "$$profile" ]; then profile=lean; fi; \
+	export SPACECRAFT_SKILL_PROFILE="$$profile"; \
+	sh $(ROOT)/scripts/global-sync.sh "$(ROOT)" "$(GLOBAL)" agents install; \
+	echo "agents -> $(GLOBAL)/agents"; \
+	sh $(ROOT)/scripts/global-sync.sh "$(ROOT)" "$(GLOBAL)" skills install; \
+	echo "skills -> $(GLOBAL)/skills ($$profile)"; \
+	test -f "$(GLOBAL)/skills/sc-run/SKILL.md"; \
+	test -f "$(GLOBAL)/skills/sc-ship/SKILL.md"; \
+	test -f "$(GLOBAL)/skills/sc-quick/SKILL.md"; \
+	test -f "$(GLOBAL)/skills/sc-storm/SKILL.md"; \
+	test -f "$(GLOBAL)/skills/sc-discuss/references/lens-pass.md"; \
+	test -f "$(GLOBAL)/skills/sc-judge/references/judge-break/empty-evidence/expect.json"; \
+	python3 $(ROOT)/scripts/mcp-merge.py merge "$(GLOBAL)/mcp.json" "$(ROOT)/.cursor/mcp.json"; \
+	sh $(ROOT)/scripts/install-global-hooks.sh "$(ROOT)" "$(GLOBAL)"; \
+	sh $(ROOT)/scripts/gen-user-rules.sh "$(ROOT)/.cursor/rules" "$(GLOBAL)/spacecraft/USER-RULES.txt"; \
+	echo "user rules -> $(GLOBAL)/spacecraft/USER-RULES.txt (paste into Settings > Rules > User Rules)"; \
+	echo "Global install complete. Restart Cursor to pick up /sc-run, /sc-ship, /sc-quick, and sc-storm."
 
-# One-shot machine install: build CLI, then clone/update + User-layer via script.
-install-machine: build
+# One-shot machine install: link Node CLI, then clone/update + User-layer via script.
+install-machine: install-cli
+	@echo "install-cli -> $(LOCAL_BIN)/spacecraft; User-layer via scripts/install-machine.sh"
 	@sh $(ROOT)/scripts/install-machine.sh
 
 smoke:

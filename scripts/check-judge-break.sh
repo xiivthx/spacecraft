@@ -10,6 +10,9 @@ set -e
 
 ROOT="${1:-.}"
 BIN="${2:-}"
+
+# Resolve before run_fixture cds into temp (relative BIN would break).
+ROOT="$(cd "$ROOT" && pwd)"
 FIXDIR="$ROOT/.cursor/skills/sc-judge/references/judge-break"
 
 if [ ! -d "$FIXDIR" ]; then
@@ -27,6 +30,11 @@ if [ -z "$BIN" ]; then
     exit 1
   fi
 fi
+
+case "$BIN" in
+  /*) ;;
+  *) BIN="$(cd "$(dirname "$BIN")" && pwd)/$(basename "$BIN")" ;;
+esac
 
 if [ ! -x "$BIN" ]; then
   echo "FAIL: not executable: $BIN"

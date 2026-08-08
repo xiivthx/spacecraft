@@ -7,7 +7,7 @@
 #   curl -fsSL <raw-url>/bootstrap.sh | sh -s -- /path/to/project
 #
 # Installs the full .cursor surface (rules, agents, skills, hooks, merged MCP)
-# and a .space scaffold into the target project, builds the CLI when Go is
+# and a .space scaffold into the target project, links the Node CLI when Node is
 # available, and runs post-install smoke checks. Never writes ~/.cursorrules.
 set -e
 
@@ -17,8 +17,8 @@ REPO_REF="${SPACECRAFT_REF:-main}"
 echo "Spacecraft bootstrap"
 echo "===================="
 
-# Resolve the target to an absolute path up front so every later step (build
-# output, smoke check, final messages) can use it without re-resolving.
+# Resolve the target to an absolute path up front so every later step (CLI
+# link, smoke check, final messages) can use it without re-resolving.
 mkdir -p "${1:-.}"
 TARGET=$(CDPATH= cd -- "${1:-.}" && pwd)
 
@@ -59,7 +59,7 @@ trap cleanup EXIT INT TERM
 # Install the config surface + scaffold + merged MCP.
 sh "$SRC/scripts/install-cursor.sh" "$TARGET" "$SRC"
 
-# Build (preferred) or fetch the CLI binary.
+# Link the Node CLI (cli/spacecraft.mjs) into the target when Node is available.
 BIN="$TARGET/spacecraft"
 sh "$SRC/scripts/install-binary.sh" "$TARGET" "$SRC" "$REPO_URL"
 
