@@ -21,7 +21,7 @@ Activate when the user asks to:
 Use this exact sequence unless the user specifies otherwise:
 
 1. **Resolve mission** - Before git work on a mission, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`. Skip for `/sc-quick` (no mission).
-2. **Check git state** - Run `spacecraft git-info` before committing/merging/releasing.
+2. **Check git state** - Run `git status`, `git rev-parse`, and related plain git checks before committing/merging/releasing.
 3. **Branch** - Create a non-main work branch from latest `main` before mutating. Never write product changes on `main`.
 4. **Commit (AFK checkpoints)** - During `/sc-run` build, auto-commit after every RED, GREEN, triage-skip direct-write+evidence, and post-feature refactor (see §Checkpoint commits). These are WIP on the work branch only.
 5. **Squash before ship** - On `/sc-ship`, squash/fixup checkpoints into 1–3 logical Conventional Commits (max 5) before merge. See sc-ship. `/sc-quick` keeps 1–3 commits (no mission squash ceremony).
@@ -37,7 +37,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Treat git as the rollback and release boundary for mutating work.
 - **May**: Discovery, clarification, design, planning, and review may run without git.
 - **Must**: Before git work on a mission, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <number|id|title>` or `SPACECRAFT_MISSION`. Skip resolve for `/sc-quick`.
-- **Must**: Before committing/merging/releasing, run `spacecraft git-info`.
+- **Must**: Before committing/merging/releasing, inspect git state with plain git (`git status`, `git rev-parse`, etc.).
 - **Must not**: Write product changes on `main`. If on `main` when mutation is requested, create a work branch.
 - **Must not**: Auto-run `git init`, create worktrees, rebase, merge, tag, or push unless asked.
 - **Must**: Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization from the conversation. Mission local ship still requires `/sc-ship` + hooks + `SPACECRAFT_SHIP=1`. `/sc-quick` authorizes local merge/tag in that lane (hooks + `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`); push still needs separate AUTH. AUTH does not bypass ship hooks.
@@ -166,5 +166,4 @@ Before claiming git work is done:
 ## References
 
 - `spacecraft resolve --help` - resolver subcommand
-- `spacecraft git-info` - git state inspection
 - `spacecraft closeout-check --help` - closeout verification

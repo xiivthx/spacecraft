@@ -36,7 +36,8 @@ Canonical: `.cursor/rules/200-workflow.mdc`. This skill is ship only after human
 
 ```
 spacecraft validate --strict
-spacecraft git-info
+git status -sb
+git rev-parse --abbrev-ref HEAD
 git log main..HEAD --oneline -- CHANGELOG.md | grep -q . || { echo "FAIL: CHANGELOG.md not updated"; exit 1; }
 spacecraft closeout-check
 ```

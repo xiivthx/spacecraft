@@ -111,6 +111,7 @@ Auto-commit after every RED, GREEN, skip+evidence, combine, and material fix. Co
 - One feature branch per mission id; Task-delegate product code/tests.
 - Ready only after `sc-judge` `VERIFIED` and empty review findings (any severity blocks). Never ready on `REFUTED` or caveat soft-pass.
 - Must fix blockers after plan+combine(+UI); report fixes in the run summary.
+- After feature/command cuts: rewrite survivors as current product only (Cut hygiene in `000-spacecraft.mdc`) - no tombstones in prompts/docs/tests.
 - After 3 failed fix-verify on the same issue → human.
 
 ## References

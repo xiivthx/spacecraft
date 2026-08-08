@@ -33,6 +33,7 @@ Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (se
 - Threats, tips, or career-stakes framing
 - Expertise cosplay (including STORM lenses as personas instead of jobs)
 - Forced chain-of-thought on reasoning models
+- Tombstones after cuts - "formerly", "no longer", "removed", "deprecated in favor of", named absences. Rewrite survivors as the **current** product only (Cut hygiene in `.cursor/rules/000-spacecraft.mdc`).
 
 Role names (Commander, Coder, Tester) are routing contracts, not expertise claims.
 

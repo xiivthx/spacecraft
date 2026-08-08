@@ -36,6 +36,7 @@ Commander auto-commits after verify passes - do not commit yourself unless asked
 - Rhythm mix (short/medium/long sentences) when narrative/user-facing prose needs engagement
 - Context harvest via `narrative-context.md` when high-stakes narrative context is thin
 - Wording/structure changes only - policy, gates, and behavior stay as-is
+- **Must** (cut hygiene): after a feature/command/doc cut, rewrite survivors as the **current** product only - positive craft, no tombstone phrasing about the deleted thing
 
 ## Bad
 
@@ -47,6 +48,7 @@ Commander auto-commits after verify passes - do not commit yourself unless asked
 - Expertise cosplay
 - Changing what a gate, rule, or check *does* while editing its wording - if a wording change would alter runtime behavior or policy, stop and report it instead of making it
 - Files outside the requested scope
+- Tombstones after cuts ("formerly", "no longer", "removed", named absences of the deleted thing)
 
 ## Verify
 

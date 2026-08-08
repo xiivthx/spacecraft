@@ -45,9 +45,9 @@ Do **not** invent a mission stub. If `spacecraft resolve` finds a mission, prefe
 ## Pre-flight
 
 ```
-spacecraft git-info
 git status -sb
 git branch --show-current
+git rev-parse --abbrev-ref HEAD
 ```
 
 - Not a git worktree → stop (unless user accepts no-git risk in chat).
