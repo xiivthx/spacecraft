@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.47.2 - 2026-08-09
+
+- Docs: mission brief presents Goal / Will do / Impact / Extra bullets; Wrong-if and tradeoffs stay under Extra (no I/Q/A cards)
+
 ## 0.47.1 - 2026-08-09
 
 - Docs: live product UX review fail-closed before visual ready; require paired draft-surface + live screenshot compare for draft-parity
