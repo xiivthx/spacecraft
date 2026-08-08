@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.44.19 - 2026-08-08
+
+- Docs: drop pinned model frontmatter from spacecraft Task agents (inherit Cursor model selection)
+- Docs: drop readonly frontmatter on sc-designer, sc-planner, and sc-reviewer
+
 ## 0.44.18 - 2026-08-07
 
 - Docs: add fail-closed UX/UI review gates (deterministic first, per-dimension pass/fail/uncertain)
