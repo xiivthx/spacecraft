@@ -1,6 +1,5 @@
 ---
 name: sc-adviser
-model: claude-opus-5[thinking=true,effort=high,fast=false]
 description: Advises on complex architecture and multi-file design. Use proactively for hard design; not routine fixes.
 readonly: true
 ---

@@ -1,6 +1,5 @@
 ---
 name: sc-tester
-model: grok-4.5[effort=high,fast=false]
 description: Writes failing tests and captures verification evidence. Use proactively for Red tests and evidence.
 ---
 

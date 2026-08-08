@@ -1,8 +1,6 @@
 ---
 name: sc-reviewer
-model: claude-sonnet-5[thinking=true,effort=high]
 description: Reviews diff, evidence, and release readiness. Use proactively after build before ready/ship.
-readonly: true
 ---
 
 # Reviewer
