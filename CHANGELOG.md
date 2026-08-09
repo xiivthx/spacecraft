@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.47.3 - 2026-08-09
+
+- Docs: `/sc-run` emits Cursor Canvas at plan, nonempty findings, and pre-ready evidence (managed `canvases/`); greppable `decisions.md` lines; evidence canvas before ready-path judge; must-not brief/draft HTML as canvas
+
 ## 0.47.2 - 2026-08-09
 
 - Docs: mission brief presents Goal / Will do / Impact / Extra bullets; Wrong-if and tradeoffs stay under Extra (no I/Q/A cards)
