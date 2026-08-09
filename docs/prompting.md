@@ -26,7 +26,17 @@ If unclear: research first; ask for preferences or unverifiable bars via `/sc-di
 
 ## Inner-loop gates (Quick + Mission)
 
-Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission runs `sc-judge` (adversarial prove; ready only on `VERIFIED`).
+Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission emits findings-or-skip then evidence canvas, then runs `sc-judge` (adversarial prove; ready only on `VERIFIED`).
+
+## Mission canvas artifacts (`/sc-run`)
+
+At plan, post-review findings-or-skip, and evidence (before `sc-judge` on the ready path), `/sc-run` writes Cursor Canvas files under managed `canvases/` only:
+
+`~/.cursor/projects/<workspace>/canvases/<missionId>-<kind>.canvas.tsx` (`kind` ∈ `plan` | `findings` | `evidence`).
+
+Ready-path order: findings-or-skip canvas → evidence canvas → `sc-judge` → `set-state ready` on `VERIFIED`.
+
+Record greppable lines in `decisions.md`: `Canvas plan: `, `Canvas findings: ` (or `Canvas findings skipped: empty`), `Canvas evidence:` - each with an absolute path when a file exists. Chat and `decisions.md` include absolute markdown links. Ready blocks if applicable lines are missing; gate is file existence + those lines only (do not inspect canvas TSX/JSON shape). Do **not** put canvases under mission `.space/` or repo `.cursor/`. Do **not** replace mission brief or draft HTML / visual SoT with a canvas (brief stays Accept/Adjust/Reject chat HIL; draft stays HTML).
 
 ## Avoid
 

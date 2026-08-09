@@ -56,6 +56,16 @@ Commander runs this layer in `/sc-run` **before** `Task(sc-reviewer)`:
 5. When performance in scope: capture measurement or documented baseline per `sc-performance`; flag unclear hot-path impact without evidence
 6. Only then: `Task(sc-reviewer)` (+ `Task(sc-designer)` / UX gates when visual UI)
 
+## Post-review canvas handoff
+
+After `review.json` is written, before `sc-judge` on the ready path:
+
+1. **Findings-or-skip:** nonempty `findings` → Commander writes `<missionId>-findings.canvas.tsx` under `~/.cursor/projects/<workspace>/canvases/`, appends `Canvas findings: ` + absolute path to `decisions.md`, and includes an absolute markdown link in chat (and `decisions.md`). Empty `findings` → append only `Canvas findings skipped: empty` (no findings canvas file).
+2. **Evidence canvas:** write `<missionId>-evidence.canvas.tsx` under managed `canvases/`; append `Canvas evidence: ` + absolute path; absolute markdown link in chat (and `decisions.md`).
+3. **Then** run `sc-judge`.
+
+Do not put canvases under mission `.space/` or repo `.cursor/`. Gate is file existence + greppable decisions lines only - do not inspect canvas TSX/JSON shape. See `/sc-run` Mission canvas milestones.
+
 ## Verdict mapping
 
 Per dimension, emit exactly one of:

@@ -154,3 +154,4 @@ When `Sizing:` is `phases` or `roadmap`, put Human-owned / Tradeoff stakes under
 - Pose a brief while Spec Mirror still has an empty/soft AFK-blocking slot
 - Force a fixed bullet count or brand-label the stake map in chat
 - Reintroduce Information / Question / Answer cards in the posed brief
+- Replace the mission brief (Accept/Adjust/Reject chat HIL) with a Cursor Canvas - brief stays chat + `decisions.md` records

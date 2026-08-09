@@ -52,6 +52,8 @@ Decide if mission diff + evidence satisfy spec/plan acceptance so the Commander 
 
 Handshake: `status: ready` **only if** `judgeVerdict` is `VERIFIED` **and** `findings` is empty (any severity blocks, including minor / warnings). If judge verdict is `REFUTED`, or any finding remains, output `status: blocked` (never `ready`); `releaseReadiness` must not be ready. Ready-gate blocked until remediated, drained, and re-judged.
 
+**Findings canvas handoff (Commander /sc-run):** When `findings` is nonempty, require `<missionId>-findings.canvas.tsx` under managed `canvases/` plus `Canvas findings: ` + absolute path in `decisions.md` (and absolute markdown link in chat). When `findings` is empty, only `Canvas findings skipped: empty` is required (no findings canvas file).
+
 ## Good
 
 - Critical findings block closeout
@@ -105,3 +107,4 @@ Commander runs `spacecraft validate --strict` and checks review `status` vs plan
 - Mission review: `uncertain` on a required dimension from mission-review-gates → Critical; status blocked (fail-closed).
 - Visual UI: `uncertain` on a required dimension from designer/review gates → Critical; status blocked (fail-closed).
 - Security in scope but no machine evidence and no heuristic `sc-security` pass → Critical; status blocked (fail-closed).
+- Nonempty findings without `Canvas findings:` decisions line (and matching findings canvas under managed `canvases/`) → Important for handoff; Commander must emit before continuing the review/fix loop. Empty findings without `Canvas findings skipped: empty` → same.
