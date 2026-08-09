@@ -19,7 +19,7 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 
 ## Installation
 
-Spacecraft installs in two layers: a **User layer** (once per machine) for agents, skills, MCP, the CLI, and global safety hooks - plus a generated `~/.cursor/spacecraft/USER-RULES.txt` you paste into Settings -> Rules -> User Rules so the seven `alwaysApply` rules (including English, intent, and Thai + simple English HIL coaches) apply in every workspace; and a **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo) for the domain rules (`300`-`620`), agents, skills, and project hooks.
+Spacecraft installs in two layers: a **User layer** (once per machine) for agents, skills, MCP, the CLI, and global safety hooks - plus a generated `~/.cursor/spacecraft/USER-RULES.txt` from six User-layer sources (`000-spacecraft`, `026-intent-coach`, `027-th-en-hil`, `050-style`, `100-conventions`, `200-workflow`). Paste that file into Settings -> Rules -> User Rules so Commander, workflow, intent coaching, Agent chat language, style, and conventions apply in every workspace; after each User-layer regen (`make install-global` / `make install-machine`), re-paste the updated file (human step - no Settings API automation). **Agent chat language:** English default for technical substance; Thai for HIL questions, short status, and handoff summaries. And a **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo) for the domain rules (`300`-`620`), agents, skills, and project hooks.
 
 **New PC** - User layer plus companion tools (caveman, rtk, codegraph) with Cursor wiring:
 

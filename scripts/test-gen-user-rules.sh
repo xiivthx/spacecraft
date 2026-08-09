@@ -1,9 +1,9 @@
 #!/bin/sh
 # test-gen-user-rules.sh - RED/GREEN test for scripts/gen-user-rules.sh (T1).
 #
-# Runs the generator over the alwaysApply rule sources
-# (000/025/026/027/050/100/200) and asserts:
-#   1. output body contains marker text from all seven sources
+# Runs the generator over the six User-layer rule sources
+# (000/026/027/050/100/200) and asserts:
+#   1. output body contains marker text from all six sources
 #   2. output strips rule frontmatter (no leading '---' fences, no
 #      'alwaysApply:' / 'description:' lines)
 #
@@ -39,9 +39,9 @@ if [ ! -f "$out" ]; then
   exit 1
 fi
 
-# --- Acceptance 1: marker text from all seven sources present in the body ---
+# --- Acceptance 1: marker text from all six sources present in the body ---
 missing=0
-for marker in 'Spacecraft' 'English prompt coach' 'Intent coach' 'Thai + simple English HIL' 'Coding Standards' 'Project Structure' 'Lane Detection'; do
+for marker in 'Spacecraft' 'Intent coach' 'Agent chat language' 'Coding Standards' 'Project Structure' 'Lane Detection'; do
   if ! grep -qF "$marker" "$out"; then
     echo "FAIL: missing marker from output body: $marker"
     missing=1
@@ -50,7 +50,7 @@ done
 if [ "$missing" -ne 0 ]; then
   exit 1
 fi
-echo "  ok   output body contains all seven source markers"
+echo "  ok   output body contains all six source markers"
 
 # --- Acceptance 2: rule frontmatter stripped ---
 if grep -n '^---$' "$out" >/dev/null; then

@@ -1,6 +1,6 @@
 ---
 description: Git safety, branch naming, commits, mission artifacts, evidence pattern
-alwaysApply: true
+alwaysApply: false
 ---
 
 ## Project Structure
