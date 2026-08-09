@@ -1,6 +1,6 @@
 ---
 description: Code style, naming conventions, and technique standards
-alwaysApply: true
+alwaysApply: false
 ---
 
 ## Coding Standards

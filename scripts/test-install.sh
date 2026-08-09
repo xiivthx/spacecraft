@@ -79,15 +79,20 @@ for skill in $project_domain_skills; do
 done
 echo "  ok   install-project places domain encyclopedia skills (no User --full required)"
 
-# T4 acceptance 2: install-project does NOT copy alwaysApply rules (000/025/
-# 026/027/050/100/200) into a project target distinct from the source repo.
-for rule in 000-spacecraft 025-english-coach 026-intent-coach 027-th-en-hil 050-style 100-conventions 200-workflow; do
+# T4: install-project omits User-layer basenames via explicit list (aligned with
+# gen-user-rules SOURCES: 000/026/027/050/100/200) — not alwaysApply: true only.
+for rule in 000-spacecraft 026-intent-coach 027-th-en-hil 050-style 100-conventions 200-workflow; do
   if [ -f "$tmp/.cursor/rules/$rule.mdc" ]; then
-    echo "FAIL: install-project copied alwaysApply rule $rule.mdc into project target $tmp"
+    echo "FAIL: install-project copied User-layer rule $rule.mdc into project target $tmp (must exclude by basename list)"
     exit 1
   fi
 done
-echo "  ok   install-project excludes alwaysApply rules from project target"
+# install-cursor.sh must name that exclude (USER_LAYER or the basename list).
+if ! grep -Eq 'USER_LAYER|000-spacecraft' "$ROOT/scripts/install-cursor.sh"; then
+  echo "FAIL: install-cursor.sh missing explicit User-layer basename exclude (USER_LAYER or 000-spacecraft)"
+  exit 1
+fi
+echo "  ok   install-project excludes User-layer basenames from project target"
 
 # STORM Tier 0/3: project install must land sc-storm + discuss lens-pass reference.
 test -f "$tmp/.cursor/skills/sc-storm/SKILL.md" \
@@ -170,11 +175,11 @@ echo "  ok   install-global full keeps domain encyclopedias; lean omits"
 user_rules="$fake_home/.cursor/spacecraft/USER-RULES.txt"
 test -f "$user_rules" \
   || { echo "FAIL: install-global did not write $user_rules"; exit 1; }
-for marker in 'Spacecraft' 'English prompt coach' 'Intent coach' 'Thai + simple English HIL' 'Coding Standards' 'Project Structure' 'Lane Detection' 'Graph vs Loop' 'Context budget'; do
+for marker in 'Spacecraft' 'Intent coach' 'Agent chat language' 'Coding Standards' 'Project Structure' 'Lane Detection' 'Graph vs Loop' 'Context budget'; do
   grep -q "$marker" "$user_rules" \
     || { echo "FAIL: USER-RULES.txt missing marker: $marker"; exit 1; }
 done
-echo "  ok   install-global generates USER-RULES.txt with seven-source markers (+ Graph vs Loop, Context budget)"
+echo "  ok   install-global generates USER-RULES.txt with six-source markers (+ Graph vs Loop, Context budget)"
 
 if [ -f "$fake_home/.cursorrules" ]; then
   echo "FAIL: install-global wrote legacy ~/.cursorrules"

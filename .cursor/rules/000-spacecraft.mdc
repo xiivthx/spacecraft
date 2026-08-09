@@ -1,6 +1,6 @@
 ---
 description: Spacecraft core identity, values, boundaries, and prompting
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Spacecraft
@@ -25,9 +25,6 @@ Keep **Goal**, **Output**, **Good vs Bad**, and **Verify** clear. Soft gaps mid-
 - Simplicity. Code not written has no bugs.
 - Honesty. "I don't know" and "I was wrong" are valid.
 - Quality over speed. Surgical changes only.
-- Always-on US English coaching (`025-english-coach.mdc`).
-- Always-on intent coaching (`026-intent-coach.mdc`) - ask before acting on vague requests.
-- Always-on Thai agent→human chat + caveman terse replies (`027-th-en-hil.mdc`) - talk to the user in Thai; simple English tech terms may stay in-line.
 
 ## Inner-loop gates (Fable)
 
@@ -55,4 +52,4 @@ When deleting a feature, command, or doc surface: rewrite surviving rules, skill
 
 ## Communication
 
-Technical substance only. Short nonessential updates. ASCII hyphen-minus (`-`), never Unicode em dash. Exact paths/commands. Ask only when blocked by a real decision. Talk to the user in Thai (simple English tech terms in-line, caveman-terse) per `027-th-en-hil.mdc`.
+Technical substance only. Short nonessential updates. ASCII hyphen-minus (`-`), never Unicode em dash. Exact paths/commands. Ask only when blocked by a real decision.

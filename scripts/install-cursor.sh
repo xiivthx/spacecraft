@@ -40,11 +40,15 @@ if [ "$TARGET_ABS" = "$SRC_ABS" ]; then
   echo "  source == target; config already in place, scaffolding .space only"
 else
   mkdir -p "$TARGET_ABS/.cursor/rules" "$TARGET_ABS/.cursor/agents" "$TARGET_ABS/.cursor/skills"
-  # Project layer gets domain/glob rules only (300-620); alwaysApply rules
-  # (000/025/026/027/050/100/200) are User layer via install-global's USER-RULES.txt.
+  # Project layer gets domain/glob rules only (300-620). User-layer basenames
+  # (aligned with gen-user-rules SOURCES / USER-RULES) stay out of the project.
+  USER_LAYER="000-spacecraft.mdc 026-intent-coach.mdc 027-th-en-hil.mdc 050-style.mdc 100-conventions.mdc 200-workflow.mdc"
   for rule in "$SRC_ABS"/.cursor/rules/*.mdc; do
     [ -f "$rule" ] || continue
-    grep -q '^alwaysApply: true$' "$rule" && continue
+    base=$(basename "$rule")
+    case " $USER_LAYER " in
+      *" $base "*) continue ;;
+    esac
     cp "$rule" "$TARGET_ABS/.cursor/rules/"
   done
   cp -R "$SRC_ABS/.cursor/agents/." "$TARGET_ABS/.cursor/agents/"

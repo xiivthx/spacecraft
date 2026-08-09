@@ -14,8 +14,8 @@ Spacecraft is installed as Cursor project configuration plus a local CLI. Instal
 
 Spacecraft installs in two layers:
 
-- **User layer** (`make install-global` or `make install-machine`, once per machine): agents, skills, MCP config, the CLI, and global safety hooks. It also generates `~/.cursor/spacecraft/USER-RULES.txt` from the seven `alwaysApply` rules (`000-spacecraft`, `025-english-coach`, `026-intent-coach`, `027-th-en-hil`, `050-style`, `100-conventions`, `200-workflow`). Paste that file's contents into Cursor Settings -> Rules -> User Rules once - that is how the `alwaysApply` rules take effect in every workspace, since Cursor does not read a repo's `alwaysApply: true` rules outside that repo.
-- **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): the domain/glob rules `300`-`620`, agents, skills, project hooks (including `session-start`), and a merged `.cursor/mcp.json`. It never copies the `alwaysApply` rules - those stay User layer only, so installing into many projects never re-duplicates them.
+- **User layer** (`make install-global` or `make install-machine`, once per machine): agents, skills, MCP config, the CLI, and global safety hooks. It also generates `~/.cursor/spacecraft/USER-RULES.txt` from six User-layer sources (`000-spacecraft`, `026-intent-coach`, `027-th-en-hil`, `050-style`, `100-conventions`, `200-workflow`). Paste that file's contents into Cursor Settings -> Rules -> User Rules so those policies apply in every workspace (Cursor does not load them from a repo checkout alone). After each User-layer regen, re-paste the updated file - human step; no Settings API automation. **Agent chat language:** English default for technical substance; Thai for HIL questions, short status, and handoff summaries (no dual `ไทย:` / `EN:` blocks).
+- **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): the domain/glob rules `300`-`620`, agents, skills, project hooks (including `session-start`), and a merged `.cursor/mcp.json`. It never copies the User-layer rules - those stay User layer only, so installing into many projects never re-duplicates them.
 
 Run the User layer install once per machine; each Project layer install is independent and repeatable.
 
@@ -50,11 +50,11 @@ Companion installs **soft-fail**: a failed caveman, rtk, or codegraph step print
 After install:
 
 - Ensure `~/.local/bin` is on your `PATH`.
-- Paste `~/.cursor/spacecraft/USER-RULES.txt` into Cursor Settings -> Rules -> User Rules.
+- Paste `~/.cursor/spacecraft/USER-RULES.txt` into Cursor Settings -> Rules -> User Rules (re-paste after every User-layer regen).
 - Restart Cursor to pick up skills, hooks, and companion wiring.
 - Per project: run `codegraph init` in each repo you want indexed.
 
-Re-running `make install-machine` updates the durable clone in place and refreshes the User layer and companions.
+Re-running `make install-machine` updates the durable clone in place and refreshes the User layer and companions. Re-paste `USER-RULES.txt` afterward so Cursor picks up the regenerated text.
 
 ## Install with bootstrap
 
@@ -96,7 +96,7 @@ make install
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-For the User layer only (no companions) - Cursor-wide agents, slash skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and other `sc-*` skills), and the `alwaysApply` rules:
+For the User layer only (no companions) - Cursor-wide agents, slash skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and other `sc-*` skills), and the six User-layer sources via `USER-RULES.txt`:
 
 ```sh
 make install-global
@@ -111,7 +111,7 @@ SPACECRAFT_SKILL_PROFILE=full make install-global
 
 On a new PC, prefer [`make install-machine`](#new-pc--install-machine) to also install caveman, rtk, and codegraph with Cursor wiring.
 
-That copies `~/.cursor/agents/sc-*.md` and `~/.cursor/skills/sc-*/`, merges MCP into `~/.cursor/mcp.json`, links the CLI, installs global safety hooks (`check-main-write`, `check-ship-commands`) into `~/.cursor/hooks.json`, and generates `~/.cursor/spacecraft/USER-RULES.txt` from the seven `alwaysApply` rules. Paste that file's contents into Cursor Settings -> Rules -> User Rules once so Commander, workflow, English coaching, intent coaching, Thai + simple English HIL, style, and conventions apply in every workspace. Restart Cursor afterward. Unrelated skills and hooks (for example personal ones) are left alone.
+That copies `~/.cursor/agents/sc-*.md` and `~/.cursor/skills/sc-*/`, merges MCP into `~/.cursor/mcp.json`, links the CLI, installs global safety hooks (`check-main-write`, `check-ship-commands`) into `~/.cursor/hooks.json`, and generates `~/.cursor/spacecraft/USER-RULES.txt` from the six User-layer sources. Paste that file's contents into Cursor Settings -> Rules -> User Rules so Commander, workflow, intent coaching, Agent chat language (English default; Thai for HIL/status/handoff), style, and conventions apply in every workspace. After each regen, re-paste the file (human step - no Settings API automation). Restart Cursor afterward. Unrelated skills and hooks (for example personal ones) are left alone.
 
 For the Project layer in another repo, either run `./bootstrap.sh /path/to/project` or, from this checkout:
 
@@ -119,7 +119,7 @@ For the Project layer in another repo, either run `./bootstrap.sh /path/to/proje
 make install-project PROJECT=/path/to/project
 ```
 
-Both install the domain/glob rules (`300`-`620`), agents, skills, and project hooks (including `session-start`) - never the `alwaysApply` rules, which are User layer only.
+Both install the domain/glob rules (`300`-`620`), agents, skills, and project hooks (including `session-start`) - never the User-layer rules, which stay User layer only.
 
 To link the Node CLI in the checkout without a full install:
 

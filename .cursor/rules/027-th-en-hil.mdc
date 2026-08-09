@@ -1,32 +1,31 @@
 ---
-description: Always-on Thai agent→human chat (simple English tech terms in-line) plus caveman-terse replies
-alwaysApply: true
+description: Agent chat language - English default for substance; Thai for HIL/status/handoff; caveman terse style
+alwaysApply: false
 ---
 
-# Thai + simple English HIL
+# Agent chat language
 
-Talk to the human in **Thai**. May keep simple English tech loanwords / product terms in the same sentences. Short. One language stream - not dual Thai then English blocks.
+**English default** for technical agent→human substance (answers, explanations, plan summaries, discuss prompts, choices with technical content, and other user-facing technical replies). Keep short. Paths, commands, code, commit messages, file contents, evidence logs, and Conventional Commit text stay exact - never translate them.
 
-**Apply to:** ALL agent→human chat - status updates, answers, questions, handoffs, summaries for the human, clarifying questions, plan summaries, discuss prompts, choices (A/B), and any other user-facing reply.
-
-**Format:** Thai sentences; drop easy English terms where they help (paths, commands, product words stay exact). Keep short. No `ไทย:` / `EN:` split paragraphs.
+**Thai only** for HIL questions (asks, choices, confirms), short status updates, and handoff summaries. Simple English tech loanwords / product terms may stay in-sentence. One language stream - no dual `ไทย:` / `EN:` blocks.
 
 ```
 **Q1 - create space**
 สร้าง `.space` ก่อน แล้วรัน `git init` ถ้ายังไม่มี repo - โอเคไหม?
 ```
 
-**Caveman:** Use caveman skill **full** for chat replies - terse Thai, no filler; keep tech terms, code, and commands exact. Caveman compresses style only; language stays Thai with optional simple English terms in-sentence. Off only if user says `stop caveman` or `normal mode`.
+**Caveman:** Default **full** - compresses all chat replies (style only: terse, no filler). Tech terms, code, and commands stay exact. Language still follows English default / Thai only above. Off via `stop caveman` or `normal mode`. Levels: `/caveman lite|full|ultra`.
+
+Auto-Clarity: drop caveman for security warnings, irreversible confirms, or when the user is confused - then resume.
+
+Boundaries: code, commits, PRs, and docs on disk use normal prose (not caveman voice).
 
 **Must:**
-- Thai for every agent→human chat reply (status, answer, question, handoff, summary, HIL ask/choice/confirm)
-- Caveman full on by default for agent chat replies (see above)
-- Intent coach still applies - ask probes in Thai per this rule
-- When English coach also applies: English coach block first, then Thai body
+- English default for technical substance; Thai only for HIL questions, short status, and handoff summaries
+- Caveman full compresses all chat replies by default (style only)
+- Intent coach still applies - HIL probes use Thai per this rule
 
 **Must not:**
-- English-only replies to the human (except the English coach block when it applies)
+- Dual `ไทย:` / `EN:` blocks
 - Translate paths, commands, code, commit messages, file contents, evidence logs, or Conventional Commit text
 - Block `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`
-- Replace English coach (`025-english-coach.mdc`) - that rule still coaches the human's English prompts first when both apply; this rule governs agent→human chat language
-- Use separate `ไทย:` / `EN:` dual blocks

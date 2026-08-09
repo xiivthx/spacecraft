@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.48.0 - 2026-08-09
+
+- Feat: drop English prompt coach; Agent chat language defaults to English with Thai for HIL/status/handoff; caveman merged into `027`
+- Feat: User-layer six rules use `alwaysApply: false` and USER-RULES paste delivery; project install excludes them by basename list
+- Docs: README and installation describe six User-layer sources and re-paste after regen
+- Test: gen-user-rules and install markers match six sources + Agent chat language
+
 ## 0.47.3 - 2026-08-09
 
 - Docs: `/sc-run` emits Cursor Canvas at plan, nonempty findings, and pre-ready evidence (managed `canvases/`); greppable `decisions.md` lines; evidence canvas before ready-path judge; must-not brief/draft HTML as canvas
