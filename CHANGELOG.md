@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.49.1 - 2026-08-09
+
+- Feat: project `install-cursor` omits lean-core skills (User layer only) and prunes leftovers on re-run; domain packs stay project-local
+- Feat: project `install-cursor` omits agents and User-layer safety hooks; keeps `session-start` only; prunes leftovers on re-run
+
 ## 0.49.0 - 2026-08-09
 
 - Feat: hard-gate high-risk Test Ideas (Neg/Overlooked + Top risk/Charter) via plan acceptance or `Deferred test idea:` - judge REFUTED on miss/uncertain
