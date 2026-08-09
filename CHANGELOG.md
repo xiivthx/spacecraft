@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.49.0 - 2026-08-09
+
+- Feat: hard-gate high-risk Test Ideas (Neg/Overlooked + Top risk/Charter) via plan acceptance or `Deferred test idea:` - judge REFUTED on miss/uncertain
+- Feat: require product-surface verify markers (`verify.product` | `browser` | `curl` | `composition`) for user-visible acceptance
+- Feat: ship `sc-browser-probe` as recommend-only escape net after UI/workflow green (not a ready gate)
+- Test: hard-gate omit/deferral/pass and product-surface unit-only smokes under sc-judge
+
 ## 0.48.0 - 2026-08-09
 
 - Feat: drop English prompt coach; Agent chat language defaults to English with Thai for HIL/status/handoff; caveman merged into `027`

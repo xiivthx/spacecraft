@@ -12,7 +12,7 @@ Turn `spec.md` into a jigsaw `plan.json` (≤7 tasks per phase) the Commander ca
 ## Inputs
 
 - `spec.md`, `questions.md`, `decisions.md`
-- When present in `decisions.md`: structured Test Ideas buckets (Positive / Negative / Edge / Overlooked) and Implementation pitfalls from `## Testability pass`; Top risks / Charter ideas from `## Strategy pass`; Testing Priorities from `## RCRCRC pass` - prefer edge/negative/overlooked slices alongside charter/RCRCRC priorities when ordering jigsaw tasks / acceptance
+- When present in `decisions.md`: structured Test Ideas buckets (Positive / Negative / Edge / Overlooked) and Implementation pitfalls from `## Testability pass`; Top risks / Charter ideas from `## Strategy pass`; Testing Priorities from `## RCRCRC pass`. **Must** cover each hard-gated idea in `acceptance[]` or greppable `Deferred test idea: <id> - <reason>` in `decisions.md` (hard-gated = all Negative + Overlooked; plus Strategy Top risks / Charter ideas that map to those buckets or are listed as Top risks/Charter items). Prefer-only for Positive / Edge unless also Top risk/Charter. Prefer RCRCRC priorities / pitfalls when ordering jigsaw tasks / acceptance
 - When `## Test data design` is present, prefer Boundary/Negative/Security-shaped rows when shaping edge/negative acceptance checks (do not invent Verify; do not expand past sizing)
 - `outputs/map.json` if present
 - Clarify status
@@ -60,6 +60,7 @@ Rules for slices:
 
 - Each task is a vertical piece (UI seam, API seam, error path, etc.) that can RED-GREEN alone
 - **Task shape (Must):** 1 behavioral slice + ≤3 acceptance + 1 exact verify + evidence + files directly touched + `dependsOn` only when order is real
+- **Must:** Cover each hard-gated Test Idea (all Negative + Overlooked; plus Strategy Top risks / Charter ideas that map to those buckets or are listed as Top risks/Charter) in `acceptance[]` **or** `Deferred test idea: <id> - <reason>` in `decisions.md`. Positive / Edge prefer-only unless also Top risk/Charter.
 - Each `acceptance[]` item is exactly one RED-GREEN cycle (1-3 per task; split task if more)
 - **Split a task when any hold:** acceptance >3; Verify needs a different proof surface; real hard dep → prior task in `dependsOn`; happy path vs material error/edge/security need separate cycles; shared/dangerous surface deserves separate evidence; look (approved draft) vs behavior (spec) conflict → `/sc-discuss`
 - **Do not split** only to look finer-grained; **Must not** use wall-clock time as a split gate
@@ -71,6 +72,7 @@ Rules for slices:
 ## Good
 
 - ≤7 jigsaw tasks per phase as a hard Must (not preference-only); each has acceptance + verify + evidence label
+- Hard-gated Test Ideas covered: each Negative / Overlooked (plus Top risk/Charter-mapped) idea in `acceptance[]` **or** `Deferred test idea: <id> - <reason>` in `decisions.md`
 - Imperative, specific titles naming the slice
 - Blocking clarifications surfaced; no hidden assumptions
 
@@ -83,8 +85,9 @@ Rules for slices:
 - Filling gray areas silently
 - Horizontal bulk ("all tests then all code") disguised as tasks
 - Soft prefer ≤7 (Must not: prefer ≤7)
+- Soft prefer-only for hard-gated Negative / Overlooked (or Top risk/Charter-mapped) ideas - omitting both acceptance and `Deferred test idea:` line
 - Reject any 8-9 exception band (Must not: 8-9 exception band)
 
 ## Verify
 
-Every task has testable acceptance + runnable verify; each acceptance is one cycle; ≤7 per phase; no open blocking clarify.
+Every task has testable acceptance + runnable verify; each acceptance is one cycle; ≤7 per phase; no open blocking clarify; each hard-gated Test Idea appears in `acceptance[]` or as `Deferred test idea: <id> - <reason>` in `decisions.md`.

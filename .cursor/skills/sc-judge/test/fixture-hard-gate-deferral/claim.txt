@@ -1,0 +1,5 @@
+Mission MFIXTURE-DEFER claim: build complete, acceptance met, ready to set-state ready.
+Evidence label happy-path-ready proves tests pass (exit 0).
+Status: done / ready.
+Overlooked Test Idea overlooked-x is covered by Deferred test idea: overlooked-x - out of size.
+Sibling hard-gated Negative neg-sibling-uncovered has no matching acceptance and no Deferred test idea line.

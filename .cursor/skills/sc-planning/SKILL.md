@@ -20,7 +20,7 @@ Writable `plan.json` (schema in `docs/mission-artifacts.md`). Each task needs ac
 
 ## Verify
 
-Every acceptance is testable and maps to one cycle; ≤7 tasks per phase; file paths real; no open blocking clarify.
+Every acceptance is testable and maps to one cycle; ≤7 tasks per phase; file paths real; no open blocking clarify; each hard-gated Test Idea (Negative / Overlooked + mapped Top risk/Charter) appears in `acceptance[]` or as `Deferred test idea: <id> - <reason>` in `decisions.md`.
 
 ## When to use
 
@@ -41,7 +41,7 @@ Use this exact sequence unless the user specifies otherwise:
 2. **Read inputs** - Before producing `plan.json`, read:
    - `spec.md` - what needs to be built
    - `questions.md` - any open blocking questions
-   - `decisions.md` - recorded choices and assumptions; when present, prefer structured **Test Ideas** buckets (Positive / Negative / Edge / Overlooked) and **Implementation pitfalls** from `## Testability pass`, **Top risks** / **Charter ideas** from `## Strategy pass`, and **Testing Priorities** from `## RCRCRC pass` when ordering jigsaw tasks / acceptance; when `## Test data design` is present, prefer Boundary/Negative/Security-shaped rows for edge/negative acceptance (do not invent Verify; do not expand past sizing)
+   - `decisions.md` - recorded choices and assumptions; when present, read structured **Test Ideas** buckets (Positive / Negative / Edge / Overlooked) and **Implementation pitfalls** from `## Testability pass`, **Top risks** / **Charter ideas** from `## Strategy pass`, and **Testing Priorities** from `## RCRCRC pass`. **Must** cover each hard-gated idea in `plan.json` `acceptance[]` or with a greppable `Deferred test idea: <id> - <reason>` line in `decisions.md` (hard-gated = all Testability Negative + Overlooked; plus Strategy Top risks / Charter ideas that map to those buckets or are listed as Top risks/Charter items). Prefer-only for Positive / Edge unless also Top risk/Charter (then hard-gate). Prefer RCRCRC Testing Priorities and Implementation pitfalls when ordering jigsaw tasks / acceptance; when `## Test data design` is present, prefer Boundary/Negative/Security-shaped rows for edge/negative acceptance (do not invent Verify; do not expand past sizing)
    - `outputs/map.json` - project structure survey (if present, see Map integration below)
    - If a blocking clarification question is open, stop - route to `/sc-discuss` / sc-clarify.
    - If `## Testability pass` says `Not Testable` and Verify/acceptance still soft, stop - hand `/sc-discuss` to tighten Verify (do not invent acceptance bars).
@@ -130,14 +130,17 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 ## Rules
 
 - **Must**: Resolve mission before planning.
-- **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`. Prefer structured Test Ideas buckets / Implementation pitfalls / Strategy Top risks / Charter ideas / RCRCRC Testing Priorities / `## Test data design` rows from `decisions.md` when present.
+- **Must**: Read `spec.md`, `questions.md`, `decisions.md`, and `map.json` (if present) before writing `plan.json`. Prefer Implementation pitfalls / RCRCRC Testing Priorities / `## Test data design` rows from `decisions.md` when present (ordering aids, not a substitute for hard-gated coverage).
+- **Must**: When `decisions.md` has Test Ideas / Strategy Top risks / Charter ideas, cover each hard-gated idea in `plan.json` `acceptance[]` **or** record `Deferred test idea: <id> - <reason>` in `decisions.md` (reason required). Hard-gated: all Testability Negative + Overlooked; plus Strategy Top risks / Charter ideas that map to those buckets or are listed as Top risks/Charter items. Positive / Edge remain prefer-only unless also Top risk/Charter.
 - **Must**: Stop if a blocking clarification is open - route to `/sc-discuss` / sc-clarify.
 - **Must**: Stop if Testability is `Not Testable` and acceptance/Verify still soft - hand `/sc-discuss`; do not invent bars.
 - **Must**: ≤7 tasks per phase as a hard Must (not preference-only). Use `plan-phaseN.json` when `Sizing: phases`; else hand multi-mission to `/sc-discuss`.
 - **Must**: Each task has `id`, `title`, `status`, `files`, `acceptance`, `verify`, `evidence`.
 - **Must**: Every acceptance check is verifiable (can a reviewer confirm it?).
+- **Must**: When claiming UI/workflow/user-visible behavior, `verify` and/or `acceptance` text Must include a product-surface marker among `verify.product` | `browser` | `curl` | `composition`; unit-only verify is insufficient.
 - **Must**: File paths are real - verify with `ls` or glob before writing.
 - **Must not**: Soft prefer ≤7; reject any 8-9 exception band.
+- **Must not**: Soft prefer-only for hard-gated Negative / Overlooked (or Top risk/Charter-mapped) ideas - omit neither acceptance nor `Deferred test idea:` line.
 - **Must not**: Call `spacecraft map new` / `map add` or invent multi-mission roadmaps from planning - hand independent-seam splits to `/sc-discuss` + mission-sizing.
 - **Must not**: Invent cross-feature layer waterfalls, `*-ux` roadmap seams, or a `*-integrate` tip mid-plan when escaping ≤7 - use vertical feature seams (plus discuss-owned optional integrate) per sc-discuss `references/mission-sizing.md`.
 - **Must not**: Use vague tasks like "improve code", "add features", or one task that swallows the whole feature.
@@ -179,7 +182,7 @@ If `map.json` is missing, proceed without it - it's optional input, not a hard g
 
 - [ ] Mission resolved
 - [ ] `spec.md`, `questions.md`, `decisions.md`, `map.json` (if present) read
-- [ ] Structured Test Ideas buckets / Implementation pitfalls / Strategy Top risks / Charter ideas / RCRCRC priorities / `## Test data design` rows from `decisions.md` considered when present
+- [ ] Hard-gated Test Ideas (Negative / Overlooked + Top risk/Charter-mapped) each in `acceptance[]` or `Deferred test idea: <id> - <reason>`; Positive / Edge prefer-only unless also Top risk/Charter; pitfalls / RCRCRC / `## Test data design` considered when present
 - [ ] No blocking clarification open
 - [ ] Not planning against soft Verify while Testability is `Not Testable`
 - [ ] Plan has ≤7 jigsaw tasks per phase (split if needed)
