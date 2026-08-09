@@ -2,9 +2,9 @@
 # test-install.sh - install/bootstrap smoke test in a throwaway temp dir.
 #
 # Seeds a pre-existing unrelated hook so the hooks merge must preserve user
-# hooks alongside the spacecraft ship-gate hook, then runs install-global
-# against a fake HOME and checks the core skills land. Never writes
-# ~/.cursorrules.
+# hooks alongside project session-start (safety hooks stay User-layer only),
+# then runs install-global against a fake HOME and checks the core skills land.
+# Never writes ~/.cursorrules.
 #
 # Usage: test-install.sh <repo-root> <spacecraft-binary>
 set -e
@@ -43,11 +43,19 @@ if ! grep -q 'user-unrelated.sh' "$hooks"; then
   echo "FAIL: install clobbered pre-existing hooks (user-unrelated.sh missing)"
   exit 1
 fi
-if ! grep -q 'check-ship-commands.sh' "$hooks"; then
-  echo "FAIL: install missing spacecraft ship-gate hook (check-ship-commands.sh)"
+if ! grep -q 'session-start.sh' "$hooks"; then
+  echo "FAIL: install-project missing session-start hook in $hooks"
   exit 1
 fi
-echo "  ok   hooks merge preserves user + ship-gate"
+if grep -q 'check-ship-commands.sh' "$hooks"; then
+  echo "FAIL: install-project merged User-layer safety hook check-ship-commands.sh into project $hooks"
+  exit 1
+fi
+if grep -q 'check-main-write.sh' "$hooks"; then
+  echo "FAIL: install-project merged User-layer safety hook check-main-write.sh into project $hooks"
+  exit 1
+fi
+echo "  ok   hooks merge preserves user + session-start; omits safety hooks"
 
 if [ -f "$fake_home/.cursorrules" ]; then
   echo "FAIL: install wrote legacy ~/.cursorrules"
@@ -69,10 +77,36 @@ test -f "$tmp/.cursor/hooks/session-start.sh" \
   || { echo "FAIL: install-project did not copy session-start.sh into $tmp/.cursor/hooks/"; exit 1; }
 echo "  ok   install-project places domain rules 300-620 + session-start hook"
 
+# Project-layer must not copy User-layer safety hook scripts (global owns them).
+for safety_hook in check-main-write.sh check-ship-commands.sh; do
+  if [ -f "$tmp/.cursor/hooks/$safety_hook" ]; then
+    echo "FAIL: install-project copied User-layer safety hook $safety_hook into $tmp/.cursor/hooks/"
+    exit 1
+  fi
+done
+test -f "$tmp/.cursor/hooks/session-start.sh" \
+  || { echo "FAIL: install-project missing session-start.sh under $tmp/.cursor/hooks/ after safety omit"; exit 1; }
+echo "  ok   install-project omits safety hook scripts; keeps session-start.sh"
+
+# Project-layer must not install agents (User-layer / global owns sc-*.md agents).
+if [ -f "$tmp/.cursor/agents/sc-coder.md" ]; then
+  echo "FAIL: install-project copied agent sc-coder.md into $tmp/.cursor/agents (User-layer only)"
+  exit 1
+fi
+if [ -d "$tmp/.cursor/agents" ]; then
+  leftover_agents=$(find "$tmp/.cursor/agents" -maxdepth 1 -type f -name 'sc-*.md' 2>/dev/null | head -n 1)
+  if [ -n "$leftover_agents" ]; then
+    echo "FAIL: install-project left spacecraft agent under $tmp/.cursor/agents: $leftover_agents"
+    exit 1
+  fi
+fi
+echo "  ok   install-project omits agents (no sc-*.md under project .cursor/agents)"
+
 # T5: project-layer install also lands domain encyclopedia skills (lean User
 # layer omits these; project bootstrap must not require SPACECRAFT_SKILL_PROFILE=full).
+# Domain packs stay project-local; lean-core lifecycle skills stay User-layer only.
 project_skills="$tmp/.cursor/skills"
-project_domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware"
+project_domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware sc-browser-probe"
 for skill in $project_domain_skills; do
   test -f "$project_skills/$skill/SKILL.md" \
     || { echo "FAIL: install-project missing domain skill $skill under $project_skills (project layer must include domain packs without User --full)"; exit 1; }
@@ -94,14 +128,64 @@ if ! grep -Eq 'USER_LAYER|000-spacecraft' "$ROOT/scripts/install-cursor.sh"; the
 fi
 echo "  ok   install-project excludes User-layer basenames from project target"
 
-# STORM Tier 0/3: project install must land sc-storm + discuss lens-pass reference.
-test -f "$tmp/.cursor/skills/sc-storm/SKILL.md" \
-  || { echo "FAIL: install-project missing sc-storm skill"; exit 1; }
-test -f "$tmp/.cursor/skills/sc-discuss/references/lens-pass.md" \
-  || { echo "FAIL: install-project missing sc-discuss/references/lens-pass.md"; exit 1; }
-test -f "$tmp/.cursor/skills/sc-judge/references/judge-break/empty-evidence/expect.json" \
-  || { echo "FAIL: install-project missing sc-judge judge-break fixtures"; exit 1; }
-echo "  ok   install-project installs sc-storm, discuss lens-pass, and judge-break"
+# Lean-core skills (must stay in sync with scripts/global-sync.sh LEAN_SKILLS) stay
+# User-layer only (~/.cursor/skills via lean install-global). Project install must
+# omit them — and install-cursor.sh must name the exclude like USER_LAYER for rules.
+project_lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer sc-architect sc-ux-design sc-diagram"
+for skill in $project_lean_skills; do
+  if [ -e "$project_skills/$skill" ]; then
+    echo "FAIL: install-project copied lean-core skill $skill into $project_skills (User-layer only)"
+    exit 1
+  fi
+done
+# Spot-check nested lean references that used to be required under project.
+if [ -e "$project_skills/sc-discuss/references/lens-pass.md" ]; then
+  echo "FAIL: install-project left sc-discuss/references/lens-pass.md under project (lean-core)"
+  exit 1
+fi
+if [ -e "$project_skills/sc-judge/references/judge-break" ]; then
+  echo "FAIL: install-project left sc-judge judge-break fixtures under project (lean-core)"
+  exit 1
+fi
+if ! grep -Eq 'LEAN_SKILLS' "$ROOT/scripts/install-cursor.sh"; then
+  echo "FAIL: install-cursor.sh missing explicit lean-skill exclude (LEAN_SKILLS)"
+  exit 1
+fi
+echo "  ok   install-project omits lean-core skills (User-layer only)"
+
+# Re-running project install prunes lean-core skills previously copied into the
+# project skills dir (mirrors lean install-global pruning domain packs).
+# Also prunes leftover spacecraft agents + User-layer safety hook scripts.
+mkdir -p "$project_skills/sc-run" "$tmp/.cursor/agents" "$tmp/.cursor/hooks"
+printf '%s\n' '# seeded-for-project-lean-prune' > "$project_skills/sc-run/SKILL.md"
+printf '%s\n' '# seeded-for-project-agent-prune' > "$tmp/.cursor/agents/sc-coder.md"
+printf '%s\n' '#!/bin/sh' > "$tmp/.cursor/hooks/check-ship-commands.sh"
+printf '%s\n' '#!/bin/sh' > "$tmp/.cursor/hooks/check-main-write.sh"
+HOME="$fake_home" sh "$ROOT/scripts/install-cursor.sh" "$tmp" "$ROOT"
+if [ -e "$project_skills/sc-run" ]; then
+  echo "FAIL: re-run install-project left lean-core skill sc-run under $project_skills (expected prune)"
+  exit 1
+fi
+# Domain packs must still be present after prune re-run.
+test -f "$project_skills/sc-browser-probe/SKILL.md" \
+  || { echo "FAIL: after lean prune re-run, missing domain skill sc-browser-probe under $project_skills"; exit 1; }
+echo "  ok   re-run install-project prunes lean-core skills; keeps domain packs"
+
+if [ -e "$tmp/.cursor/agents/sc-coder.md" ]; then
+  echo "FAIL: re-run install-project left seeded agent sc-coder.md under $tmp/.cursor/agents (expected prune)"
+  exit 1
+fi
+echo "  ok   re-run install-project prunes leftover spacecraft agents"
+
+for safety_hook in check-main-write.sh check-ship-commands.sh; do
+  if [ -f "$tmp/.cursor/hooks/$safety_hook" ]; then
+    echo "FAIL: re-run install-project left seeded safety hook $safety_hook under $tmp/.cursor/hooks (expected prune)"
+    exit 1
+  fi
+done
+test -f "$tmp/.cursor/hooks/session-start.sh" \
+  || { echo "FAIL: after safety-hook prune re-run, missing session-start.sh under $tmp/.cursor/hooks/"; exit 1; }
+echo "  ok   re-run install-project prunes safety hook scripts; keeps session-start.sh"
 
 mkdir -p "$fake_home/.cursor"
 printf '%s\n' '{"version":1,"hooks":{"beforeShellExecution":[{"command":"~/.cursor/hooks/user-unrelated-global.sh","matcher":"echo"}]}}' \

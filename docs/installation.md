@@ -15,7 +15,7 @@ Spacecraft is installed as Cursor project configuration plus a local CLI. Instal
 Spacecraft installs in two layers:
 
 - **User layer** (`make install-global` or `make install-machine`, once per machine): agents, skills, MCP config, the CLI, and global safety hooks. It also generates `~/.cursor/spacecraft/USER-RULES.txt` from six User-layer sources (`000-spacecraft`, `026-intent-coach`, `027-th-en-hil`, `050-style`, `100-conventions`, `200-workflow`). Paste that file's contents into Cursor Settings -> Rules -> User Rules so those policies apply in every workspace (Cursor does not load them from a repo checkout alone). After each User-layer regen, re-paste the updated file - human step; no Settings API automation. **Agent chat language:** English default for technical substance; Thai for HIL questions, short status, and handoff summaries (no dual `ไทย:` / `EN:` blocks).
-- **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): the domain/glob rules `300`-`620`, agents, skills, project hooks (including `session-start`), and a merged `.cursor/mcp.json`. It never copies the User-layer rules - those stay User layer only, so installing into many projects never re-duplicates them.
+- **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): the domain/glob rules `300`-`620`, **domain-pack skills only**, the `session-start` hook (script + `hooks.json` merge), and a merged `.cursor/mcp.json`. It never copies agents, User-layer safety hooks (`check-main-write`, `check-ship-commands`), User-layer rules, or lean-core skills (`/sc-run`, `/sc-discuss`, and the rest of the lean allowlist) - those stay under `~/.cursor` via User-layer install. Re-running project install also prunes leftover lean-core skill dirs, `sc-*.md` agents, and safety hook scripts previously copied into the project. Project alone is not enough for lifecycle slash skills or agents; run User-layer install once per machine first.
 
 Run the User layer install once per machine; each Project layer install is independent and repeatable.
 
@@ -119,7 +119,7 @@ For the Project layer in another repo, either run `./bootstrap.sh /path/to/proje
 make install-project PROJECT=/path/to/project
 ```
 
-Both install the domain/glob rules (`300`-`620`), agents, skills, and project hooks (including `session-start`) - never the User-layer rules, which stay User layer only.
+Both install the domain/glob rules (`300`-`620`), domain-pack skills, and the `session-start` hook - never agents, User-layer safety hooks, User-layer rules, or lean-core skills. Lean-core lifecycle skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and related process skills) and agents live only under `~/.cursor` from `install-global`; a project install without User layer will not provide those slash skills or agents.
 
 To link the Node CLI in the checkout without a full install:
 
@@ -134,12 +134,15 @@ In the target project, confirm the Cursor-native files:
 
 ```sh
 test -d .cursor/rules
-test -d .cursor/agents
 test -d .cursor/skills
+test -f .cursor/hooks/session-start.sh
 test -f .cursor/mcp.json
 test -f .cursor/hooks.json
+grep -q session-start.sh .cursor/hooks.json
 test -d .space
 ```
+
+Agents and safety hooks (`check-main-write`, `check-ship-commands`) live under `~/.cursor` from the User layer - not under the project `.cursor/`.
 
 Confirm the Node CLI (linked entry or `PATH`):
 
@@ -162,7 +165,7 @@ After restarting Cursor:
 1. Open the installed project.
 2. Confirm `/sc-discuss`, `/sc-run`, `/sc-ship`, and `/sc-quick` are available as skills.
 3. Confirm detail skill `sc-storm` is discoverable (Tier 3 open-domain research; not a lifecycle slash).
-4. Confirm the eight agents are discoverable: `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, `sc-firmware`, and `sc-writer`.
+4. Confirm the eight agents are discoverable from the User layer (`~/.cursor/agents/`): `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, `sc-firmware`, and `sc-writer`.
 5. Approve the project MCP server if Cursor asks for confirmation.
 
 Workflow prompts are Agent Skills under `.cursor/skills/` (explicit `/` via `disable-model-invocation: true`). Do not migrate them to `.cursor/commands/` - Cursor's direction is Commands → Skills (`/migrate-to-skills`).
@@ -189,16 +192,17 @@ Then begin in Cursor:
 
 ```text
 .cursor/
-  rules/
-  agents/
-  skills/
+  rules/                   domain/glob rules (300-620)
+  skills/                  domain-pack skills only
   mcp.json
-  hooks.json
-  hooks/
+  hooks.json               session-start (merge-safe)
+  hooks/                   session-start.sh
 .space/                    # fully gitignored (local state)
   missions/
   archive/
   roadmaps/
 ```
+
+User-layer agents, lean-core skills, and safety hooks stay under `~/.cursor/` (not copied into the project).
 
 The Spacecraft repository CLI lives at `cli/spacecraft.mjs` (stdlib Node; zero npm CLI dependencies).

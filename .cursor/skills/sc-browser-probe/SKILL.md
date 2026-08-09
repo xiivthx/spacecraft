@@ -1,11 +1,6 @@
 ---
 name: sc-browser-probe
-description: >-
-  Exploratory browser probe after implement/fix or sc-run green. Finds
-  UX/UI/functional/workflow/responsive issues via real-browser scenarios;
-  optional throughput/perf estimate. Use when user asks browser test,
-  full-system probe, post-run smoke, tags/sec or rate feasibility, or
-  /sc-browser-probe. Does not replace sc-verification or sc-judge.
+description: "Exploratory browser probe after implement/fix or sc-run green. Finds UX/UI/functional/workflow/responsive issues via real-browser scenarios; optional throughput/perf estimate. Use when user asks browser test, full-system probe, post-run smoke, tags/sec or rate feasibility."
 ---
 
 # sc-browser-probe
