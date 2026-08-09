@@ -1,8 +1,9 @@
 #!/bin/sh
-# smoke.sh - post-install validation for a spacecraft install.
+# smoke.sh - post-install validation for a spacecraft project-layer install.
 #
-# Checks: expected rules/agents/skills are present, mcp.json parses as JSON,
-# hooks.json parses when present, and the spacecraft CLI reports help.
+# Checks: domain rules/skills present, session-start hook wired, mcp.json
+# parses as JSON, hooks.json parses when present, and the spacecraft CLI
+# reports help. Agents and User-layer safety hooks are not project inventory.
 #
 # Usage: smoke.sh <target-project-dir> [spacecraft-binary]
 set -e
@@ -19,8 +20,8 @@ count() { ls -1 "$1" 2>/dev/null | wc -l | tr -d ' '; }
 
 echo "Smoke check: $TARGET"
 
-# 1. File counts - every surface must have at least one entry.
-for pair in "rules:1" "agents:1" "skills:1"; do
+# 1. File counts - project layer: domain rules + domain skills (agents are User-layer).
+for pair in "rules:1" "skills:1"; do
   dir=${pair%%:*}; min=${pair##*:}
   n=$(count "$TARGET/.cursor/$dir")
   if [ "$n" -ge "$min" ]; then
@@ -29,6 +30,29 @@ for pair in "rules:1" "agents:1" "skills:1"; do
     bad "$dir: $n (expected >= $min)"
   fi
 done
+
+# 1b. session-start hook only (safety hooks stay User-layer).
+if [ -f "$TARGET/.cursor/hooks/session-start.sh" ]; then
+  pass "session-start.sh present"
+else
+  bad "session-start.sh missing under .cursor/hooks/"
+fi
+if [ -f "$TARGET/.cursor/hooks.json" ] && grep -q 'session-start.sh' "$TARGET/.cursor/hooks.json"; then
+  pass "hooks.json wires session-start"
+else
+  bad "hooks.json missing session-start.sh"
+fi
+for safety_hook in check-main-write.sh check-ship-commands.sh; do
+  if [ -f "$TARGET/.cursor/hooks/$safety_hook" ]; then
+    bad "User-layer safety hook $safety_hook present under project .cursor/hooks/"
+  fi
+done
+leftover_agents=$(find "$TARGET/.cursor/agents" -maxdepth 1 -type f -name 'sc-*.md' 2>/dev/null | head -n 1)
+if [ -n "$leftover_agents" ]; then
+  bad "spacecraft agent present under project .cursor/agents (User-layer only): $leftover_agents"
+else
+  pass "no project-local spacecraft agents"
+fi
 
 # 2. .space scaffold.
 for d in missions archive roadmaps; do
