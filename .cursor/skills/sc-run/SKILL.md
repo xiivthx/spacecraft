@@ -108,7 +108,7 @@ Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing dra
    5. Run sc-judge; evidence label including `judge`. Verdict is binary: `VERIFIED` | `REFUTED` (no caveats).
    6. Any findings (any severity) or `REFUTED` → fix remediation now → re-review + re-emit canvases as needed (findings-or-skip, then evidence) → re-judge. Do not set ready.
    7. On `VERIFIED` + `review.json` `status: ready` + empty `findings`: confirm canvas decisions lines still present; `validate --strict`; `set-state ready`. Block ready if any applicable canvas decisions line is missing.
-9. Handoff: **Ready. Human check, then /sc-ship.** Include a short **Fixes** list in the summary. Continue `map next`. Squash is `/sc-ship` only.
+9. Handoff: **Ready. Human check, then /sc-ship.** Include a short **Fixes** list in the summary. When UI or multi-step workflow was touched: also `Recommend: /sc-browser-probe` (recommend-only escape net; not a ready gate - does not replace sc-verification or sc-judge). Continue `map next`. Squash is `/sc-ship` only.
 
 ```mermaid
 flowchart TD

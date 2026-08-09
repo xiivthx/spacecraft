@@ -115,6 +115,7 @@ Testability pass skipped: <reason>
      - **Negative** - invalid input, error handling, permission denial
      - **Edge** - rare/boundary conditions
      - **Overlooked** - cases testers often miss (includes exploratory / creative paths; deep exploratory charters may also live under Strategy pass Charter ideas). When "why is this a problem" needs grounding, optionally run `test-oracles.md` - do not invent Verify.
+     - **Hard-gated set (planner handoff)** - all **Negative** + **Overlooked**; plus Strategy **Top risks** / **Charter** ideas when mapped (or listed as Top risks/Charter). Each hard-gated idea **Must** be planner-usable: stable id (bucket + short slug) **or** a quoted scenario fragment greppable from the idea line. Planner covers each in `plan.json` `acceptance[]` **or** greppable `Deferred test idea: <id> - <reason>` in `decisions.md` (reason required; discuss documents the shape - does not invent Verify bars beyond Testability/Strategy artifacts). Positive / Edge stay prefer-only unless also Top risk/Charter. Do **not** absorb `sc-browser-probe` into this hard gate (probe stays recommend-only escape net elsewhere).
      - When concrete **variable values** matter (paths, dates, numbers, strings, authz inputs), optionally run `test-data-design.md` and/or use its inspiration checklist to fuel Edge / Negative / Overlooked ideas - do not invent Verify from data rows. Boundary ≈ Edge; Security/Pen samples map to Negative or Overlooked.
      - When UI/visual: if draft or screenshot available, extract UI elements/flows into ideas; else note in Notes or pass `Notes: No screenshot/draft - scenarios based only on textual requirement.`
    - **Implementation pitfalls** - short checklist of potential bugs/pitfalls in **implementing** the requirement (UI, data handling, error messaging, perf, security, etc.) - **distinct** from Requirement Bugs (flaws in the requirement text itself)
@@ -131,6 +132,8 @@ Testability pass skipped: <reason>
 
 - **Must**: Exhaust `spec.md` / `questions.md` / `decisions.md` / repo before asking
 - **Must**: Park question candidates; ask via sc-clarify frontier rounds (≤3 independent; serial when dependent)
-- **Must not**: Invent Verify from Test Ideas
+- **Must**: Write hard-gated Neg/Overlooked (+ Strategy Top risk/Charter when mapped) as planner-usable lines (stable id or quoted scenario fragment) so planning can map `acceptance[]` or `Deferred test idea: <id> - <reason>`
+- **Must not**: Invent Verify from Test Ideas (or beyond Testability/Strategy artifacts)
+- **Must not**: Absorb `sc-browser-probe` into the hard gate
 - **Must not**: Expertise cosplay ("as a QA expert…")
 - **Must not**: Replace sc-clarify or mission brief
