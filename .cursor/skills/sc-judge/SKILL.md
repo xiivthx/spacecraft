@@ -22,7 +22,7 @@ Plus: fresh evidence ids, scope-diff notes, hunt findings, and (when `REFUTED`) 
 ## Good / Bad
 
 - Good: treat every completion / "done" / "ready" claim as a claim; re-run claimed evidence commands and record fresh observation; diff actual change scope vs `plan.json` / spec acceptance; hunt weakened tests, false completion, unauthorized action; emit exactly one of the two verdicts; allow `ready` **only** on `VERIFIED`; on `REFUTED` emit a fix plan and block ready until re-judged
-- Bad: believing a prior report or evidence.jsonl line without re-running; inventing evidence; soft-shipping past `REFUTED`; third verdicts or caveat soft-pass; replacing discuss/run/ship with a judge-only flow; expanding hunt into product redesign or trap-eval suites
+- Bad: believing a prior report or evidence.jsonl line without re-running; inventing evidence; soft-shipping past `REFUTED`; third verdicts or caveat soft-pass; replacing discuss/run/ship with a judge-only flow; expanding hunt into product redesign or trap-eval suites; allowing ready when applicable `Canvas plan:` / findings-or-skip / `Canvas evidence:` decisions lines are missing (chat-only canvas link without the decisions line counts as false completion); `VERIFIED` when Commander has not already emitted evidence canvas on the ready path
 
 ## Verify
 
@@ -48,12 +48,12 @@ Activate when:
 Use this exact sequence unless the user specifies otherwise:
 
 1. **Resolve the mission** - Run `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
-2. **Collect claims** - Read the completion claim(s): task notes, evidence labels, review draft, or "ready" request. Treat each as a claim, not proof.
+2. **Collect claims** - Read the completion claim(s): task notes, evidence labels, review draft, or "ready" request. Treat each as a claim, not proof. On the ready path, Commander must already have emitted findings-or-skip and the evidence canvas (`Canvas evidence:` in `decisions.md` + file under managed `canvases/`) before invoking judge - require those lines for `VERIFIED` / ready; do not inspect canvas TSX/JSON shape.
 3. **Re-run claimed evidence** - For every command cited as proving acceptance, re-run it via `spacecraft evidence "<label>-judge" -- <command>`. Record the fresh observation. Never reuse a stale evidence line as the sole proof.
 4. **Diff scope vs plan** - Compare the actual change set (diff / files touched) to `plan.json` tasks and `spec.md` acceptance. Flag work outside plan, missing acceptance coverage, or plan items marked done without matching fresh evidence.
 5. **Hunt** - Actively search for:
    - **weakened tests** - assertions removed, skipped, loosened, or replaced with tautologies so GREEN is cheap
-   - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, defects left unfixed, or `review.json` still has findings (including minor / warnings)
+   - **false completion** - "done"/"ready" claimed while acceptance fails, evidence is missing/stale, scope does not match plan, defects left unfixed, or `review.json` still has findings (including minor / warnings); missing applicable greppable canvas decisions lines (`Canvas plan: ` + absolute path, `Canvas findings: ` + absolute path **or** `Canvas findings skipped: empty`, `Canvas evidence: ` + absolute path) or required canvas files under managed `canvases/` (chat-only markdown link without the decisions line ⇒ false completion). Gate stops at file existence + decisions lines - do not inspect canvas TSX/JSON shape
    - **unauthorized action** - outward push/deploy/publish/send (or similar) without quoted `AUTH:` and user authorization; ship/merge without `/sc-ship` gates
    - **mission-review dimensions** - apply five gates from `.cursor/skills/sc-run/references/mission-review-gates.md` (deterministic first, per-dimension pass/fail). REFUTE if any required dimension is `fail` or **`uncertain`** (fail-closed - note `uncertain` in hunt reasons; never `VERIFIED` on uncertain mission-review ready): evidence-fresh, validate-strict, scope-vs-plan, test-quality (when tests exist), acceptance-behavior, security-when-in-scope (when auth/API/secrets/deps touched; no dynamic CVE tools - heuristic `sc-security` only), perf-when-in-scope (when perf paths touched; measure-first without evidence), unauthorized-action
    - **draft drift (visual UI)** - when `UI draft approved: …` is recorded, treat "matches draft" / visual ready as a claim. Apply five gates from `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (deterministic first, per-dimension pass/fail). REFUTE if product chrome clearly diverges from the approved draft (layout-only match), applicable draft scenario states (surface-relevant matrix per shared-draft-directives / draft chrome notes; include collection density states when the surface presents a variable-length collection) were never implemented or tested, fresh live product evidence is missing (running product URL + screenshots), **paired draft-surface + live screenshot evidence** for draft-parity is missing, **live-product** or **draft-parity** is `fail` or **`uncertain`**, or any required visual dimension is `fail` or **`uncertain`** (fail-closed - note `uncertain` in hunt reasons; never `VERIFIED` on uncertain visual ready)
@@ -70,6 +70,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Evidence re-run fails** - Capture as fresh evidence; `REFUTED` until fixed and re-judged.
 - **Non-defect `decisions.md` notes** - Allowed alongside `VERIFIED` as recorded decisions only. They do **not** create a third verdict. Unfinished follow-up work ⇒ `REFUTED`.
 - **Any review finding** - Critical, important, or minor (including warnings) ⇒ `REFUTED` until findings are empty.
+- **Missing canvas decisions lines** - Ready path without greppable `Canvas plan:`, `Canvas findings:` / `Canvas findings skipped: empty`, or `Canvas evidence:` (or without the required `.canvas.tsx` under managed `canvases/` when a canvas is required) ⇒ `REFUTED` (false completion). Chat-only link without the decisions line ⇒ `REFUTED`. Require `Canvas evidence:` before allowing `VERIFIED` / ready. Do not inspect canvas TSX/JSON shape.
 - **Mission-review uncertain** - `uncertain` on evidence-fresh, validate-strict, scope-vs-plan, test-quality (when required), acceptance-behavior, security-when-in-scope (when required), perf-when-in-scope (when required), or unauthorized-action ⇒ `REFUTED` (fail-closed). No third verdict; record `uncertain` in hunt reasons only.
 - **Visual UI uncertain / live gap** - `uncertain` on draft-parity, **live-product**, or any required UX/UI dimension ⇒ `REFUTED` (fail-closed). Missing fresh live product evidence on visual ready ⇒ `REFUTED`. Missing paired draft-surface + live screenshot evidence for draft-parity ⇒ `REFUTED`. No third verdict; record `uncertain` in hunt reasons only.
 - **Manual-only check** - Fresh manual observation note in evidence; do not invent output.
@@ -96,6 +97,7 @@ No aliases (`PASS`, `FAIL`, `APPROVED`, `VERIFIED WITH CAVEATS`, etc.).
 - **Must**: On visual UI, treat `uncertain` draft-parity, **live-product**, or visual-ready claims as `REFUTED` (fail-closed) - never `VERIFIED`. REFUTE when fresh live product evidence is missing, paired draft-surface + live screenshot evidence for draft-parity is missing, or **live-product** / **draft-parity** is fail/uncertain.
 - **Must**: Emit verdict exactly as `VERIFIED` | `REFUTED`.
 - **Must**: Allow `ready` only when verdict is `VERIFIED` (enforced by reviewer / `/sc-run`).
+- **Must**: On the ready path, require greppable `Canvas evidence:` (and other applicable canvas decisions lines) before `VERIFIED` / ready - Commander emits evidence canvas before judge; existence + lines only.
 - **Must**: When `REFUTED`, block `ready`, list remediation for `/sc-run` to fix, and require re-judge after fixes.
 - **Must**: Preserve discuss / run / ship - judge is the prove gate, not a replacement lifecycle.
 - **Must**: ASCII hyphen-minus only; Cursor-native; no Claude-plugin dependency.
@@ -152,6 +154,7 @@ Before emitting a verdict:
 - [ ] Claimed evidence commands re-run; fresh observation recorded
 - [ ] Scope diffed against `plan.json` / spec acceptance
 - [ ] Hunt covered weakened tests, false completion, unauthorized action, mission-review dimensions, and draft drift when visual UI
+- [ ] Applicable canvas decisions lines present (`Canvas plan:`, findings-or-skip, `Canvas evidence:`) and required canvas files exist under managed `canvases/` (existence + lines only)
 - [ ] Verdict is exactly one of the two contract strings
 - [ ] `Ready: allowed` only when verdict is `VERIFIED`
 - [ ] If `REFUTED`, ready blocked and remediation listed explicitly

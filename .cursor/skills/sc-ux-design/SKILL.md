@@ -164,6 +164,7 @@ Optional scripted audit (same Playwright family):
 
 ### Draft preview
 
+- **Must not**: Replace draft HTML / visual SoT with a Cursor Canvas - approved draft stays HTML under discuss; canvases are `/sc-run` plan/findings/evidence milestones only.
 - **Must**: Record `Context fidelity: …` before bake-off (omit absent paths; greenfield may omit shell/product-shot).
 - **Must**: Run a **layout bake-off** of 2–3 HTML candidates (distinct page structures, brief tokens, primary surface chrome) before deep scenario polish; record `Layout bake-off winner: <file>` or `Layout bake-off skipped: <reason>` in `decisions.md`.
 - **Must**: Use responsive CSS so **all four presets** (375 / 768 / 1280 / 1536) show size-appropriate organization for multi-region UIs - not frame-resize-only or squeeze-only at any preset. Adjacent presets must show intentional adaptation (structure, density, nav, column count, and/or content measure). Document `Responsive: single-column - density/nav adapt only` when single-column is intentional (still adapt density/spacing/nav at each preset).
