@@ -152,7 +152,7 @@ Unfamiliar tooling/APIs: use sc-search before committing. Fast ≠ skip-research
 
 ## Summary format
 
-After successful merge/tag, if `spacecraft map current` succeeds and `spacecraft map next <rid>` is not `All missions complete.`, handoff: **Next: new session → /sc-discuss <id>**. Otherwise `Next: push? / done`.
+After successful merge/tag, if `spacecraft map current` succeeds and `spacecraft map next <rid>` is not `All missions complete.`, handoff: **Next: new session → /sc-discuss <id>**. Otherwise `Next: push? / done`. When a resolved mission exists and the handoff is useful, set or update optional `mission.json` `pickup` (`phase`, `next` one-liner, `updatedAt`) so `spacecraft status` / session-start shows Pickup. Not a ship gate (quick has no closeout).
 
 ```
 Lane: quick (no mission)

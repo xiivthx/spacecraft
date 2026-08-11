@@ -10,9 +10,17 @@ Canonical shapes for `.space/` artifacts. Always-on rules point here; do not pas
   "title": "<title>",
   "state": "active|planned|in_progress|ready|blocked|shipped",
   "branches": ["<branch-name>"],
-  "createdAt": "<iso-date>"
+  "createdAt": "<iso-date>",
+  "pickup": {
+    "phase": "<discuss|run|ship|quick|…>",
+    "next": "<one-liner for the next session>",
+    "blockers": ["<optional blocker>"],
+    "updatedAt": "<iso-date>"
+  }
 }
 ```
+
+Optional `pickup`: set or update on discuss / run / ship / quick handoffs so `spacecraft status` (and session-start) can print `Pickup: <next>`. Fields: `phase`, `next` (required for the status line), optional `blockers`, and `updatedAt`. Omit `pickup` when there is nothing useful to resume. Not a closeout or ship gate.
 
 ## plan.json
 
@@ -49,7 +57,20 @@ One JSON object per line:
 
 `output` must be actual captured command output - never fabricated.
 
-`outputHash` is optional: lowercase hex SHA-256 of `output`. Omitted via `omitempty`; entries without it remain valid (backward compatible).
+`outputHash` is optional: lowercase hex SHA-256 of the **full** raw command output. Omitted via `omitempty`; entries without it remain valid (backward compatible).
+
+When raw output exceeds the capture limit (65536 bytes), `spacecraft evidence` keeps the full raw under the mission `evidence-raw/` sidecar, truncates the JSONL `output` field (prefix plus trailing marker `\n...[truncated]`), and records:
+
+```json
+{"label":"<label>","command":"<command>","output":"<prefix>\\n...[truncated]","outputHash":"<hex of full raw>","outputTruncated":true,"outputBytes":<full-raw-byte-length>,"outputRawPath":"evidence-raw/<ts>-<safe-label>.log","ts":"<iso-timestamp>"}
+```
+
+- `outputTruncated` - `true` when the JSONL `output` is truncated
+- `outputBytes` - byte length of the full raw
+- `outputRawPath` - path relative to the mission dir under `evidence-raw/`
+- `outputHash` - SHA-256 of the full raw (not of the truncated JSONL string)
+
+`spacecraft validate` hashes the sidecar when `outputTruncated` is true (fails if the sidecar is missing or mismatches); otherwise it hashes `output` when `outputHash` is present. The terminal still prints the full raw on capture.
 
 ## Roadmap (`.space/roadmaps/<id>.json`)
 

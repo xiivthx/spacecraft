@@ -32,6 +32,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Check cannot be automated** - State why in the evidence label. Mark as `manual`. Document the manual verification steps.
 - **No plan.json exists** - Cannot map evidence to acceptance checks. Ask user to create a plan first.
 - **Evidence already captured for this check** - Re-run and append fresh evidence. Never reuse stale evidence.
+- **Large output** - Oversized capture may truncate the JSONL `output` (marker `\n...[truncated]`) and write full raw under mission `evidence-raw/` (`outputTruncated`, `outputBytes`, `outputRawPath`). `outputHash` is SHA-256 of the full raw; the terminal still prints the full output. See `docs/mission-artifacts.md`.
 
 ## Rules
 

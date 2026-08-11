@@ -134,6 +134,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 3. Handoff by sizing (`references/mission-sizing.md`):
    - `Sizing: roadmap <id>` → **Spec clear. New session: `/sc-run <id>`.**
    - `Sizing: single` or `phases` → **Spec clear. New session: `/sc-run`.** (mission-only AFK on resolved current mission)
+4. On handoff, set or update optional `mission.json` `pickup` (`phase`, `next` one-liner, `updatedAt`) so `spacecraft status` / session-start shows Pickup. Not a clear or closeout gate.
 
 ## Rules
 

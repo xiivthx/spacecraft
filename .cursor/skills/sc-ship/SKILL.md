@@ -93,6 +93,8 @@ spacecraft map next <roadmap-id>
 
 If roadmap has work: **Next: new session → /sc-discuss <id>**. Do not auto-start discuss/run. Else: new session; `spacecraft status`.
 
+On handoff (especially when roadmap has a next mission), set or update that mission's optional `mission.json` `pickup` (`phase`, `next` one-liner, `updatedAt`) so `spacecraft status` / session-start shows Pickup. Not a closeout or ship gate.
+
 ## Hard stops
 
 Any `closeout-check` or `validate --strict` failure; clarify open; sc-git fail; no CHANGELOG/version commit; UI without design review when required. List exact missing actions.
