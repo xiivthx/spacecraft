@@ -1,11 +1,12 @@
 /**
- * Node CLI tests for evi/evidence JSONL capture: exitCode propagation and
- * outputHash integrity.
+ * Node CLI tests for evi/evidence JSONL capture: exitCode propagation,
+ * outputHash integrity, and oversized-output truncate/sidecar behavior.
  */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -27,6 +28,29 @@ const EMPTY_OUTPUT_HASH =
 /** Independent oracle: SHA-256 of `echo hello` merged stdout+stderr (`hello\n`). */
 const HELLO_OUTPUT = 'hello\n';
 const HELLO_OUTPUT_HASH = createHash('sha256').update(HELLO_OUTPUT).digest('hex');
+
+/** Discuss lock: truncate when output length exceeds this many bytes. */
+const EVI_TRUNCATE_THRESHOLD = 65536;
+/** Discuss lock: trailing marker on truncated JSONL `output`. */
+const EVI_TRUNCATE_MARKER = '\n...[truncated]';
+
+function sha256Hex(s) {
+  return createHash('sha256').update(s, 'utf8').digest('hex');
+}
+
+/** Resolve sidecar path from evidence entry (`outputRawPath` relative to mission dir or absolute). */
+function resolveOutputRawPath(root, missionId, entry) {
+  assert.equal(
+    typeof entry.outputRawPath,
+    'string',
+    'truncated evidence must record outputRawPath',
+  );
+  assert.ok(entry.outputRawPath.length > 0, 'outputRawPath must be non-empty');
+  const missionRoot = path.join(root, '.space', 'missions', missionId);
+  return path.isAbsolute(entry.outputRawPath)
+    ? entry.outputRawPath
+    : path.join(missionRoot, entry.outputRawPath);
+}
 
 function spaceRoot() {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'spacecraft-evi-'));
@@ -260,6 +284,178 @@ test('evi records outputHash for empty stdout', () => {
       EMPTY_OUTPUT_HASH,
       `outputHash=${entry.outputHash}, want ${EMPTY_OUTPUT_HASH}`,
     );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+// --- T2: truncate threshold / sidecar / path-unsafe label ---
+
+test('evi keeps full output at and under truncate threshold without sidecar truncate flags', () => {
+  const dir = spaceRoot();
+  const id = 'M8S5EE9S01';
+  try {
+    writeMission(dir, id);
+
+    const emptyRes = runCLI(dir, 'evi', '--mission', id, 'under-empty', '--', 'true');
+    assertNotStub(emptyRes, 'evi under-empty');
+    assert.equal(emptyRes.code, 0, `evi exit=${emptyRes.code}\n${combined(emptyRes)}`);
+    const emptyEntry = readLastEvidence(dir, id);
+    assert.equal(emptyEntry.output, '');
+    assert.equal(emptyEntry.outputHash, EMPTY_OUTPUT_HASH);
+    assert.notEqual(emptyEntry.outputTruncated, true);
+    assert.equal(
+      emptyRes.stdout,
+      'Exit code: 0\n',
+      'terminal must print full (empty) output then exit line',
+    );
+
+    const exact = 'y'.repeat(EVI_TRUNCATE_THRESHOLD);
+    assert.equal(Buffer.byteLength(exact, 'utf8'), EVI_TRUNCATE_THRESHOLD);
+    const exactHash = sha256Hex(exact);
+    const exactRes = runCLI(
+      dir,
+      'evi',
+      '--mission',
+      id,
+      'under-exact',
+      '--',
+      process.execPath,
+      '-e',
+      `process.stdout.write('y'.repeat(${EVI_TRUNCATE_THRESHOLD}))`,
+    );
+    assertNotStub(exactRes, 'evi under-exact');
+    assert.equal(exactRes.code, 0, `evi exit=${exactRes.code}\n${combined(exactRes)}`);
+
+    const exactEntry = readLastEvidence(dir, id);
+    assert.equal(exactEntry.output, exact, 'exactly 65536 bytes must stay fully in JSONL');
+    assert.equal(exactEntry.outputHash, exactHash);
+    assert.notEqual(
+      exactEntry.outputTruncated,
+      true,
+      'at threshold must not set outputTruncated:true',
+    );
+    assert.ok(
+      exactRes.stdout.startsWith(exact),
+      'terminal must still print the full output at threshold',
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('evi truncates oversized JSONL output to sidecar while hashing and printing full raw', () => {
+  const dir = spaceRoot();
+  const id = 'M8S5EE9S02';
+  try {
+    writeMission(dir, id);
+
+    const overLen = EVI_TRUNCATE_THRESHOLD + 1;
+    const raw = 'z'.repeat(overLen);
+    assert.equal(Buffer.byteLength(raw, 'utf8'), overLen);
+    const fullHash = sha256Hex(raw);
+
+    const res = runCLI(
+      dir,
+      'evi',
+      '--mission',
+      id,
+      'over-limit',
+      '--',
+      process.execPath,
+      '-e',
+      `process.stdout.write('z'.repeat(${overLen}))`,
+    );
+    assertNotStub(res, 'evi over-limit');
+    assert.equal(res.code, 0, `evi exit=${res.code}\n${combined(res)}`);
+
+    const entry = readLastEvidence(dir, id);
+    assert.equal(entry.outputTruncated, true);
+    assert.equal(entry.outputBytes, overLen);
+    assert.ok(
+      entry.output.endsWith(EVI_TRUNCATE_MARKER),
+      `JSONL output must end with truncate marker; got suffix ${JSON.stringify(entry.output.slice(-32))}`,
+    );
+    assert.notEqual(entry.output, raw, 'JSONL output must not keep the full raw');
+    assert.equal(
+      entry.outputHash,
+      fullHash,
+      `outputHash must be SHA-256 of full raw, want ${fullHash}, got ${entry.outputHash}`,
+    );
+    assert.notEqual(
+      entry.outputHash,
+      sha256Hex(entry.output),
+      'outputHash must not be hash of truncated JSONL output alone',
+    );
+
+    const sidecarPath = resolveOutputRawPath(dir, id, entry);
+    const evidenceRawDir = path.join(dir, '.space', 'missions', id, 'evidence-raw');
+    assert.ok(
+      sidecarPath.startsWith(evidenceRawDir + path.sep) ||
+        path.dirname(sidecarPath) === evidenceRawDir,
+      `outputRawPath must resolve under evidence-raw/; got ${sidecarPath}`,
+    );
+    assert.ok(existsSync(sidecarPath), `sidecar missing at ${sidecarPath}`);
+    assert.equal(
+      readFileSync(sidecarPath, 'utf8'),
+      raw,
+      'sidecar must contain the full raw output',
+    );
+
+    assert.ok(
+      res.stdout.startsWith(raw),
+      'terminal must still print the full raw output when truncated in JSONL',
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('evi path-unsafe label still writes sanitized sidecar under evidence-raw', () => {
+  const dir = spaceRoot();
+  const id = 'M8S5EE9S03';
+  const unsafeLabel = '../evil:name/with spaces';
+  try {
+    writeMission(dir, id);
+
+    const overLen = EVI_TRUNCATE_THRESHOLD + 1;
+    const raw = 'w'.repeat(overLen);
+    const res = runCLI(
+      dir,
+      'evi',
+      '--mission',
+      id,
+      unsafeLabel,
+      '--',
+      process.execPath,
+      '-e',
+      `process.stdout.write('w'.repeat(${overLen}))`,
+    );
+    assertNotStub(res, 'evi path-unsafe label');
+    assert.equal(res.code, 0, `evi exit=${res.code}\n${combined(res)}`);
+
+    const entry = readLastEvidence(dir, id);
+    assert.equal(entry.label, unsafeLabel);
+    assert.equal(entry.outputTruncated, true);
+
+    const sidecarPath = resolveOutputRawPath(dir, id, entry);
+    const evidenceRawDir = path.join(dir, '.space', 'missions', id, 'evidence-raw');
+    const rel = path.relative(evidenceRawDir, sidecarPath);
+    assert.ok(
+      rel && !rel.startsWith('..') && !path.isAbsolute(rel),
+      `sidecar must stay under evidence-raw/; outputRawPath=${entry.outputRawPath} resolved=${sidecarPath}`,
+    );
+    assert.doesNotMatch(
+      path.basename(sidecarPath),
+      /[\\/]/,
+      'sanitized sidecar basename must not contain path separators',
+    );
+    assert.ok(
+      !String(entry.outputRawPath).includes('..'),
+      'recorded outputRawPath must not retain path traversal segments',
+    );
+    assert.ok(existsSync(sidecarPath), `writable sidecar missing at ${sidecarPath}`);
+    assert.equal(readFileSync(sidecarPath, 'utf8'), raw);
   } finally {
     cleanup(dir);
   }

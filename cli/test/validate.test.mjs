@@ -1,8 +1,9 @@
 /**
  * Node CLI tests for val/validate: evidence JSONL shape, outputHash integrity,
- * and --strict evidence / done-task gates.
+ * truncated sidecar hash checks, and --strict evidence / done-task gates.
  */
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import {
   mkdirSync,
@@ -21,6 +22,23 @@ const entryPath = path.join(repoRoot, 'cli', 'spacecraft.mjs');
 /** Independent oracle: SHA-256 of "hi\n". */
 const HI_OUTPUT_HASH =
   '98ea6e4f216f2fb4b69fff9b3a44842c38686ca685f3f55dc48c5d3fb1107be4';
+
+/** Truncate marker aligned with evi discuss lock (trailing on JSONL `output`). */
+const EVI_TRUNCATE_MARKER = '\n...[truncated]';
+
+/** Fixture full raw for truncated-evidence validate cases (not from production). */
+const TRUNC_FIXTURE_RAW =
+  'FULL-RAW-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n';
+/** Truncated JSONL `output` field (prefix + marker); hash differs from full raw. */
+const TRUNC_FIXTURE_OUTPUT =
+  `${TRUNC_FIXTURE_RAW.slice(0, 32)}${EVI_TRUNCATE_MARKER}`;
+const TRUNC_FIXTURE_RAW_HASH = createHash('sha256')
+  .update(TRUNC_FIXTURE_RAW, 'utf8')
+  .digest('hex');
+const TRUNC_FIXTURE_OUTPUT_HASH = createHash('sha256')
+  .update(TRUNC_FIXTURE_OUTPUT, 'utf8')
+  .digest('hex');
+const TRUNC_FIXTURE_RAW_PATH = 'evidence-raw/2026-01-01T00-00-00Z-unit.log';
 
 function spaceRoot() {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'spacecraft-val-'));
@@ -66,6 +84,30 @@ function writeEvidence(root, id, body) {
     path.join(root, '.space', 'missions', id, 'evidence.jsonl'),
     body,
   );
+}
+
+function writeSidecar(root, id, relPath, body) {
+  const abs = path.join(root, '.space', 'missions', id, relPath);
+  mkdirSync(path.dirname(abs), { recursive: true });
+  writeFileSync(abs, body, 'utf8');
+}
+
+function truncatedEvidenceLine({
+  outputHash = TRUNC_FIXTURE_RAW_HASH,
+  outputRawPath = TRUNC_FIXTURE_RAW_PATH,
+  output = TRUNC_FIXTURE_OUTPUT,
+} = {}) {
+  return `${JSON.stringify({
+    label: 'unit',
+    command: 'echo truncated',
+    output,
+    ts: '2026-01-01T00:00:00Z',
+    exitCode: 0,
+    outputTruncated: true,
+    outputBytes: Buffer.byteLength(TRUNC_FIXTURE_RAW, 'utf8'),
+    outputRawPath,
+    outputHash,
+  })}\n`;
 }
 
 function runCLI(dir, ...args) {
@@ -222,6 +264,178 @@ test('validate accepts legacy evidence without outputHash', () => {
         `${cmd} must accept well-formed evidence omitting outputHash; exit=${res.code}\n${combined(res)}`,
       );
     }
+  } finally {
+    cleanup(dir);
+  }
+});
+
+// --- T3: truncated sidecar hash + legacy non-truncated rules ---
+
+assert.notEqual(
+  TRUNC_FIXTURE_RAW_HASH,
+  TRUNC_FIXTURE_OUTPUT_HASH,
+  'fixture raw hash must differ from truncated-output hash (oracle for must-not-hash-truncated)',
+);
+
+test('validate accepts truncated evidence when sidecar bytes match outputHash', () => {
+  const dir = spaceRoot();
+  const id = 'M08VAL20';
+  try {
+    writeMission(dir, id);
+    writeSidecar(dir, id, TRUNC_FIXTURE_RAW_PATH, TRUNC_FIXTURE_RAW);
+    writeEvidence(dir, id, truncatedEvidenceLine());
+
+    for (const cmd of ['val', 'validate']) {
+      const res = runCLI(dir, cmd, id);
+      assertNotStub(res, cmd);
+      assert.equal(
+        res.code,
+        0,
+        `${cmd} must accept outputTruncated:true when sidecar matches outputHash (must not hash truncated output); exit=${res.code}\n${combined(res)}`,
+      );
+    }
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('validate rejects truncated evidence when sidecar is missing', () => {
+  const dir = spaceRoot();
+  const id = 'M08VAL21';
+  try {
+    writeMission(dir, id);
+    writeEvidence(dir, id, truncatedEvidenceLine());
+
+    for (const cmd of ['val', 'validate']) {
+      const res = runCLI(dir, cmd, id);
+      assertNotStub(res, cmd);
+      assert.notEqual(
+        res.code,
+        0,
+        `${cmd} must reject outputTruncated:true when sidecar is missing; exit=${res.code}\n${combined(res)}`,
+      );
+      const out = combined(res);
+      assert.match(out, /line 1/, `${cmd} missing-sidecar message must identify evidence line\n${out}`);
+      assert.match(
+        out,
+        /outputhash|hash|sidecar|outputrawpath|missing/i,
+        `${cmd} missing-sidecar message must mention hash/sidecar\n${out}`,
+      );
+    }
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('validate rejects truncated evidence when sidecar contents do not match outputHash', () => {
+  const dir = spaceRoot();
+  const id = 'M08VAL22';
+  try {
+    writeMission(dir, id);
+    writeSidecar(dir, id, TRUNC_FIXTURE_RAW_PATH, 'WRONG-SIDECAR-BYTES\n');
+    writeEvidence(dir, id, truncatedEvidenceLine());
+
+    for (const cmd of ['val', 'validate']) {
+      const res = runCLI(dir, cmd, id);
+      assertNotStub(res, cmd);
+      assert.notEqual(
+        res.code,
+        0,
+        `${cmd} must reject outputTruncated:true when sidecar bytes mismatch outputHash; exit=${res.code}\n${combined(res)}`,
+      );
+      const out = combined(res);
+      assert.match(out, /line 1/, `${cmd} mismatch message must identify evidence line\n${out}`);
+      assert.match(
+        out,
+        /outputhash|hash/i,
+        `${cmd} mismatch message must mention outputHash or hash\n${out}`,
+      );
+    }
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('validate rejects truncated evidence when only truncated output field matches outputHash', () => {
+  const dir = spaceRoot();
+  const id = 'M08VAL23';
+  try {
+    writeMission(dir, id);
+    writeSidecar(dir, id, TRUNC_FIXTURE_RAW_PATH, TRUNC_FIXTURE_RAW);
+    // Wrong product state: outputHash is of truncated JSONL field, not full raw.
+    // Validate must hash sidecar (or fail), never accept by hashing truncated `output`.
+    writeEvidence(
+      dir,
+      id,
+      truncatedEvidenceLine({ outputHash: TRUNC_FIXTURE_OUTPUT_HASH }),
+    );
+
+    for (const cmd of ['val', 'validate']) {
+      const res = runCLI(dir, cmd, id);
+      assertNotStub(res, cmd);
+      assert.notEqual(
+        res.code,
+        0,
+        `${cmd} must not accept by hashing truncated output when outputTruncated:true; exit=${res.code}\n${combined(res)}`,
+      );
+      const out = combined(res);
+      assert.match(out, /line 1/, `${cmd} mismatch message must identify evidence line\n${out}`);
+      assert.match(
+        out,
+        /outputhash|hash/i,
+        `${cmd} mismatch message must mention outputHash or hash\n${out}`,
+      );
+    }
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('validate rejects non-truncated mismatched outputHash (T3 legacy rule)', () => {
+  const dir = spaceRoot();
+  const id = 'M08VAL24';
+  try {
+    writeMission(dir, id);
+    writeEvidence(
+      dir,
+      id,
+      '{"label":"unit","command":"echo hi","output":"hi\\n","ts":"2026-01-01T00:00:00Z","exitCode":0,"outputHash":"0000000000000000000000000000000000000000000000000000000000000000"}\n',
+    );
+
+    const res = runCLI(dir, 'val', id);
+    assertNotStub(res, 'val');
+    assert.notEqual(
+      res.code,
+      0,
+      `val must reject non-truncated outputHash mismatch; exit=${res.code}\n${combined(res)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('validate accepts legacy omit-hash and matching-hash non-truncated lines (T3)', () => {
+  const dir = spaceRoot();
+  const id = 'M08VAL25';
+  try {
+    writeMission(dir, id);
+    writeEvidence(
+      dir,
+      id,
+      [
+        '{"label":"omit","command":"echo hi","output":"hi\\n","ts":"2026-01-01T00:00:00Z","exitCode":0}',
+        `{"label":"match","command":"echo hi","output":"hi\\n","ts":"2026-01-01T00:00:00Z","exitCode":0,"outputHash":"${HI_OUTPUT_HASH}"}`,
+        '',
+      ].join('\n'),
+    );
+
+    const res = runCLI(dir, 'validate', id);
+    assertNotStub(res, 'validate');
+    assert.equal(
+      res.code,
+      0,
+      `validate must accept legacy omit-hash + matching-hash lines; exit=${res.code}\n${combined(res)}`,
+    );
   } finally {
     cleanup(dir);
   }

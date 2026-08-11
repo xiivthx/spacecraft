@@ -251,6 +251,11 @@ export function statusCmd(spaceDir, mid) {
   if (typeof m.title === 'string') console.log(`Title: ${m.title}`);
   if (typeof m.state === 'string') console.log(`State: ${m.state}`);
   console.log(`Evidence: ${countEvidence(spaceDir, id)}`);
+  const pickupNext =
+    m.pickup && typeof m.pickup === 'object' && typeof m.pickup.next === 'string'
+      ? m.pickup.next.trim()
+      : '';
+  if (pickupNext) console.log(`Pickup: ${pickupNext}`);
   return 0;
 }
 
