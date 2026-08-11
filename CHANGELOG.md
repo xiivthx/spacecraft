@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.49.3 - 2026-08-11
+
+- Feat: deepen sc-browser-probe into live inventory, foundations, and matched packs (`PROBE: PARTIAL`)
+- Feat: first-party UX checklist catalog under sc-ux-design; discuss/designer/probe load matched files
+
 ## 0.49.2 - 2026-08-11
 
 - Docs: house surface UX checklist adapter (`UX checklist:` id or none) for visual discuss/run; designer scores house items
