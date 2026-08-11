@@ -165,6 +165,8 @@ Include:
 - `empty`, `few`, `many` when the surface presents a variable-length collection (list, table, feed, or item cards)
 - Feature and behavior surfaces from `spec.md`
 
+When `decisions.md` records `UX checklist: <id>`, also show applicable house items from `references/surface-checklist.md` as real chrome or extra `data-state` panels. State-like items (in-progress, success, failure, empty vs loading) stay in the matrix. Do not paste external checklist text into the draft.
+
 Chrome notes: `Scenario matrix: <states>` (optional short note when collection density states do not apply).
 
 Gate: missing an applicable state = critical (designer pass, human serve, and `UI draft approved` require the applicable set).
