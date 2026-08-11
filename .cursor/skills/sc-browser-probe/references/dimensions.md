@@ -5,8 +5,8 @@ Silent sweep after (or during) scenarios. File a finding only with repro - no es
 ## How to sweep
 
 1. Inventory visible routes/surfaces (ids from `surface-match.md`)
-2. Score **Foundations** always
-3. Score **matched packs** only
+2. Score **Foundations** always (this file)
+3. Score **matched packs** only (pack items from `.cursor/skills/sc-ux-design/references/checklists/` via `surface-match.md`)
 4. Mark each check `ok` | `fail` | `n/a` (capability absent) | `deferred` (not reached)
 5. File a finding only on `fail` with repro
 
@@ -65,4 +65,4 @@ Silent sweep after (or during) scenarios. File a finding only with repro - no es
 - Draft-parity / token match → `sc-ux-design`
 - Unit assertion quality → `sc-tdd` / `sc-judge`
 - Security deep hunt → `sc-security` when in mission scope
-- Consult site / Figma AI as a gate source
+- External checklist site / its AI review as a gate

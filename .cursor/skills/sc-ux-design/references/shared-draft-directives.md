@@ -165,7 +165,7 @@ Include:
 - `empty`, `few`, `many` when the surface presents a variable-length collection (list, table, feed, or item cards)
 - Feature and behavior surfaces from `spec.md`
 
-When `decisions.md` records `UX checklist: <id>`, also show applicable house items from `references/surface-checklist.md` as real chrome or extra `data-state` panels. State-like items (in-progress, success, failure, empty vs loading) stay in the matrix. Do not paste external checklist text into the draft.
+When `decisions.md` records `UX checklist: <id>`, load that id's file under `.cursor/skills/sc-ux-design/references/checklists/` (README + `references/surface-checklist.md`) and show applicable `- [ ]` items as real chrome or extra `data-state` panels. State-like items stay in the matrix.
 
 Chrome notes: `Scenario matrix: <states>` (optional short note when collection density states do not apply).
 

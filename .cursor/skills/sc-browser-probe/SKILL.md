@@ -12,7 +12,7 @@ Recommend-only escape net after implement/fix or `/sc-run` green for UI/workflow
 ## Output
 
 1. **Setup** - URL/env, auth, seed data, viewports
-2. **Inventory** - surfaces seen (pack ids from `references/surface-match.md`)
+2. **Inventory** - surfaces seen (ids from `.cursor/skills/sc-ux-design/references/checklists/README.md` via `references/surface-match.md`)
 3. **Scenario table** - id, input, steps, result (`pass` | `fail` | `blocked`), notes
 4. **Coverage table** - each in-scope foundation area and matched pack: `ok` | `fail` | `n/a` | `deferred`
 5. **Findings** - severity `critical` | `important` | `minor` with repro
@@ -21,8 +21,8 @@ Recommend-only escape net after implement/fix or `/sc-run` green for UI/workflow
 
 ## Good / Bad
 
-- Good: inventory before sweep; every in-scope foundation + matched pack scored; interaction not screenshot-only; consult site never used as pass/fail source; severity + repro; timebox; measured perf or explicit "not measured"
-- Bad: one happy path; treating invalid / empty / loading / error as the same state; `CLEAN` with deferred required packs; copying external checklist text; treating designer draft-parity as this job; claiming `ready` / replacing sc-judge; skipping setup
+- Good: inventory before sweep; every in-scope foundation + matched pack scored; interaction not screenshot-only; pack items from `sc-ux-design/references/checklists/` via `surface-match.md`; severity + repro; timebox; measured perf or explicit "not measured"
+- Bad: one happy path; treating invalid / empty / loading / error as the same state; `CLEAN` with deferred required packs; walking unmatched packs; treating designer draft-parity as this job; claiming `ready` / replacing sc-judge; skipping setup
 
 ## Verify
 
@@ -75,7 +75,7 @@ If no runnable URL → `PROBE: BLOCKED` and stop.
 
 ### 2. Inventory + scenario matrix
 
-Inventory visible routes/surfaces using ids in `references/surface-match.md`. One product may match several packs. Do not walk packs that are not in inventory. Do not walk a page-type catalog.
+Inventory visible routes/surfaces; resolve ids via `.cursor/skills/sc-ux-design/references/checklists/README.md` and `references/surface-match.md`. One product may match several packs. Do not walk packs that are not in inventory. Do not walk the catalog.
 
 Then follow `references/scenario-matrix.md`. Seed from (in order):
 
@@ -132,7 +132,7 @@ Use this template:
 | pack:<id> | fail | item scores; see findings |
 | pack:<id> | deferred | timebox |
 
-Pack rows: list each house item as `ok` | `fail` | `n/a` in notes or a sub-list. `fail` → finding.
+Pack rows: list each `- [ ]` item from the loaded catalog file as `ok` | `fail` | `n/a` in notes or a sub-list. `fail` → finding.
 
 ### Findings
 - **critical** - <title> - repro: …
@@ -202,7 +202,7 @@ After small fix: probe the touched surface only when user asks or handoff recomm
 - **Must**: Stay recommend-only escape net - recommend (not force) after UI/workflow `/sc-run` green via `Recommend: /sc-browser-probe`
 - **Must not**: Expertise cosplay ("as a QA expert…")
 - **Must not**: Invent throughput numbers
-- **Must not**: Copy external checklist text; use a consult site as pass/fail
+- **Must not**: Use an external checklist site as pass/fail; walk packs that are not in inventory
 - **Must not**: Claim `CLEAN` when any required coverage row is `deferred`
 - **Must not**: Treat designer draft-parity as this job
 - **Must not**: Replace sc-verification or sc-judge; absorb into judge/verify as the sole gate; alone allow `ready`
@@ -211,7 +211,7 @@ After small fix: probe the touched surface only when user asks or handoff recomm
 ## References
 
 - [dimensions.md](references/dimensions.md) - Foundations sweep (always)
-- [surface-match.md](references/surface-match.md) - inventory ids + matched packs
+- [surface-match.md](references/surface-match.md) - inventory ids; load matched files from `.cursor/skills/sc-ux-design/references/checklists/`
 - [scenario-matrix.md](references/scenario-matrix.md) - how to build cases
 - [perf-probe.md](references/perf-probe.md) - throughput / machine estimate
 - [examples.md](examples.md) - call examples (including NFC-shaped)
