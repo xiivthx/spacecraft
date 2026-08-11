@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.49.2 - 2026-08-11
+
+- Docs: house surface UX checklist adapter (`UX checklist:` id or none) for visual discuss/run; designer scores house items
+
 ## 0.49.1 - 2026-08-09
 
 - Feat: project `install-cursor` omits lean-core skills (User layer only) and prunes leftovers on re-run; domain packs stay project-local
