@@ -16,7 +16,7 @@ Do not replace draft-parity, HIL, or existing `sc-designer` dimensions. This rai
 
 1. **Deterministic first** - Prefer ordinary tests, CLI, format checks, tool calls, `npx impeccable detect`, scenario `data-state` presence, evidence re-run, and scripted overflow audits before LLM taste. Reserve critique for what machines cannot assert directly (hierarchy, clutter, subtle parity, motion feel).
 
-2. **Narrow questions per dimension** - Never one blob question ("is this good?"). Separate draft/scaffold readiness, scenario coverage, responsive ladder, draft parity, live product review, anti-slop, accessibility blockers, motion intent, and product continuity. One pass/fail verdict per dimension with a short reason.
+2. **Narrow questions per dimension** - Never one blob question ("is this good?"). Separate draft/scaffold readiness, scenario coverage, surface checklist, responsive ladder, draft parity, live product review, anti-slop, accessibility blockers, motion intent, and product continuity. One pass/fail verdict per dimension with a short reason.
 
 3. **Pass/fail (not scores)** - Verdicts are `pass`, `fail`, or `uncertain` per dimension. Critique notes may say "uncertain" for humans. **fail-closed for ready/ship:** `uncertain` on a required dimension is treated as `fail` (critical finding, `REFUTED`, blocked ready) - never soft-pass or `VERIFIED` on uncertain visual claims.
 
@@ -32,6 +32,7 @@ Required dimensions depend on phase (discuss vs run). Mark **required** when the
 |-----------|--------------------------|----------------------|-------------------------|----------------------|
 | **Draft / scaffold readiness** | required | n/a | `data-draft`, `[data-draft-chrome]` outside `[data-draft-frame]` / `[data-draft-surface]`; viewport toggles present; `Layout bake-off winner:` or skip in `decisions.md` | Scaffold clarity, port readiness, notes outside surface |
 | **Scenario coverage** | required (approval candidate) | required | Surface-relevant `data-state` panels per `spec.md` + primary surface shape (happy path + failure/degraded the surface can enter; `loading` when async; `empty`/`few`/`many` when variable-length collection; + spec features); product mapping or tests per applicable state | Real component chrome vs layout boxes; gate checks applicable states only |
+| **Surface checklist** | required line; score when id set | required when `UX checklist: <id>` | `UX checklist: <id>` or `UX checklist: none - <reason>` in `decisions.md`; when id set, each applicable house item from `references/surface-checklist.md` is `present` or `n/a` | Missing state-like items; chrome/path gaps; `none` → `n/a`; do not score bake-off; do not use consult site as the gate |
 | **Responsive ladder** | required (multi-region UI) | required when UI ships | Four presets 375 / 768 / 1280 / 1536; frame resize works; overflow/clip scripts at breakpoints | Size-appropriate organization; not pixel-squeezed adjacent presets; widescreen measure control |
 | **Draft parity** | n/a | required | Paired draft-surface + live screenshots at matching viewports (375 / 768 / 1280, + 1536 when multi-region): serve/open approved draft HTML and capture `[data-draft-surface]` (ignore chrome/frame); capture matching live product shots; both path sets in evidence / `decisions.md`; CSS token variables vs draft; `data-state` mapping; Step 0 checklist. Missing pair ⇒ `fail` / `uncertain` | Side-by-side LLM/browser compare of draft vs live for tokens, layout, component chrome, and applicable scenario states; layout-only match with different chrome; subtle spacing/type drift |
 | **Live product review** | n/a | **required** | Running product URL reachable; live screenshot paths in evidence at 375 / 768 / 1280 (+ 1536 when multi-region); those live shots also feed the draft-parity pair | House look and draft chrome on live; anti-slop on live; hierarchy and clutter; first-viewport composition when landing/marketing; a11y blockers visible in shots |
@@ -40,7 +41,7 @@ Required dimensions depend on phase (discuss vs run). Mark **required** when the
 | **Motion intent vs draft** | when motion in brief | required when motion in brief | `prefers-reduced-motion`; duration/easing within `animation-guidelines.md` | Motion feel matches brief/draft intent |
 | **Product continuity** | required when brownfield | required when brownfield | `Product context:` paths recorded; shell files exist | Draft/product reflects parent shell/nav patterns; no floating marketing shell on in-app pages |
 
-Bake-off candidates (pre-winner): scaffold + responsive ladder required; full scenario matrix may defer until approval polish (see `sc-designer`).
+Bake-off candidates (pre-winner): scaffold + responsive ladder required; full scenario matrix and surface-checklist scoring may defer until approval polish (see `sc-designer`).
 
 ## Verdict mapping
 
@@ -67,6 +68,7 @@ Short per-dimension lines only:
 UX/UI review (ux-ui-review-gates):
 - draft-scaffold: pass | fail | uncertain - <one line reason>
 - scenario-coverage: pass | fail | uncertain - <reason>
+- surface-checklist: pass | fail | uncertain | n/a - <reason>
 - responsive-ladder: pass | fail | uncertain - <reason>
 - draft-parity: pass | fail | uncertain - <reason>  (run only)
 - live-product: pass | fail | uncertain - <reason>  (run only)
@@ -105,6 +107,7 @@ Include when claiming visual ready: fresh live product evidence from the running
 - `.cursor/agents/sc-designer.md` - discuss and run critique dimensions (draft parity + live product)
 - `.cursor/skills/sc-judge/SKILL.md` - draft drift hunt, `VERIFIED` | `REFUTED` only
 - `references/anti-slop-catalog.md` - deterministic slop patterns and fixes
+- `references/surface-checklist.md` - house surface completeness adapter
 - `references/shared-draft-directives.md` - draft scaffold, scenario matrix, responsive structure
 - `docs/ux-ui-review.md` - short human-facing overview
 - `.cursor/skills/sc-run/references/mission-review-gates.md` - sibling for evidence / scope / acceptance review (all missions)
