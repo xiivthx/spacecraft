@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.50.0 - 2026-08-10
+
+- Feat: optional `mission.json` `pickup` printed as `Pickup:` on `spacecraft status` (handoff resume; not a closeout gate)
+- Feat: oversized `spacecraft evidence` output truncates JSONL with `evidence-raw/` sidecar; `outputHash` is full raw; validate checks the sidecar when truncated
+
 ## 0.49.3 - 2026-08-11
 
 - Feat: deepen sc-browser-probe into live inventory, foundations, and matched packs (`PROBE: PARTIAL`)

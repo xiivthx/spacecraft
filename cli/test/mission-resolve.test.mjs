@@ -214,6 +214,54 @@ test('status and flow: current overrides branch', () => {
   }
 });
 
+test('status prints Pickup line when mission.json has pickup.next', () => {
+  const dir = spaceRoot();
+  const id = 'M08PICK1';
+  const next = 'continue T2: evidence truncate';
+  try {
+    writeMission(dir, id);
+    writeCurrent(dir, id);
+    initGitRepo(dir, 'main');
+
+    const missionPath = path.join(dir, '.space', 'missions', id, 'mission.json');
+    const mission = JSON.parse(readFileSync(missionPath, 'utf8'));
+    mission.pickup = {
+      phase: 'run',
+      next,
+      updatedAt: '2026-08-10T00:00:00Z',
+    };
+    writeFileSync(missionPath, `${JSON.stringify(mission, null, 2)}\n`);
+
+    const res = runCLI(dir, 'status');
+    assert.equal(res.code, 0, `status exit=${res.code}\n${combined(res)}`);
+    const out = combined(res);
+    assert.match(out, /^Pickup: continue T2: evidence truncate$/m);
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('status omits Pickup when mission.json has no pickup', () => {
+  const dir = spaceRoot();
+  const id = 'M08PICK0';
+  try {
+    writeMission(dir, id);
+    writeCurrent(dir, id);
+    initGitRepo(dir, 'main');
+
+    const res = runCLI(dir, 'status');
+    assert.equal(res.code, 0, `status exit=${res.code}\n${combined(res)}`);
+    const out = combined(res);
+    assert.match(out, new RegExp(`^Mission: ${id}$`, 'm'));
+    assert.match(out, /^Title: Test Mission$/m);
+    assert.match(out, /^State: active$/m);
+    assert.match(out, /^Evidence: \d+$/m);
+    assert.doesNotMatch(out, /^Pickup:/m);
+  } finally {
+    cleanup(dir);
+  }
+});
+
 test('init creates .space/missions and .space/roadmaps', () => {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'spacecraft-init-'));
   try {

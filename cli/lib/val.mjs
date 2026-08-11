@@ -7,7 +7,7 @@ function isJSONNumber(v) {
   return typeof v === 'number' && Number.isFinite(v);
 }
 
-function validateEvidence(evidencePath, strict) {
+function validateEvidence(evidencePath, strict, missionDirPath) {
   let data;
   try {
     data = readFileSync(evidencePath, 'utf8');
@@ -52,8 +52,25 @@ function validateEvidence(evidencePath, strict) {
     }
 
     if (typeof entry.outputHash === 'string') {
-      const output = typeof entry.output === 'string' ? entry.output : '';
-      if (entry.outputHash !== outputSHA256Hex(output)) {
+      let hashed;
+      if (entry.outputTruncated === true) {
+        const rel =
+          typeof entry.outputRawPath === 'string' ? entry.outputRawPath : '';
+        const sidecarPath = path.join(missionDirPath, rel);
+        try {
+          hashed = readFileSync(sidecarPath, 'utf8');
+        } catch {
+          console.log(
+            `x ${'evidence'.padEnd(20)} line ${i + 1} outputHash sidecar missing: ${rel || '(no outputRawPath)'}`,
+          );
+          ok = false;
+          entries++;
+          continue;
+        }
+      } else {
+        hashed = typeof entry.output === 'string' ? entry.output : '';
+      }
+      if (entry.outputHash !== outputSHA256Hex(hashed)) {
         console.log(`x ${'evidence'.padEnd(20)} line ${i + 1} outputHash mismatch`);
         ok = false;
       }
@@ -197,7 +214,7 @@ export function valCmd(args, spaceDir, mid) {
   checkJSON('mission.json', 'mission');
   checkJSON('plan.json', 'plan');
 
-  if (!validateEvidence(path.join(dir, 'evidence.jsonl'), strict)) {
+  if (!validateEvidence(path.join(dir, 'evidence.jsonl'), strict, dir)) {
     ok = false;
   }
 
