@@ -37,6 +37,10 @@ Required dimensions depend on mission scope. Mark **required** when the scope co
 | **scope-vs-plan** | required | Diff file list vs `plan.json` tasks; acceptance strings vs `spec.md` | Silent extras; missing acceptance coverage; done tasks without matching work |
 | **test-quality** | required when tests exist / TDD path | No removed/skipped/tautology assertions; composition contracts when FE/BE apply | Weakened expectations; GREEN without behavioral assertion |
 | **acceptance-behavior** | required | Evidence proves behavior (not config-only); re-run acceptance verify commands | Wrong behavior with green tests; config-only proof |
+| **approved-scenarios** | required on product path | `approved-scenarios.md` has freeze footer (`Approved-scenarios: frozen-from-contract` or `frozen-by-human`) or `Approved-scenarios skipped: docs/prose-only`; frozen expected literals not silently edited | Missing freeze; thawed oracles; scenarios invent values not in design-contract/spec |
+| **static-analysis** | required on product path | `evidence.jsonl` has `static-…` label **or** greppable `Static-analysis skipped: no project static tool` / `Static-analysis waived: <reason>` in `decisions.md`; failures fixed or waived | Lint/typecheck ignored with no skip/waive |
+| **diff-coverage** | required on product path | `diff-cov-…` evidence showing ≥80% touched executable lines **or** `Diff-coverage skipped: no project coverage tool` / `Diff-coverage waived: <reason>`; never global 95–100% as the bar | Missing attempt; below 80% touched without waive; tautology padding for coverage |
+| **mutation** | required disposition on product path | `mutation-…` evidence (≥70% scoped, or project higher bar) when in scope + tool present; else greppable `Mutation skipped: not in scope` / `Mutation skipped: no project mutation tool` / `Mutation waived: <reason>` / opt-in via `Mutation: required` | Silent omit; in-scope without evidence or skip; score below target without waive; inventing mutator installs without ask |
 | **security-when-in-scope** | when auth/API/secrets/deps touched | Commander captures read-only project checks as evidence when available (lint, typecheck, project-documented audit scripts); then heuristic `Task(sc-security)` scan | Heuristic gaps; patterns machines miss. **Boundary:** `sc-security` forbids dynamic CVE tools - do not require them here |
 | **perf-when-in-scope** | when perf-touched paths / hot paths | Measure or documented baseline when `sc-performance` applies; existing benchmark in `evidence.jsonl` | `measure-first` / unclear impact without evidence |
 | **unauthorized-action** | required | No outward push/deploy/publish/send without quoted `AUTH:`; no ship without `/sc-ship` gates | Outward action without authorization; merge/tag without lifecycle gates |
@@ -51,20 +55,22 @@ Commander runs this layer in `/sc-run` **before** `Task(sc-reviewer)`:
 
 1. `spacecraft validate --strict`
 2. Confirm every `plan.json` task marked `done` has matching `evidence.jsonl` entries for its `evidence` labels
-3. Re-run or spot-check claimed verify commands when acceptance is in doubt
-4. When security in scope: capture read-only project checks as evidence (lint, typecheck, documented audit scripts); then `Task(sc-security)` heuristic scan (no dynamic CVE tools per `sc-security` skill)
-5. When performance in scope: capture measurement or documented baseline per `sc-performance`; flag unclear hot-path impact without evidence
-6. Only then: `Task(sc-reviewer)` (+ `Task(sc-designer)` / UX gates when visual UI)
+3. Confirm approved-scenarios freeze footer or docs/prose skip; confirm static-analysis, diff-coverage, and mutation evidence labels or skip/waive lines (`docs/mission-artifacts.md`)
+4. Re-run or spot-check claimed verify commands when acceptance is in doubt
+5. When security in scope: capture read-only project checks as evidence (lint, typecheck, documented audit scripts); then `Task(sc-security)` heuristic scan (no dynamic CVE tools per `sc-security` skill)
+6. When performance in scope: capture measurement or documented baseline per `sc-performance`; flag unclear hot-path impact without evidence
+7. Only then: `Task(sc-reviewer)` (+ `Task(sc-designer)` / UX gates when visual UI)
 
 ## Post-review canvas handoff
 
-After `review.json` is written, before `sc-judge` on the ready path:
+After `review.json` is written, Commander may emit canvases for human check under `~/.cursor/projects/<workspace>/canvases/`:
 
-1. **Findings-or-skip:** nonempty `findings` → Commander writes `<missionId>-findings.canvas.tsx` under `~/.cursor/projects/<workspace>/canvases/`, appends `Canvas findings: ` + absolute path to `decisions.md`, and includes an absolute markdown link in chat (and `decisions.md`). Empty `findings` → append only `Canvas findings skipped: empty` (no findings canvas file).
-2. **Evidence canvas:** write `<missionId>-evidence.canvas.tsx` under managed `canvases/`; append `Canvas evidence: ` + absolute path; absolute markdown link in chat (and `decisions.md`).
-3. **Then** run `sc-judge`.
+1. **Findings:** nonempty `findings` → optional `<missionId>-findings.canvas.tsx`, `Canvas findings: ` + absolute path in `decisions.md`, and an absolute markdown link in chat. Empty `findings` → optional `Canvas findings skipped: empty` (no findings canvas file).
+2. **Evidence:** optional `<missionId>-evidence.canvas.tsx`; `Canvas evidence: ` + absolute path; absolute markdown link in chat (and `decisions.md`).
 
-Do not put canvases under mission `.space/` or repo `.cursor/`. Gate is file existence + greppable decisions lines only - do not inspect canvas TSX/JSON shape. See `/sc-run` Mission canvas milestones.
+Then run `sc-judge`. Missing canvas files or `decisions.md` lines do not block `sc-judge` or ready. Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge `VERIFIED`.
+
+Do not put canvases under mission `.space/` or repo `.cursor/`. Do not inspect canvas TSX/JSON shape. See `/sc-run` Optional canvas (human check).
 
 ## Verdict mapping
 

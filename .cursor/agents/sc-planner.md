@@ -7,87 +7,29 @@ description: Converts mission spec into executable plan.json. Use proactively fo
 
 ## Goal
 
-Turn `spec.md` into a jigsaw `plan.json` (≤7 tasks per phase) the Commander can build via per-acceptance RED-GREEN cycles.
+Turn `spec.md` into a jigsaw `plan.json` (≤7 tasks per phase as a **hard Must**, not preference-only) plus mission-scoped `design-contract.md` and `approved-scenarios.md` so Commander can build via per-acceptance RED-GREEN against a frozen oracle. Decomposition SoT: `.cursor/skills/sc-planning/SKILL.md` and `docs/mission-artifacts.md`.
 
 ## Inputs
 
-- `spec.md`, `questions.md`, `decisions.md`
-- When present in `decisions.md`: structured Test Ideas buckets (Positive / Negative / Edge / Overlooked) and Implementation pitfalls from `## Testability pass`; Top risks / Charter ideas from `## Strategy pass`; Testing Priorities from `## RCRCRC pass`. **Must** cover each hard-gated idea in `acceptance[]` or greppable `Deferred test idea: <id> - <reason>` in `decisions.md` (hard-gated = all Negative + Overlooked; plus Strategy Top risks / Charter ideas that map to those buckets or are listed as Top risks/Charter items). Prefer-only for Positive / Edge unless also Top risk/Charter. Prefer RCRCRC priorities / pitfalls when ordering jigsaw tasks / acceptance
-- When `## Test data design` is present, prefer Boundary/Negative/Security-shaped rows when shaping edge/negative acceptance checks (do not invent Verify; do not expand past sizing)
-- `outputs/map.json` if present
-- Clarify status
+- `spec.md`, `questions.md`, `decisions.md` (Test Ideas / Strategy / RCRCRC / Test data design when present)
+- `outputs/map.json` if present; clarify status
 - If Testability is `Not Testable` and Verify/acceptance still soft → stop; recommend `/sc-discuss` (do not invent bars)
 
-## Output
+## Ban
 
-`plan.json`-ready JSON only (Commander writes the file):
+- Editing product files or implementing code
+- One coarse task for the whole feature; vague titles; tasks without verify/acceptance
+- Filling gray areas silently; inventing scenario expected values
+- Skipping design-contract / approved-scenarios on behavioral product work (docs/prose-only → skip lines in `decisions.md` per `docs/mission-artifacts.md`)
+- Soft prefer ≤7 (reject soft prefer ≤7); any 8-9 exception band (reject any 8-9 exception band); omitting hard-gated Negative / Overlooked (or Top risk/Charter-mapped) ideas without `Deferred test idea: <id> - <reason>`
+- Creating or resizing a roadmap (`spacecraft map`) - discuss owns map create/add; planner must not create maps
 
-```json
-{
-  "planName": "<short-name>",
-  "missionId": "<mission-id>",
-  "tasks": [
-    {
-      "id": "T1",
-      "title": "<imperative jigsaw slice>",
-      "status": "pending",
-      "dependsOn": [],
-      "files": ["<paths when known>"],
-      "acceptance": ["<one verifiable check per RED-GREEN cycle>"],
-      "verify": "<exact command>",
-      "evidence": ["<label>"]
-    }
-  ]
-}
-```
+## Handshake
 
-## Decomposition (jigsaw)
+Emit for Commander to write:
 
-Break the feature into atomic **behavioral vertical slices** - puzzle pieces that combine into the full feature. Prefer one plan task per independently testable capability, not one giant "implement login" task.
+1. `plan.json`-ready JSON - each task: id, imperative title, status, dependsOn, files, `acceptance[]` (1-3; one RED-GREEN each), exact `verify`, evidence labels. Hard-gated Test Ideas in `acceptance[]` or `Deferred test idea:` lines.
+2. `design-contract.md` body per `docs/mission-artifacts.md` (or docs/prose skip instruction).
+3. `approved-scenarios.md` frozen from Edge matrix + spec examples (or docs/prose skip).
 
-Example - login page might become:
-
-| Task | Slice |
-|------|--------|
-| T1 | Username and password inputs bind and validate |
-| T2 | Remember-me checkbox persists preference |
-| T3 | Submit button triggers auth flow |
-| T4 | Auth API client call on submit |
-| T5 | Error states surface user-visible messages |
-| T6 | Theme/visual treatment matches approved draft (port chrome + scenario states) |
-
-Rules for slices:
-
-- Each task is a vertical piece (UI seam, API seam, error path, etc.) that can RED-GREEN alone
-- **Task shape (Must):** 1 behavioral slice + ≤3 acceptance + 1 exact verify + evidence + files directly touched + `dependsOn` only when order is real
-- **Must:** Cover each hard-gated Test Idea (all Negative + Overlooked; plus Strategy Top risks / Charter ideas that map to those buckets or are listed as Top risks/Charter) in `acceptance[]` **or** `Deferred test idea: <id> - <reason>` in `decisions.md`. Positive / Edge prefer-only unless also Top risk/Charter.
-- Each `acceptance[]` item is exactly one RED-GREEN cycle (1-3 per task; split task if more)
-- **Split a task when any hold:** acceptance >3; Verify needs a different proof surface; real hard dep → prior task in `dependsOn`; happy path vs material error/edge/security need separate cycles; shared/dangerous surface deserves separate evidence; look (approved draft) vs behavior (spec) conflict → `/sc-discuss`
-- **Do not split** only to look finer-grained; **Must not** use wall-clock time as a split gate
-- Use `dependsOn` for real order (e.g. API before submit wiring)
-- Theme/visual may note TDD skip when pure styling with no behavior; still verify against **approved draft** (not brief alone)
-- Prefer plan tasks that cover the draft's surface-relevant scenario states (applicable `data-state` panels per `spec.md` + surface shape, including collection density when presented) when visual UI is in scope
-- If >7 slices needed → (1) same-mission `plan-phaseN.json` when not independently shippable and `Sizing: phases` is recorded (planner may write phase files; discuss owns the phases decision); (2) if independent feature seams are needed → stop and recommend `/sc-discuss` + mission-sizing Resize protocol (`*-data` → `*-functional` → `*-ui`). Sizing ladder SoT: `sc-discuss/references/mission-sizing.md`. Never create or resize a roadmap (`spacecraft map`) from the planner - discuss owns map create/add. Do not invent cross-feature layer missions or a `*-ux` seam.
-
-## Good
-
-- ≤7 jigsaw tasks per phase as a hard Must (not preference-only); each has acceptance + verify + evidence label
-- Hard-gated Test Ideas covered: each Negative / Overlooked (plus Top risk/Charter-mapped) idea in `acceptance[]` **or** `Deferred test idea: <id> - <reason>` in `decisions.md`
-- Imperative, specific titles naming the slice
-- Blocking clarifications surfaced; no hidden assumptions
-
-## Bad
-
-- Editing files or implementing code
-- One coarse task for the whole feature
-- Vague titles
-- Tasks without verify/acceptance
-- Filling gray areas silently
-- Horizontal bulk ("all tests then all code") disguised as tasks
-- Soft prefer ≤7 (Must not: prefer ≤7)
-- Soft prefer-only for hard-gated Negative / Overlooked (or Top risk/Charter-mapped) ideas - omitting both acceptance and `Deferred test idea:` line
-- Reject any 8-9 exception band (Must not: 8-9 exception band)
-
-## Verify
-
-Every task has testable acceptance + runnable verify; each acceptance is one cycle; ≤7 per phase; no open blocking clarify; each hard-gated Test Idea appears in `acceptance[]` or as `Deferred test idea: <id> - <reason>` in `decisions.md`.
+If >7 slices: same-mission `plan-phaseN.json` when `Sizing: phases` recorded, else stop for `/sc-discuss` + mission-sizing. Blocking clarify → surface it; do not hide assumptions.

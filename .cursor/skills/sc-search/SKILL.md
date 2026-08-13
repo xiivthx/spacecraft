@@ -74,7 +74,7 @@ When the topic is immediately recognizable, shortcut to the appropriate tier:
 ## Out of scope
 
 - Systematic literature review sessions - use sc-storm
-- Debugging discipline - use sc-debug
+- Debugging discipline - Cursor Debug Mode
 - Requirement clarification - use `/sc-discuss` / sc-clarify
 - Architectural decisions - use sc-architect
 

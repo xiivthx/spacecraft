@@ -16,139 +16,87 @@ Missions at `state=ready` (or stop on blocked / clarify / missing draft approval
 
 ## Good / Bad
 
-- Good: discuss clear first; plan → build → combine(+UI) → fix findings → review → findings-or-skip canvas → evidence canvas → `sc-judge`; empty review findings; `sc-judge` `VERIFIED`; real evidence; summary lists what was fixed; Cursor Canvas at plan / findings-or-skip / evidence (before judge) with greppable `decisions.md` lines + absolute markdown links
-- Bad: shipping; discuss work mid-AFK; parking defects for later; ready with review findings; ready without `sc-judge` or without `VERIFIED`; caveat / soft-pass ready; invent phrase-echo RED for docs/prose; demanding UI draft on `*-data` / `*-functional` / `*-integrate` seams; ready without applicable Canvas plan / findings-or-skip / evidence decisions lines; chat-only canvas link without the decisions line; canvas under mission `.space/` or repo `.cursor/`; mission brief or draft HTML / visual SoT as canvas; invoking `sc-judge` on the ready path without a greppable `Canvas evidence:` line
+- Good: discuss clear first; plan → design-contract → approved-scenarios → build → combine (+UI, static + diff-cov + mutation disposition) → fix → review → `sc-judge`; empty review findings; `sc-judge` `VERIFIED`; real `evidence.jsonl` + `review.json` + `validate --strict`; A/B/C disposition per `docs/mission-artifacts.md`; optional canvas for human check only
+- Bad: shipping; discuss mid-AFK; parking defects; product RED/GREEN without design-contract / approved-scenarios (or docs/prose skips); thawing scenario literals; coder editing tests to force GREEN; ready without static/diff-cov/mutation evidence or skip/waive; ready with findings or without `VERIFIED`; invent phrase-echo RED for docs/prose; canvas as ready/`VERIFIED` proof
 
 ## Verify
 
-`spacecraft validate --strict` per mission; roadmap mode: `map next` until `All missions complete.` or blocked tip; mission-only: that one mission `ready`. Before `ready`: `decisions.md` has greppable `Canvas plan:`, `Canvas findings:` or `Canvas findings skipped: empty`, and `Canvas evidence:` lines with absolute paths (and matching files under managed `canvases/` when a canvas is required).
+`spacecraft validate --strict` per mission; roadmap: `map next` until complete or blocked; mission-only: that mission `ready`. Before `ready`: matching `evidence.jsonl`, empty `review.json` findings, `sc-judge` `VERIFIED`. Canvas files are optional human-check aids - not ready proof.
 
 ## Arguments
 
-`$ARGUMENTS` = roadmap id (optional).
-
-```
-spacecraft map use <roadmap-id>
-/sc-run <roadmap-id>
-# or /sc-run  → map current if set; else mission-only on spacecraft resolve/current
-```
-
-## Lifecycle
-
-Canonical: `.cursor/rules/200-workflow.mdc` - discuss (HIL) → run (AFK) → human check → ship.
+`$ARGUMENTS` = roadmap id (optional). `spacecraft map use <id>` then `/sc-run <id>`, or `/sc-run` → map current if set, else mission-only via `spacecraft resolve`/`current`.
 
 ## Pre-flight
 
-1. Resolve mode:
-   - If `$ARGUMENTS` set → `map use` that roadmap (**roadmap mode**).
-   - Else if `spacecraft map current` succeeds → **roadmap mode** on that id.
-   - Else resolve mission via `spacecraft resolve` / `current` → **mission-only mode** (one mission; no map required). Fail only if neither roadmap nor mission resolves.
+1. Resolve mode: `$ARGUMENTS` → roadmap; else `map current` → roadmap; else mission-only. Fail only if neither resolves.
 2. Incomplete mission with `clarify-status` `open` → stop; `/sc-discuss`.
-3. Draft gate (visual only):
-   - Require `UI draft approved: …` when the mission is visual UI/FE (`*-ui` title, or `Sizing: single|phases` without a non-visual skip).
-   - Do **not** require draft when `decisions.md` has `UI draft skipped: non-visual seam (data|functional|integrate)` or another recorded non-visual skip. `*-integrate` tips use `UI draft skipped: non-visual seam (integrate)` - no draft demanded.
-   - Missing required draft → stop; `/sc-discuss`.
+3. Draft gate (visual only): require `UI draft approved: …` for visual UI/FE unless `UI draft skipped:` (including non-visual seams). Missing required draft → stop; `/sc-discuss`.
 4. Soft gaps → `decisions.md`. No design-brief / draft-HTML discovery here.
 
-## Mission canvas milestones
+## Optional canvas (human check)
 
-Emit Cursor Canvas artifacts at plan, post-review findings-or-skip, and evidence (before `sc-judge` on the ready path). Mid-build short chat dumps are **not** required as canvases.
-
-**Live path (IDE detect only):** `~/.cursor/projects/<workspace>/canvases/<missionId>-<kind>.canvas.tsx` where `kind` ∈ `plan` | `findings` | `evidence`.
-
-**Must not** write `.canvas.tsx` under mission `.space/` or repo `.cursor/` - Cursor IDE detects only managed `canvases/`.
-
-**Greppable `decisions.md` lines** (absolute paths; chat + `decisions.md` include absolute markdown links when a canvas exists):
-
-| Milestone | Required line |
-|-----------|---------------|
-| Post-plan | `Canvas plan: ` + absolute path ending in `<missionId>-plan.canvas.tsx` |
-| Post-review (nonempty findings) | `Canvas findings: ` + absolute path ending in `<missionId>-findings.canvas.tsx` |
-| Post-review (empty findings) | `Canvas findings skipped: empty` (no findings canvas file) |
-| Before `sc-judge` (ready path) | `Canvas evidence: ` + absolute path ending in `<missionId>-evidence.canvas.tsx` |
-
-Gate is file existence under managed `canvases/` plus those decisions lines only - do not inspect canvas TSX/JSON shape. Chat-only link without the matching decisions line fails the ready gate.
-
-**Must not:** replace mission brief (Accept/Adjust/Reject chat HIL) with a canvas; use canvas as draft HTML / visual SoT.
+May emit plan / findings / evidence canvases under `~/.cursor/projects/<workspace>/canvases/` (`<missionId>-<kind>.canvas.tsx`). Optional `decisions.md` lines: `Canvas plan:`, `Canvas findings:`, `Canvas findings skipped: empty`, `Canvas evidence:` + absolute path. Do not write canvases under mission `.space/` or repo `.cursor/`. Missing canvas does not block ready or `sc-judge`. Do not replace mission brief or draft HTML / visual SoT with a canvas.
 
 ## AFK loop
 
-**Roadmap mode:**
-
-```
-spacecraft map next <roadmap-id>
-```
-
-Stop when: `All missions complete.`, tip `blocked`, hard clarify, or missing draft approval.
-
-**Mission-only mode:** run the single resolved mission through **Per incomplete mission** once; then stop (no `map next`).
+**Roadmap:** `spacecraft map next <id>` until complete, blocked, hard clarify, or missing draft. **Mission-only:** one resolved mission through the steps below once.
 
 ### Per incomplete mission
 
-1. Parse id from `map next` (`M…:`); `spacecraft use <id>`.
-2. Branch `feat/<id>/…` from main; `spacecraft bind-branch <id>` if needed.
-3. Spec already discuss-ready; Task(`sc-planner`) → `plan.json`; `set-state planned` then `in_progress`. **Post-plan canvas:** write `<missionId>-plan.canvas.tsx` under managed `canvases/`; append `Canvas plan: ` + absolute path to `decisions.md`; include an absolute markdown link in chat (and `decisions.md`).
-4. **Build (per acceptance)** - for each pending task / `acceptance[]`:
-   1. Triage via sc-tdd; record `skip: <reason>` when tautology (docs/prose/wording-only).
-   2. **TDD:** RED Task(`sc-tester`) → checkpoint → GREEN Task(`sc-coder`/`sc-firmware`) → evidence → checkpoint.
-   3. **Skip:** direct write - Task(`sc-writer`) for docs/prose/wording-only, Task(`sc-coder`) for other tautologies - → evidence with task `verify` → one checkpoint. No phrase-harness scripts.
-   4. **Findings mid-build:** fix now (especially if it blocks current acceptance or the suite). When recording/reporting defects, use impact-first craft from `references/defect-finding.md` (especially critical/important). Note each fix for the run summary.
-   5. Mark task `done` only when all its acceptances pass.
-5. **Combine:** refactor; full suite; evidence. Fix any new failures. Checkpoint.
-6. **UI recheck (visual UI/FE):** Start the app → Tier 3 on the **running product URL** (`playwright-cli` primary; open real product routes; live screenshots at 375 / 768 / 1280, + 1536 when multi-region) → capture matching draft-surface screenshots (serve/open approved draft HTML; `[data-draft-surface]` only; same viewports) → record **both** path sets → Step 0 **draft-parity** (side-by-side LLM/browser compare draft vs live: tokens, layout, component chrome, scenario states) → Task(`sc-designer`) live critique (**live-product** + **draft-parity**, both image sets + live URL) → fix critical/important → re-capture paired evidence → then review. Layout-only match with different chrome, missing draft `data-state` coverage in the product, or missing paired screenshots → fix now. Draft HTML serve alone does not satisfy live-product; draft-parity requires the pair. Pair with the functional suite. No ready yet.
-7. **Fix pass** - until suite (+ UI if UI) is clean:
-   1. Fix mission-caused / suite-breaking / touched-path defects. For critical/important findings, follow `references/defect-finding.md` (impact-first title, user impact, 2-3 retest ideas).
-   2. Unrelated preexisting that is not suite-breaking and not on touched path → note in summary only.
-   3. Same issue fails fix-verify **3** times or hard blocker → stop to human.
-8. **Review + sc-judge** (only after suite clean + deterministic pre-review):
-   1. **Deterministic pre-review (required):** `spacecraft validate --strict`; confirm done tasks have matching `evidence.jsonl`; when scope matches, run/capture security and/or performance machine-first evidence per `.cursor/skills/sc-run/references/mission-review-gates.md` (Commander-side read-only checks; then heuristic `Task(sc-security)` when auth/API/secrets/deps touched - do not violate `sc-security` no-dynamic-tools rule).
-   2. Task(`sc-reviewer`) consuming `mission-review-gates` (+ Task(`sc-designer`) / `ux-ui-review-gates` when visual UI).
-   3. **Post-review canvas:** when `review.json` findings are nonempty → write `<missionId>-findings.canvas.tsx` under managed `canvases/`; append `Canvas findings: ` + absolute path to `decisions.md`; absolute markdown link in chat (and `decisions.md`). When findings are empty → append only `Canvas findings skipped: empty` (no findings canvas file).
-   4. **Evidence canvas (always before judge on the ready path):** write `<missionId>-evidence.canvas.tsx` under managed `canvases/`; append `Canvas evidence: ` + absolute path to `decisions.md`; absolute markdown link in chat (and `decisions.md`). Confirm greppable `Canvas plan:`, findings-or-skip, and `Canvas evidence:` lines exist (chat-only link without a decisions line blocks).
-   5. Run sc-judge; evidence label including `judge`. Verdict is binary: `VERIFIED` | `REFUTED` (no caveats).
-   6. Any findings (any severity) or `REFUTED` → fix remediation now → re-review + re-emit canvases as needed (findings-or-skip, then evidence) → re-judge. Do not set ready.
-   7. On `VERIFIED` + `review.json` `status: ready` + empty `findings`: confirm canvas decisions lines still present; `validate --strict`; `set-state ready`. Block ready if any applicable canvas decisions line is missing.
-9. Handoff: **Ready. Human check, then /sc-ship.** Include a short **Fixes** list in the summary. When UI or multi-step workflow was touched: also `Recommend: /sc-browser-probe` (recommend-only escape net; not a ready gate - does not replace sc-verification or sc-judge). Continue `map next`. Squash is `/sc-ship` only. On ready (or blocked/stop) handoff, set or update optional `mission.json` `pickup` (`phase`, `next` one-liner, `updatedAt`) so `spacecraft status` / session-start shows Pickup. Not a ready or closeout gate.
+1. Parse id; `spacecraft use <id>`; branch `feat/<id>/…`; bind if needed.
+2. Task(`sc-planner`) → `plan.json`; `set-state planned` then `in_progress`. Optional post-plan canvas for human check.
+3. **Design-contract (before build)** - write `.space/missions/<id>/design-contract.md` (`Design-contract: complete`) per `docs/mission-artifacts.md`, or append `Design-contract skipped: docs/prose-only`. **Must not** start product RED/GREEN until complete or skip.
+4. **Approved-scenarios (before build)** - freeze `.space/missions/<id>/approved-scenarios.md` (`Approved-scenarios: frozen-from-contract` or `frozen-by-human`), or append `Approved-scenarios skipped: docs/prose-only`. Agents Must not edit frozen expected literals; oracle changes need Commander + `Scenario oracle change: <id> - <reason>`.
+5. **Build (per acceptance)** - triage via sc-tdd; record `skip: <reason>` when tautology (docs/prose/wording-only).
+   - **TDD:** RED Task(`sc-tester`) → GREEN Task(`sc-coder`/`sc-firmware`) → evidence. One checkpoint per plan task after acceptances done. Tester/coder read contract + scenarios when present; coder **Must not** edit tests.
+   - **Skip:** Task(`sc-writer`) for docs/prose, Task(`sc-coder`) for other tautologies → evidence with task `verify` → one checkpoint. No phrase-harness scripts.
+   - Fix mid-build blockers now; mark task `done` only when all acceptances pass. Impact-first craft: `references/defect-finding.md`.
+6. **Combine:** refactor; full suite; evidence. **Static / diff-cov / mutation:** run tools or record disposition - labels `static-…` / `diff-cov-…` / `mutation-…`, or greppable lines (`Static-analysis skipped:…`, `Mutation skipped:…`, etc.) whose exact prefixes live in `docs/mission-artifacts.md`. Diff cov ≥80% touched when measured; mutation ≥70% scoped when in scope + tool present. Never chase global 95–100%. Checkpoint.
+7. **UI recheck (visual UI/FE):** live product URL + paired draft-surface screenshots → draft-parity → Task(`sc-designer`) → fix critical/important → re-capture → then review. Details: sc-ux-design. No ready yet.
+8. **Fix pass** - until suite (+ UI if UI) clean. Unrelated preexisting non-blockers → note in summary. Same issue fails **3** times → human.
+9. **Review + sc-judge** (suite clean + deterministic pre-review):
+   1. `validate --strict`; matching `evidence.jsonl`; approved-scenarios freeze (or skip); static / diff-cov / mutation disposition; security/perf machine-first when scope matches (`references/mission-review-gates.md`).
+   2. Task(`sc-reviewer`) (+ Task(`sc-designer`) when visual). Optional findings/evidence canvases for human check.
+   3. Run sc-judge (`judge` in evidence label). Verdict: `VERIFIED` | `REFUTED` only.
+   4. Findings or `REFUTED` → fix → re-review → re-judge. Do not set ready.
+   5. On `VERIFIED` + empty findings + `review.json` `status: ready`: `validate --strict`; `set-state ready`. Proof is evidence + review + validate + judge - not canvas.
+10. Handoff: **Ready. Human check, then /sc-ship.** Include **Fixes** list. When UI/workflow touched: `Recommend: /sc-browser-probe` (not a ready gate). Update optional `mission.json` `pickup`. Continue `map next` in roadmap mode.
 
 ```mermaid
 flowchart TD
-  A["plan build"] --> B["findings: fix now"]
-  B --> C["combine + UI"]
+  A["plan"] --> DC["design-contract"]
+  DC --> AS["approved-scenarios"]
+  AS --> B["build + fix now"]
+  B --> C["combine + static + diff-cov + mutation + UI"]
   C --> D["fix pass"]
   D --> E{"suite clean?"}
   E -->|no| F["fix"]
   F --> D
-  E -->|yes| P["deterministic pre-review"]
+  E -->|yes| P["pre-review"]
   P --> R["sc-reviewer"]
-  R --> CF["findings-or-skip canvas"]
-  CF --> CE["evidence canvas"]
-  CE --> J["sc-judge"]
+  R --> J["sc-judge"]
   J -->|findings or REFUTED| F
-  J -->|VERIFIED and empty findings| K["ready → HIL → ship"]
+  J -->|VERIFIED| K["ready → HIL → ship"]
 ```
 
 ## Checkpoint commits
 
-Auto-commit after every RED, GREEN, skip+evidence, combine, and material fix. Conventional Commits; no mission id in subject/body. Never push. See sc-git.
+One Conventional Commit per plan task after acceptances done; combine and material-fix checkpoints may remain. Docs/prose skip: one `docs:` / `feat:` / `fix:` checkpoint - no invented RED `test:`. See sc-git. Never push.
 
 ## Rules
 
-- Never `/sc-ship`, merge, push, tag; never discuss/draft work mid-AFK.
-- One feature branch per mission id; Task-delegate product code/tests.
-- Ready only after `sc-judge` `VERIFIED` and empty review findings (any severity blocks). Never ready on `REFUTED` or caveat soft-pass.
-- Ready-path canvas order: findings-or-skip → evidence canvas → `sc-judge` → `set-state ready` on `VERIFIED`. Emit evidence canvas before judge (not after `VERIFIED`).
-- Ready only when `decisions.md` has applicable `Canvas plan:`, `Canvas findings:` or `Canvas findings skipped: empty`, and `Canvas evidence:` lines (and required canvas files exist under managed `canvases/`).
-- Must fix blockers after plan+combine(+UI); report fixes in the run summary.
-- After feature/command cuts: rewrite survivors as current product only (Cut hygiene in `000-spacecraft.mdc`) - no tombstones in prompts/docs/tests.
-- After 3 failed fix-verify on the same issue → human.
-- Must not put canvases under mission `.space/` or repo `.cursor/`; must not replace mission brief or draft HTML / visual SoT with a canvas.
+- Never `/sc-ship`, merge, push, tag; never discuss/draft mid-AFK.
+- Task-delegate product code/tests; one feature branch per mission id.
+- Must have `Design-contract: complete` or `Design-contract skipped: docs/prose-only` before product RED/GREEN (`docs/mission-artifacts.md`).
+- Must have approved-scenarios freeze or `Approved-scenarios skipped: docs/prose-only` before product RED/GREEN.
+- Must capture static-analysis, diff-coverage, and mutation disposition (evidence or skip/waive lines per `docs/mission-artifacts.md`) before ready.
+- Coder Must not edit tests during GREEN; frozen scenario literals Must not thaw to force green.
+- Ready only after `sc-judge` `VERIFIED` and empty review findings. Ready proof: `evidence.jsonl` + empty `review.json` + `validate --strict` + judge - not canvas.
+- After 3 failed fix-verify on the same issue → human. Cut hygiene: rewrite survivors as current product only.
 
 ## References
 
-- `/sc-discuss`, `/sc-ship`
-- sc-judge - ready prove gate
-- sc-ux-design - post-build live product QC + draft-parity
-- sc-web-frontend - port look from approved draft
-- `references/defect-finding.md` - actionable defect findings for review/summary
-- `references/mission-review-gates.md` - five-gate mission review; deterministic pre-review before reviewer
-- Mission canvas milestones (this skill) - plan / findings / evidence under managed `canvases/`
+- `/sc-discuss`, `/sc-ship`, sc-judge, sc-ux-design, sc-web-frontend
+- `docs/mission-artifacts.md` - design-contract / approved-scenarios; outcome-gate skip/waive SoT
+- `references/defect-finding.md`, `references/mission-review-gates.md`

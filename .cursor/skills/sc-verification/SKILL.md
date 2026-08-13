@@ -43,6 +43,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Map acceptance checks to evidence ids in final summaries.
 - **Must**: If a check cannot be automated, state why and mark it manual.
 - **Must**: Prefer focused verification first, then broader build/test checks before shipping.
+- **Must** (mission product path before ready): ensure static-analysis, diff-coverage, and mutation disposition exist - evidence labels (`static-…`, `diff-cov-…`, `mutation-…`) **or** greppable skip/waive lines in `decisions.md` per `docs/mission-artifacts.md`. Diff coverage targets touched executable lines (≥80%), never global 95–100%. Mutation when in scope targets ≥70% scoped score (or project higher bar).
 - **Must**: Evidence must demonstrate functional correctness, not just configuration validity.
   - **Weak**: evidence that echoes the config back (e.g., "PASS: model set to X")
   - **Strong**: evidence that exercises actual behavior (e.g., "PASS: model X produces correct output for test case Y")
@@ -57,8 +58,8 @@ Use this exact sequence unless the user specifies otherwise:
 This skill does NOT handle:
 
 - Automated test execution - use the project's test runner instead
-- Code review or design critique - use sc-review or sc-design
-- Release readiness verification - use sc-review for full closeout checks
+- Code review or design critique - Task(sc-reviewer) or sc-ux-design / Task(sc-designer)
+- Release readiness verification - Task(sc-reviewer) for full closeout checks
 
 ## Output format
 
@@ -85,3 +86,4 @@ Before claiming verification passed:
 - `spacecraft evidence --help` - evidence subcommand reference
 - `spacecraft validate --help` - validation reference (`--strict` for ship/build claims)
 - `evidence.jsonl` in the active mission directory
+- `docs/mission-artifacts.md` - evidence schema; outcome-gate skip/waive line grammar SoT

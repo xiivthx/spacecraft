@@ -51,7 +51,7 @@ Proposed → Accepted → (maybe) Deprecated → Superseded
 
 - **Proposed** - under discussion; not yet binding
 - **Accepted** - agreed and active; implementation follows this decision
-- **Deprecated** - no longer followed but not yet replaced
+- **Deprecated** - inactive guidance; still recorded, pending a superseding ADR
 - **Superseded** - replaced by a newer ADR; reference the superseding ADR
 
 ## When to write an ADR

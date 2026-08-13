@@ -99,7 +99,7 @@ When planning or AFK discovers the mission must become multi-mission (or the map
 3. Discuss chooses one fate for the current mission (record in `decisions.md`):
    - **keep-as-seam** - retitle/repurpose current mission as one seam (usually the tip); create sibling stubs + map for the rest
    - **supersede** - archive or abandon current as wrong shape; create fresh seam stubs + new map
-   - **re-tip** - current stays on map but is no longer tip; reorder / `map add` siblings; discuss the new tip
+   - **re-tip** - current stays on map as a non-tip node; reorder / `map add` siblings; discuss the new tip
 4. Re-record `Sizing: roadmap <id>` on every involved mission; clear only the tip after its discuss gates.
 5. Discuss may also `map add` a `*-integrate` tip to an existing map when drift appears after map create (e.g. a later seam's contract diverged from an earlier one). Still discuss-only - never invent an integrate tip mid-`/sc-run` or from planning.
 

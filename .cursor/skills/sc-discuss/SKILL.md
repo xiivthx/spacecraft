@@ -70,32 +70,33 @@ resolve → inspect → sizing gate → lens-pass gate → testability soft gate
 4. Record in `decisions.md`: `Sizing: single | phases | roadmap <id>` (+ seams/rationale when roadmap; + `Sizing phases: N - …` when phases).
 5. If roadmap: follow **Map creation (discuss only)** ordered steps in `references/mission-sizing.md` (`spacecraft new` stubs → `map new` unless human approved reuse → `map add` → stub `Sizing:` on every seam → discuss tip only). Never leave map create/resize to planning.
 
+### Soft-gate load rule
+
+For lens / testability / strategy / RCRCRC: when triggers clearly do **not** fire, record the skip line in `decisions.md` and continue - **do not** load the full reference file only to skip. Load the matching `references/*.md` only when a trigger fires (or the human asks for that pass).
+
 ### Lens-pass gate
 
-After sizing, apply `references/lens-pass.md` before deep spec work when triggers fire (architecture fork, policy preference, soft Verify, sizing explosion risk). Otherwise record `Lens pass skipped: <reason>`. Tier 0: Commander checklist in discuss. Tier 1: Task(`sc-adviser`). Tier 2: 2-3 readonly Tasks (default Skeptic, Economist, Practitioner) synthesized to one `## Lens pass`. Tier 3 open-domain research: sc-storm (not sc-search gray areas).
+After sizing, when triggers fire (architecture fork, policy preference, soft Verify, sizing explosion risk), apply `references/lens-pass.md`. Otherwise record `Lens pass skipped: <reason>` without loading the ref. Tier 0: Commander checklist. Tier 1: Task(`sc-adviser`). Tier 2: 2-3 readonly Tasks (default Skeptic, Economist, Practitioner) → one `## Lens pass`. Tier 3 open-domain: sc-storm (not sc-search gray areas).
 
 ### Testability soft gate
 
-After lens-pass, apply `references/requirement-testability.md` when triggers fire (soft/missing Verify, new feature with behavioral uncertainty, human asks for requirement review, mission brief probe finds Verify skim risk). Otherwise record `Testability pass skipped: <reason>`. Park question candidates in `questions.md`; ask via sc-clarify frontier rounds (≤3 independent; serial when dependent). Do not clear while Testability is `Not Testable` and Verify is still soft/missing.
+After lens-pass, when triggers fire (soft/missing Verify, new feature with behavioral uncertainty, human asks for requirement review, mission brief probe finds Verify skim risk), apply `references/requirement-testability.md`. Otherwise record `Testability pass skipped: <reason>` without loading the ref. Park candidates in `questions.md`; ask via sc-clarify frontier rounds (≤3 independent; serial when dependent). Do not clear while Testability is `Not Testable` and Verify is still soft/missing.
 
 ### Strategy soft gate
 
-After testability, apply `references/htsm-strategy.md` when triggers fire (greenfield, multi-platform matrix, security/PII/compliance, critical integrations/SLOs, human asks for test strategy). Otherwise record `Strategy pass skipped: <reason>`. Strategy incompleteness does not block clear the way `Not Testable` + soft Verify does. Do not invent Verify from charters.
+After testability, when triggers fire (greenfield, multi-platform matrix, security/PII/compliance, critical integrations/SLOs, human asks for test strategy), apply `references/htsm-strategy.md`. Otherwise record `Strategy pass skipped: <reason>` without loading the ref. Strategy incompleteness does not block clear the way `Not Testable` + soft Verify does. Do not invent Verify from charters.
 
 ### RCRCRC (when two versions)
 
-When existing and updated requirements are both available (human paste, mid-mission rewrite, recoverable prior `spec.md`), apply `references/rcrcrc-impact.md` and record `## RCRCRC pass`. If only one version: record `RCRCRC pass skipped: Need both existing and updated requirements to perform RCRCRC analysis.` (or equivalent). Not required when there is no requirement delta.
+When existing and updated requirements are both available, apply `references/rcrcrc-impact.md` and record `## RCRCRC pass`. If only one version (or no delta): record `RCRCRC pass skipped: …` without loading the ref.
 
 ### Spec and decisions
 
 1. Ensure `spec.md` has Goal, Output, Good vs Bad, Verify (machine-checkable where possible).
 2. Blocking ambiguity: sc-clarify frontier rounds (≤3 independent; serial when dependent); record in `questions.md` / `decisions.md`.
 3. Soft gaps: Verify / architecture / in-out scope → open frontier until settled or explicitly deferred (do not silently assume). True soft gaps → assumptions in `decisions.md` (do not block clear alone).
-4. Lens pass or skip: `## Lens pass (<topic>)` per `references/lens-pass.md` OR `Lens pass skipped: <reason>`.
-5. Testability pass or skip: `## Testability pass` per `references/requirement-testability.md` OR `Testability pass skipped: <reason>`.
-6. Strategy pass or skip: `## Strategy pass` per `references/htsm-strategy.md` OR `Strategy pass skipped: <reason>`.
-7. RCRCRC when two versions: `## RCRCRC pass` per `references/rcrcrc-impact.md` OR `RCRCRC pass skipped: …`.
-8. Deep architecture: Task(`sc-adviser`) with Tier 1 lens pass; high-stakes may use Tier 2; open-domain systematic research → sc-storm (Tier 3). Keep `clarify-status open` while blockers or unapproved visual draft remain.
+4. Lens / testability / strategy / RCRCRC: record `## … pass` (load ref when trigger fires) **or** the matching skip line without loading the ref when triggers clearly do not fire.
+5. Deep architecture: Task(`sc-adviser`) with Tier 1 lens pass; high-stakes may use Tier 2; open-domain → sc-storm (Tier 3). Keep `clarify-status open` while blockers or unapproved visual draft remain.
 
 ### Visual design (when UI/FE)
 
@@ -148,6 +149,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 - Never clear while Testability is `Not Testable` and Verify is still soft/missing.
 - Never dump the full testability question queue in one user-facing turn - park in `questions.md` and ask via sc-clarify frontier rounds (≤3 independent; serial when dependent).
 - Never create `*-ux` roadmap seams or cross-feature layer waterfalls (see `references/mission-sizing.md`).
+- Soft gates: when triggers clearly do not fire, record skip lines without loading full reference files.
 - Prefer `spec.md` / `decisions.md` / `questions.md` over chat-only memory.
 - One mission focus per discuss session.
 
