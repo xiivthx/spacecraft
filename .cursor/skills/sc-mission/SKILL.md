@@ -9,128 +9,63 @@ Manage mission artifacts and lifecycle for local Cursor development.
 
 ## When to use
 
-Activate when the user asks to:
-
-- Resolve, list, or select a mission
-- Create mission artifacts (spec, plan, evidence)
-- Check mission state or lifecycle
-- Route ambiguity to `/sc-discuss` / sc-clarify
-- Handle session handoff or release closeout
+Resolve/list/select a mission; create artifacts; check state; route ambiguity to `/sc-discuss`; session handoff or release closeout prep.
 
 ## Workflow
 
-Use this exact sequence unless the user specifies otherwise:
-
-1. **Resolve mission** - Run `spacecraft resolve` (or `spacecraft status` / `spacecraft missions`); `.space/current` is fallback state, not sole authority. On conflict or ambiguity, use `spacecraft use <selector>`. Commander auto-detects development lane (Discuss, Mission, Debug, Quick) based on user intent.
-2. **Read artifacts** - Read `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
-3. **Index artifacts** - After creating or updating spec.md, plan.json, decisions.md, or questions.md, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort: warn on failure, never block). See sc-memory for conventions.
-4. **Route ambiguity** - If intent, scope, or acceptance criteria is ambiguous, route to `/sc-discuss` (sc-clarify protocol) before `/sc-run`. Always apply mission sizing (`sc-discuss/references/mission-sizing.md`) before bind/run; discuss owns any `spacecraft map` create/add and Resize protocol.
-5. **Enforce lifecycle** - Follow: mission -> `/sc-discuss` (sizing + clarify + spec + visual draft if needed) -> `/sc-run` (plan -> build -> verify -> review) -> ship. For roadmap AFK, `/sc-run` orchestrates jigsaw plan → per-acceptance RED-GREEN (checkpoint commits) → combine/refactor → review.
-6. **Release or handoff** - On ship intent, run `/sc-ship` closeout. On session end, give handoff summary. Prefer new session when phase changes (discuss → run → ship).
+1. **Resolve** - `spacecraft resolve` / `status` / `missions`; `.space/current` is fallback, not sole authority. Conflict → `spacecraft use <selector>`. Detect lane (Discuss, Mission, Debug, Quick) from intent.
+2. **Read** - `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, `design-contract.md` / `approved-scenarios.md` when present, design artifacts, `evidence.jsonl`, `review.json`.
+3. **Route ambiguity** - intent/scope/acceptance unclear → `/sc-discuss` before `/sc-run`. Apply mission sizing (`sc-discuss/references/mission-sizing.md`) before bind/run; discuss owns `spacecraft map` create/add and Resize.
+4. **Enforce lifecycle** - discuss → `/sc-run` (plan → design-contract → approved-scenarios → build → verify → review → judge) → ship. AFK requires design-contract + approved-scenarios (or docs/prose skips) before product RED/GREEN; combine needs static + diff-cov + mutation disposition (evidence or skip/waive per `docs/mission-artifacts.md`).
+5. **Release or handoff** - ship intent → `/sc-ship`. Session end → handoff summary. Prefer new session when phase changes.
 
 ### Edge cases
 
-- **No mission exists and user wants mutating work** - Create mission with `spacecraft new "<title>"` and a work branch. Record in `decisions.md`: "Auto-created mission for: <reason>."
-- **Multiple missions match selector** - Show candidates. Ask user to pick with `spacecraft use <number>`.
-- **Resolve conflict or ambiguity** - Resolve via `spacecraft resolve`; on conflict/ambiguity use `spacecraft use <selector>`. Block mutating work until resolved.
-- **Session ends mid-work** - Handoff: summarize current task, blockers, dirty git, next pickup command. Do not merge, tag, or delete branches.
-- **State transition conflict** - If the current state does not permit the requested transition (e.g., trying to build without a plan), block and explain the prerequisite.
-- **Artifact corruption** - If `plan.json` or `evidence.jsonl` is unparseable, flag it. Do not proceed. Ask the user whether to regenerate or restore from git.
-- **Missing spec when plan exists** - Inconsistent state. Treat as corrupted - spec.md is the source of truth. Regenerate plan from spec or restore spec from git.
+- No mission + mutating work → `spacecraft new "<title>"` + work branch; note in `decisions.md`.
+- Multiple matches → show candidates; `spacecraft use`.
+- Mid-session end → summarize task, blockers, dirty git, next pickup; do not merge/tag/delete branches.
+- Invalid state transition or unparseable `plan.json` / `evidence.jsonl` → block; ask regenerate/restore.
+- Plan without spec → treat as corrupt; spec is SoT.
 
 ## Lifecycle states
 
-Mission states enforce the development lane gates (CLI truth):
+| State | Meaning | Next |
+|-------|---------|------|
+| `active` | Created | `planned`, `blocked` |
+| `planned` | Plan ready | `in_progress`, `blocked` |
+| `in_progress` | Building | `ready`, `blocked` |
+| `ready` | Review + judge passed | `shipped`, `blocked` |
+| `blocked` | Gated | `active`, `in_progress` |
+| `shipped` | Merged/archived | Terminal |
 
-| State | Meaning | Permitted transitions |
-|-------|---------|----------------------|
-| `active` | Mission created / initial state | → `planned`, `blocked` |
-| `planned` | Plan ready, awaiting build | → `in_progress`, `blocked` |
-| `in_progress` | Implementation in progress | → `ready`, `blocked` |
-| `ready` | Review passed, ready to ship | → `shipped`, `blocked` |
-| `blocked` | Gated by critical finding | → `active`, `in_progress` |
-| `shipped` | Merged and archived | Terminal |
-
-Happy path: `active` → `planned` → `in_progress` → `ready` → `shipped`. `blocked` is reachable from any active (non-shipped) state.
-
-Set state with `spacecraft set-state [mission-id] <new-state>` (mission-id optional when a mission is already resolved). The CLI enforces valid transitions.
+`spacecraft set-state [mission-id] <state>` enforces transitions.
 
 ## Rules
 
-- **Must**: Resolve the active mission with `spacecraft resolve`, `status`, or `missions`; `.space/current` is fallback state, not sole authority. On conflict/ambiguity use `spacecraft use <selector>`.
-- **Must**: Resolver priority is (1) explicit selector / `--mission`, (2) `.space/current` (from `spacecraft use`), (3) branch `feat/<id>/…`.
-- **Must**: Strong signal conflicts or ambiguous active missions block mission writes until the user selects with `spacecraft use <number|id|title>` or an explicit selector.
-- **Must**: Users may choose by list number, mission id, exact title, or unique title substring; do not expect the user to know a mission id.
-- **Must**: New mission and evidence ids are compact sortable ids with no hyphen, such as `M07FYB5W5`; legacy `M-YYYYMMDD-HHmmss` ids remain valid.
-- **Must**: Read the resolved mission's `mission.json`, `spec.md`, `questions.md`, `decisions.md`, `plan.json`, design artifacts, `evidence.jsonl`, and `review.json` when available.
-- **Must**: sc-mission owns lifecycle but must route ambiguity to `/sc-discuss` / sc-clarify.
-- **Must**: Enforce order: mission -> discuss (clarify → spec → visual draft if needed) -> plan -> build -> verify -> review -> ship. AFK build repeats RED → checkpoint → GREEN → evidence → checkpoint per acceptance, then combine/refactor checkpoint, until a gate blocks.
-- **Must not**: Skip clarification when user intent, scope, acceptance criteria, or visual design direction is materially ambiguous.
-- **Must**: If clear mutating work is requested and no suitable mission or branch exists, create the mission and non-main branch without another blocking question when policy permits it.
-- **Must not**: Implement if spec or plan is missing.
-- **Must**: Use sc-git for git safety, release branching, commits, rebasing, merge, version bump, changelog/spec notes, and tagging.
-- **Must**: Mutating work must satisfy sc-git gates before implementation and before ship.
-- **Must**: Treat stop-chat/close-session/end-session/new-session requests as session handoff unless release intent is explicit.
-- **Must**: If "close session" is ambiguous and work appears ready, recommend ship; do not merge automatically.
-- **Must**: Treat ship/release/merge/finish-mission/close-branch requests as release closeout prep. Block closeout when gates are incomplete.
-- **Must**: After successful release closeout, archive shipped mission artifacts under `.space/archive/` unless the user asks to keep the full live mission folder.
-- **Must**: After merge, run `spacecraft set-state shipped` to trigger archive. Capture evidence of the command output.
-- **Must**: Keep mission artifacts small and human-readable.
-- **Must**: Prefer explicit evidence over narrative claims.
-- **Must**: After creating or updating spec.md, plan.json, decisions.md, or questions.md, ctx_index them with source label `sc-memory/<mission-id>/<type>` (best-effort, non-blocking -- warn on failure). See sc-memory for label format and conventions.
-- **Must**: End each session with a recommended next action and session advice: continue this chat for small adjacent steps, or start a new session when the phase changed, the thread is context-heavy, or mission artifacts are sufficient for handoff.
+- **Must**: Resolve via CLI priority (explicit selector → `.space/current` → branch `feat/<id>/…`); block writes on strong conflicts until `use`.
+- **Must**: Read artifacts before mutating; route ambiguity to `/sc-discuss`; enforce discuss → plan → design-contract → approved-scenarios → build → verify → review → ship.
+- **Must**: AFK product path has design-contract + approved-scenarios (or skips) before RED/GREEN; static / diff-cov / mutation disposition before ready (`docs/mission-artifacts.md`).
+- **Must**: Use sc-git for git safety; mutating work satisfies sc-git gates; ship/release requests are closeout prep (block if gates incomplete).
+- **Must**: After merge, `set-state shipped` (archive under `.space/archive/` unless asked otherwise); capture evidence; prefer evidence over narrative claims.
+- **Must not**: Skip clarify when materially ambiguous; implement without spec/plan; write product on `main`.
+- **Must**: End sessions with next action; prefer new chat when phase changes or context is heavy.
 
 ## Out of scope
 
-This skill does NOT handle:
+sc-git · sc-planning · sc-ux-design / sc-designer · sc-verification · `/sc-discuss` clarify/draft · Debug Mode · Task(`sc-reviewer`)
 
-- Git operations, branching, or commits - use sc-git
-- Planning tasks - use sc-planning
-- Design or UI direction - use sc-design
-- Evidence capture or verification - use sc-verification
-- Clarification questions and visual draft ownership - use `/sc-discuss` (sc-clarify protocol inside)
-- Debugging or bug diagnosis - use sc-debug
-- Code review - handled by reviewer subagent
-- Cross-mission memory, artifact indexing conventions, ctx_search/ctx_index wrapping - use sc-memory
-
-## Output format
+## Layout
 
 ```
-Mission artifacts follow the standard layout:
 .space/missions/<id>/
-  mission.json     # core metadata
-  spec.md          # spec
-  questions.md     # open/answered questions
-  decisions.md     # confirmed choices and assumptions
-  plan.json        # task plan
-  evidence.jsonl   # evidence entries
-  review.md        # review narrative
-  review.json      # review findings and readiness
-  design/          # design artifacts
-  outputs/         # task outputs
+  mission.json  spec.md  questions.md  decisions.md
+  plan.json  design-contract.md  approved-scenarios.md
+  evidence.jsonl  review.json  design/  outputs/
 ```
 
-## Checklist
-
-Before claiming the mission lifecycle is handled:
-
-- [ ] Development lane detected correctly from user intent
-- [ ] Mission resolved with `spacecraft resolve` (on conflict/ambiguity: `spacecraft use <selector>`)
-- [ ] All relevant artifacts read before any decision or mutation
-- [ ] Ambiguity routed to `/sc-discuss` / sc-clarify when blocking (not bypassed)
-- [ ] Lifecycle order enforced: discuss → plan → build → verify → review → ship
-- [ ] Lifecycle state is one of: active, planned, in_progress, ready, blocked, shipped
-- [ ] Session handoff: state summary, blockers, dirty git, pickup command provided
-- [ ] Release closeout: evidence checked, review gates passed, no-ff merge, tag, archive
-- [ ] After merge: ran `set-state shipped`, captured evidence of issue closing, verified issues actually closed
-- [ ] Never wrote product changes on `main`; always used a work branch
-
----
+Skip/waive prefixes: `docs/mission-artifacts.md` (Outcome-gate skip / waive grammar).
 
 ## References
 
-- `spacecraft --help` - spacecraft CLI reference
-- `spacecraft resolve --help` - resolver subcommand
-- `spacecraft use --help` - mission selection
-- `spacecraft evidence --help` - evidence subcommand
-- `spacecraft closeout-check --help` - closeout verification
+- `spacecraft resolve|use|evidence|closeout-check --help`
+- `docs/mission-artifacts.md` - schemas + outcome-gate skip/waive SoT

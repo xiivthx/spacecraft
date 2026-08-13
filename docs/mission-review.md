@@ -30,23 +30,23 @@ Related: `sc-run`, `sc-verification`, `sc-judge`, `sc-tdd`, `sc-security` (heuri
 
 ## Mission canvas milestones
 
-`/sc-run` emits Cursor Canvas artifacts at plan, post-review findings-or-skip, and evidence (before `sc-judge` on the ready path). Live files live only under Cursor-managed `canvases/`:
+`/sc-run` may emit Cursor Canvas artifacts at plan, post-review findings, and evidence for human check. Live files live only under Cursor-managed `canvases/`:
 
 `~/.cursor/projects/<workspace>/canvases/<missionId>-<kind>.canvas.tsx` where `kind` ∈ `plan` | `findings` | `evidence`.
 
 Do **not** put `.canvas.tsx` under mission `.space/` or repo `.cursor/` (IDE detect is managed `canvases/` only).
 
-Ready-path order after suite clean + deterministic pre-review: `sc-reviewer` → findings-or-skip canvas → evidence canvas → `sc-judge` → `set-state ready` on `VERIFIED`.
+Ready-path order after suite clean + deterministic pre-review: `sc-reviewer` → `sc-judge` → `set-state ready` on `VERIFIED`. Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge `VERIFIED`.
 
-Greppable `decisions.md` lines (absolute paths; chat + `decisions.md` include absolute markdown links when a canvas exists):
+When a canvas is emitted, record a greppable `decisions.md` line (absolute path; chat + `decisions.md` include absolute markdown links):
 
 | Milestone | Line |
 |-----------|------|
 | After plan | `Canvas plan: ` + absolute path to `<missionId>-plan.canvas.tsx` |
 | After review (nonempty findings) | `Canvas findings: ` + absolute path to `<missionId>-findings.canvas.tsx` |
 | After review (empty findings) | `Canvas findings skipped: empty` |
-| Before `sc-judge` (ready path) | `Canvas evidence: ` + absolute path to `<missionId>-evidence.canvas.tsx` |
+| Evidence | `Canvas evidence: ` + absolute path to `<missionId>-evidence.canvas.tsx` |
 
-Ready is blocked when applicable lines are missing (chat-only link without the decisions line fails). Gate is file existence + decisions lines only - do not inspect canvas TSX/JSON shape. Mid-build short chat dumps are not required as canvases.
+Those files and lines are optional aids for human check - not ready or `VERIFIED` proof. Do not inspect canvas TSX/JSON shape. Mid-build short chat dumps are not canvases.
 
 **Must not:** replace mission brief (Accept/Adjust/Reject chat HIL) with a canvas; use canvas as draft HTML / visual SoT.

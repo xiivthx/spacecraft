@@ -15,7 +15,7 @@ SRC="${2:?usage: install-cursor.sh <target-project-dir> <source-repo-dir>}"
 
 # Lean-core User-layer skills (keep identical to scripts/global-sync.sh).
 # Project layer gets domain packs only; lean skills live under ~/.cursor/skills.
-LEAN_SKILLS="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer sc-architect sc-ux-design sc-diagram"
+LEAN_SKILLS="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 
 # Project-layer hook scripts only (inverted from install-global-hooks SAFETY_HOOKS).
 PROJECT_HOOKS="session-start.sh"

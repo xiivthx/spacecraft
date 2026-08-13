@@ -17,7 +17,7 @@ MODE="${4:?$USAGE}"
 
 # Lean-core User-layer skills: lifecycle + process. Domain packs stay
 # project-layer unless SPACECRAFT_SKILL_PROFILE=full.
-LEAN_SKILLS="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer sc-architect sc-ux-design sc-diagram"
+LEAN_SKILLS="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 
 case "$MODE" in
   install|uninstall) ;;

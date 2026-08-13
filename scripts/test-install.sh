@@ -131,7 +131,7 @@ echo "  ok   install-project excludes User-layer basenames from project target"
 # Lean-core skills (must stay in sync with scripts/global-sync.sh LEAN_SKILLS) stay
 # User-layer only (~/.cursor/skills via lean install-global). Project install must
 # omit them — and install-cursor.sh must name the exclude like USER_LAYER for rules.
-project_lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer sc-architect sc-ux-design sc-diagram"
+project_lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 for skill in $project_lean_skills; do
   if [ -e "$project_skills/$skill" ]; then
     echo "FAIL: install-project copied lean-core skill $skill into $project_skills (User-layer only)"
@@ -206,7 +206,7 @@ echo "  ok   install-global installs sc-run, sc-ship, sc-quick, sc-storm, lens-p
 # Lean User-layer skill allowlist (default install-global / global-sync):
 # lifecycle + process only; domain encyclopedias stay out of ~/.cursor/skills.
 global_skills="$fake_home/.cursor/skills"
-lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer sc-architect sc-ux-design sc-diagram"
+lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware"
 for skill in $lean_skills; do
   test -f "$global_skills/$skill/SKILL.md" \

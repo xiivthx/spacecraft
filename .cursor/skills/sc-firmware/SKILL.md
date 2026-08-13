@@ -56,7 +56,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 - Application-layer web/API work - use sc-web-frontend / sc-web-backend
 - Pure architecture ADRs without firmware edits - use sc-architect / sc-adviser
-- UI design for non-embedded surfaces - use sc-design / sc-designer
+- UI design for non-embedded surfaces - use sc-ux-design / Task(sc-designer)
 - TDD process mechanics - use sc-tdd (still apply rule 620 for firmware test shapes)
 
 ## Output format

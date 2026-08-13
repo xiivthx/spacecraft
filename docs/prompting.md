@@ -9,9 +9,9 @@ Clarity over prompting tricks. Keep always-on rules short; put long detail in sk
 | `.cursor/rules/` always-on | Every turn | Hard Never/Always, lanes, prompting |
 | `.cursor/rules/` with globs | Matching files | Domain constraints |
 | `.cursor/skills/*/SKILL.md` | On demand | Workflows (lifecycle `/sc-*` are Skills with `disable-model-invocation: true`, not `.cursor/commands/`) |
-| `.cursor/agents/*.md` | Subagent Task | Job contracts |
+| `.cursor/agents/*.md` | Subagent Task | Job contracts: Goal / Inputs / Ban / Handshake |
 
-Lifecycle detail: `.cursor/rules/200-workflow.mdc` + slash skills. `/sc-run` fixes findings before ready and reports them in the summary (no issue ledgers). Do not restate the always-on clarity rule inside every agent.
+Lifecycle detail: `.cursor/rules/200-workflow.mdc` + slash skills. `/sc-run` fixes findings before ready and reports them in the summary (no issue ledgers). Do not restate always-on rules inside agents.
 
 ## Spec Contract
 
@@ -26,17 +26,15 @@ If unclear: research first; ask for preferences or unverifiable bars via `/sc-di
 
 ## Inner-loop gates (Quick + Mission)
 
-Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission emits findings-or-skip then evidence canvas, then runs `sc-judge` (adversarial prove; ready only on `VERIFIED`).
+Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission runs `sc-judge` (adversarial prove; ready only on `VERIFIED`). Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge hunts.
 
 ## Mission canvas artifacts (`/sc-run`)
 
-At plan, post-review findings-or-skip, and evidence (before `sc-judge` on the ready path), `/sc-run` writes Cursor Canvas files under managed `canvases/` only:
+`/sc-run` may emit Cursor Canvas files under managed `canvases/` for human check after ready:
 
 `~/.cursor/projects/<workspace>/canvases/<missionId>-<kind>.canvas.tsx` (`kind` ∈ `plan` | `findings` | `evidence`).
 
-Ready-path order: findings-or-skip canvas → evidence canvas → `sc-judge` → `set-state ready` on `VERIFIED`.
-
-Record greppable lines in `decisions.md`: `Canvas plan: `, `Canvas findings: ` (or `Canvas findings skipped: empty`), `Canvas evidence:` - each with an absolute path when a file exists. Chat and `decisions.md` include absolute markdown links. Ready blocks if applicable lines are missing; gate is file existence + those lines only (do not inspect canvas TSX/JSON shape). Do **not** put canvases under mission `.space/` or repo `.cursor/`. Do **not** replace mission brief or draft HTML / visual SoT with a canvas (brief stays Accept/Adjust/Reject chat HIL; draft stays HTML).
+When emitted, record matching lines in `decisions.md`: `Canvas plan: `, `Canvas findings: ` (or `Canvas findings skipped: empty`), `Canvas evidence:` - each with an absolute path; chat and `decisions.md` include absolute markdown links. Canvas files and those decisions lines are optional aids for human check - not ready or `VERIFIED` proof. Do **not** put canvases under mission `.space/` or repo `.cursor/`. Do **not** replace mission brief or draft HTML / visual SoT with a canvas (brief stays Accept/Adjust/Reject chat HIL; draft stays HTML).
 
 ## Avoid
 
