@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.51.0 - 2026-08-13
+
+- Feat: AFK ready requires design-contract, frozen approved-scenarios, and mutation disposition (or greppable skip/waive lines)
+- Feat: lean prompt surface - one SoT for outcome-gate grammar, thin agent contracts, drop canvas as ready/VERIFIED proof
+- Feat: AFK git checkpoints are one Conventional Commit per plan task (not per RED/GREEN)
+- Chore: trim User lean-core `LEAN_SKILLS` (omit sc-ux-design, sc-architect, sc-diagram); keep install allowlists in sync
+
 ## 0.50.0 - 2026-08-10
 
 - Feat: optional `mission.json` `pickup` printed as `Pickup:` on `spacecraft status` (handoff resume; not a closeout gate)
