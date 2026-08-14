@@ -93,8 +93,25 @@ for key in ("workspace_root", "workspaceRoot", "workspaceFolder", "project_dir",
 print("")
 ' 2>/dev/null || true)
 
+# Prefer explicit workspace from command (`cd /abs` or `git -C /abs`) over
+# walking from the hook process cwd - that cwd is often ~/.cursor (has .git).
+cd_path=$(printf '%s' "$command" | python3 -c '
+import re, sys
+cmd = sys.stdin.read()
+m = re.search(r"(?:^|[;&|]|&&|\|\|)\s*cd\s+(/[^\s;|&]+)", cmd)
+if m:
+    print(m.group(1))
+    raise SystemExit(0)
+m = re.search(
+    r"(?:^|[;&|]|&&|\|\|)\s*(?:(?:export\s+)?(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)*)?"
+    r"(?:[^\s;|&]+/)?git\s+-C\s+(/[^\s;|&]+)",
+    cmd,
+)
+print(m.group(1) if m else "")
+' 2>/dev/null || true)
+
 hook_repo=
-for candidate in "$input_cwd" "$input_root"; do
+for candidate in "$cd_path" "$input_cwd" "$input_root"; do
   if [ -n "$candidate" ] && [ -d "$candidate/.git" ]; then
     hook_repo=$(CDPATH= cd -- "$candidate" 2>/dev/null && pwd)
     break
@@ -109,17 +126,6 @@ if [ -z "$hook_repo" ]; then
     fi
     walk=$(CDPATH= cd -- "$walk/.." 2>/dev/null && pwd)
   done
-fi
-if [ -z "$hook_repo" ]; then
-  cd_path=$(printf '%s' "$command" | python3 -c '
-import re, sys
-cmd = sys.stdin.read()
-m = re.search(r"(?:^|[;&|]|&&|\|\|)\s*cd\s+(/[^\s;|&]+)", cmd)
-print(m.group(1) if m else "")
-' 2>/dev/null || true)
-  if [ -n "$cd_path" ] && [ -d "$cd_path/.git" ]; then
-    hook_repo=$(CDPATH= cd -- "$cd_path" 2>/dev/null && pwd)
-  fi
 fi
 
 # Classify: real ship git first (never allowlist-bypass), then strict self-test.
@@ -205,13 +211,17 @@ if [ "$QUICK_FLAG" = "1" ]; then
 fi
 
 # SPACECRAFT_SHIP=1 (mission ship): run closeout before allowing.
-# Prefer workspace repo (hook_repo); require regular file so a cwd like
-# ~/.cursor (where ./spacecraft is a directory) does not false-match -x.
+# Always run from hook_repo when known - PATH `spacecraft` must not inherit the
+# hook process cwd (~/.cursor /tmp), which has no active mission.
+# Prefer ./spacecraft only when it is a regular executable file (not a directory).
 if [ -n "${SPACECRAFT_CLOSEOUT_CMD:-}" ]; then
   closeout_out=$(sh -c "$SPACECRAFT_CLOSEOUT_CMD" 2>&1)
   closeout_rc=$?
 elif [ -n "$hook_repo" ] && [ -f "$hook_repo/spacecraft" ] && [ -x "$hook_repo/spacecraft" ]; then
   closeout_out=$(CDPATH= cd -- "$hook_repo" && ./spacecraft closeout-check 2>&1)
+  closeout_rc=$?
+elif [ -n "$hook_repo" ]; then
+  closeout_out=$(CDPATH= cd -- "$hook_repo" && spacecraft closeout-check 2>&1)
   closeout_rc=$?
 elif [ -f ./spacecraft ] && [ -x ./spacecraft ]; then
   closeout_out=$(./spacecraft closeout-check 2>&1)
