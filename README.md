@@ -100,7 +100,7 @@ Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workfl
 
 ## Agents
 
-Cursor discovers eight specialized agents from the User layer (`~/.cursor/agents/` after `make install-global` / `make install-machine`):
+Cursor discovers specialized agents from the User layer (`~/.cursor/agents/` after `make install-global` / `make install-machine`):
 
 - `sc-coder` - implements production code
 - `sc-tester` - writes tests and captures verification evidence
@@ -110,6 +110,7 @@ Cursor discovers eight specialized agents from the User layer (`~/.cursor/agents
 - `sc-adviser` - advises on complex architecture and logic
 - `sc-firmware` - implements STM32 firmware and embedded C
 - `sc-writer` - writes and edits docs, prompts, messages, and other non-code prose
+- `sc-browser-probe` - live browser sweep + AFK find→fix→re-probe until CLEAN
 
 The always-on Spacecraft rules act as Commander and route work to these agents.
 
@@ -157,7 +158,7 @@ Use the CLI as the source of truth for current syntax:
 ```text
 .cursor/
   rules/                 always-on Commander, workflow, and domain rules
-  agents/                eight specialized Cursor agents
+  agents/                specialized Cursor agents (coder, tester, planner, reviewer, designer, adviser, firmware, writer, browser-probe)
   skills/                workflow and domain skills
   mcp.json               project MCP server configuration
   hooks.json             Cursor hook registration

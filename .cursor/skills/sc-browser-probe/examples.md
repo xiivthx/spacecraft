@@ -11,7 +11,7 @@ perf: none
 timebox: 40m
 ```
 
-Report includes Inventory + Coverage. Example snippet:
+Report includes Inventory + Coverage. Fix-loop runs if any finding. Example snippet:
 
 ```
 ### Inventory
@@ -53,7 +53,7 @@ scope: full
 timebox: 40m
 ```
 
-Coverage: Foundations `ok`; `pack:form-submit` `ok`; `pack:upload` `deferred: timebox`. No critical/important.
+Coverage: Foundations `ok`; `pack:form-submit` `ok`; `pack:upload` `deferred: timebox`. No findings.
 
 `PROBE: PARTIAL` - do not claim `CLEAN`.
 
@@ -70,12 +70,15 @@ timebox: 25m
 
 Do not bake NFC fixtures into SKILL.md core - pass them as `examples:` / `perf:`.
 
-## After sc-run handoff (recommend-only escape net)
+## From sc-run (AFK Task)
 
-When `/sc-run` reaches green and the change includes UI or multi-step workflow, end handoff with:
+When `/sc-run` touches UI or multi-step workflow, after fix pass:
 
 ```
-Recommend: /sc-browser-probe (UI/workflow touched)
+Task(sc-browser-probe)
+target: <live product URL>
+scope: feature:<name>
+mission: <id>
 ```
 
-Recommend-only escape net - not a ready gate. Does not replace sc-verification or sc-judge.
+Agent sweeps + fix-loops until `PROBE: CLEAN` (or stops on 3-cycle / timebox). sc-run does not ready until CLEAN (or probe skipped for non-UI work). Not a handoff recommend line.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.51.1 - 2026-08-14
+
+- Feat: `sc-browser-probe` AFK find→fix→re-probe until `PROBE: CLEAN` (or 3-cycle/timebox stop); `/sc-run` Task-invokes it for UI/workflow before review
+- Fix: ship-hook prefers `cd` / `git -C` workspace path and runs closeout from that repo
+
 ## 0.51.0 - 2026-08-13
 
 - Feat: AFK ready requires design-contract, frozen approved-scenarios, and mutation disposition (or greppable skip/waive lines)
