@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Feat: `sc-browser-probe` AFK find→fix→re-probe until `PROBE: CLEAN` (or 3-cycle/timebox stop); `/sc-run` Task-invokes it for UI/workflow before review
+
 ## 0.51.0 - 2026-08-13
 
 - Feat: AFK ready requires design-contract, frozen approved-scenarios, and mutation disposition (or greppable skip/waive lines)

@@ -59,7 +59,8 @@ Commander runs this layer in `/sc-run` **before** `Task(sc-reviewer)`:
 4. Re-run or spot-check claimed verify commands when acceptance is in doubt
 5. When security in scope: capture read-only project checks as evidence (lint, typecheck, documented audit scripts); then `Task(sc-security)` heuristic scan (no dynamic CVE tools per `sc-security` skill)
 6. When performance in scope: capture measurement or documented baseline per `sc-performance`; flag unclear hot-path impact without evidence
-7. Only then: `Task(sc-reviewer)` (+ `Task(sc-designer)` / UX gates when visual UI)
+7. When UI or multi-step workflow touched: Task(`sc-browser-probe`) to `PROBE: CLEAN` (skip when no runnable UI/workflow surface)
+8. Only then: `Task(sc-reviewer)` (+ `Task(sc-designer)` / UX gates when visual UI)
 
 ## Post-review canvas handoff
 

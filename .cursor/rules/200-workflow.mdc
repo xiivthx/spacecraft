@@ -26,7 +26,7 @@ No non-blocking questions mid-AFK. Detail skills: `sc-discuss`, `sc-run`, `sc-sh
 ```
 
 - **Discuss** → `clarify-status clear`. Handoff: `Spec clear. New session: /sc-run.`
-- **Run** → plan → design-contract → approved-scenarios → build → combine (static + diff-cov + mutation) → fix → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.`
+- **Run** → plan → design-contract → approved-scenarios → build → combine (static + diff-cov + mutation) → fix → browser-probe (UI/workflow) → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.`
 - **Ship** → squash ≤5, closeout, merge `--no-ff`, archive. Roadmap continues: `Next: new session → /sc-discuss <id>`
 
 Findings: fix in `/sc-run` and report in the summary (no issue ledgers). Roadmap CLI: `spacecraft map use|current|next`.
@@ -42,14 +42,14 @@ Branch `feat/<id>/…` → `.space/missions/<id>/`. Clarify: `open` | `clear` | 
 ## Lanes (pointers)
 
 - **Discuss:** sizing, lens, spec, decisions, visual draft, mission brief. Skills: `sc-clarify`, `sc-ux-design`, `sc-storm` (Tier 3 research only). House look: root `DESIGN.md` + `150-design.mdc` on UI globs.
-- **Mission:** plan → design-contract → approved-scenarios → build → fix → review → ready. Skills: `sc-planning`, `sc-tdd`, `sc-verification`, `sc-judge` (ready only on `VERIFIED`). Port look from approved draft; sync tokens into `DESIGN.md`.
+- **Mission:** plan → design-contract → approved-scenarios → build → fix → browser-probe (UI/workflow) → review → ready. Skills: `sc-planning`, `sc-tdd`, `sc-verification`, `sc-browser-probe`, `sc-judge` (ready only on `VERIFIED`). Port look from approved draft; sync tokens into `DESIGN.md`.
 - **Ship / Quick / Debug:** matching slash skill. Quick skips mission ceremony but not INTENT / AUTH / TWINS / 3-cycle.
 
 ## Subagent Delegation
 
-Orchestrator, not implementer. Task: `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer` (+ `sc-judge` before ready), `sc-designer`, `sc-adviser`, `sc-firmware`, `sc-writer`.
+Orchestrator, not implementer. Task: `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer` (+ `sc-judge` before ready), `sc-designer`, `sc-adviser`, `sc-firmware`, `sc-writer`, `sc-browser-probe` (UI/workflow live sweep + fix-loop).
 
-Patterns: draft approved in discuss before run; run ports look (draft-parity); tester before coder; writer for docs/prose triage skips; ready only on `VERIFIED`.
+Patterns: draft approved in discuss before run; run ports look (draft-parity); tester before coder; writer for docs/prose triage skips; UI/workflow → Task(`sc-browser-probe`) to `PROBE: CLEAN` before review; ready only on `VERIFIED`.
 
 ## Graph vs Loop
 
