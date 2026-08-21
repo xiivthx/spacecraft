@@ -156,3 +156,4 @@ Before claiming frontend work done:
 - `references/components.md` - React component patterns, TypeScript typing, data flow, composition
 - `references/testing.md` - Vitest + React Testing Library patterns, query strategies, mocking
 - `references/styling.md` - Tailwind CSS conventions, responsive design, accessibility utilities
+- `references/layout.md` - page structure patterns, responsive collapse, Tailwind layout sketches

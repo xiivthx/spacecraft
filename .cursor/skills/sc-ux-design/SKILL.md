@@ -71,7 +71,7 @@ After design brief approval, before `/sc-run` / real implementation:
    Context fidelity: DESIGN.md | shell:<path> | extract:<path> | product-shot:<path>
    ```
    Omit absent paths. Greenfield may omit `shell:` and `product-shot:`. Draft generation must load every listed source before bake-off candidates.
-2. **Layout bake-off (before detail polish):** Generate **2–3** standalone HTML layout candidates under `.space/missions/<id>/design/drafts/` so the human can pick structure before deep scenario/chrome polish. Name them `<name>-draft-v1-<layout-id>.html` (e.g. `list`, `board`, `split`). Each candidate must use the draft scaffold (`data-draft`, chrome outside framed surface) and brief tokens; show the **primary** happy-path surface with real component chrome (not wireframe boxes only). Full scenario matrix may wait until a winner is chosen. Serve the drafts dir; present candidates side-by-side (Cursor IDE browser or default browser). Record the pick in `decisions.md` as `Layout bake-off winner: <draft-file>` (or `Layout bake-off skipped: <reason>` when layout is already forced by `DESIGN.md`, borrow scope `layout`|`chrome`, or an explicit user-named structure). Do not skip bake-off silently.
+2. **Layout bake-off (before detail polish):** Generate **2–3** standalone HTML layout candidates under `.space/missions/<id>/design/drafts/` so the human can pick structure before deep scenario/chrome polish. Consult `references/layout-patterns.md` when naming candidates and choosing structure. Name them `<name>-draft-v1-<layout-id>.html` (e.g. `list`, `board`, `split`). Each candidate must use the draft scaffold (`data-draft`, chrome outside framed surface) and brief tokens; show the **primary** happy-path surface with real component chrome (not wireframe boxes only). Full scenario matrix may wait until a winner is chosen. Serve the drafts dir; present candidates side-by-side (Cursor IDE browser or default browser). Record the pick in `decisions.md` as `Layout bake-off winner: <draft-file>` (or `Layout bake-off skipped: <reason>` when layout is already forced by `DESIGN.md`, borrow scope `layout`|`chrome`, or an explicit user-named structure). Do not skip bake-off silently.
 
 3. **Responsive structure (Must):** Viewport toggles that resize the frame alone are **not** enough at **any** preset. The surface **Must** target all four presets via `[data-draft-frame][data-viewport="…"]` (and/or media) with **size-appropriate organization** at each width:
 
@@ -279,6 +279,7 @@ Before claiming UI implementation is ready:
 ## References
 
 - `references/shared-draft-directives.md` - always-on draft prompt layer (tech, fidelity, responsive structure, scenario matrix, anti-slop alignment)
+- `references/layout-patterns.md` - page structure catalog for brief + layout bake-off selection
 - `references/checklists/README.md` - item SoT (aliases; load only the recorded id)
 - `references/surface-checklist.md` - discuss/designer adapter (record `UX checklist:`; Read one file; designer scores `- [ ]` items)
 - `references/reference-extract.md` - on-demand gate when human supplies reference images/screenshots/URLs

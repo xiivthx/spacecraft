@@ -92,8 +92,9 @@ Minimum when scope allows: happy + empty/invalid + boundary/long + one mobile pa
 
 Browser matrix (same preference as spacecraft UI work):
 
-1. **`playwright-cli`** - primary (`open` → interact → `snapshot` / `screenshot`)
-2. **Cursor IDE browser** (`cursor-ide-browser` MCP) - fallback
+1. **Chrome DevTools MCP** (Antigravity native: `navigate_page`, `click`, `fill`, `type_text`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `lighthouse_audit`, `resize_page`, `evaluate_script`)
+2. **`playwright-cli`** - standalone CLI (`open` → interact → `snapshot` / `screenshot`)
+3. **Cursor IDE browser** (`cursor-ide-browser` MCP) - Cursor fallback
 
 For each scenario: execute steps, record result, capture screenshot path on fail. Prefer interaction over passive screenshots.
 

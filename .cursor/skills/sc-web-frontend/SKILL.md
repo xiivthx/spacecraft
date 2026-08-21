@@ -40,7 +40,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 6. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
 
-7. **Verify (visual / live-product + draft-parity)** - After visual UI work: start the app → Tier 3 on the **running product URL** via `playwright-cli` (preferred) or Cursor IDE browser (fallback); optional `visual-verify.mjs` against that URL → capture live screenshots at 375 / 768 / 1280 (+ 1536 when multi-region) → serve/open approved draft and capture `[data-draft-surface]` shots at the same viewports → record **paired** draft-surface + live path sets in evidence / `decisions.md` → Step 0 draft-parity (side-by-side LLM/browser compare draft vs live - tokens, layout, chrome, states) → Task(`sc-designer`) live critique (**live-product** + draft-parity) with both image sets plus live URL. Layout-only match with different chrome, missing draft states, or missing pair is blocking. Draft HTML serve alone does not satisfy live-product. Fix before ready. Do not use system Chrome headless or browser-use/CDP.
+7. **Verify (visual / live-product + draft-parity)** - After visual UI work: start the app → Tier 3 on the **running product URL** via Chrome DevTools MCP (Antigravity native) / `playwright-cli` (preferred) or Cursor IDE browser (fallback); optional `visual-verify.mjs` against that URL → capture live screenshots at 375 / 768 / 1280 (+ 1536 when multi-region) → serve/open approved draft and capture `[data-draft-surface]` shots at the same viewports → record **paired** draft-surface + live path sets in evidence / `decisions.md` → Step 0 draft-parity (side-by-side LLM/browser compare draft vs live - tokens, layout, chrome, states) → Task(`sc-designer`) live critique (**live-product** + draft-parity) with both image sets plus live URL. Layout-only match with different chrome, missing draft states, or missing pair is blocking. Draft HTML serve alone does not satisfy live-product. Fix before ready. Do not use ungrounded headless or uninspected assumptions.
 
 8. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
 
@@ -156,3 +156,4 @@ Before claiming frontend work done:
 - `references/components.md` - React component patterns, TypeScript typing, data flow, composition
 - `references/testing.md` - Vitest + React Testing Library patterns, query strategies, mocking
 - `references/styling.md` - Tailwind CSS conventions, responsive design, accessibility utilities
+- `references/layout.md` - page structure patterns, responsive collapse, Tailwind layout sketches
