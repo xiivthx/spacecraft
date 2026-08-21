@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.52.1 - 2026-08-21
+
+- Docs: prefer Chrome DevTools MCP for live browser verify in sc-browser-probe / sc-web-frontend
+- Docs: add page layout reference patterns for sc-web-frontend and sc-ux-design bake-off
+
 ## 0.52.0 - 2026-08-21
 
 - Feat: hard safety hooks - `block-secrets-read` (beforeReadFile/Tab), `block-destructive` (force-push / catastrophic rm); ship gate returns `ask` on `git push` after `SPACECRAFT_SHIP=1`
