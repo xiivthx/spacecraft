@@ -144,6 +144,7 @@ Lifecycle skills (`sc-run`, `sc-judge`, `sc-tdd`, `sc-verification`, `sc-plannin
 | static-analysis | `Static-analysis skipped: no project static tool` · `Static-analysis waived: <reason>` (rare; reason required) |
 | diff-coverage | `Diff-coverage skipped: no project coverage tool` · `Diff-coverage waived: <reason>` (e.g. docs-only touch, generated files only) |
 | mutation | `Mutation skipped: no project mutation tool` · `Mutation skipped: not in scope` · `Mutation waived: <reason>` (rare; reason required) |
+| PBT | `Pbt skipped: no project pbt tool` · `Pbt skipped: not core logic` · `Pbt waived: <reason>` |
 
 ## Outcome evidence labels (layer B)
 
@@ -152,12 +153,15 @@ Capture with `spacecraft evidence` when the gate runs:
 | Gate | Typical label prefix | When |
 |------|----------------------|------|
 | Static analysis | `static-` | combine and/or deterministic pre-review - project lint/typecheck/format-check if present |
-| Diff coverage | `diff-cov-` | combine or pre-review - coverage on **touched** lines/files when a project coverage tool exists |
+| Diff coverage | `diff-cov-` | combine or pre-review - coverage on **touched** executable line and branch when a project coverage tool exists |
 | Mutation testing | `mutation-` | combine or pre-review when mutation is **in scope** (see below) and a project mutation tool exists |
+| Property-based (PBT) | `pbt-` | product path: **100%** of design-contract **core-logic** modules (invariants + generators via project-existing `fast-check` / Hypothesis / equivalent) |
 
 Skip / waive lines: exact prefixes in **Outcome-gate skip / waive grammar (SoT)** above.
 
-**Must not** use global line coverage 95–100% as a hard gate. Diff coverage target when measured: **≥80% of touched executable lines** in the mission diff (exclude pure docs/generated unless the mission is about those files). Below target → fix tests or waive with reason - do not pad tautologies.
+**Static analysis:** when a project static tool runs, require **0 warning / 0 error**. No tool → skip/waive per the table above.
+
+**Diff coverage:** when measured, touched executable **line and branch ≥90%** (sanity band **90–95%**). Exclude pure docs/generated unless the mission is about those files. **Must not** chase whole-repo global coverage, and **Must not** pad tautologies toward 100%. Below target → fix tests or waive with reason.
 
 ### Mutation (phase C)
 
@@ -168,13 +172,29 @@ Skip / waive lines: exact prefixes in **Outcome-gate skip / waive grammar (SoT)*
 
 **Out of scope:** docs/prose-only plans; UI look-only with no behavioral logic; no mutation tool in the project.
 
-When in scope and a mutation tool exists: run it scoped to touched packages/files when the tool allows; capture `spacecraft evidence "mutation-…" -- <cmd>`. Default target: **≥70% mutation score** on that scope (or the project's documented higher bar). Below target → strengthen behavioral tests (not tautologies) or `Mutation waived: <reason>`.
+When in scope and a mutation tool exists: run it scoped to touched packages/files when the tool allows; capture `spacecraft evidence "mutation-…" -- <cmd>`. Default target: **>80% mutation** score on that scope (or the project's documented higher bar). Below target → strengthen behavioral tests (not tautologies) or `Mutation waived: <reason>`.
 
 When in scope but no tool: `Mutation skipped: no project mutation tool` (does not invent installing a mutator mid-mission unless the human asked).
 
 When not in scope: `Mutation skipped: not in scope` (one line; required so ready is unambiguous).
 
 Do not treat mutation as a substitute for approved-scenarios / design-contract oracles.
+
+### Property-based testing (PBT)
+
+**Core logic** (design-contract modules): branching business rules / pure domain / state machines - not chrome, docs, or thin adapters.
+
+**Must (product path):** **100%** of design-contract modules marked **core-logic** require property-based invariants + generators, using a project-existing lib (`fast-check` / Hypothesis / equivalent). Capture `spacecraft evidence "pbt-…" -- <cmd>`.
+
+**Must not:** invent installing a PBT library mid-mission unless the human asked.
+
+Missing `pbt-…` evidence without a greppable skip/waive disposition below is **REFUTED** material for `sc-judge`.
+
+When not applicable, one greppable disposition line (required so ready is unambiguous):
+
+- `Pbt skipped: no project pbt tool`
+- `Pbt skipped: not core logic`
+- `Pbt waived: <reason>` (rare; reason required)
 
 ## Other
 

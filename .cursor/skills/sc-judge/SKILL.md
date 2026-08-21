@@ -47,7 +47,7 @@ Confirm verdict is exactly `VERIFIED` | `REFUTED`, hunts cover the ready-path ta
    - **false completion** - "done"/"ready" while acceptance fails, evidence missing/stale, scope mismatch, or defects left unfixed
    - **AUTH** - outward push/deploy/publish/send without quoted `AUTH:`; ship/merge without `/sc-ship` gates
    - **leftover findings** - any severity in `review.json` (critical / important / minor) ⇒ `REFUTED`
-   - **outcome-gate disposition** - product ready needs `Design-contract: complete` or `Design-contract skipped: docs/prose-only`; `Approved-scenarios:` freeze footer or `Approved-scenarios skipped: docs/prose-only`; static / diff-cov / mutation disposition (evidence labels or greppable lines such as `Static-analysis skipped:…` / `Mutation skipped:…`). Exact prefixes: `docs/mission-artifacts.md`. Missing disposition without skip/waive ⇒ `REFUTED`. Global 95–100% coverage as success bar ⇒ `REFUTED`
+   - **outcome-gate disposition** - product ready needs `Design-contract: complete` or `Design-contract skipped: docs/prose-only`; `Approved-scenarios:` freeze footer or `Approved-scenarios skipped: docs/prose-only`; static / diff-cov / mutation / PBT disposition (evidence labels or greppable lines such as `Static-analysis skipped:…` / `Mutation skipped:…` / `Pbt skipped:…`). Exact prefixes and bars: `docs/mission-artifacts.md` - static **0 warning / 0 error** when tool runs; diff-cov touched **line and branch ≥90%** when measured; mutation **>80%** scoped when in scope + tool; PBT **100%** of design-contract **core-logic** modules (`pbt-…` invariants + generators via project-existing `fast-check` / Hypothesis / equivalent, or `Pbt skipped: no project pbt tool` / `Pbt skipped: not core logic` / `Pbt waived: <reason>`). Missing disposition without skip/waive ⇒ `REFUTED`. Inventing PBT lib install mid-mission ⇒ `REFUTED`. Global 95–100% coverage as success bar ⇒ `REFUTED`
    - **hard-gated Test Ideas** (when present) - Neg/Overlooked (+ Strategy Top risk/Charter when mapped) without matching `acceptance[]` and without `Deferred test idea: <id> - <reason>` ⇒ `REFUTED`; claimed done without fresh evidence ⇒ `REFUTED`
    - **product-surface miss** (when UI/workflow claimed) - need `verify.product` | `browser` | `curl` | `composition`; unit-only ⇒ `REFUTED`
    - **draft drift (visual UI only)** - when `UI draft approved:` is recorded, REFUTE clear chrome divergence, missing paired draft+live screenshot evidence, or fail/uncertain draft-parity / live-product. Point to `ux-ui-review-gates.md`; do not re-score every visual dimension here
@@ -71,7 +71,7 @@ No aliases (`PASS`, `FAIL`, `VERIFIED WITH CAVEATS`, etc.).
 
 ## Rules
 
-- **Must**: Re-run claimed evidence into `evidence.jsonl`; diff scope vs plan/spec; hunt oracle-tamper, AUTH, leftover `review.json` findings, A/B/C disposition per `docs/mission-artifacts.md`.
+- **Must**: Re-run claimed evidence into `evidence.jsonl`; diff scope vs plan/spec; hunt oracle-tamper, AUTH, leftover `review.json` findings, A/B/C + PBT disposition per `docs/mission-artifacts.md`.
 - **Must**: Emit `VERIFIED` | `REFUTED` only; allow `ready` only on `VERIFIED`; prove from evidence + scope + hunts + empty findings + `validate --strict` - not canvas.
 - **Must not**: Re-walk the full reviewer dimension table; soft-pass `REFUTED`; invent evidence.
 - **Must**: ASCII hyphen-minus; Cursor-native.
@@ -98,7 +98,7 @@ VERDICT: VERIFIED | REFUTED | Ready: allowed | blocked
 ## References
 
 - `sc-verification`, `/sc-run`, `plan.json` / `spec.md`, `evidence.jsonl` / `review.json`
-- `docs/mission-artifacts.md` - outcome-gate skip/waive SoT (`Design-contract`, `Approved-scenarios`, `Static-analysis`, `Mutation skipped`, …)
+- `docs/mission-artifacts.md` - outcome-gate skip/waive SoT (`Design-contract`, `Approved-scenarios`, `Static-analysis`, `Mutation skipped`, `Pbt skipped`, …)
 - `.cursor/skills/sc-run/references/mission-review-gates.md` - reviewer applies; judge does not re-walk
 - `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` - visual fail-closed when UI draft approved
 - `references/judge-break/` - known-bad fixtures
