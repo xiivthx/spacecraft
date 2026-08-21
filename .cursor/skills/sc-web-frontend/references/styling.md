@@ -111,6 +111,10 @@ Use the `dark:` variant for dark mode support. Toggle via class strategy (`darkM
 - Spacing between components - use parent's `gap` or `space-y-*` rather than margin on each child
 - One-off overrides - keep them inline; don't extract a pattern for a single use
 
+## Page layout
+
+For page skeletons (single/two/three column, app shell, split, hero, card grid) and responsive collapse rules, see `references/layout.md`. Design-time bake-off selection lives in `sc-ux-design/references/layout-patterns.md`.
+
 ## Spacecraft integration
 
 - Styles are verified as part of component evidence - `spacecraft evidence "<name>:component" -- npx vitest run`
