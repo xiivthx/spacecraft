@@ -1,5 +1,12 @@
 # Changelog
 
+
+## 0.53.0 - 2026-08-21
+
+- Feat: raise AFK validate quality bars — diff-cov touched line+branch ≥90% (90–95%), mutation >80% scoped, static 0 warning/0 error, PBT required for core-logic modules
+- Docs: deepen sc-tester/sc-tdd deep-assert bans (shallow asserts, ErrorCode/instance, one acceptance → one RED) and boundary/operator mutant-kill guidance
+- Docs: sync plugins/spacecraft agent/skill mirrors with .cursor for the new bars
+
 ## 0.52.1 - 2026-08-21
 
 - Docs: prefer Chrome DevTools MCP for live browser verify in sc-browser-probe / sc-web-frontend

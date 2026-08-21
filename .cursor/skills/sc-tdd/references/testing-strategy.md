@@ -58,6 +58,18 @@ it('applies 20% discount for premium users', () => {
 
 ---
 
+## Deep assert
+
+**One condition per test.** **One acceptance → one RED.** Expected values from design-contract Edge matrix + approved-scenarios frozen literals - never recomputed like the implementation.
+
+**Banned shallow patterns:** `expect(true)`, typeof-only, status-only, phrase-echo. Hollow green ≠ behavioral proof.
+
+**Error paths:** assert **ErrorCode** or error **instance** (project typed equivalent OK). Message-substring / HTTP status alone = shallow → rewrite.
+
+See sc-tester Ban / Deep assert; sc-tdd Rules.
+
+---
+
 ## Test Doubles
 
 | Double | Purpose | When |
@@ -145,6 +157,24 @@ When designing fixtures, prefer category diversity (positive / negative / bounda
 
 ---
 
+## Property-based testing (PBT)
+
+**Core logic** = design-contract modules with branching business rules / pure domain / state machines - not chrome, docs, or thin adapters.
+
+**Product path Must:** **100%** of those core-logic modules get property-based invariants + generators, using a project-existing lib (`fast-check` / Hypothesis / equivalent). Capture evidence with label prefix `pbt-…`.
+
+**Disposition when PBT does not run** (exact greppable lines; SoT in `docs/mission-artifacts.md`):
+
+- `Pbt skipped: no project pbt tool`
+- `Pbt skipped: not core logic`
+- `Pbt waived: <reason>`
+
+**Must not** invent installing a PBT library mid-mission unless the human asked. Missing `pbt-…` without skip/waive ⇒ judge-REFUTE material.
+
+Prefer invariants that encode domain laws (round-trip, idempotence, monotonicity, state-machine transitions) over example-only cases.
+
+---
+
 ## Common Mistakes
 
 | Mistake | Fix |
@@ -156,6 +186,11 @@ When designing fixtures, prefer category diversity (positive / negative / bounda
 | Slow test suite | Keep unit tests fast. Optimize integration tests. |
 | Mocked seam only for multi-step flows | Add a composition contract across create→use / join→claim |
 | Asserting only create response shape | Also assert the next step succeeds with returned credentials |
+| Shallow assert (`expect(true)`, typeof/status/phrase-echo) | Deep assert from design-contract + approved-scenarios oracles |
+| Error path checks status/message only | Assert ErrorCode or error instance (typed equivalent OK) |
+| Multi-condition / multi-acceptance RED | One condition per test; one acceptance → one RED |
+| Core-logic module ships with example tests only | Add property-based invariants + generators (`fast-check` / Hypothesis / project equivalent) or greppable `Pbt skipped`/`Pbt waived` |
+| Inventing a PBT lib install mid-mission | Use project-existing tool only; else `Pbt skipped: no project pbt tool` |
 
 ---
 
@@ -165,3 +200,4 @@ When designing fixtures, prefer category diversity (positive / negative / bounda
 - Production code must satisfy the pyramid distribution. No unit tests = not done.
 - Evidence must include test type and layer.
 - Evidence label convention: `"unit:domain:Money.add"`, `"integration:infra:PostgresOrderRepo"`.
+- Core-logic modules: property-based evidence `pbt-…` or greppable PBT skip/waive per `docs/mission-artifacts.md`.
