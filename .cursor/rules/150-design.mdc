@@ -1,15 +1,7 @@
 ---
 description: DESIGN.md visual system - read before generating or editing UI
 alwaysApply: false
-globs:
-  - "**/*.tsx"
-  - "**/*.jsx"
-  - "**/*.vue"
-  - "**/*.svelte"
-  - "**/*.astro"
-  - "**/*.css"
-  - "**/*.html"
-  - "**/DESIGN.md"
+globs: "**/*.tsx,**/*.jsx,**/*.vue,**/*.svelte,**/*.astro,**/*.css,**/*.html,**/DESIGN.md"
 ---
 
 # Design system (DESIGN.md)

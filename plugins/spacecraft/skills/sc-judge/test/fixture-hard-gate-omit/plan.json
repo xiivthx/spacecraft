@@ -1,0 +1,16 @@
+{
+  "planName": "fixture-hard-gate-omit",
+  "missionId": "MFIXTUREOMIT",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Ship unrelated happy-path acceptance only (omits Overlooked)",
+      "status": "done",
+      "acceptance": [
+        "happy-path-ready evidence exits 0 with non-empty output proving the check"
+      ],
+      "verify": "sh verify.sh",
+      "evidence": ["happy-path-ready"]
+    }
+  ]
+}

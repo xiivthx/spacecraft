@@ -1,0 +1,5 @@
+{
+  "id": "JBREAKREV",
+  "predicate": "closeout-reject",
+  "mustContain": "review finding"
+}

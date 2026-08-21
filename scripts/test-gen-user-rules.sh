@@ -1,14 +1,12 @@
 #!/bin/sh
 # test-gen-user-rules.sh - RED/GREEN test for scripts/gen-user-rules.sh (T1).
 #
-# Runs the generator over the six User-layer rule sources
-# (000/026/027/050/100/200) and asserts:
-#   1. output body contains marker text from all six sources
-#   2. output strips rule frontmatter (no leading '---' fences, no
-#      'alwaysApply:' / 'description:' lines)
+# Runs the generator over CORE source (010-hard-contract) and asserts:
+#   1. output body contains CORE markers
+#   2. output strips rule frontmatter
+#   3. output stays short (always-on budget)
 #
 # Usage: sh scripts/test-gen-user-rules.sh <repo-root>
-# Standalone: does not require `make install-global` or a built binary.
 set -e
 
 ROOT="${1:?usage: test-gen-user-rules.sh <repo-root>}"
@@ -39,10 +37,9 @@ if [ ! -f "$out" ]; then
   exit 1
 fi
 
-# --- Acceptance 1: marker text from all six sources present in the body ---
 missing=0
-for marker in 'Spacecraft' 'Intent coach' 'Agent chat language' 'Coding Standards' 'Project Structure' 'Lane Detection'; do
-  if ! grep -qF "$marker" "$out"; then
+for marker in 'hard contract' 'AUTH:' 'INTENT:' 'block-secrets-read' 'HIL language'; do
+  if ! grep -qiF "$marker" "$out"; then
     echo "FAIL: missing marker from output body: $marker"
     missing=1
   fi
@@ -50,9 +47,15 @@ done
 if [ "$missing" -ne 0 ]; then
   exit 1
 fi
-echo "  ok   output body contains all six source markers"
+echo "  ok   output body contains CORE markers"
 
-# --- Acceptance 2: rule frontmatter stripped ---
+lines=$(wc -l < "$out" | tr -d ' ')
+if [ "$lines" -gt 60 ]; then
+  echo "FAIL: USER-RULES CORE too long ($lines lines; want <=60)"
+  exit 1
+fi
+echo "  ok   CORE length <=60 lines ($lines)"
+
 if grep -n '^---$' "$out" >/dev/null; then
   echo "FAIL: output still contains a '---' frontmatter fence line"
   grep -n '^---$' "$out"

@@ -1,14 +1,7 @@
 ---
 description: Database design - schema, migrations, queries, indexes (PostgreSQL default)
 alwaysApply: false
-globs:
-  - "**/migrations/**"
-  - "**/schema/**"
-  - "**/db/**"
-  - "**/*.sql"
-  - "**/drizzle/**"
-  - "**/prisma/**"
-  - "**/knex/**"
+globs: "**/migrations/**,**/schema/**,**/db/**,**/*.sql,**/drizzle/**,**/prisma/**,**/knex/**"
 ---
 
 ## Database Conventions

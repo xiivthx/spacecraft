@@ -1,11 +1,10 @@
 #!/bin/sh
 # install-cursor.sh - install the project-layer spacecraft .cursor surface.
 #
-# Copies domain/glob rules, domain-pack skills, and the session-start hook
-# into <target>/.cursor, scaffolds <target>/.space, and merges mcp.json without
-# clobbering unrelated user MCP servers. Agents and User-layer safety hooks stay
-# out of the project (User layer / install-global owns them). Lean-core skills
-# stay User-layer only; project install omits and prunes them.
+# Copies domain/glob rules, hard-contract rule, domain-pack skills, and hooks
+# (session-start + safety) into <target>/.cursor, scaffolds <target>/.space,
+# and merges mcp.json without clobbering unrelated user MCP servers. Agents and
+# lean-core skills stay User-layer only (~/.cursor via install-global).
 #
 # Usage: install-cursor.sh <target-project-dir> <source-repo-dir>
 set -e
@@ -17,9 +16,8 @@ SRC="${2:?usage: install-cursor.sh <target-project-dir> <source-repo-dir>}"
 # Project layer gets domain packs only; lean skills live under ~/.cursor/skills.
 LEAN_SKILLS="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 
-# Project-layer hook scripts only (inverted from install-global-hooks SAFETY_HOOKS).
-PROJECT_HOOKS="session-start.sh"
-SAFETY_HOOKS="check-main-write.sh check-ship-commands.sh"
+# Project hooks: session-start + hard safety (cloud agents only load project hooks).
+PROJECT_HOOKS="session-start.sh check-main-write.sh check-ship-commands.sh block-secrets-read.sh block-destructive.sh"
 
 is_lean_skill() {
   case " $LEAN_SKILLS " in
@@ -57,8 +55,8 @@ if [ "$TARGET_ABS" = "$SRC_ABS" ]; then
   echo "  source == target; config already in place, scaffolding .space only"
 else
   mkdir -p "$TARGET_ABS/.cursor/rules" "$TARGET_ABS/.cursor/skills"
-  # Project layer gets domain/glob rules only (300-620). User-layer basenames
-  # (aligned with gen-user-rules SOURCES / USER-RULES) stay out of the project.
+  # Project layer: domain/glob rules 300-620 + alwaysApply hard-contract (010).
+  # Soft User-layer depth rules (000/026/027/050/100/200) stay out of the project.
   USER_LAYER="000-spacecraft.mdc 026-intent-coach.mdc 027-th-en-hil.mdc 050-style.mdc 100-conventions.mdc 200-workflow.mdc"
   for rule in "$SRC_ABS"/.cursor/rules/*.mdc; do
     [ -f "$rule" ] || continue
@@ -88,43 +86,35 @@ else
     rm -rf "$TARGET_ABS/.cursor/skills/$name"
     cp -R "$skill_dir" "$TARGET_ABS/.cursor/skills/$name"
   done
-  echo "  domain rules, domain skills -> $TARGET_ABS/.cursor"
+  echo "  domain rules, hard-contract, domain skills -> $TARGET_ABS/.cursor"
 
   if [ -f "$SRC_ABS/.cursor/hooks.json" ]; then
     mkdir -p "$TARGET_ABS/.cursor/hooks" "$SRC_ABS/.tmp"
-    # Copy only session-start; prune User-layer safety hook scripts if present.
-    if [ -f "$SRC_ABS/.cursor/hooks/session-start.sh" ]; then
-      cp "$SRC_ABS/.cursor/hooks/session-start.sh" "$TARGET_ABS/.cursor/hooks/session-start.sh"
-    fi
-    for safety in $SAFETY_HOOKS; do
-      rm -f "$TARGET_ABS/.cursor/hooks/$safety"
+    # Copy session-start + safety hook scripts (dual-layer: project for cloud).
+    for hook in $PROJECT_HOOKS; do
+      if [ -f "$SRC_ABS/.cursor/hooks/$hook" ]; then
+        cp "$SRC_ABS/.cursor/hooks/$hook" "$TARGET_ABS/.cursor/hooks/$hook"
+      fi
     done
 
     tmp_project=$(mktemp "$SRC_ABS/.tmp/project-hooks-src.XXXXXX")
-    tmp_safety=$(mktemp "$SRC_ABS/.tmp/project-hooks-safety.XXXXXX")
     # shellcheck disable=SC2064
-    trap 'rm -f "$tmp_project" "$tmp_safety"' EXIT INT TERM
+    trap 'rm -f "$tmp_project"' EXIT INT TERM
 
-    # Filter source hooks.json to PROJECT_HOOKS only (relative .cursor/hooks/ paths).
+    # Filter source hooks.json to PROJECT_HOOKS (relative .cursor/hooks/ paths).
     python3 "$SRC_ABS/scripts/rewrite-global-hooks.py" \
       "$SRC_ABS/.cursor/hooks.json" ".cursor/hooks" "$tmp_project" $PROJECT_HOOKS
 
     if [ -f "$TARGET_ABS/.cursor/hooks.json" ]; then
-      # Drop leftover safety entries from older project installs, then merge session-start.
-      python3 "$SRC_ABS/scripts/rewrite-global-hooks.py" \
-        "$SRC_ABS/.cursor/hooks.json" ".cursor/hooks" "$tmp_safety" $SAFETY_HOOKS
-      python3 "$SRC_ABS/scripts/hooks-merge.py" unmerge \
-        "$TARGET_ABS/.cursor/hooks.json" "$tmp_safety" \
-        | sed 's/^/  hooks: /'
       python3 "$SRC_ABS/scripts/hooks-merge.py" merge \
         "$TARGET_ABS/.cursor/hooks.json" "$tmp_project" \
         | sed 's/^/  hooks: /'
     else
       cp "$tmp_project" "$TARGET_ABS/.cursor/hooks.json"
-      echo "  hooks -> $TARGET_ABS/.cursor (session-start only)"
+      echo "  hooks -> $TARGET_ABS/.cursor (session-start + safety)"
     fi
 
-    rm -f "$tmp_project" "$tmp_safety"
+    rm -f "$tmp_project"
     trap - EXIT INT TERM
   fi
 fi

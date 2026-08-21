@@ -1,0 +1,3 @@
+Mission MFIXTURE-PASS claim: acceptance met with fresh passing evidence.
+Evidence label acceptance-pass proves the check (exit 0, non-empty output).
+Status: done.

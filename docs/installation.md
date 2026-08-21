@@ -14,8 +14,18 @@ Spacecraft is installed as Cursor project configuration plus a local CLI. Instal
 
 Spacecraft installs in two layers:
 
-- **User layer** (`make install-global` or `make install-machine`, once per machine): agents, skills, MCP config, the CLI, and global safety hooks. It also generates `~/.cursor/spacecraft/USER-RULES.txt` from six User-layer sources (`000-spacecraft`, `026-intent-coach`, `027-th-en-hil`, `050-style`, `100-conventions`, `200-workflow`). Paste that file's contents into Cursor Settings -> Rules -> User Rules so those policies apply in every workspace (Cursor does not load them from a repo checkout alone). After each User-layer regen, re-paste the updated file - human step; no Settings API automation. **Agent chat language:** English default for technical substance; Thai for HIL questions, short status, and handoff summaries (no dual `ไทย:` / `EN:` blocks).
-- **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): the domain/glob rules `300`-`620`, **domain-pack skills only**, the `session-start` hook (script + `hooks.json` merge), and a merged `.cursor/mcp.json`. It never copies agents, User-layer safety hooks (`check-main-write`, `check-ship-commands`), User-layer rules, or lean-core skills (`/sc-run`, `/sc-discuss`, and the rest of the lean allowlist) - those stay under `~/.cursor` via User-layer install. Re-running project install also prunes leftover lean-core skill dirs, `sc-*.md` agents, and safety hook scripts previously copied into the project. Project alone is not enough for lifecycle slash skills or agents; run User-layer install once per machine first.
+- **User layer** (`make install-global` or `make install-machine`, once per machine): agents, lean-core skills, MCP config, the CLI, and global safety hooks (also installed into each project for cloud parity). Generates a **short** `~/.cursor/spacecraft/USER-RULES.txt` CORE from `010-hard-contract` (+ HIL one-liner). Paste into Cursor Settings -> Rules -> User Rules (or ask the agent to apply via Settings API). Soft depth rules (`000`/`026`/`027`/`050`/`100`/`200`) stay agent-requested under User layer - not always-on.
+- **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): alwaysApply `010-hard-contract.mdc`, domain/glob rules `150`/`300`-`620`, **domain-pack skills**, `session-start` + **safety hooks** (`check-main-write`, `check-ship-commands`, `block-secrets-read`, `block-destructive`) in `.cursor/hooks.json`, and merged `.cursor/mcp.json`. It never copies agents or lean-core skills - those stay under `~/.cursor`. Project alone is not enough for lifecycle slash skills or agents; run User-layer install once per machine first.
+
+### Three layers (context vs enforcement)
+
+| Layer | What | Role |
+|---|---|---|
+| Hooks | secrets read, destructive shell, main-write, ship + push ask | Hard deny/ask - code, not hope |
+| Always-on | `010-hard-contract.mdc` (+ short User Rules CORE) | Non-negotiable soft contract every chat |
+| On demand | glob rules, skills, agent-requested `000`/`026`/… | Depth when relevant |
+
+Rules and User Rules are **context**, not configuration. Hard safety must be hooks.
 
 Run the User layer install once per machine; each Project layer install is independent and repeatable.
 
@@ -96,7 +106,7 @@ make install
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-For the User layer only (no companions) - Cursor-wide agents, slash skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and other `sc-*` skills), and the six User-layer sources via `USER-RULES.txt`:
+For the User layer only (no companions) - Cursor-wide agents, slash skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and other `sc-*` skills), and short USER-RULES CORE:
 
 ```sh
 make install-global
@@ -111,7 +121,7 @@ SPACECRAFT_SKILL_PROFILE=full make install-global
 
 On a new PC, prefer [`make install-machine`](#new-pc--install-machine) to also install caveman, rtk, and codegraph with Cursor wiring.
 
-That copies `~/.cursor/agents/sc-*.md` and `~/.cursor/skills/sc-*/`, merges MCP into `~/.cursor/mcp.json`, links the CLI, installs global safety hooks (`check-main-write`, `check-ship-commands`) into `~/.cursor/hooks.json`, and generates `~/.cursor/spacecraft/USER-RULES.txt` from the six User-layer sources. Paste that file's contents into Cursor Settings -> Rules -> User Rules so Commander, workflow, intent coaching, Agent chat language (English default; Thai for HIL/status/handoff), style, and conventions apply in every workspace. After each regen, re-paste the file (human step - no Settings API automation). Restart Cursor afterward. Unrelated skills and hooks (for example personal ones) are left alone.
+That copies `~/.cursor/agents/sc-*.md` and `~/.cursor/skills/sc-*/`, merges MCP into `~/.cursor/mcp.json`, links the CLI, installs global safety hooks (`check-main-write`, `check-ship-commands`, `block-secrets-read`, `block-destructive`) into `~/.cursor/hooks.json`, and generates a short `~/.cursor/spacecraft/USER-RULES.txt` CORE from `010-hard-contract`. Paste into Cursor Settings -> Rules -> User Rules (re-paste after regen). Project alwaysApply `010-hard-contract.mdc` covers the same non-negotiables without paste. Restart Cursor afterward. Unrelated skills and hooks are left alone.
 
 For the Project layer in another repo, either run `./bootstrap.sh /path/to/project` or, from this checkout:
 
@@ -119,7 +129,7 @@ For the Project layer in another repo, either run `./bootstrap.sh /path/to/proje
 make install-project PROJECT=/path/to/project
 ```
 
-Both install the domain/glob rules (`300`-`620`), domain-pack skills, and the `session-start` hook - never agents, User-layer safety hooks, User-layer rules, or lean-core skills. Lean-core lifecycle skills (`/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and related process skills) and agents live only under `~/.cursor` from `install-global`; a project install without User layer will not provide those slash skills or agents.
+Both install the domain/glob rules (`150`/`300`-`620`), alwaysApply hard-contract, domain-pack skills, `session-start`, and safety hooks - never agents, soft User-layer rules (`000`/`026`/…), or lean-core skills. Lean-core lifecycle skills and agents live only under `~/.cursor` from `install-global`.
 
 To link the Node CLI in the checkout without a full install:
 
@@ -142,7 +152,7 @@ grep -q session-start.sh .cursor/hooks.json
 test -d .space
 ```
 
-Agents and safety hooks (`check-main-write`, `check-ship-commands`) live under `~/.cursor` from the User layer - not under the project `.cursor/`.
+Agents live under `~/.cursor` from the User layer. Safety hooks live under both `~/.cursor` and project `.cursor/hooks/`.
 
 Confirm the Node CLI (linked entry or `PATH`):
 
@@ -203,6 +213,28 @@ Then begin in Cursor:
   roadmaps/
 ```
 
-User-layer agents, lean-core skills, and safety hooks stay under `~/.cursor/` (not copied into the project).
+User-layer agents and lean-core skills stay under `~/.cursor/`. Safety hooks install in **both** `~/.cursor/hooks/` (global) and project `.cursor/hooks/` (cloud + teammates).
 
 The Spacecraft repository CLI lives at `cli/spacecraft.mjs` (stdlib Node; zero npm CLI dependencies).
+
+---
+
+## Google Antigravity Installation
+
+Spacecraft provides first-class support for **Google Antigravity**:
+
+### 1. Global Plugin Install (Machine-wide)
+```sh
+make install-antigravity
+```
+Installs the Spacecraft plugin to `~/.gemini/config/plugins/spacecraft/` containing rules (`AGENTS.md`), hooks (`hooks.json`), 25 skills, and 10 subagents.
+
+### 2. Project-level Install
+```sh
+./bootstrap.sh --antigravity /path/to/project
+# or:
+make install-antigravity-project PROJECT=/path/to/project
+```
+Scaffolds `.agents/` (rules, hooks, skills) and creates `GEMINI.md` at the project root.
+
+See [Antigravity Guide](antigravity.md) for full details on the Source of Trust hierarchy, Chrome DevTools MCP live probing, and subagent orchestration.

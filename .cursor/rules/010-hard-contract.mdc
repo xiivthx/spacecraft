@@ -1,0 +1,25 @@
+---
+description: Spacecraft hard contract - always-on non-negotiables (hooks enforce secrets/git)
+alwaysApply: true
+---
+
+# Spacecraft hard contract
+
+Rules are context; hooks are enforcement. Do not treat this file as a substitute for hooks.
+
+## Hard gates (hooks)
+
+- Secrets: do not read `.env`, credentials, or private keys (`.cursor/hooks/block-secrets-read.sh`). Prefer `.env.example`.
+- Destructive: no `git push --force` / `-f`, no `rm -rf /` or home wipe (`.cursor/hooks/block-destructive.sh`).
+- Main: no mutating git on `main`/`master` without ship form (`.cursor/hooks/check-main-write.sh`).
+- Ship: `git merge`/`tag` need `/sc-ship` or `/sc-quick` + `SPACECRAFT_SHIP=1` (+ closeout unless quick). `git push` also requires **human ask** after the ship gate (`.cursor/hooks/check-ship-commands.sh`).
+
+## Soft contract (model)
+
+- **AUTH:** Before outward push/deploy/publish/send, state `AUTH:` with a **quoted** user authorization. AUTH does not set `SPACECRAFT_SHIP`; push still needs human approval.
+- **INTENT:** Before behavior-changing edits, state `INTENT:` with class + intended behavior.
+- **Commander:** Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware`); prose → `sc-writer`.
+- **Lanes:** `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. Small edits: `/sc-quick`.
+- **Language:** English for technical substance; Thai for HIL asks, short status, handoffs. Caveman terse by default.
+
+Depth: agent-requested rules `000`/`026`/`027`/`050`/`100`/`200` and skills - do not paste encyclopedias into always-on context.

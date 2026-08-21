@@ -1,0 +1,10 @@
+{
+  "name": "spacecraft",
+  "version": "1.0.0",
+  "description": "Spacecraft mission-control harness for Antigravity. Features always-on rules, specialized subagents, UX/UI/Frontend design gates, Chrome DevTools MCP live probes, safety hooks, and strict Source of Trust.",
+  "author": {
+    "name": "Spacecraft Team"
+  },
+  "repository": "https://github.com/xiivthx/spacecraft",
+  "license": "MIT"
+}

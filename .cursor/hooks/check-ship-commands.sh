@@ -14,6 +14,37 @@ allow() {
   exit 0
 }
 
+ask() {
+  user_msg="$1"
+  agent_msg="$2"
+  printf '%s\n' "{\"permission\":\"ask\",\"user_message\":$(python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$user_msg"),\"agent_message\":$(python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$agent_msg")}"
+  exit 0
+}
+
+# After ship+closeout (or quick) passes: push always asks human; merge/tag allow.
+finish_ship() {
+  is_push=$(printf '%s' "$command" | python3 -c '
+import re, sys
+cmd = sys.stdin.read()
+GIT_PREFIX = (
+    r"(?:(?:export\s+)?(?:[A-Za-z_][A-Za-z0-9_]*=\S+\s+)*)?"
+    r"(?:env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S+)*)?\s*"
+    r"(?:[^\s;|&]+/)?git(?:\s+(?:-C\s+\S+|-c\s+\S+))*"
+)
+SEP = r"(?:^|[;&|]|&&|\|\|)\s*"
+if re.search(SEP + GIT_PREFIX + r"\s+push\b", cmd):
+    print("yes")
+else:
+    print("no")
+')
+  if [ "$is_push" = "yes" ]; then
+    ask \
+      "Approve git push? Ship gate passed; human confirmation required before pushing." \
+      "Ship gate (SPACECRAFT_SHIP=1) passed, but git push always requires human approval. Wait for the user to allow or deny in the permission prompt. Do not retry push in a loop."
+  fi
+  allow
+}
+
 truncate_msg() {
   python3 -c '
 import sys
@@ -143,10 +174,10 @@ SEP = r"(?:^|[;&|]|&&|\|\|)\s*"
 REAL_SHIP = re.compile(SEP + GIT_PREFIX + r"\s+(merge|push|tag)\b")
 
 PRIMARY_SELF = re.compile(
-    r"^\s*(bash|sh)\s+\.?/?\.cursor/hooks/(hooks_test|check-ship-commands|check-main-write)\.sh(\s|$)"
+    r"^\s*(bash|sh)\s+\.?/?\.cursor/hooks/(hooks_test|check-ship-commands|check-main-write|block-secrets-read|block-destructive)\.sh(\s|$)"
 )
 PIPE_SELF = re.compile(
-    r"^\s*.+\|\s*\.?/?\.cursor/hooks/check-(ship-commands|main-write)\.sh\s*$"
+    r"^\s*.+\|\s*\.?/?\.cursor/hooks/(check-(ship-commands|main-write)|block-(secrets-read|destructive))\.sh\s*$"
 )
 
 if REAL_SHIP.search(cmd):
@@ -205,9 +236,9 @@ if [ "$SHIP_FLAG" != "1" ]; then
     "Do not merge, push, or tag unless the user explicitly requested ship via /sc-ship or /sc-quick. Prefix gated git with SPACECRAFT_SHIP=1 (and SPACECRAFT_QUICK=1 for no-mission /sc-quick), then unset after."
 fi
 
-# No-mission /sc-quick: skip mission closeout-check.
+# No-mission /sc-quick: skip mission closeout-check; push still asks.
 if [ "$QUICK_FLAG" = "1" ]; then
-  allow
+  finish_ship
 fi
 
 # SPACECRAFT_SHIP=1 (mission ship): run closeout before allowing.
@@ -239,4 +270,4 @@ if [ "$closeout_rc" -ne 0 ]; then
 $truncated"
 fi
 
-allow
+finish_ship

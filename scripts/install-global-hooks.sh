@@ -2,8 +2,8 @@
 # install-global-hooks.sh - install safety-only Cursor hooks into a global
 # ~/.cursor dir, merge-safe with unrelated user hooks.
 #
-# Copies only the safety hooks (check-main-write.sh, check-ship-commands.sh -
-# never session-start.sh, which is project-layer only) into
+# Copies safety hooks (check-main-write, check-ship-commands, block-secrets-read,
+# block-destructive - never session-start.sh, which is project-layer only) into
 # <global-cursor-dir>/hooks/, rewrites their hooks.json commands to absolute
 # paths under that dir (never the project's repo-relative .cursor/hooks/...),
 # and merges the result into <global-cursor-dir>/hooks.json without
@@ -20,7 +20,7 @@ ROOT_ABS=$(abspath "$ROOT")
 mkdir -p "$GLOBAL"
 GLOBAL_ABS=$(abspath "$GLOBAL")
 
-SAFETY_HOOKS="check-main-write.sh check-ship-commands.sh"
+SAFETY_HOOKS="check-main-write.sh check-ship-commands.sh block-secrets-read.sh block-destructive.sh"
 
 mkdir -p "$GLOBAL_ABS/hooks"
 for hook in $SAFETY_HOOKS; do

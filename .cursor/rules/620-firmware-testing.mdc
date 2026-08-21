@@ -1,13 +1,7 @@
 ---
 description: Firmware testing - host unit test, target integration, HIL, CI
 alwaysApply: false
-globs:
-  - "**/*_test.c"
-  - "**/*_tests.c"
-  - "**/test/**/*.c"
-  - "**/tests/**/*.c"
-  - "**/ceedling/**"
-  - "**/project.yml"
+globs: "**/*_test.c,**/*_tests.c,**/test/**/*.c,**/tests/**/*.c,**/ceedling/**,**/project.yml"
 ---
 
 ## Firmware Testing Strategy
