@@ -72,7 +72,7 @@ One commit: CHANGELOG + version bump.
 - Optional: `spacecraft bind-branch <id>` after rename.
 - `SPACECRAFT_SHIP=1 git merge --no-ff <type>/<title>`
 - Annotated tag `vX.Y.Z`; delete local branch unless asked to keep; `spacecraft archive` unless kept live.
-- No push unless user asks.
+- No push unless user asks. After `SPACECRAFT_SHIP=1`, the ship hook still **asks** the human before `git push` runs.
 
 ```
 SPACECRAFT_SHIP=1 git merge --no-ff feat/<title>
@@ -101,5 +101,6 @@ Any `closeout-check` or `validate --strict` failure; clarify open; sc-git fail; 
 
 ## Errors
 
-- No push unless user asks.
+- No push unless user asks. After `SPACECRAFT_SHIP=1`, the ship hook still **asks** before `git push`.
 - Conventional Commits; no mission ids in commit subjects/bodies.
+- Ship hooks enforce merge/tag/push gates; push always requires human ask after `SPACECRAFT_SHIP=1`.

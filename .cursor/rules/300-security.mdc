@@ -1,14 +1,7 @@
 ---
 description: Security review - OWASP, secrets, injection, auth, input validation
 alwaysApply: false
-globs:
-  - "**/*auth*/**"
-  - "**/*login*/**"
-  - "**/api/**"
-  - "**/routes/**"
-  - "**/*middleware*/**"
-  - "**/*.env*"
-  - "**/*secret*"
+globs: "**/*auth*/**,**/*login*/**,**/api/**,**/routes/**,**/*middleware*/**,**/*.env*,**/*secret*"
 ---
 
 ## Security Review

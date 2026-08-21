@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.52.0 - 2026-08-21
+
+- Feat: hard safety hooks - `block-secrets-read` (beforeReadFile/Tab), `block-destructive` (force-push / catastrophic rm); ship gate returns `ask` on `git push` after `SPACECRAFT_SHIP=1`
+- Feat: alwaysApply `010-hard-contract.mdc`; short USER-RULES CORE; project install dual-layers safety hooks for cloud
+- Fix: domain rule `globs` use comma-separated strings so Cursor attaches them
+- Feat: Antigravity short `AGENTS.md`/`GEMINI.md` + expanded `safety-check.mjs` (deny in-agent push)
+
 ## 0.51.1 - 2026-08-14
 
 - Feat: `sc-browser-probe` AFK find→fix→re-probe until `PROBE: CLEAN` (or 3-cycle/timebox stop); `/sc-run` Task-invokes it for UI/workflow before review

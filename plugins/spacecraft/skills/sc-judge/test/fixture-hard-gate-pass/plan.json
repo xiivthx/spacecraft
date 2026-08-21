@@ -1,0 +1,17 @@
+{
+  "planName": "fixture-hard-gate-pass",
+  "missionId": "MFIXTUREPASSGATE",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Cover hard-gated Negative and Overlooked with fresh evidence",
+      "status": "done",
+      "acceptance": [
+        "Negative: neg-missing-evidence - hard-gated Negative acceptance has fresh passing evidence (exit 0, non-empty output)",
+        "Overlooked: overlooked-unmapped-idea - hard-gated Overlooked acceptance has fresh passing evidence (exit 0, non-empty output)"
+      ],
+      "verify": "sh verify.sh",
+      "evidence": ["hard-gate-pass"]
+    }
+  ]
+}

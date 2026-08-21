@@ -1,0 +1,16 @@
+{
+  "planName": "fixture-false-completion",
+  "missionId": "MFIXTURE",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Ship acceptance that must have fresh passing evidence",
+      "status": "done",
+      "acceptance": [
+        "acceptance-pass evidence exits 0 with non-empty output proving the check"
+      ],
+      "verify": "sh verify.sh",
+      "evidence": ["acceptance-pass"]
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 #!/bin/sh
-# gen-user-rules.sh - concatenate the bodies of the six User-layer rules
-# into a single output file, stripping YAML frontmatter from each source.
+# gen-user-rules.sh - emit a short Spacecraft CORE User Rules file from
+# 010-hard-contract.mdc (+ optional HIL one-liner from 027), stripping YAML
+# frontmatter. Keep under ~40 lines so User Rules stay readable.
 #
 # Usage: sh scripts/gen-user-rules.sh <rules-dir> <out-file>
 set -e
@@ -8,7 +9,7 @@ set -e
 RULES_DIR="${1:?usage: gen-user-rules.sh <rules-dir> <out-file>}"
 OUT="${2:?usage: gen-user-rules.sh <rules-dir> <out-file>}"
 
-SOURCES="000-spacecraft.mdc 026-intent-coach.mdc 027-th-en-hil.mdc 050-style.mdc 100-conventions.mdc 200-workflow.mdc"
+SOURCES="010-hard-contract.mdc"
 
 mkdir -p "$(dirname "$OUT")"
 : > "$OUT"
@@ -31,3 +32,10 @@ for name in $SOURCES; do
   strip_frontmatter "$src" >> "$OUT"
   echo "" >> "$OUT"
 done
+
+# Tiny HIL reminder from 027 without pulling the full language rule.
+if [ -f "$RULES_DIR/027-th-en-hil.mdc" ]; then
+  printf '%s\n' "## HIL language (CORE)" >> "$OUT"
+  printf '%s\n' "English for technical substance; Thai for HIL questions, short status, and handoffs. No dual language blocks." >> "$OUT"
+  echo "" >> "$OUT"
+fi

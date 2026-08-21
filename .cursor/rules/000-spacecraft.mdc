@@ -38,11 +38,13 @@ Process SoT: `.cursor/rules/*.mdc`. Promote repeated traps into a rule or machin
 
 ### AUTH:
 
-Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization. Local mission ship still needs explicit `/sc-ship` + hooks + `SPACECRAFT_SHIP=1`. `/sc-quick` authorizes local merge/tag in that lane (hooks + `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`); push still needs separate AUTH.
+Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization. Local mission ship still needs explicit `/sc-ship` or `/sc-quick` + hooks + `SPACECRAFT_SHIP=1`. Push also requires the ship hook's **human ask** after that gate. AUTH does not set `SPACECRAFT_SHIP`.
 
 ## Boundaries
 
-**Never:** merge/tag/delete branches without `/sc-ship` or `/sc-quick`; auto-detect ship intent; implement Mission work before `spec.md` + `plan.json`; write on `main`; write product code/tests in Commander; drive-by refactors; delete dead code unless asked; expose secrets; outward push/deploy/publish/send without `AUTH:`.
+Hard enforcement: `.cursor/hooks/` (`block-secrets-read`, `block-destructive`, `check-main-write`, `check-ship-commands`) and always-on `010-hard-contract.mdc`. Soft depth lives in agent-requested rules and skills.
+
+**Never:** merge/tag/delete branches without `/sc-ship` or `/sc-quick`; auto-detect ship intent; implement Mission work before `spec.md` + `plan.json`; write on `main`; write product code/tests in Commander; drive-by refactors; delete dead code unless asked; expose secrets; outward push/deploy/publish/send without `AUTH:` + human push approval.
 
 **Always:** feature branch; verify with tests; missions resolve from branch → `.space/missions/<id>/`; fix findings and report them in the run/ship summary; ready/ship with 0 review findings; emit `INTENT:` before behavior-changing edits.
 

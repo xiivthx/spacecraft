@@ -1,0 +1,62 @@
+{
+  "planName": "sample-hard-gate-plan",
+  "missionId": "MSAMPLEHARDGATE",
+  "notes": "Sample when decisions.md has ## Testability pass: each hard-gated Negative and Overlooked idea appears in acceptance[] (or as Deferred test idea: <id> - <reason> in decisions.md). Edge is optional when used. Positive remains prefer-only unless also Strategy Top risk/Charter.",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Cover hard-gated Negative Test Idea with acceptance",
+      "status": "pending",
+      "dependsOn": [],
+      "files": [
+        ".cursor/skills/sc-judge/SKILL.md",
+        ".cursor/skills/sc-judge/test/hard-gate-omit-smoke.sh"
+      ],
+      "acceptance": [
+        "Negative: neg-missing-evidence - claim ready when hard-gated Negative acceptance lacks fresh evidence → VERDICT: REFUTED"
+      ],
+      "verify": "sh .cursor/skills/sc-judge/test/hard-gate-omit-smoke.sh",
+      "evidence": [
+        "sample-hard-gate-negative"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Cover hard-gated Overlooked Test Idea with acceptance",
+      "status": "pending",
+      "dependsOn": [
+        "T1"
+      ],
+      "files": [
+        ".cursor/skills/sc-judge/test/hard-gate-pass-smoke.sh",
+        ".cursor/skills/sc-judge/test/fixture-hard-gate-pass/"
+      ],
+      "acceptance": [
+        "Overlooked: overlooked-unmapped-idea - Overlooked idea mapped to acceptance with matching fresh evidence → VERDICT: VERIFIED"
+      ],
+      "verify": "sh .cursor/skills/sc-judge/test/hard-gate-pass-smoke.sh",
+      "evidence": [
+        "sample-hard-gate-overlooked"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Optional Edge coverage when Testability Edge is used",
+      "status": "pending",
+      "dependsOn": [
+        "T2"
+      ],
+      "files": [
+        ".cursor/skills/sc-judge/test/hard-gate-deferral-smoke.sh"
+      ],
+      "acceptance": [
+        "Edge: edge-partial-deferral - Deferred test idea: overlooked-x - out of size covers deferred idea while sibling hard-gate gap remains REFUTED"
+      ],
+      "verify": "sh .cursor/skills/sc-judge/test/hard-gate-deferral-smoke.sh",
+      "evidence": [
+        "sample-hard-gate-edge-optional"
+      ],
+      "notes": "Edge optional when Testability Edge is present; not hard-gated unless also Strategy Top risk/Charter"
+    }
+  ]
+}

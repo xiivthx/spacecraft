@@ -1,0 +1,13 @@
+{
+  "planName": "judge-break-false-completion",
+  "missionId": "JBREAKFALSE",
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "claimed done",
+      "status": "done",
+      "acceptance": ["something shipped"],
+      "verify": ["true"]
+    }
+  ]
+}

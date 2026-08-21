@@ -127,7 +127,7 @@ else
 fi
 
 out=$(run_ship "1" '{"command":"git push"}' "true")
-assert_perm "ship: SPACECRAFT_SHIP=1 closeout ok allows push" "allow" "$(extract_perm "$out")"
+assert_perm "ship: SPACECRAFT_SHIP=1 closeout ok asks push" "ask" "$(extract_perm "$out")"
 
 out=$(run_ship "1" '{"command":"git tag v1.0.0"}' "exit 0")
 assert_perm "ship: SPACECRAFT_SHIP=1 closeout ok allows tag" "allow" "$(extract_perm "$out")"
@@ -138,9 +138,9 @@ assert_perm "ship: SPACECRAFT_SHIP=1 closeout fail denies push" "deny" "$(extrac
 out=$(run_ship "1" '{"command":"git merge --no-ff feat/x"}' "exit 1")
 assert_perm "ship: SPACECRAFT_SHIP=1 closeout fail denies merge" "deny" "$(extract_perm "$out")"
 
-# /sc-quick: SPACECRAFT_QUICK=1 skips closeout even when closeout would fail.
+# /sc-quick: SPACECRAFT_QUICK=1 skips closeout; push still asks; merge/tag allow.
 out=$(run_ship "1" '{"command":"git push"}' "false" "1")
-assert_perm "ship: SPACECRAFT_QUICK=1 skips closeout allows push" "allow" "$(extract_perm "$out")"
+assert_perm "ship: SPACECRAFT_QUICK=1 skips closeout asks push" "ask" "$(extract_perm "$out")"
 
 out=$(run_ship "1" '{"command":"git merge --no-ff docs/x"}' "exit 1" "1")
 assert_perm "ship: SPACECRAFT_QUICK=1 skips closeout allows merge" "allow" "$(extract_perm "$out")"
@@ -219,6 +219,57 @@ assert_perm "main-write: env git commit denies" "deny" "$(extract_perm "$out")"
 
 out=$(run_main "main" '{"command":"git -C . commit -m x"}')
 assert_perm "main-write: git -C commit denies" "deny" "$(extract_perm "$out")"
+
+# --- block-secrets-read.sh ---
+SECRETS="$ROOT/.cursor/hooks/block-secrets-read.sh"
+run_secrets() {
+  printf '%s' "$1" | "$SECRETS"
+}
+
+out=$(run_secrets '{"file_path":"/proj/.env"}')
+assert_perm "secrets: denies .env" "deny" "$(extract_perm "$out")"
+
+out=$(run_secrets '{"file_path":"/proj/.env.local"}')
+assert_perm "secrets: denies .env.local" "deny" "$(extract_perm "$out")"
+
+out=$(run_secrets '{"file_path":"/proj/.env.example"}')
+assert_perm "secrets: allows .env.example" "allow" "$(extract_perm "$out")"
+
+out=$(run_secrets '{"file_path":"/proj/config.env.sample"}')
+assert_perm "secrets: allows .env.sample" "allow" "$(extract_perm "$out")"
+
+out=$(run_secrets '{"file_path":"/proj/id_rsa"}')
+assert_perm "secrets: denies id_rsa" "deny" "$(extract_perm "$out")"
+
+out=$(run_secrets '{"file_path":"/proj/cert.pem"}')
+assert_perm "secrets: denies .pem" "deny" "$(extract_perm "$out")"
+
+out=$(run_secrets '{"file_path":"/proj/src/app.ts"}')
+assert_perm "secrets: allows source file" "allow" "$(extract_perm "$out")"
+
+# --- block-destructive.sh ---
+DEST="$ROOT/.cursor/hooks/block-destructive.sh"
+run_dest() {
+  printf '%s' "$1" | "$DEST"
+}
+
+out=$(run_dest '{"command":"git push --force origin main"}')
+assert_perm "destructive: denies force push" "deny" "$(extract_perm "$out")"
+
+out=$(run_dest '{"command":"git push -f origin main"}')
+assert_perm "destructive: denies push -f" "deny" "$(extract_perm "$out")"
+
+out=$(run_dest '{"command":"SPACECRAFT_SHIP=1 git push origin main"}')
+assert_perm "destructive: allows non-force push" "allow" "$(extract_perm "$out")"
+
+out=$(run_dest '{"command":"rm -rf /"}')
+assert_perm "destructive: denies rm -rf /" "deny" "$(extract_perm "$out")"
+
+out=$(run_dest '{"command":"rm -rf ~"}')
+assert_perm "destructive: denies rm -rf home" "deny" "$(extract_perm "$out")"
+
+out=$(run_dest '{"command":"rm -rf ./build"}')
+assert_perm "destructive: allows rm project dir" "allow" "$(extract_perm "$out")"
 
 if [ "$FAIL" -ne 0 ]; then
   printf 'hooks_test.sh: FAILED\n'

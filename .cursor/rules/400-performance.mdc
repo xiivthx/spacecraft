@@ -1,13 +1,7 @@
 ---
 description: Performance review - N+1 queries, memory leaks, bundle size, render optimization
 alwaysApply: false
-globs:
-  - "**/*perf*/**"
-  - "**/*benchmark*/**"
-  - "**/queries/**"
-  - "**/*.sql"
-  - "**/vite.config.*"
-  - "**/webpack*.js"
+globs: "**/*perf*/**,**/*benchmark*/**,**/queries/**,**/*.sql,**/vite.config.*,**/webpack*.js"
 ---
 
 ## Performance Review

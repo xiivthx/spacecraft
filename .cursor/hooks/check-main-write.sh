@@ -164,7 +164,7 @@ BRANCH_DEL = re.compile(
 )
 
 PRIMARY_SELF = re.compile(
-    r"^\s*(bash|sh)\s+\.?/?\.cursor/hooks/(hooks_test|check-ship-commands|check-main-write)\.sh(\s|$)"
+    r"^\s*(bash|sh)\s+\.?/?\.cursor/hooks/(hooks_test|check-ship-commands|check-main-write|block-secrets-read|block-destructive)\.sh(\s|$)"
 )
 PIPE_SELF = re.compile(
     r"^\s*.+\|\s*\.?/?\.cursor/hooks/check-(ship-commands|main-write)\.sh\s*$"

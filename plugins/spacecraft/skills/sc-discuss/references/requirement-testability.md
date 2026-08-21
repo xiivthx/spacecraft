@@ -1,0 +1,139 @@
+# Requirement testability pass
+
+`/sc-discuss` soft gate (lens-style): stress-test `spec.md` for testability before deep plan/build. Decision job - not expertise cosplay.
+
+## Goal
+
+Make the requirement testable enough that `/sc-run` can turn Verify into acceptance checks without inventing bars.
+
+## Output
+
+Chat summary plus greppable artifact in `decisions.md`:
+
+```
+## Testability pass
+- Testability: Testable | Not Testable
+- Fixes needed: <concrete Verify/acceptance changes, or none>
+- Notes: …
+- Risks: …
+- Test Ideas:
+  - Positive: …
+  - Negative: …
+  - Edge: …
+  - Overlooked: …
+- Implementation pitfalls: …
+- Requirement Bugs: …
+- Question queue: <count> parked in questions.md (blocking N / non-blocking M / researchable K)
+```
+
+Or skip:
+
+```
+Testability pass skipped: <reason>
+```
+
+## Good / Bad
+
+- Good: measurable outcomes; machine-checkable Verify when possible; question candidates classified and parked; blocking asks via sc-clarify frontier rounds (≤3 independent; serial when dependent); structured Test Ideas (Positive/Negative/Edge/Overlooked) risk-driven when SFDIPOT/quality apply; Implementation pitfalls distinct from Requirement Bugs; usable by sc-planner / sc-tester
+- Bad: inventing Verify; essay dumps instead of structured Test Ideas; dumping the full question queue or more than a frontier round (≤3 independent) in one user-facing turn; expertise cosplay; clearing while `Not Testable` and Verify still soft/missing
+
+## Verify
+
+`decisions.md` has `## Testability pass` OR `Testability pass skipped:`. If Testability is `Not Testable` and Verify is still soft/missing → keep `clarify-status open`. Greppable markers only - no CLI validator required.
+
+## When required (any one)
+
+- Soft or missing Verify
+- New feature with behavioral uncertainty
+- Human asks for requirement / testability review
+- Mission brief probe finds skim-and-run risk on Verify
+
+## When skip
+
+- Verify already machine-checkable and uncontested
+- Routine bug with clear repro
+- Non-behavior docs-only work
+
+Record skip in `decisions.md`:
+
+```
+Testability pass skipped: <reason>
+```
+
+## Procedure
+
+1. **Read** - `spec.md` (Goal, Output, Good vs Bad, Verify). If the requirement is missing, empty, or too vague to score → respond exactly: `Requirement unclear - please provide more detail.` Keep clarify open. Do not invent Verify.
+
+2. **Score testability**
+   - **Testable** - outcomes are observable; Verify (or clear path to Verify) is measurable; acceptance can become RED-GREEN cycles
+   - **Not Testable** - list specific fixes (clearer acceptance, measurable outcomes, edge cases, out-of-scope)
+
+3. **Question queue** (do not dump as the user-facing turn)
+   - List clarifying questions you would ask product
+   - Classify each: **blocking** | **non-blocking** | **researchable**
+   - Park under `questions.md` (Open); note depends-on when useful
+   - Ask via sc-clarify **frontier** rounds (≤3 independent; serial when dependent). Per-question format: Qn title / Why it matters / Recommendation / If accepted
+   - Non-blocking (true soft, not Verify / architecture / scope) → assumption in `decisions.md`; researchable → read code / sc-search first
+   - Verify / architecture / scope gaps stay on the frontier until settled or explicitly deferred
+
+4. **SFDIPOT scan** (silent checklist - fuels Risks and Test Ideas; do not add new top-level `decisions.md` sections)
+
+   Scan Product Elements; note only what applies. For each relevant area: key area example + risk + coverage idea (charter-style, concrete).
+
+   | Area | Scan for |
+   |------|----------|
+   | Structure | Components, modules, layers, boundaries |
+   | Function | Capabilities, workflows, business rules |
+   | Data | Inputs, outputs, persistence, migrations, integrity |
+   | Interfaces | APIs, UI surfaces, events, contracts |
+   | Platform | OS, browser, device, runtime, deployment target |
+   | Operations | Install, config, monitoring, support, recovery |
+   | Time/Timing | Concurrency, latency, timeouts, scheduling, ordering |
+
+5. **Quality criteria scan** (silent checklist - fuels Risks and Test Ideas; do not add new top-level `decisions.md` sections)
+
+   Scan quality dimensions; note only what applies. For each relevant criterion: what it means HERE + failure to guard + check/experiment.
+
+   | Criterion | Scan for |
+   |-----------|----------|
+   | Capability | Does it do what users need? |
+   | Reliability | Failures, recovery, consistency |
+   | Usability | Learnability, errors, accessibility |
+   | Charisma | Delight, trust, polish (when product-relevant) |
+   | Security | Authz, data exposure, abuse |
+   | Scalability | Load, growth, resource limits |
+   | Compatibility | Versions, platforms, integrations |
+   | Performance | Speed, throughput, resource use |
+   | Installability | Setup, upgrade, rollback |
+   | Development | Testability, maintainability, operability |
+
+6. **Fill remaining sections** (use SFDIPOT/quality scan output in Risks and Test Ideas)
+   - **Notes** - observations that affect understanding
+   - **Risks** - if unclear or incomplete, what breaks in build/ship; include SFDIPOT/quality-informed risks when those apply
+   - **Test Ideas** - structured buckets (Positive / Negative / Edge / Overlooked). Default format per idea (compact, planner-usable): `Scenario: … | Steps: … | Expected: …`. UI/user-facing may use story form: `As a [role], when I …, then …` plus brief Notes (risk/edge/usability). Bucket mapping:
+     - **Positive** - happy path
+     - **Negative** - invalid input, error handling, permission denial
+     - **Edge** - rare/boundary conditions
+     - **Overlooked** - cases testers often miss (includes exploratory / creative paths; deep exploratory charters may also live under Strategy pass Charter ideas). When "why is this a problem" needs grounding, optionally run `test-oracles.md` - do not invent Verify.
+     - **Hard-gated set (planner handoff)** - all **Negative** + **Overlooked**; plus Strategy **Top risks** / **Charter** ideas when mapped (or listed as Top risks/Charter). Each hard-gated idea **Must** be planner-usable: stable id (bucket + short slug) **or** a quoted scenario fragment greppable from the idea line. Planner covers each in `plan.json` `acceptance[]` **or** greppable `Deferred test idea: <id> - <reason>` in `decisions.md` (reason required; discuss documents the shape - does not invent Verify bars beyond Testability/Strategy artifacts). Positive / Edge stay prefer-only unless also Top risk/Charter. Do **not** absorb `sc-browser-probe` into this hard gate (probe runs AFK under `/sc-run` when UI/workflow exists - separate from Test Ideas hard-gate).
+     - When concrete **variable values** matter (paths, dates, numbers, strings, authz inputs), optionally run `test-data-design.md` and/or use its inspiration checklist to fuel Edge / Negative / Overlooked ideas - do not invent Verify from data rows. Boundary ≈ Edge; Security/Pen samples map to Negative or Overlooked.
+     - When UI/visual: if draft or screenshot available, extract UI elements/flows into ideas; else note in Notes or pass `Notes: No screenshot/draft - scenarios based only on textual requirement.`
+   - **Implementation pitfalls** - short checklist of potential bugs/pitfalls in **implementing** the requirement (UI, data handling, error messaging, perf, security, etc.) - **distinct** from Requirement Bugs (flaws in the requirement text itself)
+   - **Requirement Bugs** - flaws, contradictions, ambiguities in the requirement itself
+
+7. **Record** - write `## Testability pass` (or skip) to `decisions.md`. Tighten `spec.md` Verify when the human confirms fixes.
+
+## Clear rule
+
+- Do **not** clear while Testability is `Not Testable` **and** Verify is still soft/missing
+- If the human later supplies machine-checkable Verify, re-score or record a new pass; `Not Testable` alone is not a permanent block once Verify is fixed
+
+## Must / Must not
+
+- **Must**: Exhaust `spec.md` / `questions.md` / `decisions.md` / repo before asking
+- **Must**: Park question candidates; ask via sc-clarify frontier rounds (≤3 independent; serial when dependent)
+- **Must**: Write hard-gated Neg/Overlooked (+ Strategy Top risk/Charter when mapped) as planner-usable lines (stable id or quoted scenario fragment) so planning can map `acceptance[]` or `Deferred test idea: <id> - <reason>`
+- **Must not**: Invent Verify from Test Ideas (or beyond Testability/Strategy artifacts)
+- **Must not**: Absorb `sc-browser-probe` into the hard gate
+- **Must not**: Expertise cosplay ("as a QA expert…")
+- **Must not**: Replace sc-clarify or mission brief

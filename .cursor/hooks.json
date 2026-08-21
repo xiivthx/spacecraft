@@ -8,6 +8,10 @@
     ],
     "beforeShellExecution": [
       {
+        "command": ".cursor/hooks/block-destructive.sh",
+        "failClosed": true
+      },
+      {
         "command": ".cursor/hooks/check-main-write.sh",
         "matcher": "git\\s+",
         "failClosed": true
@@ -15,6 +19,18 @@
       {
         "command": ".cursor/hooks/check-ship-commands.sh",
         "matcher": "git\\s+(merge|push|tag)\\b",
+        "failClosed": true
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": ".cursor/hooks/block-secrets-read.sh",
+        "failClosed": true
+      }
+    ],
+    "beforeTabFileRead": [
+      {
+        "command": ".cursor/hooks/block-secrets-read.sh",
         "failClosed": true
       }
     ]

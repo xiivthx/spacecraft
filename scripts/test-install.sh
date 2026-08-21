@@ -2,7 +2,7 @@
 # test-install.sh - install/bootstrap smoke test in a throwaway temp dir.
 #
 # Seeds a pre-existing unrelated hook so the hooks merge must preserve user
-# hooks alongside project session-start (safety hooks stay User-layer only),
+# hooks alongside project session-start + safety (dual-layer for cloud),
 # then runs install-global against a fake HOME and checks the core skills land.
 # Never writes ~/.cursorrules.
 #
@@ -47,15 +47,23 @@ if ! grep -q 'session-start.sh' "$hooks"; then
   echo "FAIL: install-project missing session-start hook in $hooks"
   exit 1
 fi
-if grep -q 'check-ship-commands.sh' "$hooks"; then
-  echo "FAIL: install-project merged User-layer safety hook check-ship-commands.sh into project $hooks"
+if ! grep -q 'check-ship-commands.sh' "$hooks"; then
+  echo "FAIL: install-project missing safety hook check-ship-commands.sh in $hooks"
   exit 1
 fi
-if grep -q 'check-main-write.sh' "$hooks"; then
-  echo "FAIL: install-project merged User-layer safety hook check-main-write.sh into project $hooks"
+if ! grep -q 'check-main-write.sh' "$hooks"; then
+  echo "FAIL: install-project missing safety hook check-main-write.sh in $hooks"
   exit 1
 fi
-echo "  ok   hooks merge preserves user + session-start; omits safety hooks"
+if ! grep -q 'block-secrets-read.sh' "$hooks"; then
+  echo "FAIL: install-project missing safety hook block-secrets-read.sh in $hooks"
+  exit 1
+fi
+if ! grep -q 'block-destructive.sh' "$hooks"; then
+  echo "FAIL: install-project missing safety hook block-destructive.sh in $hooks"
+  exit 1
+fi
+echo "  ok   hooks merge preserves user + session-start + safety hooks"
 
 if [ -f "$fake_home/.cursorrules" ]; then
   echo "FAIL: install wrote legacy ~/.cursorrules"
@@ -77,16 +85,16 @@ test -f "$tmp/.cursor/hooks/session-start.sh" \
   || { echo "FAIL: install-project did not copy session-start.sh into $tmp/.cursor/hooks/"; exit 1; }
 echo "  ok   install-project places domain rules 300-620 + session-start hook"
 
-# Project-layer must not copy User-layer safety hook scripts (global owns them).
-for safety_hook in check-main-write.sh check-ship-commands.sh; do
-  if [ -f "$tmp/.cursor/hooks/$safety_hook" ]; then
-    echo "FAIL: install-project copied User-layer safety hook $safety_hook into $tmp/.cursor/hooks/"
+# Project-layer copies safety hook scripts (dual-layer: cloud + teammates) + session-start.
+for safety_hook in check-main-write.sh check-ship-commands.sh block-secrets-read.sh block-destructive.sh; do
+  if [ ! -f "$tmp/.cursor/hooks/$safety_hook" ]; then
+    echo "FAIL: install-project missing safety hook $safety_hook under $tmp/.cursor/hooks/"
     exit 1
   fi
 done
 test -f "$tmp/.cursor/hooks/session-start.sh" \
-  || { echo "FAIL: install-project missing session-start.sh under $tmp/.cursor/hooks/ after safety omit"; exit 1; }
-echo "  ok   install-project omits safety hook scripts; keeps session-start.sh"
+  || { echo "FAIL: install-project missing session-start.sh under $tmp/.cursor/hooks/"; exit 1; }
+echo "  ok   install-project copies safety hook scripts + session-start.sh"
 
 # Project-layer must not install agents (User-layer / global owns sc-*.md agents).
 if [ -f "$tmp/.cursor/agents/sc-coder.md" ]; then
@@ -113,20 +121,22 @@ for skill in $project_domain_skills; do
 done
 echo "  ok   install-project places domain encyclopedia skills (no User --full required)"
 
-# T4: install-project omits User-layer basenames via explicit list (aligned with
-# gen-user-rules SOURCES: 000/026/027/050/100/200) — not alwaysApply: true only.
+# T4: install-project omits soft User-layer basenames (000/026/027/050/100/200)
+# but includes alwaysApply hard-contract (010).
 for rule in 000-spacecraft 026-intent-coach 027-th-en-hil 050-style 100-conventions 200-workflow; do
   if [ -f "$tmp/.cursor/rules/$rule.mdc" ]; then
     echo "FAIL: install-project copied User-layer rule $rule.mdc into project target $tmp (must exclude by basename list)"
     exit 1
   fi
 done
+test -f "$tmp/.cursor/rules/010-hard-contract.mdc" \
+  || { echo "FAIL: install-project missing 010-hard-contract.mdc in $tmp/.cursor/rules"; exit 1; }
 # install-cursor.sh must name that exclude (USER_LAYER or the basename list).
 if ! grep -Eq 'USER_LAYER|000-spacecraft' "$ROOT/scripts/install-cursor.sh"; then
   echo "FAIL: install-cursor.sh missing explicit User-layer basename exclude (USER_LAYER or 000-spacecraft)"
   exit 1
 fi
-echo "  ok   install-project excludes User-layer basenames from project target"
+echo "  ok   install-project excludes soft User-layer basenames; includes 010-hard-contract"
 
 # Lean-core skills (must stay in sync with scripts/global-sync.sh LEAN_SKILLS) stay
 # User-layer only (~/.cursor/skills via lean install-global). Project install must
@@ -155,7 +165,7 @@ echo "  ok   install-project omits lean-core skills (User-layer only)"
 
 # Re-running project install prunes lean-core skills previously copied into the
 # project skills dir (mirrors lean install-global pruning domain packs).
-# Also prunes leftover spacecraft agents + User-layer safety hook scripts.
+# Also prunes leftover spacecraft agents; refreshes safety hook scripts.
 mkdir -p "$project_skills/sc-run" "$tmp/.cursor/agents" "$tmp/.cursor/hooks"
 printf '%s\n' '# seeded-for-project-lean-prune' > "$project_skills/sc-run/SKILL.md"
 printf '%s\n' '# seeded-for-project-agent-prune' > "$tmp/.cursor/agents/sc-coder.md"
@@ -177,15 +187,20 @@ if [ -e "$tmp/.cursor/agents/sc-coder.md" ]; then
 fi
 echo "  ok   re-run install-project prunes leftover spacecraft agents"
 
-for safety_hook in check-main-write.sh check-ship-commands.sh; do
-  if [ -f "$tmp/.cursor/hooks/$safety_hook" ]; then
-    echo "FAIL: re-run install-project left seeded safety hook $safety_hook under $tmp/.cursor/hooks (expected prune)"
+for safety_hook in check-main-write.sh check-ship-commands.sh block-secrets-read.sh block-destructive.sh; do
+  if [ ! -f "$tmp/.cursor/hooks/$safety_hook" ]; then
+    echo "FAIL: re-run install-project missing safety hook $safety_hook under $tmp/.cursor/hooks"
     exit 1
   fi
 done
+# Seeded stub must be replaced with real script body (not just #!/bin/sh).
+if ! grep -q 'permission' "$tmp/.cursor/hooks/check-ship-commands.sh"; then
+  echo "FAIL: re-run install-project did not refresh check-ship-commands.sh from source"
+  exit 1
+fi
 test -f "$tmp/.cursor/hooks/session-start.sh" \
-  || { echo "FAIL: after safety-hook prune re-run, missing session-start.sh under $tmp/.cursor/hooks/"; exit 1; }
-echo "  ok   re-run install-project prunes safety hook scripts; keeps session-start.sh"
+  || { echo "FAIL: after re-run, missing session-start.sh under $tmp/.cursor/hooks/"; exit 1; }
+echo "  ok   re-run install-project refreshes safety hook scripts; keeps session-start.sh"
 
 mkdir -p "$fake_home/.cursor"
 printf '%s\n' '{"version":1,"hooks":{"beforeShellExecution":[{"command":"~/.cursor/hooks/user-unrelated-global.sh","matcher":"echo"}]}}' \
@@ -259,11 +274,11 @@ echo "  ok   install-global full keeps domain encyclopedias; lean omits"
 user_rules="$fake_home/.cursor/spacecraft/USER-RULES.txt"
 test -f "$user_rules" \
   || { echo "FAIL: install-global did not write $user_rules"; exit 1; }
-for marker in 'Spacecraft' 'Intent coach' 'Agent chat language' 'Coding Standards' 'Project Structure' 'Lane Detection' 'Graph vs Loop' 'Context budget'; do
-  grep -q "$marker" "$user_rules" \
+for marker in 'hard contract' 'AUTH:' 'INTENT:' 'block-secrets-read' 'HIL language'; do
+  grep -qi "$marker" "$user_rules" \
     || { echo "FAIL: USER-RULES.txt missing marker: $marker"; exit 1; }
 done
-echo "  ok   install-global generates USER-RULES.txt with six-source markers (+ Graph vs Loop, Context budget)"
+echo "  ok   install-global generates short USER-RULES.txt CORE markers"
 
 if [ -f "$fake_home/.cursorrules" ]; then
   echo "FAIL: install-global wrote legacy ~/.cursorrules"
@@ -286,6 +301,14 @@ if ! grep -q 'check-ship-commands.sh' "$global_hooks"; then
   echo "FAIL: install-global did not merge check-ship-commands.sh into $global_hooks"
   exit 1
 fi
+if ! grep -q 'block-secrets-read.sh' "$global_hooks"; then
+  echo "FAIL: install-global did not merge block-secrets-read.sh into $global_hooks"
+  exit 1
+fi
+if ! grep -q 'block-destructive.sh' "$global_hooks"; then
+  echo "FAIL: install-global did not merge block-destructive.sh into $global_hooks"
+  exit 1
+fi
 echo "  ok   install-global hooks merge preserves unrelated hook + adds safety hooks"
 
 # T3 acceptance 2: installed hook commands use absolute or ~ paths (never the
@@ -299,7 +322,7 @@ if ! grep -qE '"command": "(~|/)[^"]*check-ship-commands\.sh"' "$global_hooks"; 
   echo "FAIL: check-ship-commands.sh command in $global_hooks is not an absolute or ~ path"
   exit 1
 fi
-for hook_script in check-main-write.sh check-ship-commands.sh; do
+for hook_script in check-main-write.sh check-ship-commands.sh block-secrets-read.sh block-destructive.sh; do
   test -f "$fake_home/.cursor/hooks/$hook_script" \
     || { echo "FAIL: install-global did not copy $hook_script into $fake_home/.cursor/hooks/"; exit 1; }
 done
