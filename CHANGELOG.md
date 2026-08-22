@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.54.0 - 2026-08-22
+
+- Feat: project skill pack setup — `spacecraft setup`, `.cursor/spacecraft-profile.json`, selective domain install/prune
+- Feat: pack catalog (frontend/backend/database/embedded/quality); coming stubs listed but not selectable
+- Feat: non-TTY requires `--packs` / `SPACECRAFT_PACKS` (no silent all-packs); TTY interactive defaults to quality
+- Docs: installation guide and README for project pack setup; User-layer lean/full unchanged
+
 
 ## 0.53.0 - 2026-08-21
 
