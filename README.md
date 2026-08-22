@@ -19,7 +19,7 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 
 ## Installation
 
-Spacecraft installs in two layers: a **User layer** (once per machine) for agents, lean-core skills, MCP, the CLI, and global safety hooks - plus a short `~/.cursor/spacecraft/USER-RULES.txt` CORE (`010-hard-contract`). Paste into Settings -> Rules -> User Rules after regen. And a **Project layer** (`./bootstrap.sh` or `make install-project`) for alwaysApply hard-contract, domain/glob rules (`150`/`300`-`620`), domain-pack skills, `session-start`, and **safety hooks** (secrets / destructive / main-write / ship+push-ask) so cloud agents get the same gates. Lean-core lifecycle skills and agents stay User layer (`~/.cursor`).
+Spacecraft installs in two layers: a **User layer** (once per machine) for agents, lean-core skills, MCP, the CLI, and global safety hooks - plus a short `~/.cursor/spacecraft/USER-RULES.txt` CORE (`010-hard-contract`). Paste into Settings -> Rules -> User Rules after regen. And a **Project layer** (`./bootstrap.sh`, `make install-project`, or `spacecraft setup`) for alwaysApply hard-contract, **pack-selected** domain skills/rules, `session-start`, and **safety hooks** (secrets / destructive / main-write / ship+push-ask) so cloud agents get the same gates. Lean-core lifecycle skills and agents stay User layer (`~/.cursor`).
 
 **Enforcement map:** hooks = hard; `010-hard-contract` = always-on soft; skills/glob rules = on demand. Markdown alone does not block `.env` reads or push.
 
@@ -44,10 +44,11 @@ SPACECRAFT_SKILL_PROFILE=full make install-global
 # or: make install-global FULL=1
 ```
 
-Project layer (per repo) still installs domain packs locally - no User `--full` required:
+Project layer (per repo) installs **selected** domain packs locally - no User `--full` required. Choose packs with `spacecraft setup` (interactive default: **quality**; coming packs such as `iot`/`fpga`/`pcb`/`management` are listed but not installable). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`, or fails. Existing `.cursor/spacecraft-profile.json` → silent reconcile; change packs with `--reconfigure`. User-layer lean/full is unchanged; lean-core stays out of the project layer.
 
 ```sh
 ./bootstrap.sh /path/to/project
+# or: spacecraft setup --packs frontend,quality
 ```
 
 Bootstrap / `install-cursor` first `.space` create also ensures git (init if needed), starter `.gitignore` with `.space/`, and may soft-run `codegraph init` when no `.codegraph/` index exists (warn and continue on missing binary or failure).
@@ -58,7 +59,7 @@ When working from a clone of this repository, build and install with:
 make install
 ```
 
-See the [installation guide](docs/installation.md) and [Antigravity guide](docs/antigravity.md) for setup, lean vs full profiles, companions, Tools status output, and verification details.
+See the [installation guide](docs/installation.md) (project pack setup, lean vs full) and [Antigravity guide](docs/antigravity.md) for companions, Tools status output, and verification details.
 
 ### Antigravity Installation
 
@@ -136,6 +137,7 @@ The CLI is Node (`cli/spacecraft.mjs`). Run the checkout link as `./spacecraft`,
 | Command | Purpose |
 |---|---|
 | `spacecraft init` | Initialize `.space/` (git init if needed; starter `.gitignore` with `.space/` on first create; may soft-run `codegraph init` when no `.codegraph/` index) |
+| `spacecraft setup [--packs a,b] [--reconfigure]` | Project pack selection; writes `.cursor/spacecraft-profile.json`; selective install + prune (`SPACECRAFT_PACKS` when flag absent) |
 | `spacecraft new <title>` | Create a mission with a generated ID |
 | `spacecraft missions` | List missions |
 | `spacecraft use <number\|id\|title>` | Select the current mission |

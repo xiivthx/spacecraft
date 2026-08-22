@@ -1,9 +1,11 @@
 #!/bin/sh
 # smoke.sh - post-install validation for a spacecraft project-layer install.
 #
-# Checks: domain rules/skills present, session-start + safety hooks wired, mcp.json
-# parses as JSON, hooks.json parses when present, and the spacecraft CLI
-# reports help. Agents stay User-layer only; safety hooks are dual-layer.
+# Checks: always-on hard-contract + session-start/safety hooks, MCP/hooks JSON,
+# .space scaffold, and CLI help. Domain rules/skills: require at least one entry
+# under .cursor/rules and .cursor/skills — does NOT require all catalog packs
+# (selective SPACECRAFT_PACKS / spacecraft-profile.json subsets are valid).
+# Agents stay User-layer only; safety hooks are dual-layer.
 #
 # Usage: smoke.sh <target-project-dir> [spacecraft-binary]
 set -e
@@ -20,7 +22,8 @@ count() { ls -1 "$1" 2>/dev/null | wc -l | tr -d ' '; }
 
 echo "Smoke check: $TARGET"
 
-# 1. File counts - project layer: domain rules + domain skills (agents are User-layer).
+# 1. File counts - project layer: some rules + skills present (agents are User-layer).
+# Min 1 each: selective profiles may install a subset of domain packs, never all-packs.
 for pair in "rules:1" "skills:1"; do
   dir=${pair%%:*}; min=${pair##*:}
   n=$(count "$TARGET/.cursor/$dir")
@@ -31,7 +34,62 @@ for pair in "rules:1" "skills:1"; do
   fi
 done
 
-# 1b. session-start + safety hooks (dual-layer for cloud).
+# 1b. If profile selects packs, assert inventory matches subset (not all catalog packs).
+# Frozen map mirrors design-contract v1 (smoke stays independent of Node catalog load).
+profile="$TARGET/.cursor/spacecraft-profile.json"
+if [ -f "$profile" ] && python3 -m json.tool "$profile" >/dev/null 2>&1; then
+  # shellcheck disable=SC2016
+  packs=$(python3 -c 'import json,sys; print(" ".join(json.load(open(sys.argv[1])).get("packs") or []))' "$profile")
+  # Catalog-managed skill → pack (selectable only). Coming packs never appear in profile.
+  check_skill_pack() {
+    skill=$1; want=$2
+    path="$TARGET/.cursor/skills/$skill"
+    if [ "$want" = present ]; then
+      if [ -f "$path/SKILL.md" ]; then
+        pass "profile skill $skill present"
+      else
+        bad "profile skill $skill missing (selected pack inventory)"
+      fi
+    else
+      if [ -e "$path" ]; then
+        bad "profile skill $skill present but pack not selected (must not require/install all packs)"
+      else
+        pass "profile skill $skill absent (unselected)"
+      fi
+    fi
+  }
+  # Defaults: all catalog domain skills absent unless pack selected.
+  fe=absent be=absent db=absent emb=absent qu=absent
+  for p in $packs; do
+    case "$p" in
+      frontend) fe=present ;;
+      backend) be=present ;;
+      database) db=present ;;
+      embedded) emb=present ;;
+      quality) qu=present ;;
+    esac
+  done
+  check_skill_pack sc-web-frontend "$fe"
+  check_skill_pack sc-ux-design "$fe"
+  check_skill_pack sc-browser-probe "$fe"
+  check_skill_pack sc-web-backend "$be"
+  check_skill_pack sc-database "$db"
+  check_skill_pack sc-firmware "$emb"
+  check_skill_pack sc-security "$qu"
+  check_skill_pack sc-performance "$qu"
+  check_skill_pack sc-solid "$qu"
+  check_skill_pack sc-architect "$qu"
+  check_skill_pack sc-diagram "$qu"
+  for id in iot fpga pcb management; do
+    if [ -e "$TARGET/.cursor/skills/$id" ]; then
+      bad "fictional coming-pack skill dir $id present"
+    else
+      pass "no fictional coming skill dir $id"
+    fi
+  done
+fi
+
+# 1c. session-start + safety hooks (dual-layer for cloud).
 if [ -f "$TARGET/.cursor/hooks/session-start.sh" ]; then
   pass "session-start.sh present"
 else

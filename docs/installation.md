@@ -15,7 +15,7 @@ Spacecraft is installed as Cursor project configuration plus a local CLI. Instal
 Spacecraft installs in two layers:
 
 - **User layer** (`make install-global` or `make install-machine`, once per machine): agents, lean-core skills, MCP config, the CLI, and global safety hooks (also installed into each project for cloud parity). Generates a **short** `~/.cursor/spacecraft/USER-RULES.txt` CORE from `010-hard-contract` (+ HIL one-liner). Paste into Cursor Settings -> Rules -> User Rules (or ask the agent to apply via Settings API). Soft depth rules (`000`/`026`/`027`/`050`/`100`/`200`) stay agent-requested under User layer - not always-on.
-- **Project layer** (`./bootstrap.sh` or `make install-project`, once per repo): alwaysApply `010-hard-contract.mdc`, domain/glob rules `150`/`300`-`620`, **domain-pack skills**, `session-start` + **safety hooks** (`check-main-write`, `check-ship-commands`, `block-secrets-read`, `block-destructive`) in `.cursor/hooks.json`, and merged `.cursor/mcp.json`. It never copies agents or lean-core skills - those stay under `~/.cursor`. Project alone is not enough for lifecycle slash skills or agents; run User-layer install once per machine first.
+- **Project layer** (`./bootstrap.sh`, `make install-project`, or `spacecraft setup`, once per repo): alwaysApply `010-hard-contract.mdc`, **pack-selected** domain/glob rules and domain-pack skills (see [Project pack setup](#project-pack-setup)), `session-start` + **safety hooks** (`check-main-write`, `check-ship-commands`, `block-secrets-read`, `block-destructive`) in `.cursor/hooks.json`, and merged `.cursor/mcp.json`. Writes `.cursor/spacecraft-profile.json` when packs are chosen. It never copies agents or lean-core skills - those stay under `~/.cursor`. Project alone is not enough for lifecycle slash skills or agents; run User-layer install once per machine first.
 
 ### Three layers (context vs enforcement)
 
@@ -80,7 +80,7 @@ To bootstrap the current directory:
 ./bootstrap.sh
 ```
 
-The bootstrap installer prepares project-local `.cursor/` and `.space/` content and links the Node CLI (`cli/spacecraft.mjs`) when Node.js is on `PATH`, then runs project smoke checks against that link. On first `.space` create it ensures a git repo (`git init` when needed), a starter `.gitignore` from `templates/gitignore` (always ignores `.space/`), and may soft-run `codegraph init` when no index (`.codegraph/`) exists - missing binary or failure warns and continues. This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
+The bootstrap installer prepares project-local `.cursor/` and `.space/` content and links the Node CLI (`cli/spacecraft.mjs`) when Node.js is on `PATH`, then runs project smoke checks against that link. Domain rules/skills follow the shared pack reconcile path (profile, `SPACECRAFT_PACKS`, or fail-closed when non-TTY with neither) - see [Project pack setup](#project-pack-setup). On first `.space` create it ensures a git repo (`git init` when needed), a starter `.gitignore` from `templates/gitignore` (always ignores `.space/`), and may soft-run `codegraph init` when no index (`.codegraph/`) exists - missing binary or failure warns and continues. This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
 
 You can also run the published bootstrap script from the target project:
 
@@ -129,7 +129,7 @@ For the Project layer in another repo, either run `./bootstrap.sh /path/to/proje
 make install-project PROJECT=/path/to/project
 ```
 
-Both install the domain/glob rules (`150`/`300`-`620`), alwaysApply hard-contract, domain-pack skills, `session-start`, and safety hooks - never agents, soft User-layer rules (`000`/`026`/…), or lean-core skills. Lean-core lifecycle skills and agents live only under `~/.cursor` from `install-global`.
+Both call the same pack-resolve + selective install path as `spacecraft setup`: always-on hard-contract, pack-selected domain skills/rules, `session-start`, and safety hooks - never agents, soft User-layer rules (`000`/`026`/…), or lean-core skills. Lean-core lifecycle skills and agents live only under `~/.cursor` from `install-global`. User-layer lean vs full is unchanged by project pack selection.
 
 To link the Node CLI in the checkout without a full install:
 
@@ -137,6 +137,31 @@ To link the Node CLI in the checkout without a full install:
 make build
 ./spacecraft help
 ```
+
+## Project pack setup
+
+Humans pick which **skill packs** a repo needs. Spacecraft installs only the mapped domain skills and domain/glob rules for those packs, writes `.cursor/spacecraft-profile.json`, and prunes deselected spacecraft-managed domain packs on reconcile. Always-on hard-contract, session-start + safety hooks, and MCP merge stay regardless of packs. Lean-core skills stay User layer only.
+
+Primary CLI:
+
+```sh
+spacecraft setup
+spacecraft setup --packs frontend,quality
+spacecraft setup --reconfigure --packs quality
+```
+
+| Mode | Behavior |
+|---|---|
+| TTY, no profile | Interactive selection; **`quality`** pre-checked; other selectable packs unchecked; **coming** packs listed but disabled; writes profile; installs |
+| Non-TTY, no profile | Requires `--packs a,b` or `SPACECRAFT_PACKS=a,b`; otherwise fails (no silent all-packs) |
+| Profile present | Silent reconcile from `.cursor/spacecraft-profile.json` (commit it with the project) |
+| `--reconfigure` | Deliberate pack change when a profile already exists; rewrite profile; install + prune |
+
+**Selectable** packs (v1): `frontend`, `backend`, `database`, `embedded`, `quality`.
+
+**Coming** packs (listed, not installable): `iot`, `fpga`, `pcb`, `management`.
+
+`SPACECRAFT_PACKS=a,b` is the same as `--packs` when the flag is absent. `./bootstrap.sh` and `make install-project` share this reconcile path.
 
 ## Verify the installation
 
@@ -202,8 +227,9 @@ Then begin in Cursor:
 
 ```text
 .cursor/
-  rules/                   domain/glob rules (300-620)
-  skills/                  domain-pack skills only
+  spacecraft-profile.json  selected skill packs (commit with the repo)
+  rules/                   pack-selected domain/glob rules + always-on hard-contract
+  skills/                  pack-selected domain-pack skills only
   mcp.json
   hooks.json               session-start (merge-safe)
   hooks/                   session-start.sh

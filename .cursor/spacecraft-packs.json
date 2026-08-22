@@ -1,0 +1,68 @@
+{
+  "packs": [
+    {
+      "id": "frontend",
+      "status": "selectable",
+      "skills": ["sc-web-frontend", "sc-ux-design", "sc-browser-probe"],
+      "rules": ["150-design.mdc"]
+    },
+    {
+      "id": "backend",
+      "status": "selectable",
+      "skills": ["sc-web-backend"],
+      "rules": []
+    },
+    {
+      "id": "database",
+      "status": "selectable",
+      "skills": ["sc-database"],
+      "rules": ["500-database.mdc"]
+    },
+    {
+      "id": "embedded",
+      "status": "selectable",
+      "skills": ["sc-firmware"],
+      "rules": [
+        "600-firmware.mdc",
+        "610-firmware-peripherals.mdc",
+        "620-firmware-testing.mdc"
+      ]
+    },
+    {
+      "id": "quality",
+      "status": "selectable",
+      "skills": [
+        "sc-security",
+        "sc-performance",
+        "sc-solid",
+        "sc-architect",
+        "sc-diagram"
+      ],
+      "rules": ["300-security.mdc", "400-performance.mdc"]
+    },
+    {
+      "id": "iot",
+      "status": "coming",
+      "skills": [],
+      "rules": []
+    },
+    {
+      "id": "fpga",
+      "status": "coming",
+      "skills": [],
+      "rules": []
+    },
+    {
+      "id": "pcb",
+      "status": "coming",
+      "skills": [],
+      "rules": []
+    },
+    {
+      "id": "management",
+      "status": "coming",
+      "skills": [],
+      "rules": []
+    }
+  ]
+}
