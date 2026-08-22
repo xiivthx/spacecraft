@@ -24,7 +24,10 @@ mkdir -p "$tmp/.cursor" "$fake_home"
 printf '%s\n' '{"version":1,"hooks":{"beforeShellExecution":[{"command":".cursor/hooks/user-unrelated.sh","matcher":"echo"}]}}' \
   > "$tmp/.cursor/hooks.json"
 
-HOME="$fake_home" sh "$ROOT/scripts/install-cursor.sh" "$tmp" "$ROOT"
+# Harness fixture: explicit selective packs (never rely on ambient SPACECRAFT_PACKS
+# or legacy all-packs). Oracles: design-contract frontend+quality / S9.
+HOME="$fake_home" SPACECRAFT_PACKS=frontend,quality \
+  sh "$ROOT/scripts/install-cursor.sh" "$tmp" "$ROOT"
 sh "$ROOT/scripts/smoke.sh" "$tmp" "$BIN"
 
 # First .space create via install-cursor: git init (if needed) + .space/ in .gitignore.
@@ -71,19 +74,24 @@ if [ -f "$fake_home/.cursorrules" ]; then
 fi
 echo "  ok   no legacy ~/.cursorrules"
 
-# T4/T5: install-project places domain rules 300-620 + the session-start
-# hook into a project target distinct from the source repo. Runs before any
-# User-layer install-global / --full, so project domain does not depend on it.
-for rule in 300-security 400-performance 500-database 600-firmware \
-  610-firmware-peripherals 620-firmware-testing; do
+# Selective project install (SPACECRAFT_PACKS=frontend,quality): mapped rules +
+# session-start only — not all catalog domain rules (no legacy all-packs).
+# Frozen S9: 150-design + 300/400 + always-on 010; omit database/embedded rules.
+for rule in 150-design 300-security 400-performance; do
   test -f "$tmp/.cursor/rules/$rule.mdc" \
-    || { echo "FAIL: install-project missing domain rule $rule.mdc in $tmp/.cursor/rules"; exit 1; }
+    || { echo "FAIL: install-project missing selected-pack rule $rule.mdc in $tmp/.cursor/rules"; exit 1; }
+done
+for rule in 500-database 600-firmware 610-firmware-peripherals 620-firmware-testing; do
+  if [ -f "$tmp/.cursor/rules/$rule.mdc" ]; then
+    echo "FAIL: install-project installed omitted-pack rule $rule.mdc (selective frontend+quality must omit)"
+    exit 1
+  fi
 done
 grep -q 'session-start.sh' "$hooks" \
   || { echo "FAIL: install-project did not wire session-start hook into $hooks"; exit 1; }
 test -f "$tmp/.cursor/hooks/session-start.sh" \
   || { echo "FAIL: install-project did not copy session-start.sh into $tmp/.cursor/hooks/"; exit 1; }
-echo "  ok   install-project places domain rules 300-620 + session-start hook"
+echo "  ok   install-project places selected-pack rules + session-start; omits unselected domain rules"
 
 # Project-layer copies safety hook scripts (dual-layer: cloud + teammates) + session-start.
 for safety_hook in check-main-write.sh check-ship-commands.sh block-secrets-read.sh block-destructive.sh; do
@@ -110,16 +118,23 @@ if [ -d "$tmp/.cursor/agents" ]; then
 fi
 echo "  ok   install-project omits agents (no sc-*.md under project .cursor/agents)"
 
-# T5: project-layer install also lands domain encyclopedia skills (lean User
-# layer omits these; project bootstrap must not require SPACECRAFT_SKILL_PROFILE=full).
-# Domain packs stay project-local; lean-core lifecycle skills stay User-layer only.
+# Selective project install lands only mapped frontend+quality encyclopedia
+# skills (lean User omits these; no SPACECRAFT_SKILL_PROFILE=full required).
+# Omit backend/database/embedded — no legacy all-packs assert.
 project_skills="$tmp/.cursor/skills"
-project_domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware sc-browser-probe"
-for skill in $project_domain_skills; do
+project_selected_skills="sc-web-frontend sc-ux-design sc-browser-probe sc-security sc-performance sc-solid sc-architect sc-diagram"
+project_omit_skills="sc-web-backend sc-database sc-firmware"
+for skill in $project_selected_skills; do
   test -f "$project_skills/$skill/SKILL.md" \
-    || { echo "FAIL: install-project missing domain skill $skill under $project_skills (project layer must include domain packs without User --full)"; exit 1; }
+    || { echo "FAIL: install-project missing selected-pack skill $skill under $project_skills (selective project layer; no User --full)"; exit 1; }
 done
-echo "  ok   install-project places domain encyclopedia skills (no User --full required)"
+for skill in $project_omit_skills; do
+  if [ -e "$project_skills/$skill" ]; then
+    echo "FAIL: install-project installed omitted-pack skill $skill (selective frontend+quality must omit)"
+    exit 1
+  fi
+done
+echo "  ok   install-project places selected-pack encyclopedia skills; omits unselected (no User --full)"
 
 # T4: install-project omits soft User-layer basenames (000/026/027/050/100/200)
 # but includes alwaysApply hard-contract (010).
@@ -163,23 +178,243 @@ if ! grep -Eq 'LEAN_SKILLS' "$ROOT/scripts/install-cursor.sh"; then
 fi
 echo "  ok   install-project omits lean-core skills (User-layer only)"
 
+# --- M99A9D1B T2: selective project install via SPACECRAFT_PACKS (S9 / E2 / E4) ---
+# Oracles: design-contract frozen pack→skill/rule map + approved-scenarios S2/S4/S9.
+# Always-on: 010-hard-contract.mdc; PROJECT_HOOKS; MCP merge.
+# Never: LEAN_SKILLS; soft User-layer 000/026/027/050/100/200.
+# Nested under $tmp so EXIT cleanup removes it.
+sel_proj="$tmp/selective-proj"
+sel_home="$tmp/selective-home"
+mkdir -p "$sel_proj/.cursor" "$sel_home"
+# Seed unrelated MCP so merge must preserve user servers (acceptance 1).
+printf '%s\n' '{"mcpServers":{"user-keep-mcp":{"command":"true"}}}' \
+  > "$sel_proj/.cursor/mcp.json"
+printf '%s\n' '{"version":1,"hooks":{"beforeShellExecution":[{"command":".cursor/hooks/user-unrelated.sh","matcher":"echo"}]}}' \
+  > "$sel_proj/.cursor/hooks.json"
+
+# Frozen S9 / design-contract: packs=[frontend,quality]
+sel_fq_skills="sc-web-frontend sc-ux-design sc-browser-probe sc-security sc-performance sc-solid sc-architect sc-diagram"
+sel_fq_rules="150-design.mdc 300-security.mdc 400-performance.mdc 010-hard-contract.mdc"
+# Catalog-managed paths for packs NOT selected (backend / database / embedded)
+sel_omit_skills="sc-web-backend sc-database sc-firmware"
+sel_omit_rules="500-database.mdc 600-firmware.mdc 610-firmware-peripherals.mdc 620-firmware-testing.mdc"
+# Frozen quality-only after prune (S4 / E4)
+sel_q_skills="sc-security sc-performance sc-solid sc-architect sc-diagram"
+sel_q_rules="300-security.mdc 400-performance.mdc 010-hard-contract.mdc"
+sel_prune_skills="sc-web-frontend sc-ux-design sc-browser-probe"
+sel_prune_rules="150-design.mdc"
+sel_lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
+sel_soft_rules="000-spacecraft 026-intent-coach 027-th-en-hil 050-style 100-conventions 200-workflow"
+sel_safety_hooks="check-main-write.sh check-ship-commands.sh block-secrets-read.sh block-destructive.sh"
+
+# T2 acceptance 1 (S2/S9/E2): packs=[frontend,quality] installs only mapped + always-on;
+# omits backend/database/embedded; keeps hooks + MCP merge.
+HOME="$sel_home" SPACECRAFT_PACKS=frontend,quality \
+  sh "$ROOT/scripts/install-cursor.sh" "$sel_proj" "$ROOT" \
+  || { echo "FAIL: selective install (SPACECRAFT_PACKS=frontend,quality) exited non-zero"; exit 1; }
+
+sel_skills="$sel_proj/.cursor/skills"
+sel_rules="$sel_proj/.cursor/rules"
+sel_hooks_json="$sel_proj/.cursor/hooks.json"
+sel_mcp="$sel_proj/.cursor/mcp.json"
+
+for skill in $sel_fq_skills; do
+  test -f "$sel_skills/$skill/SKILL.md" \
+    || { echo "FAIL: selective frontend+quality missing skill $skill under $sel_skills"; exit 1; }
+done
+for rule in $sel_fq_rules; do
+  test -f "$sel_rules/$rule" \
+    || { echo "FAIL: selective frontend+quality missing rule $rule under $sel_rules"; exit 1; }
+done
+for skill in $sel_omit_skills; do
+  if [ -e "$sel_skills/$skill" ]; then
+    echo "FAIL: selective frontend+quality installed omitted pack skill $skill (backend/database/embedded must be absent)"
+    exit 1
+  fi
+done
+for rule in $sel_omit_rules; do
+  if [ -f "$sel_rules/$rule" ]; then
+    echo "FAIL: selective frontend+quality installed omitted pack rule $rule (backend/database/embedded must be absent)"
+    exit 1
+  fi
+done
+test -f "$sel_proj/.cursor/hooks/session-start.sh" \
+  || { echo "FAIL: selective install missing session-start.sh under $sel_proj/.cursor/hooks/"; exit 1; }
+for safety_hook in $sel_safety_hooks; do
+  test -f "$sel_proj/.cursor/hooks/$safety_hook" \
+    || { echo "FAIL: selective install missing safety hook $safety_hook"; exit 1; }
+  grep -q "$safety_hook" "$sel_hooks_json" \
+    || { echo "FAIL: selective install hooks.json missing $safety_hook"; exit 1; }
+done
+grep -q 'session-start.sh' "$sel_hooks_json" \
+  || { echo "FAIL: selective install hooks.json missing session-start.sh"; exit 1; }
+grep -q 'user-unrelated.sh' "$sel_hooks_json" \
+  || { echo "FAIL: selective install clobbered pre-existing hooks (user-unrelated.sh missing)"; exit 1; }
+test -f "$sel_mcp" \
+  || { echo "FAIL: selective install missing mcp.json (MCP merge)"; exit 1; }
+grep -q 'user-keep-mcp' "$sel_mcp" \
+  || { echo "FAIL: selective install MCP merge dropped seeded user-keep-mcp server"; exit 1; }
+echo "  ok   selective install frontend+quality + always-on hooks/MCP; omits backend/database/embedded"
+
+# T2 acceptance 2 (S4/E4): re-run with packs=[quality] prunes frontend-managed paths;
+# keeps quality + always-on.
+HOME="$sel_home" SPACECRAFT_PACKS=quality \
+  sh "$ROOT/scripts/install-cursor.sh" "$sel_proj" "$ROOT" \
+  || { echo "FAIL: selective prune re-run (SPACECRAFT_PACKS=quality) exited non-zero"; exit 1; }
+
+for skill in $sel_prune_skills; do
+  if [ -e "$sel_skills/$skill" ]; then
+    echo "FAIL: after prune to quality, frontend skill $skill still under $sel_skills (expected prune)"
+    exit 1
+  fi
+done
+for rule in $sel_prune_rules; do
+  if [ -f "$sel_rules/$rule" ]; then
+    echo "FAIL: after prune to quality, frontend rule $rule still under $sel_rules (expected prune)"
+    exit 1
+  fi
+done
+for skill in $sel_q_skills; do
+  test -f "$sel_skills/$skill/SKILL.md" \
+    || { echo "FAIL: after prune to quality, missing quality skill $skill under $sel_skills"; exit 1; }
+done
+for rule in $sel_q_rules; do
+  test -f "$sel_rules/$rule" \
+    || { echo "FAIL: after prune to quality, missing rule $rule under $sel_rules"; exit 1; }
+done
+test -f "$sel_proj/.cursor/hooks/session-start.sh" \
+  || { echo "FAIL: after prune, missing session-start.sh"; exit 1; }
+for safety_hook in $sel_safety_hooks; do
+  test -f "$sel_proj/.cursor/hooks/$safety_hook" \
+    || { echo "FAIL: after prune, missing safety hook $safety_hook"; exit 1; }
+done
+grep -q 'user-keep-mcp' "$sel_mcp" \
+  || { echo "FAIL: after prune, MCP merge dropped seeded user-keep-mcp server"; exit 1; }
+echo "  ok   selective prune to quality keeps quality + always-on; prunes frontend"
+
+# T2 acceptance 3: lean-core skills + soft User-layer rules never land in project
+# (guard on selective path; same never-list as design-contract).
+for skill in $sel_lean_skills; do
+  if [ -e "$sel_skills/$skill" ]; then
+    echo "FAIL: selective install copied lean-core skill $skill into $sel_skills (User-layer only)"
+    exit 1
+  fi
+done
+for rule in $sel_soft_rules; do
+  if [ -f "$sel_rules/$rule.mdc" ]; then
+    echo "FAIL: selective install copied soft User-layer rule $rule.mdc into $sel_rules"
+    exit 1
+  fi
+done
+test -f "$sel_rules/010-hard-contract.mdc" \
+  || { echo "FAIL: selective path missing always-on 010-hard-contract.mdc"; exit 1; }
+echo "  ok   selective install omits lean-core + soft User-layer rules; keeps hard-contract"
+
+# --- M99A9D1B T6: non-TTY fail, coming reject, idempotent profile (S1/S6/S7 / E1/E6/E7) ---
+
+# S1/E1: no profile + non-TTY + no packs → non-zero; no silent all-packs domain install.
+ntty_proj="$tmp/ntty-fail-proj"
+ntty_home="$tmp/ntty-fail-home"
+mkdir -p "$ntty_proj/.cursor" "$ntty_home"
+set +e
+HOME="$ntty_home" env -u SPACECRAFT_PACKS \
+  sh "$ROOT/scripts/install-cursor.sh" "$ntty_proj" "$ROOT"
+ntty_rc=$?
+set -e
+if [ "$ntty_rc" -eq 0 ]; then
+  echo "FAIL: non-TTY install without packs/profile exited 0 (expected non-zero)"
+  exit 1
+fi
+for skill in sc-web-frontend sc-web-backend sc-database sc-firmware sc-solid sc-security; do
+  if [ -e "$ntty_proj/.cursor/skills/$skill" ]; then
+    echo "FAIL: non-TTY fail path installed domain skill $skill (no silent all-packs)"
+    exit 1
+  fi
+done
+echo "  ok   non-TTY without packs fails; no all-packs domain install"
+
+# S6/E6: coming pack id rejected; no fictional skill dirs; profile not written.
+coming_proj="$tmp/coming-proj"
+coming_home="$tmp/coming-home"
+mkdir -p "$coming_proj/.cursor" "$coming_home"
+set +e
+HOME="$coming_home" SPACECRAFT_PACKS=iot \
+  sh "$ROOT/scripts/install-cursor.sh" "$coming_proj" "$ROOT"
+coming_rc=$?
+set -e
+if [ "$coming_rc" -eq 0 ]; then
+  echo "FAIL: SPACECRAFT_PACKS=iot exited 0 (coming pack must reject)"
+  exit 1
+fi
+for id in iot fpga pcb management; do
+  if [ -e "$coming_proj/.cursor/skills/$id" ]; then
+    echo "FAIL: coming pack path created fictional skill dir $id under $coming_proj/.cursor/skills"
+    exit 1
+  fi
+done
+if [ -f "$coming_proj/.cursor/spacecraft-profile.json" ]; then
+  echo "FAIL: coming pack reject left spacecraft-profile.json (must not write coming ids)"
+  exit 1
+fi
+echo "  ok   coming packs rejected; no fictional skill dirs; no profile write"
+
+# S7/E7: profile present; install twice → both exit 0; inventory matches packs; no lean-core.
+idem_proj="$tmp/idem-proj"
+idem_home="$tmp/idem-home"
+mkdir -p "$idem_proj/.cursor" "$idem_home"
+printf '%s\n' '{"version":1,"packs":["quality"]}' > "$idem_proj/.cursor/spacecraft-profile.json"
+HOME="$idem_home" env -u SPACECRAFT_PACKS \
+  sh "$ROOT/scripts/install-cursor.sh" "$idem_proj" "$ROOT" \
+  || { echo "FAIL: idempotent first install with profile exited non-zero"; exit 1; }
+HOME="$idem_home" env -u SPACECRAFT_PACKS \
+  sh "$ROOT/scripts/install-cursor.sh" "$idem_proj" "$ROOT" \
+  || { echo "FAIL: idempotent second install with profile exited non-zero"; exit 1; }
+idem_skills="$idem_proj/.cursor/skills"
+for skill in sc-security sc-performance sc-solid sc-architect sc-diagram; do
+  test -f "$idem_skills/$skill/SKILL.md" \
+    || { echo "FAIL: after idempotent re-run missing quality skill $skill under $idem_skills"; exit 1; }
+done
+for skill in sc-web-frontend sc-ux-design sc-browser-probe sc-web-backend sc-database sc-firmware; do
+  if [ -e "$idem_skills/$skill" ]; then
+    echo "FAIL: after idempotent re-run unexpected non-quality skill $skill under $idem_skills"
+    exit 1
+  fi
+done
+for skill in $sel_lean_skills; do
+  if [ -e "$idem_skills/$skill" ]; then
+    echo "FAIL: after idempotent re-run lean-core skill $skill under $idem_skills (User-layer only)"
+    exit 1
+  fi
+done
+test -f "$idem_proj/.cursor/rules/010-hard-contract.mdc" \
+  || { echo "FAIL: after idempotent re-run missing always-on 010-hard-contract.mdc"; exit 1; }
+echo "  ok   idempotent profile re-run keeps quality inventory; no lean-core"
+
 # Re-running project install prunes lean-core skills previously copied into the
 # project skills dir (mirrors lean install-global pruning domain packs).
 # Also prunes leftover spacecraft agents; refreshes safety hook scripts.
+# Unset SPACECRAFT_PACKS so silent reconcile uses the harness profile (frontend+quality).
 mkdir -p "$project_skills/sc-run" "$tmp/.cursor/agents" "$tmp/.cursor/hooks"
 printf '%s\n' '# seeded-for-project-lean-prune' > "$project_skills/sc-run/SKILL.md"
 printf '%s\n' '# seeded-for-project-agent-prune' > "$tmp/.cursor/agents/sc-coder.md"
 printf '%s\n' '#!/bin/sh' > "$tmp/.cursor/hooks/check-ship-commands.sh"
 printf '%s\n' '#!/bin/sh' > "$tmp/.cursor/hooks/check-main-write.sh"
-HOME="$fake_home" sh "$ROOT/scripts/install-cursor.sh" "$tmp" "$ROOT"
+HOME="$fake_home" env -u SPACECRAFT_PACKS \
+  sh "$ROOT/scripts/install-cursor.sh" "$tmp" "$ROOT"
 if [ -e "$project_skills/sc-run" ]; then
   echo "FAIL: re-run install-project left lean-core skill sc-run under $project_skills (expected prune)"
   exit 1
 fi
-# Domain packs must still be present after prune re-run.
+# Selected-pack skills must still be present after prune re-run (not all catalog packs).
 test -f "$project_skills/sc-browser-probe/SKILL.md" \
-  || { echo "FAIL: after lean prune re-run, missing domain skill sc-browser-probe under $project_skills"; exit 1; }
-echo "  ok   re-run install-project prunes lean-core skills; keeps domain packs"
+  || { echo "FAIL: after lean prune re-run, missing selected-pack skill sc-browser-probe under $project_skills"; exit 1; }
+test -f "$project_skills/sc-solid/SKILL.md" \
+  || { echo "FAIL: after lean prune re-run, missing selected-pack skill sc-solid under $project_skills"; exit 1; }
+if [ -e "$project_skills/sc-web-backend" ]; then
+  echo "FAIL: after lean prune re-run, omitted-pack skill sc-web-backend present (selective must stay)"
+  exit 1
+fi
+echo "  ok   re-run install-project prunes lean-core skills; keeps selected-pack skills"
 
 if [ -e "$tmp/.cursor/agents/sc-coder.md" ]; then
   echo "FAIL: re-run install-project left seeded agent sc-coder.md under $tmp/.cursor/agents (expected prune)"

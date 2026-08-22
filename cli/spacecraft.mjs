@@ -2,6 +2,7 @@
 
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { archiveCmd } from './lib/archive.mjs';
 import { closeoutCmd } from './lib/closeout.mjs';
 import { eviCmd } from './lib/evi.mjs';
@@ -19,8 +20,11 @@ import {
 } from './lib/mission.mjs';
 import { ensureProjectReady, ensureSpaceIgnored } from './lib/project-git.mjs';
 import { resolveMission, spaceDirFromCwd } from './lib/resolve.mjs';
+import { setupCmd } from './lib/setup.mjs';
 import { clarifyStatusCmd, stateCmd } from './lib/state.mjs';
 import { valCmd } from './lib/val.mjs';
+
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const KEPT_COMMANDS = [
   'init',
@@ -41,6 +45,7 @@ const KEPT_COMMANDS = [
   'archive',
   'map',
   'roadmap',
+  'setup',
 ];
 
 const ALIASES = {
@@ -68,6 +73,7 @@ const IMPLEMENTED = new Set([
   'ship-check',
   'map',
   'archive',
+  'setup',
 ]);
 
 function printHelp() {
@@ -114,6 +120,8 @@ function dispatch(command, args, spaceDir, cwd, mid) {
       return mapCmd(args, spaceDir);
     case 'archive':
       return archiveCmd(args, spaceDir, mid);
+    case 'setup':
+      return setupCmd(args, cwd, REPO_ROOT);
     default:
       return null;
   }

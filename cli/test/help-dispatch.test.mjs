@@ -28,6 +28,7 @@ const KEPT_HELP_COMMANDS = [
   'archive',
   'map',
   'roadmap',
+  'setup',
 ];
 
 test('cli/spacecraft.mjs help lists kept commands', () => {
@@ -78,4 +79,23 @@ function assertUnknownCommandReject(command) {
 
 test('unknown command exits non-zero with unknown message', () => {
   assertUnknownCommandReject('definitely-not-a-cmd');
+});
+
+/**
+ * T4-a: `spacecraft setup` must dispatch (not unknown / not "not implemented" stub forever).
+ * Full reconfigure/prune behavior lives in cli/test/setup-cli.test.mjs (S4).
+ */
+test('spacecraft setup is a known dispatched command', () => {
+  const result = runCli('setup');
+  const out = `${result.stdout ?? ''}${result.stderr ?? ''}`;
+  assert.doesNotMatch(
+    out,
+    /unknown command/i,
+    `setup must not be unknown\n${out}`,
+  );
+  assert.doesNotMatch(
+    out,
+    /not implemented/i,
+    `setup must be implemented (dispatch to setupCmd / runProjectSetup)\n${out}`,
+  );
 });
