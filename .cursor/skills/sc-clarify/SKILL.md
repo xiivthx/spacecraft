@@ -13,11 +13,11 @@ Resolve blocking ambiguity so `/sc-discuss` can clear: every blocking decision i
 
 ## Output
 
-Updated `questions.md` (Open / Answered) and `decisions.md` (choices, true soft assumptions, explicit deferrals). Chat rounds use the per-question format below. Done when the blocking frontier is empty (settled or deferred).
+Updated `questions.md` (Open / Answered) and `decisions.md` (choices, true soft assumptions, explicit deferrals). Chat rounds use the Chat ask format (short or rich, English labels) below. Done when the blocking frontier is empty (settled or deferred).
 
 ## Good / Bad
 
-- Good: exhaust context before any ask; classify blocking / non-blocking / researchable; design tree with prereqs → dependents; ask only the frontier (≤3 independent Qs); serial ask when B depends on A; Verify / architecture / in-out scope soft gaps stay on the frontier until settled or explicitly deferred; facts via read/research/sub-agent; record answers and decisions
+- Good: exhaust context before any ask; classify blocking / non-blocking / researchable; design tree with prereqs → dependents; ask only the frontier (≤3 independent Qs); serial ask when B depends on A; Verify / architecture / in-out scope soft gaps stay on the frontier until settled or explicitly deferred; facts via read/research/sub-agent; record answers and decisions; chat asks use English Chat ask format (short vs rich)
 - Bad: questionnaire dumps; asking look-uppable facts; asking dependent Qs in the same round; silently assuming Verify / architecture / scope into `decisions.md` during discuss; implementing or finalizing draft while blocking frontier items remain open; auto-triggering mid-AFK except hard blockers
 
 ## Verify
@@ -55,14 +55,64 @@ Use this exact sequence unless the user specifies otherwise:
 
 4. **Design tree** - Map blocking decisions as a tree (prerequisites → dependents). Document open nodes under `questions.md` Open (brief `depends-on:` notes allowed). The **frontier** is the set of blocking decisions whose prerequisites are settled.
 
-5. **Ask a frontier round** - If the frontier is non-empty: ask every independent frontier question in one round, capped at **max 3**. A question that still depends on another open question belongs to a later round - ask the prerequisite only. Present directly in chat. Format each question:
-   ```
-   **Q1 - <short title>:** <question body; include choices when useful>
-   **Why it matters:** <one sentence>
-   **Recommendation:** <suggested answer + brief rationale>
-   **If accepted:** <what happens next>
-   ```
-   Number `Q1`…`Qn` for the round (use `Q1` even for a single-question round). Same four fields on every question.
+5. **Ask a frontier round** - If the frontier is non-empty: ask every independent frontier question in one round, capped at **max 3**. A question that still depends on another open question belongs to a later round - ask the prerequisite only. Present directly in chat using the **Chat ask format** below (short or rich). Number `Q1`…`Qn` for the round (use `Q1` even for a single-question round).
+
+### Chat ask format
+
+**Language:** The entire ask block is English only. Paths, commands, product names, and tech terms stay as-is. Skill instructions on disk stay US English.
+
+**Short vs rich:**
+- **Rich** - question has explicit choices (A/B/…) **or** is a heavy blocking class (Verify / architecture fork / in-out scope). Requires Feynman plain-explain, context, and per-choice pros/cons.
+- **Short** - simple yes/no or single-path questions. Skip Feynman / context / trade-offs.
+
+**Short template** (all labels English):
+```
+**Q1 - <short title>:** <question>
+
+**Why it matters:** <one sentence>
+**Recommendation:** <suggested answer + brief rationale>
+**If accepted:** <what happens next>
+```
+
+**Rich template** (all labels English):
+```
+**Q1 - <short title>**
+
+**Plain explain:** <Feynman: what the problem is, why we need a decision, what the choice will change - plain language, short paragraphs or bullets; no jargon dump>
+**Context:** <what we already know from spec/decisions/repo; what is still ambiguous; what is at stake>
+**Question:** <question>
+- A) ...
+- B) ...
+
+**Trade-offs:**
+- **A)** Pros: … | Cons: …
+- **B)** Pros: … | Cons: …
+
+**Why it matters:** <one sentence>
+**Recommendation:** <suggested answer + brief rationale>
+**If accepted:** <what happens next>
+```
+
+Keep trade-offs tight: 1-2 bullets each side per choice. Field order and bold labels above are greppable - do not rename.
+
+**Rich micro-example** (copy shape, not content):
+```
+**Q1 - Choose API framework**
+
+**Plain explain:** We need to pick the HTTP API library for the server. The choice affects startup speed, TypeScript support, and how familiar the team is when debugging.
+**Context:** Spec already locks Node.js + TypeScript, but not the framework. Repo has no server package yet. Stake is routing/plugin lock-in before planning.
+**Question:** Use Fastify or Express?
+- A) Fastify
+- B) Express
+
+**Trade-offs:**
+- **A)** Pros: fast, TS-first | Cons: team may know Express better
+- **B)** Pros: more docs/examples | Cons: slower, messier typing
+
+**Why it matters:** Wrong pick forces a routing rewrite during implement.
+**Recommendation:** A) Fastify - fits the TS stack and startup target
+**If accepted:** Record in decisions.md, then ask the next frontier item (or clear if frontier is empty)
+```
 
 6. **Record** - After the user answers:
    - Record each question and answer in `questions.md` under `### Answered`
@@ -96,7 +146,7 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 - **Must**: Classify every ambiguity as blocking, non-blocking, or researchable.
 - **Must**: Maintain a design tree; ask only the open frontier, max 3 independent questions per turn; serial when dependent.
 - **Must**: During `/sc-discuss`, keep Verify / architecture / scope soft gaps on the frontier until settled or explicitly deferred - do not silently assume them.
-- **Must**: Every asked question includes: the question, why it matters, a recommendation, and what happens if accepted.
+- **Must**: Every asked question uses the Chat ask format (short or rich). Short: Question + Why it matters + Recommendation + If accepted. Rich (choices or Verify / architecture / in-out scope): also Plain explain + Context + Trade-offs (Pros/Cons per choice). Entire ask block in English.
 - **Must not**: Dump mutually dependent questions in one round, or exceed 3 questions per round.
 - **Must not**: Implement, plan, or finalize visual draft while a blocking frontier item is open (unless explicitly deferred).
 - **Must not**: Auto-trigger mid-AFK (`/sc-run`) unless a hard blocker.
@@ -134,7 +184,7 @@ After `/sc-discuss` clears clarify:
 - [ ] Ambiguity classified (blocking / non-blocking / researchable)
 - [ ] Design tree updated; frontier identified
 - [ ] Frontier round asked (≤3 independent; serial if dependent)
-- [ ] Each question includes: question + why + recommendation + what-if-accepted
+- [ ] Each question uses Chat ask format (short or rich; English labels; rich adds Plain explain + Context + Trade-offs)
 - [ ] Answer recorded in `questions.md`
 - [ ] Decision or explicit deferral recorded in `decisions.md`
 - [ ] Verify / architecture / scope gaps not silently assumed during discuss
