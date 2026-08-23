@@ -9,20 +9,20 @@ Blocking-question protocol for `/sc-discuss`. Map blocking decisions as a **desi
 
 ## Goal
 
-Resolve blocking ambiguity so `/sc-discuss` can clear: every blocking decision is settled or explicitly deferred; facts are researched by the agent; user only decides.
+Resolve blocking ambiguity so `/sc-discuss` can clear: every blocking decision is settled or explicitly deferred; facts and **clear technical winners** are researched (and auto-picked when evidence is strong) by the agent; user decides Verify / architecture / scope and unclear technical trade-offs.
 
 ## Output
 
-Updated `questions.md` (Open / Answered) and `decisions.md` (choices, true soft assumptions, explicit deferrals). Chat rounds use the Chat ask format (short or rich, English labels) below. Done when the blocking frontier is empty (settled or deferred).
+Updated `questions.md` (Open / Answered) and `decisions.md` (choices, auto-picks with evidence summaries, true soft assumptions, explicit deferrals). Chat rounds use the Chat ask format (short or rich, English labels) below. Done when the blocking frontier is empty (settled, auto-picked, or deferred).
 
 ## Good / Bad
 
-- Good: exhaust context before any ask; classify blocking / non-blocking / researchable; design tree with prereqs → dependents; ask only the frontier (≤3 independent Qs); serial ask when B depends on A; Verify / architecture / in-out scope soft gaps stay on the frontier until settled or explicitly deferred; facts via read/research/sub-agent; record answers and decisions; chat asks use English Chat ask format (short vs rich)
-- Bad: questionnaire dumps; asking look-uppable facts; asking dependent Qs in the same round; silently assuming Verify / architecture / scope into `decisions.md` during discuss; implementing or finalizing draft while blocking frontier items remain open; auto-triggering mid-AFK except hard blockers
+- Good: exhaust context before any ask; research then optional measure before asking technical / performance / library ambiguities; **auto-pick** clear technical winners with greppable/citable evidence (large and clear win); classify blocking / non-blocking / researchable; design tree with prereqs → dependents; ask only the frontier (≤3 independent Qs); serial ask when B depends on A; Verify / architecture / in-out scope soft gaps stay on the frontier until settled or explicitly deferred; facts via read/research/sub-agent; record answers and decisions; chat asks use English Chat ask format (short vs rich)
+- Bad: questionnaire dumps; asking look-uppable facts; asking dependent Qs in the same round; asking clearly-won technical / performance / library choices; **auto-picking** Verify / architecture fork / in-out scope (even if "obvious"); silently assuming Verify / architecture / scope into `decisions.md` during discuss; implementing or finalizing draft while blocking frontier items remain open; auto-triggering mid-AFK except hard blockers
 
 ## Verify
 
-Blocking frontier empty (all blocking Open items settled or deferred in `questions.md` / `decisions.md`). No silent assumption recorded for Verify, architecture fork, or in/out scope during `/sc-discuss`. Greppable artifacts only - no new CLI validator.
+Blocking frontier empty (all blocking Open items settled, auto-picked, or deferred in `questions.md` / `decisions.md`). No silent assumption recorded for Verify, architecture fork, or in/out scope during `/sc-discuss`. Greppable artifacts only - no new CLI validator.
 
 ## When to use
 
@@ -46,16 +46,29 @@ Use this exact sequence unless the user specifies otherwise:
    - `decisions.md` - was a decision already recorded?
    - Repo files - can the answer be found by reading code?
    - If the question is about ecosystem conventions or API usage, use sc-search (WebSearch/WebFetch) first.
+   - For **technical / performance / library** ambiguity: exhaust research (files, sc-search/docs) and, when uncertainty is about performance or measurable trade-offs, run a cheap local check/bench or use existing test evidence when practical.
    - Dispatch research / read / sub-agent for facts. **If the answer exists in any of these sources, do not ask the user.**
 
 3. **Classify** - Categorize each ambiguity:
-   - **blocking** - cannot safely plan, design, or implement without user input (includes gaps that affect Goal / Output / Verify, an architecture fork, or in/out scope unless the user explicitly defers)
-   - **non-blocking** - true soft gap (not Verify / architecture / scope); can proceed with an explicit assumption written to `decisions.md`
+   - **blocking** - cannot safely plan, design, or implement without user input (includes gaps that affect Goal / Output / Verify, an architecture fork, or in/out scope unless the user explicitly defers). Technical / performance / library items stay here only until settled by user ask, **auto-pick**, or explicit deferral.
+   - **non-blocking** - true soft gap (not Verify / architecture / scope); can proceed with an explicit assumption written to `decisions.md`. After a successful **auto-pick**, the technical item is settled (record and treat as closed - not an open frontier ask).
    - **researchable** - answer by reading files, code, or sc-search (WebSearch/WebFetch); never wait on the user for look-uppable facts
 
 4. **Design tree** - Map blocking decisions as a tree (prerequisites → dependents). Document open nodes under `questions.md` Open (brief `depends-on:` notes allowed). The **frontier** is the set of blocking decisions whose prerequisites are settled.
 
-5. **Ask a frontier round** - If the frontier is non-empty: ask every independent frontier question in one round, capped at **max 3**. A question that still depends on another open question belongs to a later round - ask the prerequisite only. Present directly in chat using the **Chat ask format** below (short or rich). Number `Q1`…`Qn` for the round (use `Q1` even for a single-question round).
+5. **Auto-pick (technical)** - Before asking on a **technical / performance / library** frontier item, run research → optional measure → then auto-pick **or** ask:
+
+   **Evidence sources:** repo facts + sc-search/docs + simple local bench or existing tests when useful.
+
+   **Evidence bar (auto-pick only when the win is large and clear):** e.g. clear order-of-magnitude advantage, or unanimous house convention / already locked in `decisions.md` / `spec.md`. If unsure or the gap is modest → research/test first; if still unclear → ask with Chat ask format (rich when choices).
+
+   - **Auto-pick:** One option clearly wins by a large margin with greppable/citable evidence → write the choice + evidence summary to `decisions.md` (and Answered in `questions.md` if it was Open). Do **not** ask the user. Cite why (evidence bar). Recompute the frontier.
+   - **Ask:** Evidence is weak, conflicting, or the advantage is modest → proceed to step 6. Recommendation may still point at the better option.
+   - **Never auto-pick:** Verify, architecture fork, or in/out scope - even if "obvious." Those stay on the blocking frontier until settled or explicitly deferred.
+
+   **Micro-example:** Auto-pick - "Repo and existing tests already standardize on Vitest; house convention unanimous → record Vitest in `decisions.md` with evidence; do not ask." Ask - "Bench shows ~1.2x and docs conflict → ask with Chat ask format."
+
+6. **Ask a frontier round** - If the frontier is non-empty after auto-pick: ask every independent frontier question in one round, capped at **max 3**. A question that still depends on another open question belongs to a later round - ask the prerequisite only. Present directly in chat using the **Chat ask format** below (short or rich). Number `Q1`…`Qn` for the round (use `Q1` even for a single-question round).
 
 ### Chat ask format
 
@@ -114,17 +127,18 @@ Keep trade-offs tight: 1-2 bullets each side per choice. Field order and bold la
 **If accepted:** Record in decisions.md, then ask the next frontier item (or clear if frontier is empty)
 ```
 
-6. **Record** - After the user answers:
+7. **Record** - After the user answers (or after an auto-pick):
    - Record each question and answer in `questions.md` under `### Answered`
    - Record confirmed choices in `decisions.md`
+   - Auto-pick: note evidence summary and source (e.g. "Auto-pick: <choice>. Evidence: <bar citation>")
    - If the user accepted a recommendation, note: "Recommendation accepted: <outcome>"
    - If the user defers: record explicit deferral in `decisions.md` (`Deferred: <question>. Proceeding without.` or equivalent) and close that Open node
    - Non-blocking (true soft): write the assumption to `decisions.md` without asking
-   - Recompute the frontier; repeat step 5 until the blocking frontier is empty
+   - Recompute the frontier; repeat steps 5-6 until the blocking frontier is empty
 
 ### Soft gaps in `/sc-discuss`
 
-- Gaps that affect **Goal / Output / Verify**, an **architecture fork**, or **in/out scope** → treat as **blocking frontier** items (or require **explicit deferral** recorded). Do **not** clear those gray areas by silent assumption into `decisions.md` during discuss.
+- Gaps that affect **Goal / Output / Verify**, an **architecture fork**, or **in/out scope** → treat as **blocking frontier** items (or require **explicit deferral** recorded). Do **not** clear those gray areas by silent assumption or **auto-pick** into `decisions.md` during discuss.
 - **True soft** gaps (not those classes) may still go to `decisions.md` as assumptions.
 - AFK `/sc-run` soft→`decisions.md` behavior is unchanged (see AFK mode).
 
@@ -143,14 +157,17 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 ## Rules
 
 - **Must**: Exhaust all context sources before asking the user. Never ask a question answerable from files or research.
+- **Must**: Before asking on a technical / performance / library ambiguity: exhaust research (files, sc-search/docs) and, when uncertainty is measurable, run a cheap local check/bench or use existing test evidence when practical.
+- **Must**: Auto-pick a technical / performance / library choice only when the win is **large and clear** (order-of-magnitude advantage, or unanimous house convention / already locked in decisions/spec); record choice + evidence summary in `decisions.md` (and Answered in `questions.md` if Open). Do not ask.
 - **Must**: Classify every ambiguity as blocking, non-blocking, or researchable.
 - **Must**: Maintain a design tree; ask only the open frontier, max 3 independent questions per turn; serial when dependent.
 - **Must**: During `/sc-discuss`, keep Verify / architecture / scope soft gaps on the frontier until settled or explicitly deferred - do not silently assume them.
 - **Must**: Every asked question uses the Chat ask format (short or rich). Short: Question + Why it matters + Recommendation + If accepted. Rich (choices or Verify / architecture / in-out scope): also Plain explain + Context + Trade-offs (Pros/Cons per choice). Entire ask block in English.
+- **Must not**: Auto-pick Verify, architecture fork, or in/out scope - even if "obvious."
 - **Must not**: Dump mutually dependent questions in one round, or exceed 3 questions per round.
 - **Must not**: Implement, plan, or finalize visual draft while a blocking frontier item is open (unless explicitly deferred).
 - **Must not**: Auto-trigger mid-AFK (`/sc-run`) unless a hard blocker.
-- **Must**: Record answered questions in `questions.md`. Record decisions and deferrals in `decisions.md`.
+- **Must**: Record answered questions in `questions.md`. Record decisions, auto-picks, and deferrals in `decisions.md`.
 - **Must**: Prefer user clarity over agent cleverness. If the user's answer seems suboptimal, state your concern once and accept their decision.
 
 ## Out of scope
@@ -175,26 +192,32 @@ After `/sc-discuss` clears clarify:
 - **2026-07-09** - **Q: Should we use Fastify or Express?**
   Recommendation accepted: Fastify (better TS support, faster startup)
   Source: user accepted recommendation
+
+- **2026-08-24** - **Q: Vitest or Jest?**
+  Auto-pick: Vitest. Evidence: unanimous house convention in repo + existing tests
+  Source: auto-pick (large and clear)
 ```
 
 ## Checklist
 
 - [ ] Mission resolved, context inspected
 - [ ] Research auto-trigger checked via sc-search (if applicable)
+- [ ] Technical / performance / library: research (+ optional cheap measure) before ask
 - [ ] Ambiguity classified (blocking / non-blocking / researchable)
 - [ ] Design tree updated; frontier identified
-- [ ] Frontier round asked (≤3 independent; serial if dependent)
+- [ ] Auto-pick applied only for large-and-clear technical wins; never for Verify / architecture / scope
+- [ ] Frontier round asked (≤3 independent; serial if dependent) for remaining open items
 - [ ] Each question uses Chat ask format (short or rich; English labels; rich adds Plain explain + Context + Trade-offs)
-- [ ] Answer recorded in `questions.md`
-- [ ] Decision or explicit deferral recorded in `decisions.md`
-- [ ] Verify / architecture / scope gaps not silently assumed during discuss
+- [ ] Answer or auto-pick recorded in `questions.md`
+- [ ] Decision, auto-pick evidence, or explicit deferral recorded in `decisions.md`
+- [ ] Verify / architecture / scope gaps not silently assumed or auto-picked during discuss
 - [ ] Blocking frontier empty before planning or implementation
 - [ ] After clarify clear: handoff `Spec clear. New session: /sc-run.`
 
 ## References
 
 - `questions.md` - open and answered questions per mission
-- `decisions.md` - confirmed choices, assumptions, and deferrals
+- `decisions.md` - confirmed choices, auto-picks, assumptions, and deferrals
 - sc-search - WebSearch/WebFetch escalation for researchable questions
 - `/sc-discuss` - pre-build HIL session (owns clarify + visual draft)
 - `/sc-run` - AFK roadmap runner after clarify is clear
