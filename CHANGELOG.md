@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.54.1 - 2026-08-23
+
+- Docs: enrich sc-clarify frontier Chat ask format - short vs rich English templates with Feynman plain-explain, context, and per-choice trade-offs; sync sc-discuss requirement-testability twins
+
 ## 0.54.0 - 2026-08-22
 
 - Feat: project skill pack setup — `spacecraft setup`, `.cursor/spacecraft-profile.json`, selective domain install/prune

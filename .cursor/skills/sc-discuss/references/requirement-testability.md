@@ -72,7 +72,7 @@ Testability pass skipped: <reason>
    - List clarifying questions you would ask product
    - Classify each: **blocking** | **non-blocking** | **researchable**
    - Park under `questions.md` (Open); note depends-on when useful
-   - Ask via sc-clarify **frontier** rounds (≤3 independent; serial when dependent). Per-question format: Qn title / Why it matters / Recommendation / If accepted
+   - Ask via sc-clarify **frontier** rounds (≤3 independent; serial when dependent). Per-question format: short (Qn + Why it matters / Recommendation / If accepted) or rich (+ Plain explain / Context / Trade-offs); English labels - see sc-clarify Chat ask format
    - Non-blocking (true soft, not Verify / architecture / scope) → assumption in `decisions.md`; researchable → read code / sc-search first
    - Verify / architecture / scope gaps stay on the frontier until settled or explicitly deferred
 
