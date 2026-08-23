@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.54.2 - 2026-08-24
+
+- Docs: sc-clarify technical auto-pick - research/optional measure before ask; auto-pick only large-and-clear tech/perf/library wins; never auto-pick Verify/architecture/scope; sync requirement-testability twins
+
 ## 0.54.1 - 2026-08-23
 
 - Docs: enrich sc-clarify frontier Chat ask format - short vs rich English templates with Feynman plain-explain, context, and per-choice trade-offs; sync sc-discuss requirement-testability twins

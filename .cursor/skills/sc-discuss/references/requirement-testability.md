@@ -73,7 +73,7 @@ Testability pass skipped: <reason>
    - Classify each: **blocking** | **non-blocking** | **researchable**
    - Park under `questions.md` (Open); note depends-on when useful
    - Ask via sc-clarify **frontier** rounds (≤3 independent; serial when dependent). Per-question format: short (Qn + Why it matters / Recommendation / If accepted) or rich (+ Plain explain / Context / Trade-offs); English labels - see sc-clarify Chat ask format
-   - Non-blocking (true soft, not Verify / architecture / scope) → assumption in `decisions.md`; researchable → read code / sc-search first
+   - Non-blocking (true soft, not Verify / architecture / scope) → assumption in `decisions.md`; researchable → read code / sc-search first; technical/performance/library with large clear evidence → sc-clarify **auto-pick** (never Verify / architecture / scope)
    - Verify / architecture / scope gaps stay on the frontier until settled or explicitly deferred
 
 4. **SFDIPOT scan** (silent checklist - fuels Risks and Test Ideas; do not add new top-level `decisions.md` sections)
