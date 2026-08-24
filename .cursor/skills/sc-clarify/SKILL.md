@@ -1,11 +1,11 @@
 ---
 name: sc-clarify
-description: "Blocking-question protocol used inside /sc-discuss. Activate when resolving ambiguous requirements; prefer /sc-discuss as the session entrypoint."
+description: "Blocking-question protocol used inside /sc-discuss. Activate when resolving ambiguous requirements; prefer /sc-discuss as the session entrypoint. Mid-ask escapes via natural language: re-pitch on confusion, research (sc-search then sc-storm), visualize (bake-off or state table)."
 ---
 
 # sc-clarify
 
-Blocking-question protocol for `/sc-discuss`. Map blocking decisions as a **design tree**, then ask the open **frontier** in rounds (up to **max 3** independent questions per turn). Record answers. Never proceed with hidden assumptions on blocking classes. Prefer `/sc-discuss` as the human slash entrypoint for ask/clarify/brainstorm/decide sessions.
+Blocking-question protocol for `/sc-discuss`. Map blocking decisions as a **design tree**, then ask the open **frontier** in rounds (up to **max 3** independent questions per turn). Record answers. Never proceed with hidden assumptions on blocking classes. Prefer `/sc-discuss` as the human slash entrypoint for ask/clarify/brainstorm/decide sessions. Mid-ask unlocks use natural language (**re-pitch** · **research** · **visualize**) - no new slash skills.
 
 ## Goal
 
@@ -13,12 +13,12 @@ Resolve blocking ambiguity so `/sc-discuss` can clear: every blocking decision i
 
 ## Output
 
-Updated `questions.md` (Open / Answered) and `decisions.md` (choices, auto-picks with evidence summaries, true soft assumptions, explicit deferrals). Chat rounds use the Chat ask format (short or rich, English labels) below. Done when the blocking frontier is empty (settled, auto-picked, or deferred).
+Updated `questions.md` (Open / Answered) and `decisions.md` (choices, auto-picks with evidence summaries, true soft assumptions, explicit deferrals). Chat rounds use the Chat ask format (short or rich): **Thai content** in field bodies with greppable **English labels**. `questions.md` / `decisions.md` stay English. Done when the blocking frontier is empty (settled, auto-picked, or deferred).
 
 ## Good / Bad
 
-- Good: exhaust context before any ask; research then optional measure before asking technical / performance / library ambiguities; **auto-pick** clear technical winners with greppable/citable evidence (large and clear win); classify blocking / non-blocking / researchable; design tree with prereqs → dependents; ask only the frontier (≤3 independent Qs); serial ask when B depends on A; Verify / architecture / in-out scope soft gaps stay on the frontier until settled or explicitly deferred; facts via read/research/sub-agent; record answers and decisions; chat asks use English Chat ask format (short vs rich)
-- Bad: questionnaire dumps; asking look-uppable facts; asking dependent Qs in the same round; asking clearly-won technical / performance / library choices; **auto-picking** Verify / architecture fork / in-out scope (even if "obvious"); silently assuming Verify / architecture / scope into `decisions.md` during discuss; implementing or finalizing draft while blocking frontier items remain open; auto-triggering mid-AFK except hard blockers
+- Good: exhaust context before any ask; research then optional measure before asking technical / performance / library ambiguities; **auto-pick** clear technical winners with greppable/citable evidence (large and clear win); classify blocking / non-blocking / researchable; design tree with prereqs → dependents; ask only the frontier (≤3 independent Qs); serial ask when B depends on A; Verify / architecture / in-out scope soft gaps stay on the frontier until settled or explicitly deferred; facts via read/research/sub-agent; record answers and decisions; Chat ask uses Thai content + English labels (short vs rich); on mid-ask confusion, run Re-pitch on confusion or mid-ask escape (research / visualize) without new slash commands
+- Bad: questionnaire dumps; asking look-uppable facts; asking dependent Qs in the same round; asking clearly-won technical / performance / library choices; **auto-picking** Verify / architecture fork / in-out scope (even if "obvious"); silently assuming Verify / architecture / scope into `decisions.md` during discuss; implementing or finalizing draft while blocking frontier items remain open; auto-triggering mid-AFK except hard blockers; English-only Chat ask bodies; dual `ไทย:`/`EN:` Chat blocks; throwaway HTML for mid-ask visualize; new slash skills (`wait-what` / `prototype` / `research`)
 
 ## Verify
 
@@ -31,6 +31,7 @@ Activate inside `/sc-discuss` (or when ambiguity blocks plan/build) for:
 - **Clarify scope, behavior, or direction** - ambiguous requirements
 - **Resolve decisions before planning** - blocking questions for planning phase
 - **Record decisions from a discussion** - capture choices in `decisions.md`
+- **Mid-ask unblock** - human stuck mid-round (confused wording, needs facts, or cannot picture state) → Re-pitch on confusion or mid-ask escape
 
 Mission brief presents Goal / Will do / Impact / Extra bullets and does not quiz - grilling lives here.
 
@@ -72,28 +73,28 @@ Use this exact sequence unless the user specifies otherwise:
 
 ### Chat ask format
 
-**Language:** The entire ask block is English only. Paths, commands, product names, and tech terms stay as-is. Skill instructions on disk stay US English.
+**Language:** Chat ask field bodies are **Thai content**; bold **English labels** stay greppable (`Plain explain`, `Context`, `Question`, `Trade-offs`, `Why it matters`, `Recommendation`, `If accepted`). Paths, commands, product names, and tech terms stay as-is. No dual `ไทย:`/`EN:` Chat blocks. `questions.md` / `decisions.md` stay English. Skill instructions on disk stay US English.
 
 **Short vs rich:**
-- **Rich** - question has explicit choices (A/B/…) **or** is a heavy blocking class (Verify / architecture fork / in-out scope). Requires Feynman plain-explain, context, and per-choice pros/cons.
-- **Short** - simple yes/no or single-path questions. Skip Feynman / context / trade-offs.
+- **Rich** - question has explicit choices (A/B/…) **or** is a heavy blocking class (Verify / architecture fork / in-out scope). Requires Plain explain, Context, and per-choice Trade-offs.
+- **Short** - simple yes/no or single-path questions. Skip Plain explain / Context / Trade-offs.
 
-**Short template** (all labels English):
+**Short template** (English labels; Thai bodies):
 ```
-**Q1 - <short title>:** <question>
+**Q1 - <short title>:** <คำถาม>
 
-**Why it matters:** <one sentence>
-**Recommendation:** <suggested answer + brief rationale>
-**If accepted:** <what happens next>
+**Why it matters:** <หนึ่งประโยค>
+**Recommendation:** <คำแนะนำ + เหตุผลสั้น>
+**If accepted:** <ขั้นถัดไป>
 ```
 
-**Rich template** (all labels English):
+**Rich template** (English labels; Thai bodies):
 ```
 **Q1 - <short title>**
 
-**Plain explain:** <Feynman: what the problem is, why we need a decision, what the choice will change - plain language, short paragraphs or bullets; no jargon dump>
-**Context:** <what we already know from spec/decisions/repo; what is still ambiguous; what is at stake>
-**Question:** <question>
+**Plain explain:** <ปัญหาคืออะไร ทำไมต้องตัดสินใจ เลือกแล้วเปลี่ยนอะไร - ภาษาง่าย สั้น>
+**Context:** <รู้อะไรแล้วจาก spec/decisions/repo; อะไรยังคลุมเครือ; stake คืออะไร>
+**Question:** <คำถาม>
 - A) ...
 - B) ...
 
@@ -101,9 +102,9 @@ Use this exact sequence unless the user specifies otherwise:
 - **A)** Pros: … | Cons: …
 - **B)** Pros: … | Cons: …
 
-**Why it matters:** <one sentence>
-**Recommendation:** <suggested answer + brief rationale>
-**If accepted:** <what happens next>
+**Why it matters:** <หนึ่งประโยค>
+**Recommendation:** <คำแนะนำ + เหตุผลสั้น>
+**If accepted:** <ขั้นถัดไป>
 ```
 
 Keep trade-offs tight: 1-2 bullets each side per choice. Field order and bold labels above are greppable - do not rename.
@@ -112,20 +113,40 @@ Keep trade-offs tight: 1-2 bullets each side per choice. Field order and bold la
 ```
 **Q1 - Choose API framework**
 
-**Plain explain:** We need to pick the HTTP API library for the server. The choice affects startup speed, TypeScript support, and how familiar the team is when debugging.
-**Context:** Spec already locks Node.js + TypeScript, but not the framework. Repo has no server package yet. Stake is routing/plugin lock-in before planning.
-**Question:** Use Fastify or Express?
+**Plain explain:** ต้องเลือก HTTP library สำหรับเซิร์ฟเวอร์ การเลือกมีผลต่อความเร็วตอนสตาร์ท การซัพพอร์ต TypeScript และความคุ้นของทีมตอนดีบัก
+**Context:** Spec ล็อก Node.js + TypeScript แล้ว แต่ยังไม่ล็อก framework ในรีโปยังไม่มี server package Stake คือ binding เส้นทาง/plugin ก่อนวางแผน
+**Question:** ใช้ Fastify หรือ Express?
 - A) Fastify
 - B) Express
 
 **Trade-offs:**
-- **A)** Pros: fast, TS-first | Cons: team may know Express better
-- **B)** Pros: more docs/examples | Cons: slower, messier typing
+- **A)** Pros: เร็ว, TS-first | Cons: ทีมอาจคุ้น Express มากกว่า
+- **B)** Pros: เอกสาร/ตัวอย่างเยอะ | Cons: ช้ากว่า พิมพ์ยากกว่า
 
-**Why it matters:** Wrong pick forces a routing rewrite during implement.
-**Recommendation:** A) Fastify - fits the TS stack and startup target
-**If accepted:** Record in decisions.md, then ask the next frontier item (or clear if frontier is empty)
+**Why it matters:** เลือกผิดต้อง rewrite routing ตอน implement
+**Recommendation:** A) Fastify - เข้ากับสแต็ก TS และเป้าสตาร์ท
+**If accepted:** บันทึกใน decisions.md แล้วถาม frontier ข้อถัดไป (หรือ clear ถ้า frontier ว่าง)
 ```
+
+### Re-pitch on confusion
+
+When the human signals confusion mid-round (cues under mid-ask escape), or 027 Auto-Clarity drops caveman and triggers re-pitch:
+
+1. STE-lite restatement of the **current frontier** questions only - shorter, plainer, same decisions at stake.
+2. Use ubiquitous language from mission `spec.md` / `decisions.md` (not repo `CONTEXT.md`).
+3. Re-present with Chat ask format (Thai content, English labels). Do not restart the mission or invent new frontier items.
+
+### mid-ask escape
+
+Natural-language unlock mid-grill - **no new slash** skills (`wait-what` / `prototype` / `research`). Match cue → escape:
+
+| Escape | Cue examples | Agent action |
+|--------|--------------|--------------|
+| Re-pitch | อธิบายใหม่ / งง / wait what | Run **Re-pitch on confusion** |
+| Research | หาข้อมูลก่อน / research แล้วถามใหม่ | `sc-search` first → escalate `sc-storm` only for open-domain/strategy → record findings → re-ask frontier with better options. No `/research` slash. |
+| Visualize | นึกภาพไม่ออก / โชว์ state | **UI:** point to existing sc-discuss / sc-ux-design bake-off or draft. **Non-UI:** short chat explanation + state/example table. **No throwaway HTML files.** |
+
+After research or visualize, return to the open frontier round (re-ask if options improved).
 
 7. **Record** - After the user answers (or after an auto-pick):
    - Record each question and answer in `questions.md` under `### Answered`
@@ -149,6 +170,7 @@ Keep trade-offs tight: 1-2 bullets each side per choice. Field order and bold la
 - **Dependent chain** - If B depends on A and A is open, ask A only this round.
 - **Answer contradicts spec** - Update `spec.md` to reflect the decision. The user's answer is authoritative.
 - **User defers decision** - Record the deferral in `decisions.md`. Only continue past a deferred blocker when the deferral is explicit; do not invent settlement.
+- **Mid-ask stuck** - Treat confusion / need-facts / cannot-picture cues as mid-ask escape (re-pitch · research · visualize); do not abandon the frontier round.
 
 ## AFK mode
 
@@ -162,12 +184,14 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 - **Must**: Classify every ambiguity as blocking, non-blocking, or researchable.
 - **Must**: Maintain a design tree; ask only the open frontier, max 3 independent questions per turn; serial when dependent.
 - **Must**: During `/sc-discuss`, keep Verify / architecture / scope soft gaps on the frontier until settled or explicitly deferred - do not silently assume them.
-- **Must**: Every asked question uses the Chat ask format (short or rich). Short: Question + Why it matters + Recommendation + If accepted. Rich (choices or Verify / architecture / in-out scope): also Plain explain + Context + Trade-offs (Pros/Cons per choice). Entire ask block in English.
+- **Must**: Every asked question uses the Chat ask format (short or rich). Short: Question + Why it matters + Recommendation + If accepted. Rich (choices or Verify / architecture / in-out scope): also Plain explain + Context + Trade-offs (Pros/Cons per choice). Field bodies are Thai content; bold labels are English.
+- **Must**: On mid-ask confusion or escape cues, run Re-pitch on confusion or mid-ask escape (research via sc-search then sc-storm when needed; visualize via bake-off/draft or state/example table) - no new slash skills.
 - **Must not**: Auto-pick Verify, architecture fork, or in/out scope - even if "obvious."
 - **Must not**: Dump mutually dependent questions in one round, or exceed 3 questions per round.
 - **Must not**: Implement, plan, or finalize visual draft while a blocking frontier item is open (unless explicitly deferred).
 - **Must not**: Auto-trigger mid-AFK (`/sc-run`) unless a hard blocker.
-- **Must**: Record answered questions in `questions.md`. Record decisions, auto-picks, and deferrals in `decisions.md`.
+- **Must not**: Dual `ไทย:`/`EN:` Chat blocks; English-only Chat ask bodies; throwaway HTML files for mid-ask visualize.
+- **Must**: Record answered questions in `questions.md`. Record decisions, auto-picks, and deferrals in `decisions.md` (English).
 - **Must**: Prefer user clarity over agent cleverness. If the user's answer seems suboptimal, state your concern once and accept their decision.
 
 ## Out of scope
@@ -175,6 +199,8 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 - Session entry / brainstorm / visual draft ownership - use `/sc-discuss`
 - Planning - use sc-planning (via `/sc-run` for roadmap work)
 - Visual draft HTML - `/sc-discuss` + sc-ux-design; required critique via Task(`sc-designer`) before human HIL
+- Throwaway HTML for mid-ask visualize - use bake-off/draft pointer or chat state/example table instead
+- New slash skills for mid-ask (`wait-what` / `prototype` / `research`) - embed escapes here
 - Git operations - use sc-git
 - Implementation - use `/sc-run` (AFK) or agents; ship with `/sc-ship` only
 
@@ -207,18 +233,20 @@ After `/sc-discuss` clears clarify:
 - [ ] Design tree updated; frontier identified
 - [ ] Auto-pick applied only for large-and-clear technical wins; never for Verify / architecture / scope
 - [ ] Frontier round asked (≤3 independent; serial if dependent) for remaining open items
-- [ ] Each question uses Chat ask format (short or rich; English labels; rich adds Plain explain + Context + Trade-offs)
+- [ ] Each question uses Chat ask format (short or rich; Thai content + English labels; rich adds Plain explain + Context + Trade-offs)
+- [ ] Mid-ask confusion handled via Re-pitch on confusion or mid-ask escape when cued
 - [ ] Answer or auto-pick recorded in `questions.md`
-- [ ] Decision, auto-pick evidence, or explicit deferral recorded in `decisions.md`
+- [ ] Decision, auto-pick evidence, or explicit deferral recorded in `decisions.md` (English)
 - [ ] Verify / architecture / scope gaps not silently assumed or auto-picked during discuss
 - [ ] Blocking frontier empty before planning or implementation
 - [ ] After clarify clear: handoff `Spec clear. New session: /sc-run.`
 
 ## References
 
-- `questions.md` - open and answered questions per mission
-- `decisions.md` - confirmed choices, auto-picks, assumptions, and deferrals
-- sc-search - WebSearch/WebFetch escalation for researchable questions
-- `/sc-discuss` - pre-build HIL session (owns clarify + visual draft)
+- `questions.md` - open and answered questions per mission (English)
+- `decisions.md` - confirmed choices, auto-picks, assumptions, and deferrals (English)
+- sc-search - WebSearch/WebFetch escalation for researchable questions and mid-ask research escape
+- sc-storm - open-domain/strategy research escalate after sc-search (mid-ask research escape)
+- `/sc-discuss` - pre-build HIL session (owns clarify + visual draft / bake-off)
 - `/sc-run` - AFK roadmap runner after clarify is clear
 - `/sc-ship` - explicit human-only ship

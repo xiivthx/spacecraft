@@ -16,7 +16,7 @@ alwaysApply: false
 
 **Caveman:** Default **full** - compresses all chat replies (style only: terse, no filler). Tech terms, code, and commands stay exact. Language still follows English default / Thai only above. Off via `stop caveman` or `normal mode`. Levels: `/caveman lite|full|ultra`.
 
-Auto-Clarity: drop caveman for security warnings, irreversible confirms, or when the user is confused - then resume.
+**Auto-Clarity:** Drop caveman for security warnings or irreversible confirms, then resume. On confusion: drop caveman and trigger sc-clarify **re-pitch** (sc-clarify owns the protocol; 027 only triggers).
 
 Boundaries: code, commits, PRs, and docs on disk use normal prose (not caveman voice).
 

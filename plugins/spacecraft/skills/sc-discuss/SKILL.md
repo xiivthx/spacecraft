@@ -1,6 +1,6 @@
 ---
 name: sc-discuss
-description: "Pre-build HIL: clarify, brainstorm, decide, and approve visual draft before implement. Invoke as /sc-discuss."
+description: "Pre-build HIL: clarify, brainstorm, decide, and approve visual draft before implement. Invoke as /sc-discuss. Mid-ask unblock via natural language (re-pitch / research / visualize) - details in sc-clarify."
 disable-model-invocation: true
 ---
 
@@ -16,8 +16,8 @@ Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); on-demand test-data design via `test-data-design.md` when variable-level fixtures matter (not a clear gate); on-demand oracle evaluation via `test-oracles.md` when problem judgment needs grounding (not a clear gate); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; frontier rounds via sc-clarify (≤3 independent blocking questions per turn; serial when dependent); Verify / architecture / scope soft gaps stay on the open frontier until settled or explicitly deferred; true soft gaps → `decisions.md`; visual brief + product context + reference extract (when refs) + context fidelity + layout bake-off (or skip) + responsive ladder (all four presets) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief via Spec Mirror + stake map + Goal / Will do / Impact / Extra bullets (plain + technical; pre-mortem Wrong-if under Extra when non-trivial) then Accept/Adjust/Reject before clear
-- Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping the full testability queue or more than a frontier round (≤3 independent) in one turn; quizzing the human instead of presenting the brief; hollow briefs (vague Goal/Will do/Impact, no Wrong-if when required, Spec Mirror soft/empty yet posed); cross-feature layer waterfalls or `*-ux` roadmap seams; replacing mission brief (Accept/Adjust/Reject chat HIL) with a canvas; using canvas as draft HTML / visual SoT
+- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); on-demand test-data design via `test-data-design.md` when variable-level fixtures matter (not a clear gate); on-demand oracle evaluation via `test-oracles.md` when problem judgment needs grounding (not a clear gate); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; frontier rounds via sc-clarify (≤3 independent blocking questions per turn; serial when dependent); Verify / architecture / scope soft gaps stay on the open frontier until settled or explicitly deferred; true soft gaps → `decisions.md`; visual brief + product context + reference extract (when refs) + context fidelity + layout bake-off (or skip) + responsive ladder (all four presets) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief via Spec Mirror + stake map + Goal / Will do / Impact / Extra bullets (plain + technical; pre-mortem Wrong-if under Extra when non-trivial) then Accept/Adjust/Reject before clear; mid-ask unblock via natural language (re-pitch / research / visualize) per sc-clarify - no new slash commands
+- Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping the full testability queue or more than a frontier round (≤3 independent) in one turn; quizzing the human instead of presenting the brief; hollow briefs (vague Goal/Will do/Impact, no Wrong-if when required, Spec Mirror soft/empty yet posed); cross-feature layer waterfalls or `*-ux` roadmap seams; replacing mission brief (Accept/Adjust/Reject chat HIL) with a canvas; using canvas as draft HTML / visual SoT; inventing mid-ask slash skills; throwaway HTML for mid-ask visualize
 
 ## Verify
 
@@ -104,6 +104,18 @@ When existing and updated requirements are both available, apply `references/rcr
 4. Lens / testability / strategy / RCRCRC: record `## … pass` (load ref when trigger fires) **or** the matching skip line without loading the ref when triggers clearly do not fire.
 5. Deep architecture: Task(`sc-adviser`) with Tier 1 lens pass; high-stakes may use Tier 2; open-domain → sc-storm (Tier 3). Keep `clarify-status open` while blockers or unapproved visual draft remain.
 
+### Mid-ask unblock
+
+When the human is stuck mid-frontier (confused wording, needs facts, or cannot picture state), unlock via **natural language** - **no new slash** commands. Owner of Re-pitch / mid-ask escape details: **sc-clarify**.
+
+| Cue | Route |
+|-----|-------|
+| Re-pitch | sc-clarify **Re-pitch on confusion** |
+| Research | `sc-search` first → escalate `sc-storm` for open-domain/strategy |
+| Visualize | Existing layout **bake-off** / draft (UI) or chat state/example table (non-UI) |
+
+Do not add `/wait-what`, `/prototype`, or `/research` skills. After research or visualize, return to the open frontier round.
+
 ### Visual design (when UI/FE)
 
 Detect from intent / `spec.md`. If visual:
@@ -157,13 +169,14 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 - Never create `*-ux` roadmap seams or cross-feature layer waterfalls (see `references/mission-sizing.md`).
 - Soft gates: when triggers clearly do not fire, record skip lines without loading full reference files.
 - Prefer `spec.md` / `decisions.md` / `questions.md` over chat-only memory.
+- Never invent mid-ask slash skills (`wait-what` / `prototype` / `research`); route mid-ask to sc-clarify (re-pitch / research via sc-search then sc-storm / visualize via bake-off or chat state table).
 - One mission focus per discuss session.
 
 ## Specialist skills
 
 | Concern | Where |
 |---------|--------|
-| Blocking questions | sc-clarify |
+| Blocking questions / mid-ask escapes | sc-clarify (Re-pitch / mid-ask escape owner); research: sc-search → sc-storm; visualize: bake-off or chat state table |
 | Mission sizing / roadmap split | `references/mission-sizing.md` |
 | Requirement testability | `references/requirement-testability.md` |
 | SFDIPOT coverage review (existing tests vs requirement) | `references/sfdipot-coverage.md` (on-demand; not a soft gate) |
@@ -183,7 +196,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 
 ## References
 
-- sc-clarify, sc-ux-design, `/sc-run`, `/sc-ship`
+- sc-clarify (mid-ask Re-pitch / escape owner), sc-ux-design, `/sc-run`, `/sc-ship`
 - `references/mission-sizing.md`
 - `references/mission-brief.md`
 - `references/lens-pass.md`
@@ -195,4 +208,4 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 - `references/rcrcrc-impact.md`
 - `.cursor/skills/sc-ux-design/references/checklists/README.md`
 - `sc-ux-design/references/surface-checklist.md`
-- sc-storm
+- sc-search → sc-storm (mid-ask research escape)
