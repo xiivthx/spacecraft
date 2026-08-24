@@ -55,7 +55,7 @@ Confirm `Design-contract: complete` or `Design-contract skipped: docs/prose-only
 3. **Outcome gates (A/B/C + PBT)** - disposition required before ready (`docs/mission-artifacts.md`):
    - **A** - design-contract + tester/coder split + independent literals + coder cannot edit tests
    - **B** - frozen approved-scenarios; static-analysis evidence (**0 warning / 0 error** when tool runs) or `Static-analysis skipped/waived:…`; diff coverage **line and branch ≥90%** touched when measured, or skip/waive
-   - **C** - mutation evidence (**>80%** scoped when in scope + tool; kill **boundary/operator** mutants) or `Mutation skipped:…` / waive
+   - **C** - mutation in scope when any of `Mutation: required` | pack `quality` | `Mutation: high-risk` (`docs/mission-artifacts.md`); then evidence (**>80%** scoped when tool; kill **boundary/operator** mutants) or `Mutation skipped:…` / waive; ordinary missions: `Mutation skipped: not in scope` valid
    - **PBT** - **100%** of design-contract **core-logic** modules (branching business rules / pure domain / state machines) need invariants + generators via project-existing lib (`fast-check` / Hypothesis / equivalent) and `pbt-…` evidence; else greppable `Pbt skipped: no project pbt tool` / `Pbt skipped: not core logic` / `Pbt waived: <reason>`. **Must not** invent PBT lib install mid-mission.
 4. **Review** - then formal review / release readiness.
 
@@ -67,7 +67,7 @@ Confirm `Design-contract: complete` or `Design-contract skipped: docs/prose-only
 - **Must** (PBT, product path): **100%** of design-contract **core-logic** modules carry property-based invariants + generators (`fast-check` / Hypothesis / equivalent already in the project) with `pbt-…` evidence, or a greppable `Pbt skipped:…` / `Pbt waived:…` line. Missing disposition ⇒ judge-REFUTE material. **Must not** invent PBT lib install mid-mission.
 - **Must**: Red before green when TDD applies; one implementation slice per cycle; refactor after all checks; functional suite after refactor.
 - **Must**: Coder Must not edit tests; oracle/scenario changes via Commander + `decisions.md` / `Scenario oracle change:`.
-- **Must not**: Invent phrase-echo RED for docs/prose; mock internal collaborators; chase global 95–100% coverage; claim regression quality from red-green alone when mutation in scope with no disposition.
+- **Must not**: Invent phrase-echo RED for docs/prose; mock internal collaborators; chase global 95–100% coverage; claim regression quality from red-green alone when mutation is in scope (`Mutation: required` | pack `quality` | `Mutation: high-risk`) with no disposition.
 - **Must not**: Shallow asserts (`expect(true)`, typeof-only, status-only, phrase-echo). Error-path asserts **Must** use **ErrorCode** or error **instance** (typed equivalent OK) - see tester Ban / Deep assert.
 - **Must**: Mock at system boundaries only. Composition paths (create→use, join→claim, auth→mutate) need a chain contract, not only mocked seams - see `references/testing-strategy.md`.
 - **Must**: After defect fixes, `TWINS:` project-wide search. After **3** failed fix-verify cycles → human.

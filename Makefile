@@ -22,7 +22,7 @@ help:
 	@echo "  install         build + link CLI into ~/.local/bin + smoke check"
 	@echo "  install-project Install full .cursor surface into PROJECT=<dir> (default .)"
 	@echo "  install-global  Install agents + lean-core skills + MCP into ~/.cursor (careful)"
-	@echo "                  SPACECRAFT_SKILL_PROFILE=full (or FULL=1) keeps domain encyclopedias"
+	@echo "                  advanced escape hatch: SPACECRAFT_SKILL_PROFILE=full or FULL=1 (User encyclopedias; prefer project packs)"
 	@echo "  install-machine Link Node CLI + one-shot User-layer install via scripts/install-machine.sh"
 	@echo "  install-antigravity         Install global Spacecraft plugin for Antigravity"
 	@echo "  install-antigravity-project Install Spacecraft into project .agents/ for Antigravity (PROJECT=<dir>)"
@@ -78,10 +78,11 @@ install-project:
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"
 
 # Global Cursor install. Never writes ~/.cursorrules. Copies agents + skills
-# (SPACECRAFT_SKILL_PROFILE=lean default; FULL=1 or SPACECRAFT_SKILL_PROFILE=full
-# for domain encyclopedias); merges MCP servers; leaves unrelated global config
-# untouched. Lean reconcile prunes spacecraft-managed domain packs under skills/.
-# FULL=1 is a documented --full equivalent for make install-global.
+# (SPACECRAFT_SKILL_PROFILE=lean default). Prefer project packs for domain skills.
+# Advanced escape hatch: FULL=1 or SPACECRAFT_SKILL_PROFILE=full installs User-layer
+# domain encyclopedias (documented --full equivalent). Merges MCP servers; leaves
+# unrelated global config untouched. Lean reconcile prunes spacecraft-managed
+# domain packs under skills/.
 install-global: build install-cli
 	@profile="$(SPACECRAFT_SKILL_PROFILE)"; \
 	if [ "$(FULL)" = "1" ]; then profile=full; fi; \
