@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.57.0 - 2026-08-24
+
+- Feat: `spacecraft drift` CLI - four docs↔mission rules; stdout only; default exit 0; `--strict` non-zero on findings; skip lines for absent optional docs trees
+- Docs: overnight `/sc-run` profile + handback at `.space/missions/<id>/handback.md` on stop `3-cycle` | `timebox` | `blocked` (dual-tree sc-run + prompting)
+- Fix: `spacecraft validate --help` frames mission evidence only (`not-doc-drift` / `not-10X-validate`)
+
 ## 0.56.2 - 2026-08-24
 
 - Docs: frame User `--full` / `FULL=1` as advanced escape hatch; project packs as default path
