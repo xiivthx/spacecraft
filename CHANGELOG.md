@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.57.1 - 2026-08-24
+
+- Docs: mid-ask unblock escapes for `/sc-discuss` — re-pitch, research (`sc-search` → `sc-storm`), visualize (bake-off or chat state table); no new slash skills
+- Docs: sc-clarify Chat ask Thai content + English labels; 027 Auto-Clarity triggers sc-clarify re-pitch on confusion
+- Docs: `docs/prompting.md` records the mid-ask contract for humans
+
 ## 0.57.0 - 2026-08-24
 
 - Feat: `spacecraft drift` CLI - four docs↔mission rules; stdout only; default exit 0; `--strict` non-zero on findings; skip lines for absent optional docs trees

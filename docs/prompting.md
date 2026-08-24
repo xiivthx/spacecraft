@@ -24,6 +24,8 @@ Agents and skills state:
 
 If unclear: research first; ask for preferences or unverifiable bars via `/sc-discuss`; never invent Verify. Mid `/sc-run`: soft → `decisions.md`; hard → stop and `/sc-discuss`. Ship needs machine-checkable Verify.
 
+Mid `/sc-discuss` grill: if the human is stuck (confused wording, needs facts, or cannot picture state), unlock in place with natural language - re-pitch, research (`sc-search` then `sc-storm` when open-domain), or visualize (existing bake-off/draft, or a short chat state table). No new slash commands. Chat asks use Thai field bodies with English labels; `questions.md` / `decisions.md` stay English. Detail: `.cursor/skills/sc-clarify/SKILL.md`.
+
 ## Inner-loop gates (Quick + Mission)
 
 Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission runs `sc-judge` (adversarial prove; ready only on `VERIFIED`). Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` (mission artifacts and evidence; not-doc-drift / not-10X-validate) + judge hunts.
