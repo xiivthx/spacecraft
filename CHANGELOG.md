@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.56.2 - 2026-08-24
+
+- Docs: frame User `--full` / `FULL=1` as advanced escape hatch; project packs as default path
+- Docs: mutation in-scope only via `Mutation: required`, pack `quality`, or `Mutation: high-risk` (drop logic-heavy auto)
+- Docs: mirror mutation SoT in lifecycle skills dual-tree; browser-probe Must unchanged
+- Chore: prune uncalled skill refs; scrub `spacecraft` smell from product `templates/gitignore`
+
 ## 0.56.1 - 2026-08-24
 
 - Docs: sc-discuss fast path — `Discuss path: fast` stands in for soft-pass when eligible; Must-not when roadmap/phases, soft Verify, or visual

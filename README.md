@@ -38,14 +38,18 @@ User layer only (default **lean**: lifecycle + process skills):
 make install-global
 ```
 
-Lean reconcile prunes spacecraft-managed domain encyclopedia skills under `~/.cursor/skills` that sit outside the lean allowlist; unrelated files under `~/.cursor` stay put. Opt in to domain encyclopedias with `--full` via `SPACECRAFT_SKILL_PROFILE=full` or `make install-global FULL=1`:
+Lean reconcile prunes spacecraft-managed domain encyclopedia skills under `~/.cursor/skills` that sit outside the lean allowlist; unrelated files under `~/.cursor` stay put.
+
+**Default project path:** install **selected** domain packs locally with `spacecraft setup` / `./bootstrap.sh` - no User `--full` required. Choose packs with `spacecraft setup` (interactive default: **quality**; coming packs such as `iot`/`fpga`/`pcb`/`management` are listed but not installable). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`, or fails. Existing `.cursor/spacecraft-profile.json` → silent reconcile; change packs with `--reconfigure`. User-layer lean stays the default; lean-core stays out of the project layer.
+
+Advanced escape hatch only - not the recommended default: User `--full` via `SPACECRAFT_SKILL_PROFILE=full` or `make install-global FULL=1` installs domain encyclopedias into `~/.cursor/skills`:
 
 ```sh
 SPACECRAFT_SKILL_PROFILE=full make install-global
 # or: make install-global FULL=1
 ```
 
-Project layer (per repo) installs **selected** domain packs locally - no User `--full` required. Choose packs with `spacecraft setup` (interactive default: **quality**; coming packs such as `iot`/`fpga`/`pcb`/`management` are listed but not installable). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`, or fails. Existing `.cursor/spacecraft-profile.json` → silent reconcile; change packs with `--reconfigure`. User-layer lean/full is unchanged; lean-core stays out of the project layer.
+Project layer (per repo) - recommended default for domain skills:
 
 ```sh
 ./bootstrap.sh /path/to/project

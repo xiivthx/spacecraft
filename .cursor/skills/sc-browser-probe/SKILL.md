@@ -243,6 +243,7 @@ After small fix outside mission: run this skill on the touched surface when user
 - **Must**: Fix-loop every finding (including minor) until CLEAN, or stop with `3-cycle:` / `timebox:` / `blocked:`
 - **Must**: Task-delegate product fixes (`sc-coder` / `sc-tester` / `sc-firmware`); no Commander product edits
 - **Must**: When invoked from `/sc-run` on UI/workflow work, run AFK via Task(`sc-browser-probe`) - no recommend-only handoff
+- **Must not**: Treat quality-tier / mutation out-of-scope as a probe waive — UI/workflow still requires `PROBE: CLEAN` (non-UI skip only)
 - **Must not**: Expertise cosplay ("as a QA expert…")
 - **Must not**: Invent throughput numbers
 - **Must not**: Use an external checklist site as pass/fail; walk packs that are not in inventory

@@ -167,16 +167,17 @@ Skip / waive lines: exact prefixes in **Outcome-gate skip / waive grammar (SoT)*
 
 **In scope when any hold:**
 
-1. `decisions.md` has greppable `Mutation: required`, **or**
-2. Mission product path touches logic-heavy code (branching business rules, pure domain/calc/parse pipelines) per `design-contract.md` Modules / Data structures - not docs/prose-only, not pure styling/chrome-only
+1. `decisions.md` has greppable `Mutation: required`
+2. Project pack selection includes pack id `quality` (profile / `SPACECRAFT_PACKS` / setup packs — same meaning as install “quality pack”)
+3. `decisions.md` has greppable `Mutation: high-risk`
 
-**Out of scope:** docs/prose-only plans; UI look-only with no behavioral logic; no mutation tool in the project.
+**Out of scope:** ordinary missions with no quality pack and without `Mutation: required` / `Mutation: high-risk` in `decisions.md`. For those, `Mutation skipped: not in scope` is a **valid** ready disposition (one line; required so ready is unambiguous).
 
 When in scope and a mutation tool exists: run it scoped to touched packages/files when the tool allows; capture `spacecraft evidence "mutation-…" -- <cmd>`. Default target: **>80% mutation** score on that scope (or the project's documented higher bar). Below target → strengthen behavioral tests (not tautologies) or `Mutation waived: <reason>`.
 
 When in scope but no tool: `Mutation skipped: no project mutation tool` (does not invent installing a mutator mid-mission unless the human asked).
 
-When not in scope: `Mutation skipped: not in scope` (one line; required so ready is unambiguous).
+When not in scope: `Mutation skipped: not in scope`.
 
 Do not treat mutation as a substitute for approved-scenarios / design-contract oracles.
 

@@ -112,7 +112,11 @@ For the User layer only (no companions) - Cursor-wide agents, slash skills (`/sc
 make install-global
 ```
 
-Default User-layer skills are lean-core (lifecycle + process). Lean reconcile is destructive for spacecraft-managed domain packs under `~/.cursor/skills` - it prunes encyclopedia skills outside the allowlist. Unrelated files under `~/.cursor` stay put. Opt in to domain encyclopedias with `SPACECRAFT_SKILL_PROFILE=full` or `make install-global FULL=1` (documented `--full` equivalent):
+Default User-layer skills are lean-core (lifecycle + process). Lean reconcile is destructive for spacecraft-managed domain packs under `~/.cursor/skills` - it prunes encyclopedia skills outside the allowlist. Unrelated files under `~/.cursor` stay put.
+
+**Default project path:** domain skills via **project packs** (`spacecraft setup` / `./bootstrap.sh` / `make install-project`) - selective, per-repo, no User `--full` required. See [Project pack setup](#project-pack-setup).
+
+Advanced escape hatch only - not the recommended default: `SPACECRAFT_SKILL_PROFILE=full` or `make install-global FULL=1` (documented `--full` equivalent) installs domain encyclopedias into the User layer:
 
 ```sh
 SPACECRAFT_SKILL_PROFILE=full make install-global
@@ -129,7 +133,7 @@ For the Project layer in another repo, either run `./bootstrap.sh /path/to/proje
 make install-project PROJECT=/path/to/project
 ```
 
-Both call the same pack-resolve + selective install path as `spacecraft setup`: always-on hard-contract, pack-selected domain skills/rules, `session-start`, and safety hooks - never agents, soft User-layer rules (`000`/`026`/…), or lean-core skills. Lean-core lifecycle skills and agents live only under `~/.cursor` from `install-global`. User-layer lean vs full is unchanged by project pack selection.
+Both call the same pack-resolve + selective install path as `spacecraft setup`: always-on hard-contract, pack-selected domain skills/rules, `session-start`, and safety hooks - never agents, soft User-layer rules (`000`/`026`/…), or lean-core skills. Lean-core lifecycle skills and agents live only under `~/.cursor` from `install-global`. Project pack selection does not change User-layer lean; User `--full` remains an advanced escape hatch, not the pack path.
 
 To link the Node CLI in the checkout without a full install:
 
