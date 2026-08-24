@@ -12,7 +12,7 @@ After `/sc-discuss` clear, AFK incomplete work to `ready` for human check, then 
 
 ## Output
 
-Missions at `state=ready` (or stop on blocked / clarify / missing draft approval). Handoff: **Ready. Human check, then /sc-ship.** Never merge/push/tag.
+Missions at `state=ready` (or stop on `3-cycle` / `timebox` / `blocked` / clarify / missing draft approval). On AFK stops write `.space/missions/<id>/handback.md` with stop reason + remaining work cue. Handoff when ready: **Ready. Human check, then /sc-ship.** Never merge/push/tag.
 
 ## Good / Bad
 
@@ -33,6 +33,10 @@ Missions at `state=ready` (or stop on blocked / clarify / missing draft approval
 2. Incomplete mission with `clarify-status` `open` → stop; `/sc-discuss`.
 3. Draft gate (visual only): require `UI draft approved: …` for visual UI/FE unless `UI draft skipped:` (including non-visual seams). Missing required draft → stop; `/sc-discuss`.
 4. Soft gaps → `decisions.md`. No design-brief / draft-HTML discovery here.
+
+## Overnight profile
+
+After `/sc-discuss` clear, AFK `/sc-run` avoids mid-HIL except hard blocks. Stop on `3-cycle` | `timebox` | `blocked`. On those stops write `.space/missions/<id>/handback.md` (stop reason + remaining work cue). No overnight runner CLI.
 
 ## Optional canvas (human check)
 
@@ -55,7 +59,7 @@ May emit plan / findings / evidence canvases under `~/.cursor/projects/<workspac
 6. **Combine:** refactor; full suite; evidence. **Static / diff-cov / mutation:** run tools or record disposition - labels `static-…` / `diff-cov-…` / `mutation-…`, or greppable lines (`Static-analysis skipped:…`, `Mutation skipped:…`, etc.) whose exact prefixes live in `docs/mission-artifacts.md`. Static: **0 warning / 0 error** when a project static tool runs (else skip/waive). Diff cov: touched executable **line and branch ≥90%** when measured. Mutation: in scope when any of `Mutation: required` | pack `quality` | `Mutation: high-risk` (`docs/mission-artifacts.md`); then **>80%** scoped when tool present; else `Mutation skipped: not in scope` is valid. Never chase global 95–100%. Checkpoint.
 7. **UI recheck (visual UI/FE):** live product URL + paired draft-surface screenshots → draft-parity → Task(`sc-designer`) → fix critical/important → re-capture → then review. Details: sc-ux-design. No ready yet.
 8. **Fix pass** - until suite (+ UI if UI) clean. Unrelated preexisting non-blockers → note in summary. Same issue fails **3** times → human.
-9. **Browser probe (UI or multi-step workflow):** Task(`sc-browser-probe`) on the live product URL (scope `feature:<name>` or `full`). Skill AFK fix-loops every finding (critical / important / minor) until `PROBE: CLEAN`. Not `CLEAN` after stop (`3-cycle` / timebox / blocked) → hand human; do not ready. Skip when no runnable UI/workflow surface. Details: sc-browser-probe.
+9. **Browser probe (UI or multi-step workflow):** Task(`sc-browser-probe`) on the live product URL (scope `feature:<name>` or `full`). Skill AFK fix-loops every finding (critical / important / minor) until `PROBE: CLEAN`. Not `CLEAN` after stop (`3-cycle` / `timebox` / `blocked`) → write `.space/missions/<id>/handback.md`; hand human; do not ready. Skip when no runnable UI/workflow surface. Details: sc-browser-probe.
 10. **Review + sc-judge** (suite clean + probe CLEAN or skipped + deterministic pre-review):
    1. `validate --strict`; matching `evidence.jsonl`; approved-scenarios freeze (or skip); static / diff-cov / mutation disposition; security/perf machine-first when scope matches (`references/mission-review-gates.md`).
    2. Task(`sc-reviewer`) (+ Task(`sc-designer`) when visual). Optional findings/evidence canvases for human check.
@@ -89,7 +93,8 @@ One Conventional Commit per plan task after acceptances done; combine and materi
 
 ## Rules
 
-- Never `/sc-ship`, merge, push, tag; never discuss/draft mid-AFK.
+- Never `/sc-ship`, merge, push, tag; never discuss/draft mid-AFK (overnight: mid-HIL only on hard blocks).
+- On stop `3-cycle` | `timebox` | `blocked` → `.space/missions/<id>/handback.md` with stop reason + remaining work cue.
 - Task-delegate product code/tests; one feature branch per mission id.
 - Must have `Design-contract: complete` or `Design-contract skipped: docs/prose-only` before product RED/GREEN (`docs/mission-artifacts.md`).
 - Must have approved-scenarios freeze or `Approved-scenarios skipped: docs/prose-only` before product RED/GREEN.
