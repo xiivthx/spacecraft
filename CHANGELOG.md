@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.56.1 - 2026-08-24
+
+- Docs: sc-discuss fast path — `Discuss path: fast` stands in for soft-pass when eligible; Must-not when roadmap/phases, soft Verify, or visual
+- Docs: mission-sizing auto-split on Must-when; Must not ask one-vs-many; can-split ⇒ too big for one
+- Docs: frame `spacecraft validate` / `val` as mission artifacts and evidence (not-doc-drift / not-10X-validate)
+- Test: discuss-fastpath skill/doc contract + dual-tree parity
+
 ## 0.56.0 - 2026-08-24
 
 - Feat: `spacecraft context` budgeted cold-start pack (docs/ then .space/; default 4096; `--budget` / `SPACECRAFT_CONTEXT_BUDGET`)
