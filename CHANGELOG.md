@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.58.0 - 2026-08-24
+
+- Feat: Spacecraft marketing landing at `docs/landing/index.html` — Orbital Console hero-split, Install CTA, discuss/run/ship positioning
+- Feat: responsive nav ladder (mobile Menu drawer → tablet/desktop inline) plus docs-unavailable and reduced-motion edge states
+
 ## 0.57.2 - 2026-08-24
 
 - Docs: lean cursor load layers — `.cursor/deprecated/` graveyard; clear live retired research slash
