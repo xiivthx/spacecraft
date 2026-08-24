@@ -234,28 +234,40 @@ export function resolveCmd(args, spaceDir, mid) {
   return 1;
 }
 
-export function statusCmd(spaceDir, mid) {
+/**
+ * Same stdout body `statusCmd` prints (no trailing newline).
+ * @returns {{ ok: true, text: string } | { ok: false, error: string }}
+ */
+export function formatStatus(spaceDir, mid) {
   const id = resolveActive(spaceDir, mid);
   if (!id) {
-    console.log('No selected mission. Use spacecraft new then /sc-run.');
-    return 0;
+    return { ok: true, text: 'No selected mission. Use spacecraft new then /sc-run.' };
   }
   let m;
   try {
     m = readMission(spaceDir, id);
   } catch (err) {
-    console.error('spacecraft status:', err.message);
-    return 1;
+    return { ok: false, error: err.message };
   }
-  console.log(`Mission: ${id}`);
-  if (typeof m.title === 'string') console.log(`Title: ${m.title}`);
-  if (typeof m.state === 'string') console.log(`State: ${m.state}`);
-  console.log(`Evidence: ${countEvidence(spaceDir, id)}`);
+  const lines = [`Mission: ${id}`];
+  if (typeof m.title === 'string') lines.push(`Title: ${m.title}`);
+  if (typeof m.state === 'string') lines.push(`State: ${m.state}`);
+  lines.push(`Evidence: ${countEvidence(spaceDir, id)}`);
   const pickupNext =
     m.pickup && typeof m.pickup === 'object' && typeof m.pickup.next === 'string'
       ? m.pickup.next.trim()
       : '';
-  if (pickupNext) console.log(`Pickup: ${pickupNext}`);
+  if (pickupNext) lines.push(`Pickup: ${pickupNext}`);
+  return { ok: true, text: lines.join('\n') };
+}
+
+export function statusCmd(spaceDir, mid) {
+  const result = formatStatus(spaceDir, mid);
+  if (!result.ok) {
+    console.error('spacecraft status:', result.error);
+    return 1;
+  }
+  console.log(result.text);
   return 0;
 }
 
