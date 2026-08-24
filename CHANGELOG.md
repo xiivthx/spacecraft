@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.56.0 - 2026-08-24
+
+- Feat: `spacecraft context` budgeted cold-start pack (docs/ then .space/; default 4096; `--budget` / `SPACECRAFT_CONTEXT_BUDGET`)
+- Feat: session-start hook invokes `spacecraft context` (DRY; always exit 0)
+- Docs: installation Preferred read order marks context CLI + session-start as shipped
+- Test: forbid `.space` in project-seeded `templates/docs` stealth tokens; cover lessons top-20 in context pack
+
 ## 0.55.1 - 2026-08-24
 
 - Fix: closeout changelog gate tries `origin/main` when already on `main` (post-merge tag)
