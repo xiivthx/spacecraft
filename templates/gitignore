@@ -56,6 +56,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Spacecraft
+# Local AI / mission runtime
 .space/
 .codegraph/

@@ -170,6 +170,17 @@ function assertSpaceScaffold(dir) {
   }
 }
 
+test('templates/gitignore: zero case-insensitive spacecraft token matches', () => {
+  assert.ok(existsSync(gitignoreTemplatePath), 'templates/gitignore must exist');
+  const content = readFileSync(gitignoreTemplatePath, 'utf8');
+  const matches = content.match(/spacecraft/gi) ?? [];
+  assert.equal(
+    matches.length,
+    0,
+    'templates/gitignore must not contain spacecraft (case-insensitive)',
+  );
+});
+
 test('ensureProjectReady: empty dir gets git, .space scaffold, and template .gitignore', async () => {
   const dir = emptyProjectRoot();
   try {
