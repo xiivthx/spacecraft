@@ -81,5 +81,5 @@ Open-domain / strategy / systematic multi-source research feeding discuss only. 
 
 - Always-on five lenses every mission
 - STORM inside RED-GREEN
-- Revive `/sc-research` as a lifecycle slash
+- Revive a retired research lifecycle slash as peer to discuss/run/ship
 - Expertise cosplay ("as a historian I feel…") without an artifact line
