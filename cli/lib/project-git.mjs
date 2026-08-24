@@ -5,8 +5,16 @@ import { fileURLToPath } from 'node:url';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const GITIGNORE_TEMPLATE = path.join(REPO_ROOT, 'templates', 'gitignore');
+const DOCS_TEMPLATE_ROOT = path.join(REPO_ROOT, 'templates', 'docs');
 
 const SPACE_DIRS = ['missions', 'archive', 'roadmaps'];
+
+/** Relpaths under `templates/docs/` → consumer `docs/` (seed only; no on-demand dirs). */
+const DOCS_SEED_REL_PATHS = [
+  'README.md',
+  'conventions/README.md',
+  'conventions/naming.md',
+];
 
 /** True when a non-comment gitignore line ignores `.space` / `.space/`. */
 export function isSpaceIgnoreLine(line) {
@@ -62,6 +70,23 @@ function writeGitignoreFromTemplate(projectRoot) {
   copyFileSync(templatePath, path.join(projectRoot, '.gitignore'));
 }
 
+/**
+ * Copy missing product-docs seed files from `templates/docs/`.
+ * Never overwrites existing targets; does not create on-demand dirs.
+ */
+function ensureDocsSeeded(projectRoot) {
+  for (const rel of DOCS_SEED_REL_PATHS) {
+    const dest = path.join(projectRoot, 'docs', rel);
+    if (existsSync(dest)) continue;
+    const src = path.join(DOCS_TEMPLATE_ROOT, rel);
+    if (!existsSync(src)) {
+      throw new Error(`missing docs seed template at ${src}`);
+    }
+    mkdirSync(path.dirname(dest), { recursive: true });
+    copyFileSync(src, dest);
+  }
+}
+
 /** Soft-run `codegraph init` when the index DB is missing; never throw. */
 function ensureCodegraph(projectRoot) {
   if (existsSync(path.join(projectRoot, '.codegraph', 'codegraph.db'))) return;
@@ -85,27 +110,30 @@ function ensureCodegraph(projectRoot) {
 
 /**
  * First `.space` create: scaffold dirs, git init if needed, overwrite `.gitignore`
- * from `templates/gitignore`, soft-init codegraph when missing.
+ * from `templates/gitignore`, soft-init codegraph when missing, seed missing docs.
  */
 export function ensureProjectReady(projectRoot) {
   ensureSpaceDirs(projectRoot);
   ensureGitRepo(projectRoot);
   writeGitignoreFromTemplate(projectRoot);
   ensureCodegraph(projectRoot);
+  ensureDocsSeeded(projectRoot);
 }
 
 /**
  * When `.space` already exists: ensure `.space/` is listed in `.gitignore`
- * without replacing the whole file.
+ * without replacing the whole file; also seed missing docs targets.
  */
 export function ensureSpaceIgnored(projectRoot) {
   const gitignorePath = path.join(projectRoot, '.gitignore');
   if (!existsSync(gitignorePath)) {
     writeFileSync(gitignorePath, '.space/\n');
-    return;
+  } else {
+    const current = readFileSync(gitignorePath, 'utf8');
+    if (!hasSpaceIgnored(current)) {
+      const suffix = current.endsWith('\n') ? '.space/\n' : '\n.space/\n';
+      writeFileSync(gitignorePath, `${current}${suffix}`);
+    }
   }
-  const current = readFileSync(gitignorePath, 'utf8');
-  if (hasSpaceIgnored(current)) return;
-  const suffix = current.endsWith('\n') ? '.space/\n' : '\n.space/\n';
-  writeFileSync(gitignorePath, `${current}${suffix}`);
+  ensureDocsSeeded(projectRoot);
 }

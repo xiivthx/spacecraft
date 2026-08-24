@@ -5,7 +5,8 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 ## What it provides
 
 - Mission workflow from scope and planning through implementation, verification, review, and shipping
-- Local mission artifacts and evidence under `.space/` (gitignored; first-use ensure may `git init`, write starter `.gitignore` from `templates/gitignore`, and soft-run `codegraph init` when no `.codegraph/` index exists - warn and continue on missing binary or failure)
+- Local mission artifacts and evidence under `.space/` (gitignored; first-use ensure may `git init`, write starter `.gitignore` from `templates/gitignore`, seed missing product `docs/` map + conventions stubs, and soft-run `codegraph init` when no `.codegraph/` index exists - warn and continue on missing binary or failure)
+- Tracked product Source of Truth under `docs/` (gitignored `.space/` stays local runtime only; prefer cold-start read order `docs/` then `.space/` - see [installation guide](docs/installation.md#product-docs-vs-local-runtime))
 - Cursor-native rules, agents, skills, hooks, and MCP configuration under `.cursor/`
 - Git safety with feature branches, Conventional Commits, and an explicit ship gate
 - Specialized support for application development, testing, design, architecture, and embedded firmware
@@ -51,7 +52,7 @@ Project layer (per repo) installs **selected** domain packs locally - no User `-
 # or: spacecraft setup --packs frontend,quality
 ```
 
-Bootstrap / `install-cursor` first `.space` create also ensures git (init if needed), starter `.gitignore` with `.space/`, and may soft-run `codegraph init` when no `.codegraph/` index exists (warn and continue on missing binary or failure).
+Bootstrap / `install-cursor` first `.space` create also ensures git (init if needed), starter `.gitignore` with `.space/`, seeds missing `docs/` map and conventions stubs, and may soft-run `codegraph init` when no `.codegraph/` index exists (warn and continue on missing binary or failure).
 
 When working from a clone of this repository, build and install with:
 
@@ -180,6 +181,7 @@ Use the CLI as the source of truth for current syntax:
   mcp.json               project MCP server configuration
   hooks.json             Cursor hook registration
   hooks/                 hook scripts
+docs/                    tracked product SoT (seed: README map + conventions stubs)
 .space/
   missions/<id>/         spec, plan, decisions, evidence, and review artifacts
   archive/               shipped mission archives
