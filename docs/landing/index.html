@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Spacecraft</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23080a0d'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23f6b44b'/%3E%3C/svg%3E"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+:root {
+  --sc-bg: #0e1116;
+  --sc-bg-deep: #080a0d;
+  --sc-surface: #151a21;
+  --sc-surface-raised: #1b222b;
+  --sc-rule: #2a3340;
+  --sc-rule-strong: #3a4656;
+  --sc-text: #f3ead7;
+  --sc-text-muted: #b9ad98;
+  --sc-text-faint: #776f63;
+  --sc-accent: #f6b44b;
+  --sc-accent-strong: #ffcb6b;
+  --sc-cyan: #62d6cf;
+  --sc-danger: #ff6b5f;
+  --sc-radius-sm: 4px;
+  --sc-radius-md: 8px;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+*, *::before, *::after { box-sizing: border-box }
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--sc-bg);
+  color: var(--sc-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+a { color: var(--sc-cyan); text-decoration: none }
+a:hover { text-decoration: underline }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: var(--sc-radius-sm);
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  text-decoration: none;
+}
+.btn-primary { background: var(--sc-accent); color: var(--sc-bg-deep) }
+.btn-primary:hover { background: var(--sc-accent-strong); text-decoration: none }
+.btn-secondary {
+  background: transparent;
+  color: var(--sc-text);
+  border-color: var(--sc-rule-strong);
+}
+.btn-secondary:hover { border-color: var(--sc-text-muted); text-decoration: none }
+.btn.is-disabled { opacity: .45; pointer-events: none; cursor: not-allowed }
+.brand { font-weight: 600; letter-spacing: -0.02em; font-size: 16px }
+.eyebrow-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--sc-text-muted);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+h1 {
+  font-size: 32px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+h2 {
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+.support, .lede { color: var(--sc-text-muted); margin: 0 0 20px; max-width: 36rem }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center }
+section { border-top: 1px solid var(--sc-rule) }
+.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px }
+.steps li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start }
+.step-n { font-family: var(--font-mono); font-size: 12px; color: var(--sc-accent); padding-top: 4px }
+.step-body strong { display: block; margin-bottom: 4px }
+.step-body span { color: var(--sc-text-muted); font-size: 16px }
+footer.site-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+footer.site-foot nav { display: flex; gap: 16px }
+.atmos {
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 20%, rgba(246,180,75,.08), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(98,214,207,.05), transparent 50%),
+    linear-gradient(180deg, var(--sc-bg-deep), var(--sc-surface));
+  border: 1px solid var(--sc-rule);
+  position: relative;
+  overflow: hidden;
+  min-height: 12rem;
+  border-radius: var(--sc-radius-md);
+}
+.atmos-mark {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 48px;
+  height: 4px;
+  background: var(--sc-accent);
+  border-radius: var(--sc-radius-sm);
+  z-index: 1;
+}
+.atmos-mark-danger { background: var(--sc-danger) }
+.atmos-well {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  width: 40%;
+  height: 40%;
+  background: var(--sc-surface-raised);
+  border: 1px solid var(--sc-rule);
+  border-radius: var(--sc-radius-md);
+  z-index: 1;
+}
+.atmos-flat { background: var(--sc-bg-deep) }
+.atmos-flat .atmos-well {
+  background: var(--sc-surface);
+  border-color: var(--sc-rule-strong);
+}
+.site-nav-drawer { display: none; position: relative }
+.site-nav-drawer summary {
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--sc-text-muted);
+  border: 1px solid var(--sc-rule-strong);
+  border-radius: var(--sc-radius-sm);
+  padding: 8px 12px;
+}
+.site-nav-drawer summary::-webkit-details-marker { display: none }
+.site-nav-drawer .drawer-links {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 10rem;
+  background: var(--sc-surface-raised);
+  border: 1px solid var(--sc-rule);
+  border-radius: var(--sc-radius-md);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 2;
+}
+a:focus-visible,
+.btn:focus-visible,
+.site-nav-drawer summary:focus-visible {
+  outline: 2px solid var(--sc-cyan);
+  outline-offset: 3px;
+}
+.banner-error {
+  background: var(--sc-surface-raised);
+  border: 1px solid var(--sc-danger);
+  color: var(--sc-text);
+  padding: 12px 14px;
+  border-radius: var(--sc-radius-sm);
+  margin-bottom: 20px;
+  max-width: 36rem;
+}
+.banner-error strong { display: block; color: var(--sc-danger); margin-bottom: 4px }
+code { font-family: var(--font-mono); font-size: 12px; color: var(--sc-cyan) }
+.page { display: flex; flex-direction: column; padding: 24px 16px 48px }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+.site-nav { display: flex; gap: 16px }
+.site-nav-inline { display: none }
+.site-nav-drawer { display: block }
+.hero-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding-bottom: 40px;
+  align-items: stretch;
+}
+.hero-split .atmos { min-height: 10rem }
+.hero-copy { display: flex; flex-direction: column; justify-content: center }
+.block { padding: 40px 0 }
+.cta-row { flex-direction: column; align-items: stretch }
+.cta-row .btn { width: 100% }
+
+/* Edge: docs-unavailable — show/hide without draft chrome */
+[data-show="docs-unavailable"] { display: none }
+html[data-state="docs-unavailable"] [data-hide="docs-unavailable"] { display: none !important }
+html[data-state="docs-unavailable"] [data-show="docs-unavailable"] { display: revert }
+html[data-state="docs-unavailable"] .cta-row [data-show="docs-unavailable"].btn {
+  display: inline-flex;
+  width: 100%;
+}
+html[data-state="docs-unavailable"] .atmos-mark { background: var(--sc-danger) }
+html[data-state="docs-unavailable"] .atmos-mark.atmos-mark-danger { background: var(--sc-danger) }
+
+/* Edge: reduced-motion — flat atmos; OS reduce disables motion */
+html[data-state="reduced-motion"] .atmos,
+html.reduced-motion .atmos {
+  background: var(--sc-bg-deep);
+}
+html[data-state="reduced-motion"] .atmos-mark,
+html.reduced-motion .atmos-mark {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important }
+  .atmos {
+    background: var(--sc-bg-deep);
+  }
+  .atmos-mark { display: none }
+  .atmos-well {
+    background: var(--sc-surface);
+    border-color: var(--sc-rule-strong);
+  }
+}
+
+/* Nav + layout ladder (tablet+) */
+@media (min-width: 768px) {
+  .page { padding: 32px 28px 56px }
+  .measure { max-width: 36rem }
+  .site-nav-inline {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+  }
+  .site-nav-drawer { display: none }
+  .hero-split { grid-template-columns: 1fr; gap: 24px }
+  .hero-split .atmos { min-height: 12rem }
+  .cta-row { flex-direction: row; align-items: center }
+  .cta-row .btn { width: auto }
+  html[data-state="docs-unavailable"] .cta-row [data-show="docs-unavailable"].btn {
+    width: auto;
+  }
+}
+
+/* Desktop+ hero-split two columns */
+@media (min-width: 1280px) {
+  .page { padding: 40px 48px 72px }
+  .measure { max-width: 40rem }
+  .site-nav-inline {
+    display: flex;
+    gap: 16px;
+    font-size: 16px;
+    font-family: var(--font-sans);
+  }
+  .hero-split { grid-template-columns: 1.1fr 0.9fr; gap: 32px }
+}
+
+/* Widescreen */
+@media (min-width: 1536px) {
+  .page { padding: 48px 64px 80px; max-width: 72rem; margin-inline: auto }
+  .measure { max-width: 42rem }
+  .site-nav-inline {
+    display: flex;
+    gap: 24px;
+    font-size: 16px;
+    font-family: var(--font-sans);
+  }
+  .hero-split { grid-template-columns: 1fr 1fr; gap: 48px; max-width: 72rem }
+}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <span class="brand">Spacecraft</span>
+      <nav class="site-nav site-nav-inline" aria-label="Primary"><a href="#what">What</a><a href="#how">Start</a></nav>
+      <details class="site-nav-drawer">
+        <summary>Menu</summary>
+        <div class="drawer-links"><a href="#what">What</a><a href="#how">Start</a></div>
+      </details>
+    </header>
+    <div class="hero-split">
+      <div class="hero-copy">
+        <h1>Local missions for AI coding — discuss, run, ship.</h1>
+        <p class="support">A harness that keeps product truth and agent work on your machine, with clear human gates.</p>
+        <div class="banner-error" data-show="docs-unavailable" role="alert">
+          <strong>Docs temporarily unavailable</strong>Install path cannot open right now. Use GitHub README or retry shortly.
+        </div>
+        <div class="cta-row">
+          <a class="btn btn-primary" data-hide="docs-unavailable" href="#how">Install</a>
+          <a class="btn btn-primary is-disabled" data-show="docs-unavailable" href="#how" aria-disabled="true" tabindex="-1">Install</a>
+          <a class="btn btn-secondary" href="#what">How discuss works</a>
+        </div>
+      </div>
+      <div class="atmos" aria-hidden="true">
+        <div class="atmos-mark" data-hide="docs-unavailable"></div>
+        <div class="atmos-mark atmos-mark-danger" data-show="docs-unavailable"></div>
+        <div class="atmos-well"></div>
+      </div>
+    </div>
+    <section class="block what" id="what">
+      <div class="measure">
+        <p class="eyebrow-meta">What it is</p>
+        <h2>Decide before you build. Build before you ship.</h2>
+        <p class="lede">Spacecraft is a local-first workflow for building with coding agents. You clarify intent in <code>/sc-discuss</code>, implement under <code>/sc-run</code>, then release with <code>/sc-ship</code> — without turning your repo into a cloud IDE.</p>
+        <p class="lede">Lanes stay sequential on purpose: decide before you build, build before you ship.</p>
+      </div>
+    </section>
+    <section class="block how" id="how">
+      <div class="measure">
+        <p class="eyebrow-meta">How to start</p>
+        <h2>Three steps</h2>
+        <ol class="steps">
+          <li>
+            <span class="step-n">01</span>
+            <div class="step-body">
+              <strong>Install</strong>
+              <span data-hide="docs-unavailable">Follow the installation docs and open this repo in Cursor.</span>
+              <span data-show="docs-unavailable">Docs mirror offline — use GitHub fallback below.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-n">02</span>
+            <div class="step-body">
+              <strong>/sc-discuss</strong>
+              <span>Lock goal, verify, and (when visual) the draft.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-n">03</span>
+            <div class="step-body">
+              <strong>/sc-run</strong>
+              <span>Plan and implement against that spec; ship when ready.</span>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+    <footer class="block site-foot">
+      <span class="brand">Spacecraft</span>
+      <nav aria-label="Footer">
+        <a href="#how">Docs</a>
+        <a data-hide="docs-unavailable" href="https://github.com/xiivthx/spacecraft">GitHub</a>
+        <a data-show="docs-unavailable" href="https://github.com/xiivthx/spacecraft"><strong>GitHub (fallback)</strong></a>
+      </nav>
+    </footer>
+  </div>
+  <script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var state = params.get("state");
+  if (state === "docs-unavailable" || state === "reduced-motion") {
+    document.documentElement.setAttribute("data-state", state);
+  }
+  var reduce =
+    state === "reduced-motion" ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) {
+    document.documentElement.classList.add("reduced-motion");
+    var atmos = document.querySelector(".atmos");
+    if (atmos) atmos.classList.add("atmos-flat");
+  }
+  var drawer = document.querySelector(".site-nav-drawer");
+  if (drawer) {
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || !drawer.open) return;
+      drawer.open = false;
+      var sum = drawer.querySelector("summary");
+      if (sum) sum.focus();
+    });
+    document.addEventListener("pointerdown", function (e) {
+      if (drawer.open && !drawer.contains(e.target)) drawer.open = false;
+    });
+  }
+})();
+  </script>
+</body>
+</html>
