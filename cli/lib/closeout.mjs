@@ -143,8 +143,9 @@ export function closeoutChangelogProblems(cwd) {
       lastFailed = true;
       continue;
     }
+    // Empty on this base: try next (e.g. post-merge on main, origin/main..HEAD still has release notes).
     if (log.stdout === '') {
-      return [`no commits touch CHANGELOG.md since ${base}`];
+      continue;
     }
     return [];
   }
@@ -154,7 +155,7 @@ export function closeoutChangelogProblems(cwd) {
       'CHANGELOG check failed: neither main nor origin/main usable (or git unavailable)',
     ];
   }
-  return ['no commits touch CHANGELOG.md'];
+  return ['no commits touch CHANGELOG.md since main or origin/main'];
 }
 
 export function closeoutCmd(spaceDir, mid) {

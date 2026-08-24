@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.55.1 - 2026-08-24
+
+- Fix: closeout changelog gate tries `origin/main` when already on `main` (post-merge tag)
+
 ## 0.55.0 - 2026-08-24
 
 - Feat: seed missing product `docs/` map + conventions stubs on project ensure (stealth wording; no on-demand dirs)
