@@ -39,9 +39,10 @@ const ON_DEMAND_DIRS = [
 /**
  * Stealth forbidden tokens (design-contract E2 / approved-scenarios S2).
  * Case-insensitive; word boundaries for agent(s), mission(s), afk, prompt, llm.
+ * Also flags `.space`, `.space/`, and backtick-wrapped `.space` forms.
  */
 const FORBIDDEN_RE =
-  /spacecraft|\bagents?\b|\bmissions?\b|\bafk\b|\/sc-|\bprompt\b|\bllm\b/gi;
+  /spacecraft|\bagents?\b|\bmissions?\b|\bafk\b|\/sc-|\bprompt\b|\bllm\b|\.space/gi;
 
 const CUSTOM_README_MARKER = 'CUSTOM-DOCS-README';
 
@@ -70,6 +71,14 @@ function listFilesRecursive(dir) {
 function forbiddenMatches(text) {
   return [...text.matchAll(FORBIDDEN_RE)].map((m) => m[0]);
 }
+
+test('forbiddenMatches flags .space/ path form', () => {
+  const hits = forbiddenMatches('see `.space/` for runtime');
+  assert.ok(
+    hits.some((t) => t.toLowerCase().includes('.space')),
+    `expected .space hit, got: ${JSON.stringify(hits)}`,
+  );
+});
 
 test('S1/E1: ensureProjectReady seeds docs/README.md and conventions stubs', async () => {
   const dir = emptyProjectRoot();

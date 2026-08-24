@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { archiveCmd } from './lib/archive.mjs';
 import { closeoutCmd } from './lib/closeout.mjs';
+import { contextCmd } from './lib/context.mjs';
 import { eviCmd } from './lib/evi.mjs';
 import { mapCmd } from './lib/map.mjs';
 import {
@@ -34,6 +35,7 @@ const KEPT_COMMANDS = [
   'current',
   'resolve',
   'status',
+  'context',
   'flow',
   'bind-branch',
   'set-state',
@@ -63,6 +65,7 @@ const IMPLEMENTED = new Set([
   'current',
   'resolve',
   'status',
+  'context',
   'flow',
   'bind-branch',
   'set-state',
@@ -101,6 +104,8 @@ function dispatch(command, args, spaceDir, cwd, mid) {
       return resolveCmd(args, spaceDir, mid);
     case 'status':
       return statusCmd(spaceDir, mid);
+    case 'context':
+      return contextCmd(args, spaceDir, cwd, mid);
     case 'flow':
       return flowCmd(spaceDir, mid);
     case 'bind-branch':
@@ -147,15 +152,19 @@ if (!IMPLEMENTED.has(command)) {
 }
 
 const cwd = process.cwd();
-try {
-  if (!existsSync(path.join(cwd, '.space'))) {
-    ensureProjectReady(cwd);
-  } else {
-    ensureSpaceIgnored(cwd);
+// context is read-only pack: do not seed docs/ or mutate project before assemble
+// (otherwise "omit missing paths" can never observe absent docs).
+if (command !== 'context') {
+  try {
+    if (!existsSync(path.join(cwd, '.space'))) {
+      ensureProjectReady(cwd);
+    } else {
+      ensureSpaceIgnored(cwd);
+    }
+  } catch (err) {
+    console.error(`spacecraft: ${err.message}`);
+    process.exit(1);
   }
-} catch (err) {
-  console.error(`spacecraft: ${err.message}`);
-  process.exit(1);
 }
 
 const spaceDir = spaceDirFromCwd(cwd);

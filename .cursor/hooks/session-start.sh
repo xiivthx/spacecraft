@@ -2,9 +2,9 @@
 # sessionStart hook: inject active mission context (always succeeds).
 
 if [ -x ./spacecraft ]; then
-  ./spacecraft status 2>&1 || printf '%s\n' "No active spacecraft mission."
+  ./spacecraft context 2>&1
 elif command -v spacecraft >/dev/null 2>&1; then
-  spacecraft status 2>&1 || printf '%s\n' "No active spacecraft mission."
+  spacecraft context 2>&1
 else
   printf '%s\n' "No active spacecraft mission."
 fi

@@ -241,7 +241,7 @@ Epics, specs, architecture, and runbooks are on demand - ensure does not create 
 
 ### Preferred read order
 
-For cold-start product context, prefer tracked `docs/` first, then local `.space/` for mission and runtime detail. Session-start automation and a dedicated `spacecraft context` CLI that enforce this order are not shipped yet.
+For cold-start product context, prefer tracked `docs/` first, then local `.space/` for mission and runtime detail. Session-start invokes `spacecraft context`, which follows that order.
 
 ### Promoting durable contracts
 
