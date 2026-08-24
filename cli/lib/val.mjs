@@ -1,7 +1,28 @@
+/**
+ * Validate mission artifacts and evidence (`spacecraft validate` / `val`).
+ * Framing: not-doc-drift / not-10X-validate (mission evidence only).
+ */
+
 import { readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { outputSHA256Hex } from './evi.mjs';
 import { missionDir, normalizeID } from './resolve.mjs';
+
+function hasHelpFlag(args) {
+  return args.some((a) => a === '--help' || a === '-h');
+}
+
+function printValidateHelp() {
+  console.log('Usage: spacecraft validate [--strict] [mission-id]');
+  console.log('');
+  console.log('Validate mission artifacts and evidence');
+  console.log('Framing: not-doc-drift / not-10X-validate');
+  console.log('Checks mission dir files and evidence.jsonl; not docs ↔ mission drift.');
+  console.log('');
+  console.log('Options:');
+  console.log('  --strict                 Require exitCode on evidence; done-task evidence');
+  console.log('  --help, -h               Show this help');
+}
 
 function isJSONNumber(v) {
   return typeof v === 'number' && Number.isFinite(v);
@@ -153,6 +174,11 @@ function validateStrictPlanEvidence(dir) {
 }
 
 export function valCmd(args, spaceDir, mid) {
+  if (hasHelpFlag(args)) {
+    printValidateHelp();
+    return 0;
+  }
+
   let strict = false;
   let resolvedMid = '';
 

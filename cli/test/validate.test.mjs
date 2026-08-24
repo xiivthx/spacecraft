@@ -8,6 +8,7 @@ import { spawnSync } from 'node:child_process';
 import {
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -542,6 +543,74 @@ test('validate --strict passes done task with matching exitCode 0 evidence', () 
       res.code,
       0,
       `strict pass exit=${res.code}\n${combined(res)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+// --- T6 / neg-validate-framing (approved-scenarios frozen literal) ---
+
+/**
+ * neg-validate-framing: spacecraft validate --help and README still frame
+ * validate as mission evidence / not-doc-drift (not sold as doc-drift or
+ * 10X validate). Oracles: design-contract Validate framing + approved-scenarios.
+ */
+test('neg-validate-framing: validate --help and README frame mission evidence / not-doc-drift', () => {
+  const dir = spaceRoot();
+  try {
+    for (const cmd of ['validate', 'val']) {
+      const res = runCLI(dir, cmd, '--help');
+      assertNotStub(res, `${cmd} --help`);
+      assert.equal(
+        res.code,
+        0,
+        `${cmd} --help must exit 0\n${combined(res)}`,
+      );
+      const out = combined(res);
+      assert.match(
+        out,
+        /Validate mission artifacts and evidence/,
+        `${cmd} --help must describe mission artifacts and evidence\n${out}`,
+      );
+      assert.match(
+        out,
+        /not-doc-drift/,
+        `${cmd} --help must keep not-doc-drift posture\n${out}`,
+      );
+      assert.match(
+        out,
+        /not-10X-validate/,
+        `${cmd} --help must keep not-10X-validate posture\n${out}`,
+      );
+      // Negative sell: bare "10X validate" / "doc-drift" as product pitch
+      assert.doesNotMatch(
+        out,
+        /\b10X validate\b/i,
+        `${cmd} --help must not sell validate as 10X validate\n${out}`,
+      );
+      assert.doesNotMatch(
+        out,
+        /(?:^|[^-])doc-drift\b/m,
+        `${cmd} --help must not sell validate as doc-drift (use not-doc-drift)\n${out}`,
+      );
+    }
+
+    const readme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8');
+    assert.match(
+      readme,
+      /Validate mission artifacts and evidence/,
+      'README must describe validate as mission artifacts and evidence',
+    );
+    assert.match(
+      readme,
+      /not-doc-drift/,
+      'README must keep not-doc-drift posture for validate',
+    );
+    assert.doesNotMatch(
+      readme,
+      /\b10X validate\b/i,
+      'README must not sell validate as 10X validate',
     );
   } finally {
     cleanup(dir);

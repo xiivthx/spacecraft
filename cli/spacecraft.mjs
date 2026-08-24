@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { archiveCmd } from './lib/archive.mjs';
 import { closeoutCmd } from './lib/closeout.mjs';
 import { contextCmd } from './lib/context.mjs';
+import { driftCmd } from './lib/drift.mjs';
 import { eviCmd } from './lib/evi.mjs';
 import { mapCmd } from './lib/map.mjs';
 import {
@@ -36,6 +37,7 @@ const KEPT_COMMANDS = [
   'resolve',
   'status',
   'context',
+  'drift',
   'flow',
   'bind-branch',
   'set-state',
@@ -66,6 +68,7 @@ const IMPLEMENTED = new Set([
   'resolve',
   'status',
   'context',
+  'drift',
   'flow',
   'bind-branch',
   'set-state',
@@ -106,6 +109,8 @@ function dispatch(command, args, spaceDir, cwd, mid) {
       return statusCmd(spaceDir, mid);
     case 'context':
       return contextCmd(args, spaceDir, cwd, mid);
+    case 'drift':
+      return driftCmd(args, spaceDir, cwd, mid);
     case 'flow':
       return flowCmd(spaceDir, mid);
     case 'bind-branch':
@@ -152,9 +157,9 @@ if (!IMPLEMENTED.has(command)) {
 }
 
 const cwd = process.cwd();
-// context is read-only pack: do not seed docs/ or mutate project before assemble
-// (otherwise "omit missing paths" can never observe absent docs).
-if (command !== 'context') {
+// context/drift are read-only: do not seed docs/ or mutate project before run
+// (otherwise absent-tree skip / omit-missing cases cannot observe absent docs).
+if (command !== 'context' && command !== 'drift') {
   try {
     if (!existsSync(path.join(cwd, '.space'))) {
       ensureProjectReady(cwd);

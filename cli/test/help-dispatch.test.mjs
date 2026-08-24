@@ -18,6 +18,7 @@ const KEPT_HELP_COMMANDS = [
   'resolve',
   'status',
   'context',
+  'drift',
   'flow',
   'bind-branch',
   'set-state',
