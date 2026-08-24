@@ -19,6 +19,13 @@ Shipped mission on `main` (or blocked with exact missing gates). Never infer shi
 - Good: squash checkpoints ≤5; `validate --strict` + `closeout-check` pass; CHANGELOG + version bump; strip branch to `<type>/<title>`; `SPACECRAFT_SHIP=1`
 - Bad: ship without ready/closeout; review findings present; merge while still `<type>/<id>/<title>`
 
+## Must / Must not
+
+- **Must**: Promote only durable product contracts from mission working notes into `docs/specs` or `docs/architecture/decisions` (ADR), in human engineering language.
+- **Must not**: Dump every mission discuss into `docs/`.
+- **Must not**: Write `.space/trust` into `docs/`.
+- **Must not**: Add AI-flavored filenames or framing into product docs/.
+
 ## Verify
 
 ```
@@ -101,6 +108,6 @@ Any `closeout-check` or `validate --strict` failure; clarify open; sc-git fail; 
 
 ## Errors
 
-- No push unless user asks.
+- No push unless user asks. After `SPACECRAFT_SHIP=1`, the ship hook still **asks** before `git push`.
 - Conventional Commits; no mission ids in commit subjects/bodies.
 - Ship hooks enforce merge/tag/push gates; push always requires human ask after `SPACECRAFT_SHIP=1`.

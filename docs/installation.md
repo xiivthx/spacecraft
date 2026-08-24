@@ -80,7 +80,7 @@ To bootstrap the current directory:
 ./bootstrap.sh
 ```
 
-The bootstrap installer prepares project-local `.cursor/` and `.space/` content and links the Node CLI (`cli/spacecraft.mjs`) when Node.js is on `PATH`, then runs project smoke checks against that link. Domain rules/skills follow the shared pack reconcile path (profile, `SPACECRAFT_PACKS`, or fail-closed when non-TTY with neither) - see [Project pack setup](#project-pack-setup). On first `.space` create it ensures a git repo (`git init` when needed), a starter `.gitignore` from `templates/gitignore` (always ignores `.space/`), and may soft-run `codegraph init` when no index (`.codegraph/`) exists - missing binary or failure warns and continues. This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
+The bootstrap installer prepares project-local `.cursor/` and `.space/` content and links the Node CLI (`cli/spacecraft.mjs`) when Node.js is on `PATH`, then runs project smoke checks against that link. Domain rules/skills follow the shared pack reconcile path (profile, `SPACECRAFT_PACKS`, or fail-closed when non-TTY with neither) - see [Project pack setup](#project-pack-setup). On first `.space` create it ensures a git repo (`git init` when needed), a starter `.gitignore` from `templates/gitignore` (always ignores `.space/`), seeds missing product `docs/` map and conventions stubs when absent (see [Product docs vs local runtime](#product-docs-vs-local-runtime)), and may soft-run `codegraph init` when no index (`.codegraph/`) exists - missing binary or failure warns and continues. This is the Project layer only - see [User layer vs Project layer](#user-layer-vs-project-layer) for the one-time global setup.
 
 You can also run the published bootstrap script from the target project:
 
@@ -213,7 +213,7 @@ If the target does not have mission state yet:
 spacecraft init
 ```
 
-First-use ensure (`spacecraft init`, any CLI command when `.space/` is missing, and project bootstrap / `install-cursor`) runs `ensureProjectReady`: `git init` if the directory is not already a repo, scaffolds `.space/`, writes starter `.gitignore` from `templates/gitignore` (includes `.space/`), and may soft-run `codegraph init` when no index (`.codegraph/`) exists - missing binary or failure warns and continues. When `.space/` already exists, later ensure only adds a `.space/` line to `.gitignore` if missing - it does not replace the whole file.
+First-use ensure (`spacecraft init`, any CLI command when `.space/` is missing, and project bootstrap / `install-cursor`) runs `ensureProjectReady`: `git init` if the directory is not already a repo, scaffolds `.space/`, writes starter `.gitignore` from `templates/gitignore` (includes `.space/`), seeds missing `docs/` map and conventions stubs when absent, and may soft-run `codegraph init` when no index (`.codegraph/`) exists - missing binary or failure warns and continues. When `.space/` already exists, later ensure adds a `.space/` line to `.gitignore` if missing and seeds any still-absent docs targets - it does not replace existing `.gitignore` or overwrite existing docs files.
 
 Then begin in Cursor:
 
@@ -222,6 +222,30 @@ Then begin in Cursor:
 /sc-run
 /sc-ship
 ```
+
+## Product docs vs local runtime
+
+Product truth and Spacecraft runtime stay in two layers:
+
+- **Tracked `docs/`** - product Source of Truth (conventions, epics, specs, architecture, runbooks). Commit these like ordinary engineering docs.
+- **Gitignored `.space/`** - local Spacecraft / AI runtime (missions, evidence, trust). Do not commit `.space/`; starter `.gitignore` always ignores it.
+
+### Bootstrap docs seed
+
+On first `.space` create, and on later ensure when seed targets are missing, setup writes only:
+
+- `docs/README.md` - map of the docs tree
+- `docs/conventions/README.md` and `docs/conventions/naming.md` - convention stubs
+
+Epics, specs, architecture, and runbooks are on demand - ensure does not create those directories. If a seed path already exists as a file, its bytes stay unchanged.
+
+### Preferred read order
+
+For cold-start product context, prefer tracked `docs/` first, then local `.space/` for mission and runtime detail. Session-start automation and a dedicated `spacecraft context` CLI that enforce this order are not shipped yet.
+
+### Promoting durable contracts
+
+At ship, promote only lasting product contracts into `docs/specs/` or an ADR. Do not dump every mission discuss or temporary artifact into `docs/`.
 
 ## Installed layout
 
@@ -233,7 +257,8 @@ Then begin in Cursor:
   mcp.json
   hooks.json               session-start (merge-safe)
   hooks/                   session-start.sh
-.space/                    # fully gitignored (local state)
+docs/                      # tracked product SoT (seed: README map + conventions stubs)
+.space/                    # fully gitignored (local AI / mission runtime)
   missions/
   archive/
   roadmaps/
