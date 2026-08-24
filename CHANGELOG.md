@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.55.0 - 2026-08-24
+
+- Feat: seed missing product `docs/` map + conventions stubs on project ensure (stealth wording; no on-demand dirs)
+- Test: docs-seed policy (non-clobber, forbidden tokens, `.space/` ignore)
+- Docs: two-layer product SoT (`docs/`) vs local runtime (`.space/`); preferred read order; ship promote durable contracts only
+
 ## 0.54.2 - 2026-08-24
 
 - Docs: sc-clarify technical auto-pick - research/optional measure before ask; auto-pick only large-and-clear tech/perf/library wins; never auto-pick Verify/architecture/scope; sync requirement-testability twins
