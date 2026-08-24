@@ -22,7 +22,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 1. **Resolve the mission** - Run `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 2. **Capture evidence** - Run `spacecraft evidence "<label>" -- <command>` for each acceptance check.
-3. **Validate** - Run `spacecraft validate` after evidence capture. Prefer `spacecraft validate --strict` before claiming a build task or mission build is complete (`--strict` requires `exitCode` on every evidence entry, ≥1 evidence entry, and matching evidence for each done plan task).
+3. **Validate** - Run `spacecraft validate` after evidence capture to check mission artifacts and evidence (not-doc-drift / not-10X-validate). Prefer `spacecraft validate --strict` before claiming a build task or mission build is complete (`--strict` requires `exitCode` on every evidence entry, ≥1 evidence entry, and matching evidence for each done plan task).
 4. **Map to acceptance** - Record evidence ids in final summaries, referencing each acceptance check from `plan.json`.
 
 ### Edge cases
@@ -84,6 +84,6 @@ Before claiming verification passed:
 ## References
 
 - `spacecraft evidence --help` - evidence subcommand reference
-- `spacecraft validate --help` - validation reference (`--strict` for ship/build claims)
+- `spacecraft validate --help` - mission artifacts and evidence validation reference (`--strict` for ship/build claims; not-doc-drift / not-10X-validate)
 - `evidence.jsonl` in the active mission directory
 - `docs/mission-artifacts.md` - evidence schema; outcome-gate skip/waive line grammar SoT

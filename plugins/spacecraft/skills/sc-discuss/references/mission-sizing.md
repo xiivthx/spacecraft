@@ -67,6 +67,8 @@ This file owns mission sizing (single / phases / roadmap). Task-level split heur
    - Any single seam alone would need **≥4** jigsaw tasks (hard Must, not "roughly"), **or**
    - Visual draft HIL would block unrelated data/functional work if kept in one mission
 
+When Must-when holds: **auto-split** (auto-apply roadmap sizing). Heuristic: **can-split** ⇒ work is **too big for one** mission. **Must not ask** one-vs-many / one mission vs many — apply the split; do not quiz single vs multi when Must-when is clear. Ask only when independent-shipability stays genuinely ambiguous after this playbook.
+
 Then create the map under **Map creation (discuss only)** below. Discuss the current tip only; later seams wait for post-ship handoff (`Next: /sc-discuss <id>`).
 
 ## Map creation (discuss only)

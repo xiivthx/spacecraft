@@ -30,10 +30,8 @@ spacecraft clarify-status clear
 # visual (when draft approved): "Layout bake-off winner: …" OR "Layout bake-off skipped: …"
 # visual draft includes surface-relevant scenario matrix (per shared-draft-directives) when approved
 # decisions.md contains "Mission brief: accepted" OR "Mission brief: skipped - <reason>"
-# decisions.md contains "## Lens pass" OR "Lens pass skipped:"
-# decisions.md contains "## Testability pass" OR "Testability pass skipped:"
-# decisions.md contains "## Strategy pass" OR "Strategy pass skipped:"
-# when two requirement versions: "## RCRCRC pass" OR "RCRCRC pass skipped:"
+# soft-pass: ("## Lens pass" OR "Lens pass skipped:") AND ("## Testability pass" OR "Testability pass skipped:") AND ("## Strategy pass" OR "Strategy pass skipped:") AND (when two requirement versions: "## RCRCRC pass" OR "RCRCRC pass skipped:")
+#   OR (eligible fast path) "Discuss path: fast" stands in for lens/testability/strategy/RCRCRC soft-pass
 ```
 
 Handoff by sizing: roadmap → `/sc-run <id>`; single|phases → `/sc-run` (mission-only).
@@ -66,13 +64,21 @@ resolve → inspect → sizing gate → lens-pass gate → testability soft gate
 
 1. Classify checklist concerns present: UX / UI / functional / database.
 2. Rough jigsaw count for a vertical slice.
-3. Choose `single` | `phases` | `roadmap` per the playbook (3 feature seams when splitting: `*-data` → `*-functional` → `*-ui`, plus an optional `*-integrate` tip after the last feature seam when Must-when holds). **Must** use `*-functional` on new maps; **Must not** add a `*-ux` seam.
+3. Choose `single` | `phases` | `roadmap` per the playbook (3 feature seams when splitting: `*-data` → `*-functional` → `*-ui`, plus an optional `*-integrate` tip after the last feature seam when Must-when holds). **Must** use `*-functional` on new maps; **Must not** add a `*-ux` seam. When roadmap Must-when fires: auto-split per that playbook (**Must not ask** one-vs-many).
 4. Record in `decisions.md`: `Sizing: single | phases | roadmap <id>` (+ seams/rationale when roadmap; + `Sizing phases: N - …` when phases).
 5. If roadmap: follow **Map creation (discuss only)** ordered steps in `references/mission-sizing.md` (`spacecraft new` stubs → `map new` unless human approved reuse → `map add` → stub `Sizing:` on every seam → discuss tip only). Never leave map create/resize to planning.
 
 ### Soft-gate load rule
 
 For lens / testability / strategy / RCRCRC: when triggers clearly do **not** fire, record the skip line in `decisions.md` and continue - **do not** load the full reference file only to skip. Load the matching `references/*.md` only when a trigger fires (or the human asks for that pass).
+
+### Discuss fast path
+
+Eligible when all hold: `Sizing: single`, non-visual, Verify present, empty blocking frontier. Then stamp `Discuss path: fast` in `decisions.md` — that marker stands in for lens / testability / strategy / RCRCRC soft-pass clear lines (satisfies soft-pass without per-pass skip paragraphs). Legacy `## Lens pass` / `Lens pass skipped:` (and Testability / Strategy / RCRCRC equivalents) remain valid without the fast marker.
+
+**Must not** stamp `Discuss path: fast` when sizing is roadmap or phases; when Verify is soft or missing; or when visual draft is required. Marker alone is not enough if ineligible.
+
+Fast path still requires solid `spec.md`, `Sizing: single`, UI draft skipped or N/A, mission brief accepted or skipped, then clear — brief is not skipped by fast path alone.
 
 ### Lens-pass gate
 
@@ -130,7 +136,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 
 ### Exit
 
-1. No open blocking questions; Verify present; `Sizing: …` recorded; `## Lens pass` or `Lens pass skipped:` recorded; `## Testability pass` or `Testability pass skipped:` recorded; `## Strategy pass` or `Strategy pass skipped:` recorded; when two requirement versions, `## RCRCRC pass` or `RCRCRC pass skipped:` recorded; visual approved or skip recorded; mission brief accepted or skip recorded. Do not clear while Testability is `Not Testable` and Verify soft/missing.
+1. No open blocking questions; Verify present; `Sizing: …` recorded; (`## Lens pass` or `Lens pass skipped:`) and (`## Testability pass` or `Testability pass skipped:`) and (`## Strategy pass` or `Strategy pass skipped:`) and (when two requirement versions, `## RCRCRC pass` or `RCRCRC pass skipped:`) — or, when eligible, `Discuss path: fast` stands in for those soft-pass lines; visual approved or skip recorded; mission brief accepted or skip recorded. Do not clear while Testability is `Not Testable` and Verify soft/missing.
 2. `spacecraft clarify-status clear`.
 3. Handoff by sizing (`references/mission-sizing.md`):
    - `Sizing: roadmap <id>` → **Spec clear. New session: `/sc-run <id>`.**
