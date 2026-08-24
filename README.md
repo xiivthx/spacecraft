@@ -154,6 +154,7 @@ The CLI is Node (`cli/spacecraft.mjs`). Run the checkout link as `./spacecraft`,
 | `spacecraft set-state [mission-id] <new-state>` | Set mission state (mission-id optional when resolved from branch or current), alias: `state` |
 | `spacecraft clarify-status <open\|clear\|deferred>` | Set clarification status |
 | `spacecraft evidence [--mission <id>] <label> -- <command...>` | Run a command and capture evidence, alias: `evi` |
+| `spacecraft drift [--strict]` | Report docs↔mission drift (stdout only; default exit 0; `--strict` non-zero on findings) |
 | `spacecraft validate [--strict] [mission-id]` | Validate mission artifacts and evidence (not-doc-drift / not-10X-validate), alias: `val`. `--strict` also requires `exitCode` on every evidence entry and evidence for each done plan task |
 | `spacecraft closeout-check` | Check whether a mission is ready to close out, alias: `ship-check` |
 | `spacecraft ship-check` | Alias for `closeout-check` |

@@ -28,6 +28,10 @@ If unclear: research first; ask for preferences or unverifiable bars via `/sc-di
 
 Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission runs `sc-judge` (adversarial prove; ready only on `VERIFIED`). Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` (mission artifacts and evidence; not-doc-drift / not-10X-validate) + judge hunts.
 
+## Overnight `/sc-run`
+
+After `/sc-discuss` clear, AFK `/sc-run` avoids mid-HIL except hard blocks. Stop on `3-cycle` | `timebox` | `blocked`. On those stops write `.space/missions/<id>/handback.md` with stop reason + remaining work cue. Detail: `.cursor/skills/sc-run/SKILL.md`. No overnight runner CLI.
+
 ## Mission canvas artifacts (`/sc-run`)
 
 `/sc-run` may emit Cursor Canvas files under managed `canvases/` for human check after ready:
