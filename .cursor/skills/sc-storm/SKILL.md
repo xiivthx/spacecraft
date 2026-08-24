@@ -56,7 +56,7 @@ Commander confirms Synthesis is one path and Verify bar still comes from spec + 
 - `/sc-run` build, product code, tests
 - Inventing Verify
 - Always-on use
-- `/sc-research` slash (retired - this skill replaces that pointer)
+- Retired research lifecycle slash (replaced by this skill)
 
 ## References
 

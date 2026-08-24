@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.57.2 - 2026-08-24
+
+- Docs: lean cursor load layers — `.cursor/deprecated/` graveyard; clear live retired research slash
+- Docs: pilot-thin `sc-tdd` / `sc-run` / `010-hard-contract`; outcome gates pointer-only to `docs/mission-artifacts.md` (dual-tree)
+- Docs: load-layer convention locked (always-on thin / skill body mid / disclosed ref deep / deprecated out of live index)
+
 ## 0.57.1 - 2026-08-24
 
 - Docs: mid-ask unblock escapes for `/sc-discuss` — re-pitch, research (`sc-search` → `sc-storm`), visualize (bake-off or chat state table); no new slash skills
