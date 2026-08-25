@@ -1,8 +1,8 @@
 # Shared draft directives
 
-Always-on layer for draft HTML prompt assembly under `sc-ux-design`. Load this first; then project `DESIGN.md` when present; then the approved design brief / user content tail.
+Always-on layer for draft HTML prompt assembly under `sc-ux-design`. Load this first; then project `DESIGN.md` when present; then `references/design-principles.md`; then the approved design brief / user content tail.
 
-These directives are spacecraft house rules for **how** drafts are built - not a default aesthetic. Typography, palette, and layout personality come from `DESIGN.md` (when present) and the approved brief.
+These directives are spacecraft house rules for **how** drafts are built - not a default aesthetic. Typography, palette, and layout personality come from `DESIGN.md` (when present) and the approved brief. Judgment checklist (Must / Should): `references/design-principles.md`.
 
 **Layout bake-off:** When generating bake-off candidates (2–3 layouts before winner polish), still follow Tech + scaffold below, but the **full scenario matrix** may be deferred until the winning draft is polished for approval. Candidates must show distinct page structures and real primary-surface chrome (not wireframe boxes). Approval drafts must meet the full scenario matrix rules.
 
@@ -180,8 +180,14 @@ Each panel must show **real component chrome** (buttons, inputs, tables, empty s
 - Prefer distinctive, brief-driven type pairing and a deliberate palette. Cards and chrome stay subordinate to content; avoid nested cards, hero eyebrows/pill chips, gradient text, and identical icon+heading card grids unless the brief explicitly requires them.
 - On conflict between `DESIGN.md` / brief suggestion and the anti-slop catalog, **defer to the catalog** unless the human recorded an explicit exception in `decisions.md`.
 
+## Design principles
+
+- Load `references/design-principles.md` after `DESIGN.md` (when present) and before the brief/content tail.
+- Honor **Must** principles on every visual draft. Apply **Should** principles (Golden Ratio as modular scale, centric symmetry, Fibonacci rhythm) when they fit the brief and surface type (persuade vs operate); note deliberate skips in `[data-draft-notes]`.
+- Wireframe means brief layout structure + bake-off structure - not a separate gray-box artifact.
+
 ## Assemble reminder
 
 ```
-shared-draft-directives.md  →  DESIGN.md (if present)  →  brief / user content
+shared-draft-directives.md  →  DESIGN.md (if present)  →  design-principles.md  →  brief / user content
 ```

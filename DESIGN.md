@@ -78,6 +78,12 @@ The UI must not become a generic SaaS landing page, decorative toy, crypto dashb
 - One accent earns attention.
 - No generic AI SaaS visual tropes.
 
+**Always apply (Must)** - hierarchy, Responsive ladder (375 / 768 / 1280 / 1536), content priority, whitespace, consistency, a11y/readability, navigation, palette and type from this file / brief only, and brief/bake-off structure (real chrome - not a gray-box wireframe artifact).
+
+**Prefer when they fit (Should)** - modular scale near 1.25–1.618 (Golden Ratio as rhythm, not every region to φ); centric symmetry on persuade/hero; focused asymmetry OK on operate/dashboard; Fibonacci steps only when they clarify spacing rhythm.
+
+Full checklist and reporting (Must → critical; Should → important unless the brief required it): `.cursor/skills/sc-ux-design/references/design-principles.md`.
+
 ### CSS custom properties
 
 Map YAML tokens into app CSS (prefer these names at the entry stylesheet):

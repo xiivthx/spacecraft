@@ -26,9 +26,10 @@ When generating draft HTML, assemble the generation prompt in this **fixed order
 
 1. **Shared draft directives** - always load `references/shared-draft-directives.md` (tech + fidelity + scenario matrix + anti-slop alignment).
 2. **Design system** - when `DESIGN.md` exists at the project root (or package root for the UI), load it next as the house look / tokens / personality. If missing, skip this layer; the design brief phase must produce a candidate `DESIGN.md`.
-3. **Brief / content tail** - append the approved design brief, `spec.md` feature/state requirements, and any user-supplied copy or constraints last so they bind the earlier layers.
+3. **Design principles** - always load `references/design-principles.md` (Must / Should judgment checklist). Apply Must on every visual surface; apply Should when they fit the brief and surface type.
+4. **Brief / content tail** - append the approved design brief, `spec.md` feature/state requirements, and any user-supplied copy or constraints last so they bind the earlier layers.
 
-Do not reverse or interleave these layers. Shared directives set how drafts are built; `DESIGN.md` is the project look SoT when present; the brief/content tail is the mission-specific layout, states, and copy for this draft.
+Do not reverse or interleave these layers. Shared directives set how drafts are built; `DESIGN.md` is the project look SoT when present; design principles judge structure and craft; the brief/content tail is the mission-specific layout, states, and copy for this draft.
 
 ### Design brief (forced checkpoint - `/sc-discuss`)
 
@@ -52,13 +53,13 @@ Before clearing discuss on visual work (and before any UI implementation code):
    - `DESIGN conflict: update house` - edit `DESIGN.md` to the new SoT, then align the brief
    - `DESIGN conflict: keep house` - reject the new direction; brief stays on `DESIGN.md`
    Explicit user choice wins over `DESIGN.md` only after A or B is recorded. Anti-slop catalog still wins unless a catalog exception is also recorded.
-7. **Produce a design brief** covering 6 dimensions (align to `DESIGN.md` when it exists and conflict outcome is not mission exception / update-pending; invent a candidate system when `DESIGN.md` is missing):
+7. **Produce a design brief** covering 6 dimensions (align to `DESIGN.md` when it exists and conflict outcome is not mission exception / update-pending; invent a candidate system when `DESIGN.md` is missing). Also name surface type (`persuade` | `operate`) and fold `references/design-principles.md` Must items; note which Should items apply or are skipped:
    - **Product metaphor and mood** - e.g., "studio dashboard", "reading room"
    - **Typography direction** - display + body pairing with rationale
    - **Color palette** - 3–5 tokens: bg, surface, text, accent, danger
-   - **Layout structure** - first screen wireframe description
+   - **Layout structure** - first screen wireframe description (structure for bake-off - not a gray-box-only artifact)
    - **Motion intent** - subtle / standard / none
-   - **Spacing scale** - 4pt or 8pt base
+   - **Spacing scale** - 4pt or 8pt base (prefer modular steps near 1.25–1.618 when Should Golden Ratio / Fibonacci fit)
    Include borrow scope, extract citations (when refs supplied), product context summary (when brownfield), `UX checklist:` id or none, and conflict outcome lines when applicable.
 8. **Present the brief for user approval**. No implementation code until explicitly approved. When `DESIGN.md` was missing, the brief includes a candidate `DESIGN.md` for approval (seeded from references within the chosen borrow scope when present).
 
@@ -85,7 +86,7 @@ After design brief approval, before `/sc-run` / real implementation:
    Adjacent presets **Must not** be pixel-squeezed copies of each other when the UI has multi-region chrome - each step shows intentional adaptation (structure, density, nav treatment, column count, and/or content measure). Pairwise 375-vs-1280 alone is **insufficient** as the gate. **Blocking:** any preset that is only a horizontally squeezed version of another; any preset unusable/overflowing; widescreen = stretched desktop with no measure control when content is text-dense. Bake-off: candidates **Must** demonstrate the responsive ladder (spot-check all four), not only mobile vs desktop. Designer/approval: critique **Responsive ladder** across all four presets. Single-column content pages may keep one column but **Must** still adapt density/spacing/nav at each of the four presets (not identical chrome at all widths) - document `Responsive: single-column - density/nav adapt only` in chrome notes when intentional. Optional `decisions.md` line: `Responsive ladder: mobile=<note>; tablet=<note>; desktop=<note>; widescreen=<note>`. See `references/shared-draft-directives.md` for CSS patterns.
 4. **Dimension lock (iteration):** After the winner is chosen (or bake-off skipped), refine **one visual dimension per human round** - exactly one of: `typography` | `color` | `layout` | `motion` | `spacing` | `chrome`. Lock the others. Do not change type + color + layout in the same pass (whack-a-mole). Prefer feedback like "list diffs vs reference/draft; focus: <dimension>" over "make it look better." Optional: keep refs under `design/refs/` labeled by dimension. Record the active lock when useful: `Dimension lock: <dimension>`.
 
-5. **Polish the winning draft** with a full **scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. When `UX checklist: <id>` is recorded, include applicable `- [ ]` items from that id's file under `.cursor/skills/sc-ux-design/references/checklists/` as real chrome or `data-state` panels. Assemble the draft prompt per **Prompt assembly** above (shared directives → `DESIGN.md` when present → brief/content tail). Do not generate draft HTML until the design brief is approved. Filename stays versioned (`<name>-draft-vN.html` or keep the bake-off winner name and bump `vN` on major edits).
+5. **Polish the winning draft** with a full **scenario matrix** - enough for the human to judge look, structure, and state coverage. Not a wireframe-only sketch. When `UX checklist: <id>` is recorded, include applicable `- [ ]` items from that id's file under `.cursor/skills/sc-ux-design/references/checklists/` as real chrome or `data-state` panels. Assemble the draft prompt per **Prompt assembly** above (shared directives → `DESIGN.md` when present → `design-principles.md` → brief/content tail). Do not generate draft HTML until the design brief is approved. Filename stays versioned (`<name>-draft-vN.html` or keep the bake-off winner name and bump `vN` on major edits).
 
 6. **Every draft MUST include**: `data-draft="true"`; scaffold with `[data-draft-chrome]` (banner, notes, scenario switcher, viewport toggles) **outside** a visible `[data-draft-frame]` that wraps `[data-draft-surface]` (production UI only); versioned filename; CSS custom properties for brief tokens on the surface; after bake-off (or skip), a **surface-relevant** scenario matrix of `data-state` panels inside the surface (happy path + failure/degraded the surface can enter; `loading` when async; `empty`/`few`/`many` when the surface presents a variable-length collection; plus feature/behavior surfaces from `spec.md`). Each panel shows real component chrome - not layout boxes only. Bake-off candidates may defer full matrix until the winner polish step.
 
@@ -155,6 +156,7 @@ Optional scripted audit (same Playwright family):
 - **Must not**: Walk the catalog or require more than one id; use an external checklist site or its AI review as a spacecraft gate.
 - **Must**: When brownfield, read parent shell/layout and nearby page patterns before drafting; bake-off candidates include existing app chrome for in-app screens.
 - **Must**: Read `DESIGN.md` when present and use it as the default look before drafting.
+- **Must**: Load `references/design-principles.md` during brief, bake-off, draft polish, and designer critique; honor Must principles; apply Should (Golden Ratio / centric symmetry / Fibonacci) when they fit; note deliberate Should skips in draft chrome notes.
 - **Must**: When references are supplied, run `references/reference-extract.md` before the brief; produce `design/refs/extract.md`; record `Reference extract: design/refs/extract.md` and human-confirmed `Reference borrow:` in `decisions.md`; brief must cite extract rows.
 - **Must**: When references are supplied, record exactly one borrow scope (`mood` | `tokens` | `layout` | `chrome`) in the brief and `decisions.md`.
 - **Must**: When proposed style conflicts with `DESIGN.md`, ask once and record `DESIGN conflict: mission exception | update house | keep house` before drafting.
@@ -279,6 +281,7 @@ Before claiming UI implementation is ready:
 ## References
 
 - `references/shared-draft-directives.md` - always-on draft prompt layer (tech, fidelity, responsive structure, scenario matrix, anti-slop alignment)
+- `references/design-principles.md` - Must / Should design principles (hierarchy, responsive, a11y, palette/type; Golden Ratio / symmetry / Fibonacci as Should)
 - `references/layout-patterns.md` - page structure catalog for brief + layout bake-off selection
 - `references/checklists/README.md` - item SoT (aliases; load only the recorded id)
 - `references/surface-checklist.md` - discuss/designer adapter (record `UX checklist:`; Read one file; designer scores `- [ ]` items)
