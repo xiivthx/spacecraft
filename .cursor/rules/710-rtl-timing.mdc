@@ -1,0 +1,33 @@
+---
+description: FPGA timing and CDC constraints (XDC/SDC/PCF) - Fmax and metastability
+alwaysApply: false
+globs: "**/*.{sdc,xdc,pcf},**/constraints/**,**/fpga/**/*.tcl"
+---
+
+# RTL timing / CDC (710)
+
+Thin always-on when editing constraints or FPGA timing scripts. Depth: `sc-rtl-verify` timing gate.
+
+## Clocks
+
+- Declare every primary clock; set period from SPEC / board (e.g. 50 MHz → 20 ns)
+- Generated clocks (MMCM/PLL): define with correct multiply/divide; do not leave inferred-only
+- Related synchronous clocks: keep timed unless SPEC says otherwise
+
+## CDC (async domains)
+
+- Structural sync: ≥2 FF chain on single-bit async signals; mark sync flops (`ASYNC_REG` / vendor keep) so they are not optimized away
+- Do **not** use bare 2FF sync for multi-bit data or handshake protocols - use gray FIFO / valid-ready with proper sync
+- Constraints: `set_clock_groups -asynchronous` **or** scoped `set_false_path` / `set_max_delay -datapath_only` for controlled latency - pick one policy and document
+- Never leave async CDC paths fully timed without exception (false slack kills closure)
+
+## Reset
+
+- Sync deassert into each clock domain at system boundary (reset controller), not buried inside reusable IP
+- Do not gate free-running reset with random datapath logic
+
+## Closure evidence
+
+- After PnR: timing report must meet target Fmax (or document miss + plan)
+- Resource / LUT headroom: check against target report - fail closed if over budget without waiver
+- Open flow (Yosys/nextpnr): treat nextpnr timing / `icetime` (or project report) as evidence via `spacecraft evidence`

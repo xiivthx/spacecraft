@@ -59,7 +59,7 @@ if [ -f "$profile" ] && python3 -m json.tool "$profile" >/dev/null 2>&1; then
     fi
   }
   # Defaults: all catalog domain skills absent unless pack selected.
-  fe=absent be=absent db=absent emb=absent qu=absent
+  fe=absent be=absent db=absent emb=absent qu=absent fpga=absent
   for p in $packs; do
     case "$p" in
       frontend) fe=present ;;
@@ -67,6 +67,7 @@ if [ -f "$profile" ] && python3 -m json.tool "$profile" >/dev/null 2>&1; then
       database) db=present ;;
       embedded) emb=present ;;
       quality) qu=present ;;
+      fpga) fpga=present ;;
     esac
   done
   check_skill_pack sc-web-frontend "$fe"
@@ -75,12 +76,14 @@ if [ -f "$profile" ] && python3 -m json.tool "$profile" >/dev/null 2>&1; then
   check_skill_pack sc-web-backend "$be"
   check_skill_pack sc-database "$db"
   check_skill_pack sc-firmware "$emb"
+  check_skill_pack sc-rtl "$fpga"
+  check_skill_pack sc-rtl-verify "$fpga"
   check_skill_pack sc-security "$qu"
   check_skill_pack sc-performance "$qu"
   check_skill_pack sc-solid "$qu"
   check_skill_pack sc-architect "$qu"
   check_skill_pack sc-diagram "$qu"
-  for id in iot fpga pcb management; do
+  for id in iot pcb management; do
     if [ -e "$TARGET/.cursor/skills/$id" ]; then
       bad "fictional coming-pack skill dir $id present"
     else

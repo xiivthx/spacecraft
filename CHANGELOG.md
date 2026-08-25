@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Feat: deepen pack `fpga` — glob rules `700`/`710`/`720` + skill `sc-rtl-verify` (lint→sim→ISA/ACT→formal→STA evidence)
+- Feat: promote pack `fpga` to selectable with domain skill `sc-rtl` + agent `sc-rtl` (SystemVerilog / RISC-V multi-cycle RTL)
+- Docs: wire `sc-rtl` into Commander / sc-run / sc-tdd / sc-planning / sc-browser-probe Task routes
+
 ## 0.58.0 - 2026-08-24
 
 - Feat: Spacecraft marketing landing at `docs/landing/index.html` — Orbital Console hero-split, Install CTA, discuss/run/ship positioning

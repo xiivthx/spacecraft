@@ -1,0 +1,30 @@
+---
+description: RTL / FPGA verification gates - lint, sim, ISA, formal, evidence
+alwaysApply: false
+globs: "**/tb/**,**/test/**,**/*_tb.sv,**/*_test.sv,**/cocotb/**,**/*formal*/**,**/*.sby"
+---
+
+# RTL verify (720)
+
+Thin always-on when editing testbenches or formal. Process depth: skill `sc-rtl-verify`.
+
+## Layers (cheap → expensive)
+
+1. **Lint / structural** - Verilator lint; Yosys `check` / no latches; CDC awareness
+2. **Self-checking sim** - directed + scoreboard/assertions; exit non-zero on fail; observe-first `$display` for HW bugs
+3. **ISA / arch** - when CPU in scope: Spike/Sail compare or riscv-arch-test (ACT) for SPEC subset - ACT is a **filter**, not full DV
+4. **Formal** - SymbiYosys / riscv-formal (RVFI) on critical properties when tools exist; else document skip
+5. **Impl** - synth + PnR timing (see rule `710`)
+
+## Must
+
+- Prefer repo Makefile/CI targets; capture with `spacecraft evidence "<label>" -- <cmd>`
+- Passive TB (no checker) is **not** a pass - need assert, scoreboard, or signature compare
+- Waive only with greppable rationale (system-level, tool noise, out-of-scope ISA)
+- Coverage (line/FSM/functional) is meaningful only against a written plan - do not treat 100% line alone as signoff
+
+## Must not
+
+- Claim "no bugs" from lint-clean alone
+- Skip observe-first on hardware fails (rule out abstract wire guessing)
+- Invent formal/ACT tooling mid-mission if not in project - record `Verify skipped: <tool>` and keep sim gates

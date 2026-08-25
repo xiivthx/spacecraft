@@ -161,9 +161,9 @@ spacecraft setup --reconfigure --packs quality
 | Profile present | Silent reconcile from `.cursor/spacecraft-profile.json` (commit it with the project) |
 | `--reconfigure` | Deliberate pack change when a profile already exists; rewrite profile; install + prune |
 
-**Selectable** packs (v1): `frontend`, `backend`, `database`, `embedded`, `quality`.
+**Selectable** packs (v1): `frontend`, `backend`, `database`, `embedded`, `quality`, `fpga` (`sc-rtl`, `sc-rtl-verify`, rules `700`/`710`/`720`).
 
-**Coming** packs (listed, not installable): `iot`, `fpga`, `pcb`, `management`.
+**Coming** packs (listed, not installable): `iot`, `pcb`, `management`.
 
 `SPACECRAFT_PACKS=a,b` is the same as `--packs` when the flag is absent. `./bootstrap.sh` and `make install-project` share this reconcile path.
 
@@ -204,7 +204,7 @@ After restarting Cursor:
 1. Open the installed project.
 2. Confirm `/sc-discuss`, `/sc-run`, `/sc-ship`, and `/sc-quick` are available as skills.
 3. Confirm detail skill `sc-storm` is discoverable (Tier 3 open-domain research; not a lifecycle slash).
-4. Confirm the agents are discoverable from the User layer (`~/.cursor/agents/`): `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, `sc-firmware`, `sc-writer`, and `sc-browser-probe`.
+4. Confirm the agents are discoverable from the User layer (`~/.cursor/agents/`): `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, `sc-firmware`, `sc-rtl`, `sc-writer`, and `sc-browser-probe`.
 5. Approve the project MCP server if Cursor asks for confirmation.
 
 Workflow prompts are Agent Skills under `.cursor/skills/` (explicit `/` via `disable-model-invocation: true`). Do not migrate them to `.cursor/commands/` - Cursor's direction is Commands → Skills (`/migrate-to-skills`).
