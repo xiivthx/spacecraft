@@ -19,11 +19,12 @@ help:
 	@echo "  test-install    Bootstrap/install smoke into a throwaway temp dir"
 	@echo "  test-gen-user-rules  RED/GREEN test for scripts/gen-user-rules.sh"
 	@echo "  gate            Node CLI tests + Cursor hook unit tests (hooks_test.sh)"
-	@echo "  install         build + link CLI into ~/.local/bin + smoke check"
-	@echo "  install-project Install full .cursor surface into PROJECT=<dir> (default .)"
-	@echo "  install-global  Install agents + lean-core skills + MCP into ~/.cursor (careful)"
-	@echo "                  advanced escape hatch: SPACECRAFT_SKILL_PROFILE=full or FULL=1 (User encyclopedias; prefer project packs)"
-	@echo "  install-machine Link Node CLI + one-shot User-layer install via scripts/install-machine.sh"
+	@echo "  install         Default: User-layer (install-global) + CLI link + smoke"
+	@echo "  install-global  Same User-layer step alone (agents + lean skills + MCP into ~/.cursor)"
+	@echo "                  advanced: SPACECRAFT_SKILL_PROFILE=full or FULL=1 (User encyclopedias)"
+	@echo "  install-machine New PC: durable clone + install-global + caveman/rtk/codegraph"
+	@echo "  (project)       Prefer: spacecraft setup   (alias: make install-project PROJECT=<dir>)"
+	@echo "  install-project Install project .cursor surface into PROJECT=<dir> (default .)"
 	@echo "  install-antigravity         Install global Spacecraft plugin for Antigravity"
 	@echo "  install-antigravity-project Install Spacecraft into project .agents/ for Antigravity (PROJECT=<dir>)"
 	@echo "  sync-antigravity            Regenerate/sync Antigravity plugin rules, skills, subagents, and hooks"
@@ -63,9 +64,9 @@ build:
 	chmod +x $(ROOT)/cli/spacecraft.mjs
 	ln -sf $(ROOT)/cli/spacecraft.mjs $(BIN)
 
-# Safe default: wire the Node CLI, link it, and validate. Config stays project-local
-# (this repo already carries .cursor/ and .space/).
-install: build install-cli smoke
+# Default front door: User-layer + CLI + smoke (lean mental model: install | setup | install-machine).
+# install-global alone remains for scripts that only need ~/.cursor refresh.
+install: install-global smoke
 
 install-cli: build
 	@mkdir -p $(LOCAL_BIN)
@@ -73,6 +74,7 @@ install-cli: build
 	@echo "cli -> $(LOCAL_BIN)/spacecraft"
 
 # Copy the full .cursor surface + .space scaffold into another project.
+# Prefer: spacecraft setup (same pack path). Keep make target as alias.
 install-project:
 	@sh $(ROOT)/scripts/install-cursor.sh "$(PROJECT)" "$(ROOT)"
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"

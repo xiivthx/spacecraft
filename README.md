@@ -20,7 +20,15 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 
 ## Installation
 
-Spacecraft installs in two layers: a **User layer** (once per machine) for agents, lean-core skills, MCP, the CLI, and global safety hooks - plus a short `~/.cursor/spacecraft/USER-RULES.txt` CORE (`010-hard-contract`). Paste into Settings -> Rules -> User Rules after regen. And a **Project layer** (`./bootstrap.sh`, `make install-project`, or `spacecraft setup`) for alwaysApply hard-contract, **pack-selected** domain skills/rules, `session-start`, and **safety hooks** (secrets / destructive / main-write / ship+push-ask) so cloud agents get the same gates. Lean-core lifecycle skills and agents stay User layer (`~/.cursor`).
+Spacecraft installs in two layers. **Front door (lean):**
+
+| Command | Role |
+|---|---|
+| `make install` | User layer + CLI + smoke (default on a checkout) |
+| `spacecraft setup` | Project layer packs (per repo) |
+| `make install-machine` | New PC: clone + User layer + companions |
+
+User layer: agents, lean-core skills, MCP, the CLI, global safety hooks, plus a short `~/.cursor/spacecraft/USER-RULES.txt` CORE (`010-hard-contract`). Paste into Settings -> Rules -> User Rules after regen. Project layer (`spacecraft setup`, `./bootstrap.sh`, or `make install-project`): alwaysApply hard-contract, **pack-selected** domain skills/rules, `session-start`, and **safety hooks** (secrets / destructive / main-write / ship+push-ask). Lean-core lifecycle skills and agents stay User layer (`~/.cursor`).
 
 **Enforcement map:** hooks = hard; `010-hard-contract` = always-on soft; skills/glob rules = on demand. Markdown alone does not block `.env` reads or push.
 
@@ -32,28 +40,28 @@ cd spacecraft
 make install-machine
 ```
 
-User layer only (default **lean**: lifecycle + process skills):
+**Existing checkout** - refresh User layer + CLI + smoke:
 
 ```sh
-make install-global
+make install
 ```
 
-Lean reconcile prunes spacecraft-managed domain encyclopedia skills under `~/.cursor/skills` that sit outside the lean allowlist; unrelated files under `~/.cursor` stay put.
+`make install-global` alone remains if you only need `~/.cursor` without smoke. Lean reconcile prunes spacecraft-managed domain encyclopedia skills under `~/.cursor/skills` that sit outside the lean allowlist; unrelated files under `~/.cursor` stay put.
 
 **Default project path:** install **selected** domain packs locally with `spacecraft setup` / `./bootstrap.sh` - no User `--full` required. Choose packs with `spacecraft setup` (interactive default: **quality**; coming packs such as `iot`/`pcb`/`management` are listed but not installable). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`, or fails. Existing `.cursor/spacecraft-profile.json` → silent reconcile; change packs with `--reconfigure`. User-layer lean stays the default; lean-core stays out of the project layer.
 
-Advanced escape hatch only - not the recommended default: User `--full` via `SPACECRAFT_SKILL_PROFILE=full` or `make install-global FULL=1` installs domain encyclopedias into `~/.cursor/skills`:
+Advanced escape hatch only - not the recommended default: User `--full` via `SPACECRAFT_SKILL_PROFILE=full` or `make install FULL=1` / `make install-global FULL=1` installs domain encyclopedias into `~/.cursor/skills`:
 
 ```sh
-SPACECRAFT_SKILL_PROFILE=full make install-global
-# or: make install-global FULL=1
+make install FULL=1
+# or: SPACECRAFT_SKILL_PROFILE=full make install-global
 ```
 
 Project layer (per repo) - recommended default for domain skills:
 
 ```sh
-./bootstrap.sh /path/to/project
-# or: spacecraft setup --packs frontend,quality
+spacecraft setup --packs frontend,quality
+# or: ./bootstrap.sh /path/to/project
 ```
 
 Bootstrap / `install-cursor` first `.space` create also ensures git (init if needed), starter `.gitignore` with `.space/`, seeds missing `docs/` map and conventions stubs, and may soft-run `codegraph init` when no `.codegraph/` index exists (warn and continue on missing binary or failure).
@@ -121,7 +129,7 @@ Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workfl
 
 ## Agents
 
-Cursor discovers specialized agents from the User layer (`~/.cursor/agents/` after `make install-global` / `make install-machine`):
+Cursor discovers specialized agents from the User layer (`~/.cursor/agents/` after `make install` / `make install-machine`):
 
 - `sc-coder` - implements production code
 - `sc-tester` - writes tests and captures verification evidence
