@@ -54,7 +54,7 @@ When `outputs/map.json` exists, prefer touchpoints for `files`, flag high-consum
 
 ## Out of scope
 
-Draft UI - `/sc-discuss` + sc-ux-design. Implementation - sc-coder / sc-firmware. Evidence - sc-verification. Clarify - `/sc-discuss`.
+Draft UI - `/sc-discuss` + sc-ux-design. Implementation - sc-coder / sc-firmware / sc-rtl. Evidence - sc-verification. Clarify - `/sc-discuss`.
 
 ## References
 

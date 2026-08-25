@@ -40,7 +40,7 @@ make install-global
 
 Lean reconcile prunes spacecraft-managed domain encyclopedia skills under `~/.cursor/skills` that sit outside the lean allowlist; unrelated files under `~/.cursor` stay put.
 
-**Default project path:** install **selected** domain packs locally with `spacecraft setup` / `./bootstrap.sh` - no User `--full` required. Choose packs with `spacecraft setup` (interactive default: **quality**; coming packs such as `iot`/`fpga`/`pcb`/`management` are listed but not installable). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`, or fails. Existing `.cursor/spacecraft-profile.json` → silent reconcile; change packs with `--reconfigure`. User-layer lean stays the default; lean-core stays out of the project layer.
+**Default project path:** install **selected** domain packs locally with `spacecraft setup` / `./bootstrap.sh` - no User `--full` required. Choose packs with `spacecraft setup` (interactive default: **quality**; coming packs such as `iot`/`pcb`/`management` are listed but not installable). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`, or fails. Existing `.cursor/spacecraft-profile.json` → silent reconcile; change packs with `--reconfigure`. User-layer lean stays the default; lean-core stays out of the project layer.
 
 Advanced escape hatch only - not the recommended default: User `--full` via `SPACECRAFT_SKILL_PROFILE=full` or `make install-global FULL=1` installs domain encyclopedias into `~/.cursor/skills`:
 
@@ -130,6 +130,8 @@ Cursor discovers specialized agents from the User layer (`~/.cursor/agents/` aft
 - `sc-designer` - reviews UI and visual design quality
 - `sc-adviser` - advises on complex architecture and logic
 - `sc-firmware` - implements STM32 firmware and embedded C
+- `sc-rtl` - implements SystemVerilog / FPGA RTL (RISC-V multi-cycle defaults)
+- `sc-rtl-verify` - RTL/FPGA verification gates (lint, sim, ISA, formal, STA evidence)
 - `sc-writer` - writes and edits docs, prompts, messages, and other non-code prose
 - `sc-browser-probe` - live browser sweep + AFK find→fix→re-probe until CLEAN
 

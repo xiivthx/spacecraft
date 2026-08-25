@@ -82,6 +82,7 @@ const PACK_SKILLS = Object.freeze({
     'sc-architect',
     'sc-diagram',
   ],
+  fpga: ['sc-rtl', 'sc-rtl-verify'],
 });
 
 /** Frozen design-contract pack → rules (v1; always-on separate). */
@@ -95,6 +96,7 @@ const PACK_RULES = Object.freeze({
     '620-firmware-testing.mdc',
   ],
   quality: ['300-security.mdc', '400-performance.mdc'],
+  fpga: ['700-rtl.mdc', '710-rtl-timing.mdc', '720-rtl-verify.mdc'],
 });
 
 /** S4 frozen: reconfigure to quality only after frontend+quality. */
@@ -109,8 +111,8 @@ const S4_KEPT_RULES = [...PACK_RULES.quality, ALWAYS_ON_RULE];
 const S5_DEFAULT_SELECTION = ['quality'];
 
 /** S6 frozen: coming pack ids (never in profile). */
-const S6_COMING = ['iot', 'fpga', 'pcb', 'management'];
-const S6_SELECTABLE = ['frontend', 'backend', 'database', 'embedded', 'quality'];
+const S6_COMING = ['iot', 'pcb', 'management'];
+const S6_SELECTABLE = ['frontend', 'backend', 'database', 'embedded', 'quality', 'fpga'];
 
 function sorted(arr) {
   return [...arr].sort();

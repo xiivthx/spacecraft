@@ -30,9 +30,9 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../
 const CATALOG_PATH = path.join(repoRoot, '.cursor', 'spacecraft-packs.json');
 
 /** Frozen design-contract selectable ids. */
-const SELECTABLE = ['frontend', 'backend', 'database', 'embedded', 'quality'];
+const SELECTABLE = ['frontend', 'backend', 'database', 'embedded', 'quality', 'fpga'];
 /** Frozen design-contract coming-only ids. */
-const COMING = ['iot', 'fpga', 'pcb', 'management'];
+const COMING = ['iot', 'pcb', 'management'];
 
 /** Frozen pack → skills / rules (design-contract v1). Always-on not in pack rows. */
 const PACK_MAP = {
@@ -65,6 +65,14 @@ const PACK_MAP = {
       'sc-diagram',
     ],
     rules: ['300-security.mdc', '400-performance.mdc'],
+  },
+  fpga: {
+    skills: ['sc-rtl', 'sc-rtl-verify'],
+    rules: [
+      '700-rtl.mdc',
+      '710-rtl-timing.mdc',
+      '720-rtl-verify.mdc',
+    ],
   },
 };
 

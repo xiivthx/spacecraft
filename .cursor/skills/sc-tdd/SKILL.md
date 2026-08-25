@@ -17,7 +17,7 @@ Design-contract → Plan → Red → Green → Verify → Repeat; then Refactor 
 2. **Before first product RED/GREEN (`/sc-run`)** - `Design-contract: complete` or skipped docs/prose; `Approved-scenarios:` freeze or skipped docs/prose (`docs/mission-artifacts.md`). Missing on behavioral work → stop; write via sc-planning. Frozen literals = RED oracle.
 3. **Plan** - seam (public boundary), expected from Edge matrix / frozen scenario / spec, independent expected value. One condition per test.
 4. **Red** - Task(`sc-tester`); one acceptance → one RED; deep assert via public interface. Passes without impl → rewrite. No shallow asserts.
-5. **Green** - Task(`sc-coder`/`sc-firmware`); minimum production code. **Coder Must not edit tests.**
+5. **Green** - Task(`sc-coder`/`sc-firmware`/`sc-rtl`); minimum production code. **Coder Must not edit tests.**
 6. **Verify** - package suite; `spacecraft evidence "<label>" -- <cmd>`. Repeat next acceptance.
 7. **After checks** - Refactor; functional suite evidence; outcome A/B/C/PBT disposition via `docs/mission-artifacts.md` only; then Review.
 

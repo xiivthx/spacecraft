@@ -59,6 +59,7 @@ const PACK_SKILLS = Object.freeze({
     'sc-architect',
     'sc-diagram',
   ],
+  fpga: ['sc-rtl', 'sc-rtl-verify'],
 });
 
 /** Frozen design-contract pack → rules (v1; always-on separate). */
@@ -72,6 +73,7 @@ const PACK_RULES = Object.freeze({
     '620-firmware-testing.mdc',
   ],
   quality: ['300-security.mdc', '400-performance.mdc'],
+  fpga: ['700-rtl.mdc', '710-rtl-timing.mdc', '720-rtl-verify.mdc'],
 });
 
 const S2_PACKS = ['frontend', 'quality'];

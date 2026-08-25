@@ -48,9 +48,13 @@
     },
     {
       "id": "fpga",
-      "status": "coming",
-      "skills": [],
-      "rules": []
+      "status": "selectable",
+      "skills": ["sc-rtl", "sc-rtl-verify"],
+      "rules": [
+        "700-rtl.mdc",
+        "710-rtl-timing.mdc",
+        "720-rtl-verify.mdc"
+      ]
     },
     {
       "id": "pcb",

@@ -173,7 +173,7 @@ When any finding exists and URL is runnable:
 ```
 while findings nonempty AND not stopped:
   1. Prefer critical → important → minor
-  2. Task(`sc-tester`) when a failing test is the right gate; else Task(`sc-coder`/`sc-firmware`) with repro + requiredFix
+  2. Task(`sc-tester`) when a failing test is the right gate; else Task(`sc-coder`/`sc-firmware`/`sc-rtl`) with repro + requiredFix
   3. Commander Must not write product code/tests - only Task-delegate
   4. Re-run focused scenarios + failed coverage rows (full re-sweep when unclear)
   5. Same root issue fails verify **3** times → stop; hand human with repro + attempts
@@ -241,7 +241,7 @@ After small fix outside mission: run this skill on the touched surface when user
 - **Must**: Diverse scenarios per matrix minimums when in scope, plus extra buckets when that pack is present
 - **Must**: Findings include severity + repro (or blocked reason)
 - **Must**: Fix-loop every finding (including minor) until CLEAN, or stop with `3-cycle:` / `timebox:` / `blocked:`
-- **Must**: Task-delegate product fixes (`sc-coder` / `sc-tester` / `sc-firmware`); no Commander product edits
+- **Must**: Task-delegate product fixes (`sc-coder` / `sc-tester` / `sc-firmware` / `sc-rtl`); no Commander product edits
 - **Must**: When invoked from `/sc-run` on UI/workflow work, run AFK via Task(`sc-browser-probe`) - no recommend-only handoff
 - **Must not**: Treat quality-tier / mutation out-of-scope as a probe waive — UI/workflow still requires `PROBE: CLEAN` (non-UI skip only)
 - **Must not**: Expertise cosplay ("as a QA expert…")

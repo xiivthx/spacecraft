@@ -123,7 +123,7 @@ echo "  ok   install-project omits agents (no sc-*.md under project .cursor/agen
 # Omit backend/database/embedded — no legacy all-packs assert.
 project_skills="$tmp/.cursor/skills"
 project_selected_skills="sc-web-frontend sc-ux-design sc-browser-probe sc-security sc-performance sc-solid sc-architect sc-diagram"
-project_omit_skills="sc-web-backend sc-database sc-firmware"
+project_omit_skills="sc-web-backend sc-database sc-firmware sc-rtl sc-rtl-verify"
 for skill in $project_selected_skills; do
   test -f "$project_skills/$skill/SKILL.md" \
     || { echo "FAIL: install-project missing selected-pack skill $skill under $project_skills (selective project layer; no User --full)"; exit 1; }
@@ -196,7 +196,7 @@ printf '%s\n' '{"version":1,"hooks":{"beforeShellExecution":[{"command":".cursor
 sel_fq_skills="sc-web-frontend sc-ux-design sc-browser-probe sc-security sc-performance sc-solid sc-architect sc-diagram"
 sel_fq_rules="150-design.mdc 300-security.mdc 400-performance.mdc 010-hard-contract.mdc"
 # Catalog-managed paths for packs NOT selected (backend / database / embedded)
-sel_omit_skills="sc-web-backend sc-database sc-firmware"
+sel_omit_skills="sc-web-backend sc-database sc-firmware sc-rtl sc-rtl-verify"
 sel_omit_rules="500-database.mdc 600-firmware.mdc 610-firmware-peripherals.mdc 620-firmware-testing.mdc"
 # Frozen quality-only after prune (S4 / E4)
 sel_q_skills="sc-security sc-performance sc-solid sc-architect sc-diagram"
@@ -325,7 +325,7 @@ if [ "$ntty_rc" -eq 0 ]; then
   echo "FAIL: non-TTY install without packs/profile exited 0 (expected non-zero)"
   exit 1
 fi
-for skill in sc-web-frontend sc-web-backend sc-database sc-firmware sc-solid sc-security; do
+for skill in sc-web-frontend sc-web-backend sc-database sc-firmware sc-rtl sc-rtl-verify sc-solid sc-security; do
   if [ -e "$ntty_proj/.cursor/skills/$skill" ]; then
     echo "FAIL: non-TTY fail path installed domain skill $skill (no silent all-packs)"
     exit 1
@@ -346,7 +346,7 @@ if [ "$coming_rc" -eq 0 ]; then
   echo "FAIL: SPACECRAFT_PACKS=iot exited 0 (coming pack must reject)"
   exit 1
 fi
-for id in iot fpga pcb management; do
+for id in iot pcb management; do
   if [ -e "$coming_proj/.cursor/skills/$id" ]; then
     echo "FAIL: coming pack path created fictional skill dir $id under $coming_proj/.cursor/skills"
     exit 1
@@ -374,7 +374,7 @@ for skill in sc-security sc-performance sc-solid sc-architect sc-diagram; do
   test -f "$idem_skills/$skill/SKILL.md" \
     || { echo "FAIL: after idempotent re-run missing quality skill $skill under $idem_skills"; exit 1; }
 done
-for skill in sc-web-frontend sc-ux-design sc-browser-probe sc-web-backend sc-database sc-firmware; do
+for skill in sc-web-frontend sc-ux-design sc-browser-probe sc-web-backend sc-database sc-firmware sc-rtl sc-rtl-verify; do
   if [ -e "$idem_skills/$skill" ]; then
     echo "FAIL: after idempotent re-run unexpected non-quality skill $skill under $idem_skills"
     exit 1
@@ -457,7 +457,7 @@ echo "  ok   install-global installs sc-run, sc-ship, sc-quick, sc-storm, lens-p
 # lifecycle + process only; domain encyclopedias stay out of ~/.cursor/skills.
 global_skills="$fake_home/.cursor/skills"
 lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
-domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware"
+domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware sc-rtl sc-rtl-verify"
 for skill in $lean_skills; do
   test -f "$global_skills/$skill/SKILL.md" \
     || { echo "FAIL: lean install-global missing lean-core skill $skill under $global_skills"; exit 1; }
