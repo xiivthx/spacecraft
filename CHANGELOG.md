@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.58.1 - 2026-08-25
 
 - Feat: deepen pack `fpga` — glob rules `700`/`710`/`720` + skill `sc-rtl-verify` (lint→sim→ISA/ACT→formal→STA evidence)
 - Feat: promote pack `fpga` to selectable with domain skill `sc-rtl` + agent `sc-rtl` (SystemVerilog / RISC-V multi-cycle RTL)
