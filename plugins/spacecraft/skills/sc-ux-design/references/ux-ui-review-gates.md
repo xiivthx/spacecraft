@@ -37,6 +37,7 @@ Required dimensions depend on phase (discuss vs run). Mark **required** when the
 | **Draft parity** | n/a | required | Paired draft-surface + live screenshots at matching viewports (375 / 768 / 1280, + 1536 when multi-region): serve/open approved draft HTML and capture `[data-draft-surface]` (ignore chrome/frame); capture matching live product shots; both path sets in evidence / `decisions.md`; CSS token variables vs draft; `data-state` mapping; Step 0 checklist. Missing pair ⇒ `fail` / `uncertain` | Side-by-side LLM/browser compare of draft vs live for tokens, layout, component chrome, and applicable scenario states; layout-only match with different chrome; subtle spacing/type drift |
 | **Live product review** | n/a | **required** | Running product URL reachable; live screenshot paths in evidence at 375 / 768 / 1280 (+ 1536 when multi-region); those live shots also feed the draft-parity pair | House look and draft chrome on live; anti-slop on live; hierarchy and clutter; first-viewport composition when landing/marketing; a11y blockers visible in shots |
 | **Anti-slop / catalog** | recommended | required | `npx impeccable detect` (Tier 1 CLI + browser-rendered rules) | Tier 2 heuristics (glassmorphism, extreme radius, amateur SVG, hero metrics, identical grids) |
+| **Design principles** | recommended | recommended | Load `references/design-principles.md`; note deliberate Should skips in chrome notes | Must gaps → critical; Should misses → important (critical only if brief explicitly required them); persuade vs operate bias |
 | **Accessibility blockers** | when in scope | when in scope | Obvious missing labels on form controls in HTML; `prefers-reduced-motion` respected in CSS | Contrast/focus/keyboard gaps when visually obvious in draft or product |
 | **Motion intent vs draft** | when motion in brief | required when motion in brief | `prefers-reduced-motion`; duration/easing within `animation-guidelines.md` | Motion feel matches brief/draft intent |
 | **Product continuity** | required when brownfield | required when brownfield | `Product context:` paths recorded; shell files exist | Draft/product reflects parent shell/nav patterns; no floating marketing shell on in-app pages |
@@ -73,6 +74,7 @@ UX/UI review (ux-ui-review-gates):
 - draft-parity: pass | fail | uncertain - <reason>  (run only)
 - live-product: pass | fail | uncertain - <reason>  (run only)
 - anti-slop: pass | fail | uncertain - <reason>
+- design-principles: pass | fail | uncertain | n/a - <reason>  (Must gaps fail; Should-only miss → note important, not fail alone)
 - a11y-blockers: pass | fail | uncertain | n/a - <reason>
 - motion-intent: pass | fail | uncertain | n/a - <reason>
 - product-continuity: pass | fail | uncertain | n/a - <reason>

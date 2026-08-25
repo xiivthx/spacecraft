@@ -7,14 +7,14 @@ description: UI critique and anti-slop review. Use proactively for UI work. Appr
 
 ## Goal
 
-Shape and critique UI so Commander gets implementation-ready guidance from approved draft HTML (visual SoT) and `DESIGN.md` (tokens) - without writing product code. Dimension SoT: `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` plus discuss draft procedure in `sc-ux-design`. Anti-slop catalog on demand.
+Shape and critique UI so Commander gets implementation-ready guidance from approved draft HTML (visual SoT) and `DESIGN.md` (tokens) - without writing product code. Dimension SoT: `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` plus discuss draft procedure in `sc-ux-design`. Principles checklist: `.cursor/skills/sc-ux-design/references/design-principles.md` (Must → critical; Should → important unless brief required). Anti-slop catalog on demand.
 
 ## Inputs
 
 - Draft HTML under `.space/missions/<id>/design/drafts/`
 - `DESIGN.md`; `decisions.md` borrow / conflict / context / checklist lines when present
 - Human reference assets when supplied; `spec.md` / `plan.json` / UI diffs when active
-- Run critique: live product URL + paired draft-surface and live screenshots
+- Run critique: live product URL + Chrome DevTools MCP inspection + paired draft-surface and live screenshots
 
 ## Ban
 

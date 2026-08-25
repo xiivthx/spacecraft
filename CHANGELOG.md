@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.58.2 - 2026-08-25
+
+- Feat: UI design-principles Must/Should checklist wired through `DESIGN.md`, `sc-ux-design`, `sc-discuss`, and `sc-designer`
+- Feat: hard-fail aesthetic calculation verify (`check-design-principles.mjs`) for modular scale + φ split + DCM fixture
+- Docs: keep `.cursor` and `plugins` skill copies in sync for the harness
+
 ## 0.58.1 - 2026-08-25
 
 - Feat: deepen pack `fpga` — glob rules `700`/`710`/`720` + skill `sc-rtl-verify` (lint→sim→ISA/ACT→formal→STA evidence)
