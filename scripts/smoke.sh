@@ -115,11 +115,18 @@ if [ -f "$TARGET/.cursor/rules/010-hard-contract.mdc" ]; then
 else
   bad "010-hard-contract.mdc missing under project .cursor/rules/"
 fi
-leftover_agents=$(find "$TARGET/.cursor/agents" -maxdepth 1 -type f -name 'sc-*.md' 2>/dev/null | head -n 1)
-if [ -n "$leftover_agents" ]; then
-  bad "spacecraft agent present under project .cursor/agents (User-layer only): $leftover_agents"
+# Agents are User-layer only for consumer projects (install-project prunes them).
+# The spacecraft harness source tree keeps .cursor/agents as the SoT for
+# install-global / global-sync — do not fail make install when smoking self.
+if [ -f "$TARGET/plugins/spacecraft/plugin.json" ] && [ -f "$TARGET/cli/spacecraft.mjs" ]; then
+  pass "harness source: .cursor/agents are User-layer sync SoT"
 else
-  pass "no project-local spacecraft agents"
+  leftover_agents=$(find "$TARGET/.cursor/agents" -maxdepth 1 -type f -name 'sc-*.md' 2>/dev/null | head -n 1)
+  if [ -n "$leftover_agents" ]; then
+    bad "spacecraft agent present under project .cursor/agents (User-layer only): $leftover_agents"
+  else
+    pass "no project-local spacecraft agents"
+  fi
 fi
 
 # 2. .space scaffold.
