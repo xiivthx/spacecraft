@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.58.3 - 2026-08-25
+
+- Fix: smoke skips leftover-agents check on harness source tree (`make install` self-smoke)
+- Docs: lean install front door — `make install` runs User-layer (`install-global`) then smoke; prefer `spacecraft setup` / `install-machine`
+
 ## 0.58.2 - 2026-08-25
 
 - Feat: UI design-principles Must/Should checklist wired through `DESIGN.md`, `sc-ux-design`, `sc-discuss`, and `sc-designer`
