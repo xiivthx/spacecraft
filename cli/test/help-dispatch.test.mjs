@@ -33,6 +33,7 @@ const KEPT_HELP_COMMANDS = [
   'map',
   'roadmap',
   'setup',
+  'mutation',
 ];
 
 test('cli/spacecraft.mjs help lists kept commands', () => {

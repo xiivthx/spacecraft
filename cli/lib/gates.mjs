@@ -1,5 +1,5 @@
 /** Ordered milestone registry for grandfathering machine gates. */
-export const GATES_REGISTRY = ['M9G7IHHW', 'M9G7IHON', 'M9G7IHV3'];
+export const GATES_REGISTRY = ['M9G7IHHW', 'M9G7IHON', 'M9G7IHV3', 'M9G7II1F'];
 
 /**
  * Parse `Gates version: <id>` from decisions.md text.

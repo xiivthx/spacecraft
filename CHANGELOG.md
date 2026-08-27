@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.60.0 - 2026-08-27
+
+- Feat: `spacecraft mutation` — diff-scoped Node CLI mutation vs mission-branch merge-base; append-only `mutation-<scope>` evidence with `{files, score, threshold, pass}` (default bar 80%)
+- Feat: `.space/config.json` `criticFamily` reader; closeout config-aware cross-model critic match for Gates version ≥ M9G7II1F (`configured-but-skipped`, `critic-family-mismatch`)
+- Feat: gates registry milestone `M9G7II1F` with grandfathering
+- Docs: mutation tooling and `criticFamily` in `docs/mission-artifacts.md`
+
 ## 0.59.0 - 2026-08-27
 
 - Feat: `spacecraft freeze` — sha256 manifest of explicit paths, append-only evidence event (label `freeze`)

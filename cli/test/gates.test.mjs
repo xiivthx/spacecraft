@@ -49,3 +49,41 @@ test('neg-gates-unknown: unknown or malformed Gates version does not silently en
     );
   }
 });
+
+// --- T1: M9G7II1F quality-tooling gates milestone ---
+
+test('pos-gates-m9g7ii1f: M9G7II1F registry entry and gatesAtOrAfter boundaries', async () => {
+  const { GATES_REGISTRY, gatesAtOrAfter } = await loadGates();
+
+  const m3Idx = GATES_REGISTRY.indexOf('M9G7IHV3');
+  const m4Idx = GATES_REGISTRY.indexOf('M9G7II1F');
+  assert.notEqual(m4Idx, -1, 'M9G7II1F must be in GATES_REGISTRY');
+  assert.ok(m3Idx >= 0 && m4Idx > m3Idx, 'M9G7II1F must follow M9G7IHV3');
+  assert.equal(gatesAtOrAfter('M9G7II1F', 'M9G7II1F'), true);
+  assert.equal(gatesAtOrAfter('M9G7IHV3', 'M9G7II1F'), false);
+});
+
+test('over-gates-grandfather: pre-M9G7II1F gates do not enable M9G7II1F-only checks', async () => {
+  const { gatesAtOrAfter, readGatesVersion } = await loadGates();
+
+  const decisionsText = '# Decisions\n\nGates version: M9G7IHV3\n';
+  assert.equal(readGatesVersion(decisionsText), 'M9G7IHV3');
+  assert.equal(
+    gatesAtOrAfter(readGatesVersion(decisionsText), 'M9G7II1F'),
+    false,
+    'M9G7IHV3 must not clear M9G7II1F gate',
+  );
+
+  for (const text of [
+    '# Decisions\n\nNo gates line here.\n',
+    '# Decisions\n\nGates version: BOGUS\n',
+    '# Decisions\n\nGates version:\n',
+  ]) {
+    const missionGate = readGatesVersion(text);
+    assert.equal(
+      gatesAtOrAfter(missionGate, 'M9G7II1F'),
+      false,
+      `absent/unknown gates must not enable M9G7II1F checks (${text.trim()})`,
+    );
+  }
+});

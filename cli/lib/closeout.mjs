@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { freezeCheckProblems } from './freeze.mjs';
+import { readCriticFamily } from './config.mjs';
 import { gatesAtOrAfter, readGatesVersion } from './gates.mjs';
 import { readMission } from './mission.mjs';
 import { missionDir, resolveActive } from './resolve.mjs';
@@ -312,6 +313,29 @@ export function closeoutDispositionProblems(missionDirPath) {
         problems.push(
           'silent-cross-model-critic: Gates version >= M9G7IHV3 requires Cross-model critic: or Cross-model critic skipped: line in decisions.md',
         );
+      }
+    }
+
+    if (gatesAtOrAfter(missionGate, 'M9G7II1F')) {
+      const projectRoot = path.dirname(path.dirname(path.dirname(missionDirPath)));
+      let criticFamily = null;
+      try {
+        criticFamily = readCriticFamily(projectRoot);
+      } catch {
+        // malformed config is a config command concern, not closeout disposition
+      }
+      if (criticFamily) {
+        const skipped = /Cross-model critic skipped:/.test(decisions);
+        const criticLine = decisions.match(/^Cross-model critic:\s*(\S+)\s*$/m);
+        if (skipped) {
+          problems.push(
+            'configured-but-skipped: criticFamily configured but Cross-model critic skipped: present in decisions.md',
+          );
+        } else if (criticLine && criticLine[1] !== criticFamily) {
+          problems.push(
+            `critic-family-mismatch: configured criticFamily ${JSON.stringify(criticFamily)} but decisions.md has Cross-model critic: ${criticLine[1]}`,
+          );
+        }
       }
     }
   }
