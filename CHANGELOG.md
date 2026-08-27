@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.58.4 - 2026-08-27
+
+- Docs: map-create contract lock for multi-seam roadmaps (`roadmap-contract.md`, wireframe when `*-ui`, re-lock protocol) plus Quality concern and SEC/PERF Verify bars with `NFR source:` / relative-bar / no-tool debt patterns (dual-tree skills + `docs/mission-artifacts.md`)
+
 ## 0.58.3 - 2026-08-25
 
 - Fix: smoke skips leftover-agents check on harness source tree (`make install` self-smoke)

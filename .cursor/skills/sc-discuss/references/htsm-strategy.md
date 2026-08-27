@@ -74,12 +74,15 @@ Strategy pass skipped: <reason>
 
 - Soft gate: missing Strategy pass must record skip before clear when discuss runs; Strategy incompleteness does **not** block clear the way `Not Testable` + soft Verify does.
 - Do not invent Verify from charters.
+- When the **security** trigger fires (security / PII / compliance / authz): a measurable **SEC** bar **Must** land in `spec.md` `Verify` before clear. Hard default: `no new critical/high SAST findings vs baseline` (name tool + evidence label; tag `NFR source:` per `docs/mission-artifacts.md`).
+- When the **perf** trigger fires (stated SLOs / hot paths / critical latency): a measurable **PERF** bar **Must** land in `spec.md` `Verify`, **or** recorded-skip with a debt line. Default bar: `no p95 regression >10% vs baseline <evidence-id>`. Recorded-skip uses D5-style debt (`<Gate> skipped: no tool` or equivalent) - never invent a bar to clear.
 
 ## Must / Must not
 
 - **Must**: record `## Strategy pass` OR `Strategy pass skipped:` before discuss clear
-- **Must not**: expertise cosplay; always-on full 10-section essay; replace testability, RCRCRC, lens, or sc-clarify; invent Verify
-
+- **Must**: when security trigger fires, land measurable SEC Verify (default `no new critical/high SAST findings vs baseline`) before clear
+- **Must**: when perf trigger fires, land PERF Verify or recorded-skip with debt line (default `no p95 regression >10% vs baseline <evidence-id>`)
+- **Must not**: expertise cosplay; always-on full 10-section essay; replace testability, RCRCRC, lens, or sc-clarify; invent Verify; clear security/perf triggers without a declared bar or recorded-skip debt
 ## Related
 
 - After exploring a charter outcome, optional `test-oracles.md` to judge if an observation is a problem (FEW HICCUPPS - on-demand; not a discuss gate)
