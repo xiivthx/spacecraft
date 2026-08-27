@@ -1,0 +1,13 @@
+{
+  "planName": "judge-break-silent-mutation-skip",
+  "missionId": "JBREAKSMS",
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "noop",
+      "status": "done",
+      "acceptance": ["noop"],
+      "verify": ["true"]
+    }
+  ]
+}

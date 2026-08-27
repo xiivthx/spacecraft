@@ -1,0 +1,14 @@
+{
+  "verdict": "VERIFIED",
+  "status": "ready",
+  "hunts": [
+    {
+      "id": "hunt-scope",
+      "summary": "Scope vs plan claimed clean without dissent label"
+    },
+    {
+      "id": "hunt-evidence",
+      "summary": "Evidence freshness claimed without AGREE or DISAGREE_*"
+    }
+  ]
+}

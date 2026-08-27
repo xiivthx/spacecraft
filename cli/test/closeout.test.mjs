@@ -408,3 +408,147 @@ test('check-judge-break.sh rejects known-bad packs using Node CLI wrapper', () =
     cleanup(wrapDir);
   }
 });
+
+// --- D6 disposition leak predicates (RED until closeoutDispositionProblems lands) ---
+
+async function loadDispositionProblems() {
+  const mod = await import('../lib/closeout.mjs');
+  assert.equal(
+    typeof mod.closeoutDispositionProblems,
+    'function',
+    'closeoutDispositionProblems must be exported from closeout.mjs',
+  );
+  return mod.closeoutDispositionProblems;
+}
+
+function writeDispositionMission(root, id, files) {
+  writeReadyCloseoutMission(root, id);
+  const dir = path.join(root, '.space', 'missions', id);
+  for (const [name, body] of Object.entries(files)) {
+    writeFileSync(path.join(dir, name), body);
+  }
+  return dir;
+}
+
+test('closeoutDispositionProblems rejects false-consensus without dissent labels', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M07CLOFC';
+  try {
+    const missionDir = writeDispositionMission(dir, id, {
+      'judge-summary.json': `${JSON.stringify(
+        {
+          verdict: 'VERIFIED',
+          status: 'ready',
+          hunts: [
+            { id: 'hunt-scope', summary: 'claimed clean without dissent label' },
+          ],
+        },
+        null,
+        2,
+      )}\n`,
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      problems.some((p) => /false-consensus/i.test(p)),
+      `want false-consensus problem, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('closeoutDispositionProblems rejects charitable-reviewer builderRationale', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M07CLOCHR';
+  try {
+    const missionDir = writeDispositionMission(dir, id, {
+      'judge-summary.json': `${JSON.stringify(
+        {
+          verdict: 'VERIFIED',
+          status: 'ready',
+          builderRationale: 'please trust the narrative',
+          hunts: [],
+        },
+        null,
+        2,
+      )}\n`,
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      problems.some((p) => /charitable-reviewer/i.test(p)),
+      `want charitable-reviewer problem, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('closeoutDispositionProblems rejects silent-mutation-skip', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M07CLOSMS';
+  try {
+    const missionDir = writeDispositionMission(dir, id, {
+      'decisions.md': '# Decisions\n\n```\nMutation: required\n```\n',
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      problems.some((p) => /silent-mutation-skip/i.test(p)),
+      `want silent-mutation-skip problem, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('closeoutDispositionProblems rejects retroactive-oracle-change', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M07CLOROC';
+  try {
+    const missionDir = writeDispositionMission(dir, id, {
+      'decisions.md':
+        '# Decisions\n\nExpected literal edited after freeze without Scenario oracle change.\n',
+      'approved-scenarios.md':
+        '# Approved scenarios\n\n| id | status | expected |\n| --- | --- | --- |\n| S1 | thawed | Expected literal edited |\n\n## Freeze footer\n\n```\nApproved-scenarios: frozen-from-contract\nFreeze stamp: 2026-01-01T00:00:00Z\n```\n',
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      problems.some((p) => /retroactive-oracle-change/i.test(p)),
+      `want retroactive-oracle-change problem, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('closeout-check rejects D6 false-consensus pack shape via CLI', () => {
+  const dir = spaceRoot();
+  const id = 'M07CLOFCcli';
+  try {
+    writeDispositionMission(dir, id, {
+      'judge-summary.json': `${JSON.stringify(
+        {
+          verdict: 'VERIFIED',
+          status: 'ready',
+          hunts: [{ id: 'h1', summary: 'no dissent labels' }],
+        },
+        null,
+        2,
+      )}\n`,
+    });
+
+    const res = closeout(dir);
+    assertNotStub(res, 'closeout-check');
+    assert.notEqual(res.code, 0, `expected fail for false-consensus\n${combined(res)}`);
+    assert.match(combined(res), /false-consensus/i);
+  } finally {
+    cleanup(dir);
+  }
+});

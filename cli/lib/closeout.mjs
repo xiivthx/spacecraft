@@ -158,6 +158,151 @@ export function closeoutChangelogProblems(cwd) {
   return ['no commits touch CHANGELOG.md since main or origin/main'];
 }
 
+const DISSENT_LABELS = new Set([
+  'AGREE',
+  'DISAGREE_EVIDENCE',
+  'DISAGREE_CONCERN',
+]);
+
+function readOptionalText(filePath) {
+  try {
+    return readFileSync(filePath, 'utf8');
+  } catch {
+    return null;
+  }
+}
+
+function readOptionalJSON(filePath) {
+  const text = readOptionalText(filePath);
+  if (text === null) return null;
+  try {
+    const data = JSON.parse(text);
+    if (data === null || typeof data !== 'object' || Array.isArray(data)) {
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function itemHasDissentLabel(item) {
+  if (item === null || typeof item !== 'object' || Array.isArray(item)) {
+    return false;
+  }
+  for (const v of Object.values(item)) {
+    if (typeof v === 'string' && DISSENT_LABELS.has(v.trim())) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function claimsVerifiedOrReady(doc) {
+  const verdict = typeof doc.verdict === 'string' ? doc.verdict : '';
+  const status = typeof doc.status === 'string' ? doc.status : '';
+  return verdict === 'VERIFIED' || status === 'ready';
+}
+
+function falseConsensusFromDoc(doc) {
+  if (!claimsVerifiedOrReady(doc)) return false;
+  const arrays = [];
+  if (Array.isArray(doc.hunts) && doc.hunts.length > 0) arrays.push(doc.hunts);
+  if (Array.isArray(doc.findings) && doc.findings.length > 0) {
+    arrays.push(doc.findings);
+  }
+  for (const arr of arrays) {
+    for (const item of arr) {
+      if (!itemHasDissentLabel(item)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Disposition / judge-break leak predicates for a mission directory.
+ * @param {string} missionDirPath
+ * @returns {string[]}
+ */
+export function closeoutDispositionProblems(missionDirPath) {
+  const problems = [];
+
+  const judgeSummary = readOptionalJSON(
+    path.join(missionDirPath, 'judge-summary.json'),
+  );
+  const review = readOptionalJSON(path.join(missionDirPath, 'review.json'));
+  const judgeOrReview = judgeSummary ?? review;
+
+  if (judgeOrReview) {
+    if (falseConsensusFromDoc(judgeOrReview)) {
+      problems.push(
+        'false-consensus: VERIFIED/ready hunts or findings lack AGREE|DISAGREE_EVIDENCE|DISAGREE_CONCERN dissent labels',
+      );
+    }
+    if (typeof judgeOrReview.builderRationale === 'string') {
+      problems.push(
+        'charitable-reviewer: free-text builderRationale present (structured-lines-only required)',
+      );
+    }
+  }
+
+  const decisions = readOptionalText(path.join(missionDirPath, 'decisions.md'));
+  const evidenceText = readOptionalText(
+    path.join(missionDirPath, 'evidence.jsonl'),
+  );
+  if (decisions !== null) {
+    const mutationRequired =
+      /Mutation:\s*required\b/.test(decisions) ||
+      /Mutation:\s*high-risk\b/.test(decisions);
+    const mutationSkipped = /Mutation skipped:/.test(decisions);
+    let hasMutationEvidence = false;
+    if (evidenceText !== null) {
+      for (const line of evidenceText.split('\n')) {
+        if (line.trim() === '') continue;
+        try {
+          const entry = JSON.parse(line);
+          if (
+            entry !== null &&
+            typeof entry === 'object' &&
+            !Array.isArray(entry) &&
+            typeof entry.label === 'string' &&
+            /mutation-/i.test(entry.label)
+          ) {
+            hasMutationEvidence = true;
+            break;
+          }
+        } catch {
+          // ignore malformed lines here; evidence problems own that gate
+        }
+      }
+    }
+    if (mutationRequired && !mutationSkipped && !hasMutationEvidence) {
+      problems.push(
+        'silent-mutation-skip: Mutation required/high-risk without Mutation skipped: or mutation- evidence',
+      );
+    }
+  }
+
+  const scenarios = readOptionalText(
+    path.join(missionDirPath, 'approved-scenarios.md'),
+  );
+  if (scenarios !== null) {
+    const frozen = /Approved-scenarios:\s*frozen/.test(scenarios);
+    const decisionsText = decisions ?? '';
+    const hasOracleChange = /Scenario oracle change:/.test(decisionsText);
+    const combined = `${scenarios}\n${decisionsText}`;
+    const thawOrEdit =
+      /\bthawed\b/i.test(combined) || /Expected literal edited/i.test(combined);
+    if (frozen && !hasOracleChange && thawOrEdit) {
+      problems.push(
+        'retroactive-oracle-change: frozen approved-scenarios thawed/edited without Scenario oracle change:',
+      );
+    }
+  }
+
+  return problems;
+}
+
 export function closeoutCmd(spaceDir, mid) {
   const id = resolveActive(spaceDir, mid);
   if (!id) {
@@ -201,6 +346,10 @@ export function closeoutCmd(spaceDir, mid) {
   }
   if (existsSync(path.join(dir, 'review.json'))) {
     problems.push(...closeoutReviewProblems(path.join(dir, 'review.json')));
+  }
+
+  if (existsSync(dir)) {
+    problems.push(...closeoutDispositionProblems(dir));
   }
 
   // SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG=1 is for unit tests in temp dirs without
