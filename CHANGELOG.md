@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.59.0 - 2026-08-27
+
+- Feat: `spacecraft freeze` — sha256 manifest of explicit paths, append-only evidence event (label `freeze`)
+- Feat: `spacecraft freeze-check` — drift (`freeze-drift`), postdated freeze (`postdated-freeze`), oracle-line exemption; grandfather via Gates version registry
+- Feat: closeout D3 `silent-cross-model-critic` line check and D5 advisory quality-debt listing
+- Feat: three judge-break fixtures (`freeze-postdate`, `freeze-drift-without-oracle-line`, `silent-cross-model-critic`)
+- Docs: test-freeze machine anchors in `docs/mission-artifacts.md`; sc-run combine step calls `spacecraft freeze-check`
+
 ## 0.58.5 - 2026-08-27
 
 - Docs: INTENT classes expand to `polish` | `optimize` | `refactor` | `adjust` (soft contract + workflow)

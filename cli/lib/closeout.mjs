@@ -1,6 +1,8 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { freezeCheckProblems } from './freeze.mjs';
+import { gatesAtOrAfter, readGatesVersion } from './gates.mjs';
 import { readMission } from './mission.mjs';
 import { missionDir, resolveActive } from './resolve.mjs';
 
@@ -300,7 +302,43 @@ export function closeoutDispositionProblems(missionDirPath) {
     }
   }
 
+  if (decisions !== null) {
+    const missionGate = readGatesVersion(decisions);
+    if (gatesAtOrAfter(missionGate, 'M9G7IHV3')) {
+      const hasCritic =
+        /Cross-model critic:/.test(decisions) ||
+        /Cross-model critic skipped:/.test(decisions);
+      if (!hasCritic) {
+        problems.push(
+          'silent-cross-model-critic: Gates version >= M9G7IHV3 requires Cross-model critic: or Cross-model critic skipped: line in decisions.md',
+        );
+      }
+    }
+  }
+
   return problems;
+}
+
+/**
+ * Greppable quality-debt lines from decisions.md (D5 advisory).
+ * @param {string} decisionsText
+ * @returns {string[]}
+ */
+export function qualityDebtLines(decisionsText) {
+  if (decisionsText === null || decisionsText === '') return [];
+  const debts = [];
+  const lines = decisionsText.split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (/^Mutation skipped: no tool\b/.test(trimmed)) {
+      debts.push(trimmed);
+      continue;
+    }
+    if (/^[A-Z][A-Za-z0-9-]* skipped: no tool\b/.test(trimmed)) {
+      debts.push(trimmed);
+    }
+  }
+  return debts;
 }
 
 export function closeoutCmd(spaceDir, mid) {
@@ -350,6 +388,7 @@ export function closeoutCmd(spaceDir, mid) {
 
   if (existsSync(dir)) {
     problems.push(...closeoutDispositionProblems(dir));
+    problems.push(...freezeCheckProblems(dir, spaceDir, path.dirname(spaceDir)));
   }
 
   // SPACECRAFT_CLOSEOUT_SKIP_CHANGELOG=1 is for unit tests in temp dirs without
@@ -358,6 +397,9 @@ export function closeoutCmd(spaceDir, mid) {
     problems.push(...closeoutChangelogProblems(path.dirname(spaceDir)));
   }
 
+  const decisionsText = readOptionalText(path.join(dir, 'decisions.md'));
+  const debts = qualityDebtLines(decisionsText ?? '');
+
   if (problems.length > 0) {
     console.log(`Closeout blocked for ${id}:`);
     for (const p of problems) {
@@ -365,6 +407,14 @@ export function closeoutCmd(spaceDir, mid) {
     }
     return 1;
   }
+
+  if (debts.length > 0) {
+    console.log(`Open quality debt for ${id}:`);
+    for (const d of debts) {
+      console.log(`- ${d}`);
+    }
+  }
+
   console.log(`Closeout ready for ${id}.`);
   return 0;
 }
