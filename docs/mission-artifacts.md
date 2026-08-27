@@ -157,6 +157,8 @@ Paths are explicit (no glob), repo-relative, forward slashes. When the manifest 
 - `postdated-freeze` — latest `freeze` evidence line appears after any `test-…` or `test-run` evidence line in the append-only log (retroactive freeze).
 - `Cross-model critic:` or `Cross-model critic skipped:` required in `decisions.md` when Gates version ≥ M9G7IHV3 (`silent-cross-model-critic` at closeout).
 
+**Config-aware cross-model critic (M9G7II1F+):** optional `.space/config.json` may set `"criticFamily": "<name>"` (non-empty string). When Gates version ≥ **M9G7II1F** and `criticFamily` is configured, closeout enforces: matching `Cross-model critic: <family>` passes; `Cross-model critic skipped:` ⇒ `configured-but-skipped`; a different family ⇒ `critic-family-mismatch`. Malformed config (invalid JSON or non-string `criticFamily`) fails config reads with `spacecraft config:` / malformed errors — never silent default. Pre-M9G7II1F missions keep M9G7IHV3 presence-only rules (skip line valid; no config match).
+
 Run `spacecraft freeze-check` at combine/ready before product combine proceeds; exit 1 blocks ship until drift/postdate/missing freeze is resolved.
 
 ## Outcome-gate skip / waive grammar (SoT)
@@ -267,9 +269,11 @@ Skip / waive lines: exact prefixes in **Outcome-gate skip / waive grammar (SoT)*
 
 **Out of scope:** ordinary missions with no quality pack and without `Mutation: required` / `Mutation: high-risk` in `decisions.md`. For those, `Mutation skipped: not in scope` is a **valid** ready disposition (one line; required so ready is unambiguous).
 
-When in scope and a mutation tool exists: run it scoped to touched packages/files when the tool allows; capture `spacecraft evidence "mutation-…" -- <cmd>`. Default target: **>80% mutation** score on that scope (or the project's documented higher bar). Below target → strengthen behavioral tests (not tautologies) or `Mutation waived: <reason>`.
+When in scope and a mutation tool exists: run **`spacecraft mutation`** (Node `cli/` stack default) scoped to touched files vs the mission-bound branch **merge-base**; or capture `spacecraft evidence "mutation-…" -- <cmd>` when invoking a project mutator directly. Evidence label **`mutation-<scope>`** (e.g. `mutation-cli` for dogfood on `cli/`) with JSON summary `{ "files": string[], "score": number, "threshold": number, "pass": boolean }` where default **threshold is 80** (percent) and `pass` is `score >= threshold`. Empty diff scope exits 0 with a `scope-empty` marker and no fabricated score. Below target → strengthen behavioral tests (not tautologies) or `Mutation waived: <reason>`.
 
-When in scope but no tool: `Mutation skipped: no project mutation tool` (does not invent installing a mutator mid-mission unless the human asked). Same debt class as `Mutation skipped: no tool` under **Quality debt and characterization**.
+For the Node `cli/` stack, **`spacecraft mutation`** is the supported path — `Mutation skipped: no project mutation tool` is no longer the default debt when mutation is in scope on `cli/`.
+
+When in scope but no tool (non-Node stacks or no mutator): `Mutation skipped: no project mutation tool` (does not invent installing a mutator mid-mission unless the human asked). Same debt class as `Mutation skipped: no tool` under **Quality debt and characterization**.
 
 When not in scope: `Mutation skipped: not in scope`.
 

@@ -21,6 +21,7 @@ import {
   statusCmd,
   useCmd,
 } from './lib/mission.mjs';
+import { mutationCmd } from './lib/mutation.mjs';
 import { ensureProjectReady, ensureSpaceIgnored } from './lib/project-git.mjs';
 import { resolveMission, spaceDirFromCwd } from './lib/resolve.mjs';
 import { setupCmd } from './lib/setup.mjs';
@@ -53,6 +54,7 @@ const KEPT_COMMANDS = [
   'map',
   'roadmap',
   'setup',
+  'mutation',
 ];
 
 const ALIASES = {
@@ -85,6 +87,7 @@ const IMPLEMENTED = new Set([
   'map',
   'archive',
   'setup',
+  'mutation',
 ]);
 
 function printHelp() {
@@ -141,6 +144,8 @@ function dispatch(command, args, spaceDir, cwd, mid) {
       return archiveCmd(args, spaceDir, mid);
     case 'setup':
       return setupCmd(args, cwd, REPO_ROOT);
+    case 'mutation':
+      return mutationCmd(spaceDir, mid, args);
     default:
       return null;
   }

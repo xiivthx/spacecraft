@@ -681,3 +681,107 @@ test('closeout-check rejects D6 false-consensus pack shape via CLI', () => {
     cleanup(dir);
   }
 });
+
+// --- T5: config-aware cross-model critic closeout (M9G7II1F quality-tooling) ---
+
+function writeSpaceConfig(root, body) {
+  mkdirSync(path.join(root, '.space'), { recursive: true });
+  writeFileSync(path.join(root, '.space', 'config.json'), body);
+}
+
+test('pos-critic-match: configured criticFamily matching Cross-model critic line passes', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const { readGatesVersion, gatesAtOrAfter } = await import('../lib/gates.mjs');
+  const dir = spaceRoot();
+  const id = 'M9G7CRmatch';
+  try {
+    writeSpaceConfig(dir, '{"criticFamily":"gpt"}\n');
+    const decisionsBody =
+      '# Decisions\n\nGates version: M9G7II1F\n\nCross-model critic: gpt\n';
+    const missionGate = readGatesVersion(decisionsBody);
+    assert.equal(missionGate, 'M9G7II1F', 'decisions must resolve M9G7II1F gate');
+    assert.equal(gatesAtOrAfter(missionGate, 'M9G7II1F'), true);
+
+    const missionDir = writeDispositionMission(dir, id, {
+      'decisions.md': decisionsBody,
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      !problems.some((p) => /configured-but-skipped|critic-family-mismatch/.test(p)),
+      `matching family must pass critic config checks, got ${JSON.stringify(problems)}`,
+    );
+    assert.ok(
+      !problems.some((p) => /silent-cross-model-critic/.test(p)),
+      `critic line present must not trigger silent-cross-model-critic, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('neg-critic-config: configured criticFamily with Cross-model critic skipped fails', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M9G7CRskip';
+  try {
+    writeSpaceConfig(dir, '{"criticFamily":"gpt"}\n');
+    const missionDir = writeDispositionMission(dir, id, {
+      'decisions.md':
+        '# Decisions\n\nGates version: M9G7II1F\n\nCross-model critic skipped: no second family\n',
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      problems.some((p) => /configured-but-skipped/.test(p)),
+      `want configured-but-skipped problem, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('neg-critic-config: configured criticFamily mismatching Cross-model critic line fails', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M9G7CRmis';
+  try {
+    writeSpaceConfig(dir, '{"criticFamily":"gpt"}\n');
+    const missionDir = writeDispositionMission(dir, id, {
+      'decisions.md':
+        '# Decisions\n\nGates version: M9G7II1F\n\nCross-model critic: claude\n',
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      problems.some((p) => /critic-family-mismatch/.test(p)),
+      `want critic-family-mismatch problem, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('over-grandfather-pre-m3: M9G7IHV3 with critic skip line keeps M9G7IHV3 behavior', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M9G7CRgf';
+  try {
+    const missionDir = writeDispositionMission(dir, id, {
+      'decisions.md':
+        '# Decisions\n\nGates version: M9G7IHV3\n\nCross-model critic skipped: advisory only\n',
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      !problems.some((p) => /configured-but-skipped|critic-family-mismatch/.test(p)),
+      `pre-M9G7II1F must not apply config-match rules, got ${JSON.stringify(problems)}`,
+    );
+    assert.ok(
+      !problems.some((p) => /silent-cross-model-critic/.test(p)),
+      `skip line satisfies M9G7IHV3 presence check, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
