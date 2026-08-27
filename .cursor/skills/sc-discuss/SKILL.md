@@ -26,6 +26,7 @@ Human confirms spec (and draft when visual), then Accepts (or skip) the mission 
 ```
 spacecraft clarify-status clear
 # decisions.md contains "Sizing: single" OR "Sizing: phases" OR "Sizing: roadmap <id>"
+# when Sizing: roadmap: every seam decisions.md contains "Roadmap contract: locked <file>" OR "Contract lock deferred: exploratory, skeleton-first" (or grandfather "Roadmap contract skipped: pre-M1 map")
 # visual: decisions.md contains "UI draft approved: <draft-file>" OR "UI draft skipped:"
 # visual (when draft approved): "Layout bake-off winner: …" OR "Layout bake-off skipped: …"
 # visual draft includes surface-relevant scenario matrix (per shared-draft-directives) when approved
@@ -66,7 +67,7 @@ resolve → inspect → sizing gate → lens-pass gate → testability soft gate
 2. Rough jigsaw count for a vertical slice.
 3. Choose `single` | `phases` | `roadmap` per the playbook (3 feature seams when splitting: `*-data` → `*-functional` → `*-ui`, plus an optional `*-integrate` tip after the last feature seam when Must-when holds). **Must** use `*-functional` on new maps; **Must not** add a `*-ux` seam. When roadmap Must-when fires: auto-split per that playbook (**Must not ask** one-vs-many).
 4. Record in `decisions.md`: `Sizing: single | phases | roadmap <id>` (+ seams/rationale when roadmap; + `Sizing phases: N - …` when phases).
-5. If roadmap: follow **Map creation (discuss only)** ordered steps in `references/mission-sizing.md` (`spacecraft new` stubs → `map new` unless human approved reuse → `map add` → stub `Sizing:` on every seam → discuss tip only). Never leave map create/resize to planning.
+5. If roadmap: follow **Map creation (discuss only)** ordered steps in `references/mission-sizing.md` (`spacecraft new` stubs → `map new` unless human approved reuse → `map add` → contract lock / wireframe when required → stub `Sizing:` + contract disposition on every seam → discuss tip only). Never leave map create/resize to planning.
 
 ### Soft-gate load rule
 
@@ -149,11 +150,12 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 ### Exit
 
 1. No open blocking questions; Verify present; `Sizing: …` recorded; (`## Lens pass` or `Lens pass skipped:`) and (`## Testability pass` or `Testability pass skipped:`) and (`## Strategy pass` or `Strategy pass skipped:`) and (when two requirement versions, `## RCRCRC pass` or `RCRCRC pass skipped:`) — or, when eligible, `Discuss path: fast` stands in for those soft-pass lines; visual approved or skip recorded; mission brief accepted or skip recorded. Do not clear while Testability is `Not Testable` and Verify soft/missing.
-2. `spacecraft clarify-status clear`.
-3. Handoff by sizing (`references/mission-sizing.md`):
+2. When `Sizing: roadmap`: every seam on the map **Must** record `Roadmap contract: locked <file>` **or** sanctioned `Contract lock deferred: exploratory, skeleton-first` (or grandfather `Roadmap contract skipped: pre-M1 map`) before clear - see `references/mission-sizing.md`.
+3. `spacecraft clarify-status clear`.
+4. Handoff by sizing (`references/mission-sizing.md`):
    - `Sizing: roadmap <id>` → **Spec clear. New session: `/sc-run <id>`.**
    - `Sizing: single` or `phases` → **Spec clear. New session: `/sc-run`.** (mission-only AFK on resolved current mission)
-4. On handoff, set or update optional `mission.json` `pickup` (`phase`, `next` one-liner, `updatedAt`) so `spacecraft status` / session-start shows Pickup. Not a clear or closeout gate.
+5. On handoff, set or update optional `mission.json` `pickup` (`phase`, `next` one-liner, `updatedAt`) so `spacecraft status` / session-start shows Pickup. Not a clear or closeout gate.
 
 ## Rules
 
@@ -167,6 +169,7 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 - Never clear while Testability is `Not Testable` and Verify is still soft/missing.
 - Never dump the full testability question queue in one user-facing turn - park in `questions.md` and ask via sc-clarify frontier rounds (≤3 independent; serial when dependent).
 - Never create `*-ux` roadmap seams or cross-feature layer waterfalls (see `references/mission-sizing.md`).
+- Never clear `Sizing: roadmap` without `Roadmap contract: locked <file>` or sanctioned `Contract lock deferred: exploratory, skeleton-first` (or grandfather skip) on every seam.
 - Soft gates: when triggers clearly do not fire, record skip lines without loading full reference files.
 - Prefer `spec.md` / `decisions.md` / `questions.md` over chat-only memory.
 - Never invent mid-ask slash skills (`wait-what` / `prototype` / `research`); route mid-ask to sc-clarify (re-pitch / research via sc-search then sc-storm / visualize via bake-off or chat state table).

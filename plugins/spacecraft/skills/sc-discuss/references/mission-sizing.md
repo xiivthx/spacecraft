@@ -2,7 +2,7 @@
 
 Canonical playbook for `/sc-discuss`: size work by **feature load**, not by global layers. Prefer one vertical mission; when large, split into **feature + seam** missions. Never invent a cross-feature waterfall (`all-db` → `all-api` → `all-ui`).
 
-## Concern checklist (4 - coverage only)
+## Concern checklist (5 - coverage only)
 
 Ask which concerns the requirement needs (omit absent ones):
 
@@ -12,6 +12,7 @@ Ask which concerns the requirement needs (omit absent ones):
 | **UI** | Port implementation from the approved draft |
 | **Functional** | Behavior / API / domain logic + Verify |
 | **Database** | Schema / migrations / queries |
+| **Quality** | Testbench / security / performance (coverage-only). Fold measurable SEC/PERF bars into the owning seam's `Verify` when in scope. Dedicated `*-security` / `*-perf` tips only when quality **is** the deliverable - not routine coverage. |
 
 ## Mission seams when splitting (3 only)
 
@@ -31,16 +32,16 @@ Ask which concerns the requirement needs (omit absent ones):
 
 | Tip | Mission title pattern | Owns |
 |-----|----------------------|------|
-| **integrate** (optional) | `<feature>-integrate` | cross-seam E2E Verify, dead code/path removal, route/contract alignment, cross-mission issue drain |
+| **integrate** (optional) | `<feature>-integrate` | **contract-conformance** + **drift drain** (cross-seam E2E Verify against locked `roadmap-contract.md`; dead code/path removal; route/contract alignment; cross-mission issue drain) |
 
 **Must-when** (add `*-integrate` only if one holds):
 - The map has more than one feature seam and a later seam's contract could invalidate an earlier seam's assumptions
 - `*-ui` follows `*-functional` and the map needs a final cross-seam pass after `*-ui` ships
 - Discuss records known drift, or a signal that integrate is needed, at map create
 
-**Skip:** when the last tip's own combine already covers end-to-end behavior and there is no drift signal, do **not** add `*-integrate` - record `Integrate tip skipped: <reason>` in that mission's (or map-tip's) `decisions.md`.
+**Skip:** when the last tip's own combine already covers end-to-end behavior and there is no drift signal, do **not** add `*-integrate` - record `Integrate tip skipped: <reason>` in that mission's (or map-tip's) `decisions.md`. When integrate is skipped, the **last seam's combine** checks **contract-conformance** against the locked roadmap contract.
 
-**Owns:** cross-seam E2E Verify; dead code/path removal; route/contract alignment; cross-mission issue drain.
+**Owns:** contract-conformance + drift drain; cross-seam E2E Verify vs locked contract; dead code/path removal; route/contract alignment; cross-mission issue drain.
 
 **Must not:**
 - Add new features
@@ -77,21 +78,45 @@ Then create the map under **Map creation (discuss only)** below. Discuss the cur
 
 **Ordered steps (Must):**
 
-1. Record intended `Sizing: roadmap <id>` (+ seams / rationale) - will copy onto every seam in step 5.
+1. Record intended `Sizing: roadmap <id>` (+ seams / rationale) - will copy onto every seam in step 7.
 2. For each needed seam title: `spacecraft new "<feature>-data|functional|ui"` (create stubs **before** `map add`).
 3. `spacecraft map new "<feature-or-roadmap-title>"` **unless** the human explicitly approved reusing an existing roadmap id. Never silently append to unrelated `map current`.
 4. `spacecraft map add <roadmap-id> <mission-id> --desc "<seam title>"` for each stub, in order `data` → `functional` → `ui` → optional `integrate` when Must-when holds (omit absent). The `integrate` stub still needs its own `spacecraft new "<feature>-integrate"` before `map add`, same as any other seam - discuss-owned only.
-5. **Stub `decisions.md` on every seam** (tip and later) with the same:
+5. **Contract lock (Must on every multi-seam roadmap):** produce `roadmap-contract.md` under the roadmap or tip mission - cross-seam schema/API shapes + **interface-level scenario** skeleton **only** (not full visual draft, not per-mission hash oracles). Human-approve before any seam builds on the shapes. Record `Roadmap contract: locked <file>` on every seam's `decisions.md`. **Exempt:** `Sizing: single|phases` never pays contract cost. **Sanctioned skip only:** `Contract lock deferred: exploratory, skeleton-first` (record on every seam; still discuss-owned).
+6. **Wireframe (when map has a `*-ui` seam):** at map-create, produce a quick lo-fi HTML wireframe (house: `serve-html.mjs`) naming surface regions + a **region→data-shape** mapping table bound to the locked contract. One fast HIL approval. Locks **structure + data flow**, **not** look (manga: name → draft → final). Visual draft approval **stays** at `*-ui` discuss and **Must** **conform** to the locked roadmap contract; record conformance in the `*-ui` mission's `decisions.md` (e.g. `Wireframe conformance: ok - <contract-file>`). Do **not** lock visual taste at map-create.
+7. **Stub `decisions.md` on every seam** (tip and later) with the same:
    ```
    Sizing: roadmap <roadmap-id>
    Sizing seams: <feature>-data, <feature>-functional, <feature>-ui
    Sizing rationale: <one line>
+   Roadmap contract: locked <path-to-roadmap-contract.md>
    ```
-   Later seams may add `Mission brief: skipped - stub seam; discuss after prior tip ships` until their discuss turn.
-6. `spacecraft map use <roadmap-id>`; `spacecraft use <tip-id>`; discuss **current tip only** (full spec / draft / brief). Leave later seams for post-ship handoff.
+   (or the sanctioned `Contract lock deferred: exploratory, skeleton-first` line instead of the locked line). Later seams may add `Mission brief: skipped - stub seam; discuss after prior tip ships` until their discuss turn.
+8. `spacecraft map use <roadmap-id>`; `spacecraft use <tip-id>`; discuss **current tip only** (full spec / draft / brief). Leave later seams for post-ship handoff.
 
 **Must not** call `map new` / `map add` from `/sc-run` planning (`sc-planning` / `sc-planner`). If scope needs a new or resized multi-mission split mid-plan → stop and apply **Resize protocol** below via `/sc-discuss`.
 
+## Roadmap contract freeze points
+
+- **Map contract** (`roadmap-contract.md`): **interface-level scenario** skeleton + cross-seam shapes only. Not the per-mission behavior-oracle hash.
+- **Per-mission** `Approved-scenarios:` remains the hash anchor for AFK freeze (see `docs/mission-artifacts.md`). Do not treat map-contract interface skeletons as frozen expected literals for product RED/GREEN.
+
+## Roadmap contract re-lock protocol
+
+When a locked cross-seam shape is wrong mid-map (never silent amend, never route-around):
+
+1. **Stop** AFK / planning on seams that depend on the stale contract.
+2. Hand to `/sc-discuss` with the roadmap / tip id.
+3. Record the delta in `decisions.md` (what changed and why).
+4. Stamp: `Roadmap contract: re-locked v<N> <file> supersedes v<N-1>: <reason>`
+5. Resume only after the re-locked file is human-approved and every active seam records the new lock line.
+
+## Gates version (grandfathering)
+
+Record `Gates version: <governing-mission-id>` when a map or tip adopts the contract-lock / quality-gate grammar from a governing tip (e.g. after that tip ships).
+
+- **New gates apply only after the governing mission ships** - do not retro-gate in-flight maps.
+- In-flight maps created before the governing tip may record: `Roadmap contract skipped: pre-M1 map` (or equivalent pre-governing waiver) and continue without contract lock until their next discuss resize.
 ## Resize protocol (mid-plan / mid-run)
 
 When planning or AFK discovers the mission must become multi-mission (or the map must change):
@@ -117,6 +142,7 @@ After tip `clarify-status clear`:
 ## Visual draft by seam
 
 - Draft HIL required for `*-ui` and for `Sizing: single` / `phases` when the mission is visual UI/FE.
+- On roadmap maps with a locked contract: `*-ui` discuss draft **Must** **conform** to the locked `roadmap-contract.md` (structure + data flow from the map-create wireframe). Record conformance in that `*-ui` `decisions.md`. Look/taste stays at `*-ui` discuss - never locked at map-create.
 - `*-data`, `*-functional`, and `*-integrate` tips: **non-visual** - record `UI draft skipped: non-visual seam (<data|functional|integrate>)` in that mission's `decisions.md`. `/sc-run` must not demand a draft for those tips.
 - Integrate tip example: `UI draft skipped: non-visual seam (integrate)`.
 
@@ -128,12 +154,19 @@ In each involved mission `decisions.md` (at map create for roadmap; at discuss f
 Sizing: single | phases | roadmap <roadmap-id>
 Sizing seams: <feature>-data, <feature>-functional, <feature>-ui   # omit absent; roadmap only
 Sizing rationale: <one line>
+Roadmap contract: locked <path-to-roadmap-contract.md>   # roadmap only; or sanctioned skip / grandfather line
 ```
 
 For `phases`, also record: `Sizing phases: <N> - <one-line rationale>`.
 
 Roadmap description should state feature name, seam order, and why split.
 
+Sanctioned roadmap contract lines (pick one greppable disposition when roadmap):
+
+- `Roadmap contract: locked <file>`
+- `Contract lock deferred: exploratory, skeleton-first`
+- `Roadmap contract skipped: pre-M1 map` (grandfather / pre-governing waiver only)
+- `Roadmap contract: re-locked v<N> <file> supersedes v<N-1>: <reason>` (after re-lock protocol)
 ## Must not
 
 - Global layer roadmaps across unrelated features
@@ -145,3 +178,8 @@ Roadmap description should state feature name, seam order, and why split.
 - Silent reuse of `map current` for a different feature
 - `map add` without prior `spacecraft new` stubs
 - Leaving later seam `decisions.md` without `Sizing:` at map create
+- Multi-seam roadmap without `Roadmap contract: locked <file>` or a sanctioned skip/grandfather line
+- Silent amend of a locked `roadmap-contract.md` (use re-lock protocol)
+- Locking full visual draft / look at map-create (wireframe = structure + data flow only)
+- Inventing dedicated `*-security` / `*-perf` tips when Quality is only coverage, not the deliverable
+- Retroactively applying new contract gates to in-flight maps without `Gates version:` / grandfather waiver

@@ -145,7 +145,37 @@ Lifecycle skills (`sc-run`, `sc-judge`, `sc-tdd`, `sc-verification`, `sc-plannin
 | diff-coverage | `Diff-coverage skipped: no project coverage tool` · `Diff-coverage waived: <reason>` (e.g. docs-only touch, generated files only) |
 | mutation | `Mutation skipped: no project mutation tool` · `Mutation skipped: not in scope` · `Mutation waived: <reason>` (rare; reason required) |
 | PBT | `Pbt skipped: no project pbt tool` · `Pbt skipped: not core logic` · `Pbt waived: <reason>` |
+| quality / NFR (no tool) | `<Gate> skipped: no tool` — D5-style quality debt when a declared SEC/PERF (or other NFR) gate cannot run because no project tool exists; pair with a debt line in `decisions.md` (never invent a passing bar) |
 
+## NFR provenance and relative bars
+
+Quality / NFR Verify lines (security, performance, and similar) carry provenance and stay measurable.
+
+**Provenance tag (greppable):**
+
+```
+NFR source: user | measured-baseline | default(<why>)
+```
+
+- `user` - human-stated bar
+- `measured-baseline` - bar derived from captured baseline evidence
+- `default(<why>)` - harness default with a short why (e.g. `default(SAST critical/high vs baseline)`)
+
+Unknown preference-bound bars → sc-clarify blocking question; do not invent.
+
+**Relative-bar pattern:** compare against a named baseline evidence id, not an absolute invented number. Greppable label: `relative-bar`. Example:
+
+```
+no p95 regression >10% vs baseline <evidence-id>
+```
+
+**No-tool debt (D5-style):** when the gate is in scope but no project tool exists, record:
+
+```
+<Gate> skipped: no tool
+```
+
+Example: `PERF skipped: no tool` with a debt note. Each quality Verify line names tool + evidence label, or becomes this debt pattern - never checkbox theater.
 ## Outcome evidence labels (layer B)
 
 Capture with `spacecraft evidence` when the gate runs:
