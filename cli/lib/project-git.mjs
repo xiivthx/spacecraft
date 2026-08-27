@@ -16,11 +16,11 @@ const DOCS_SEED_REL_PATHS = [
   'conventions/naming.md',
 ];
 
-/** True when a non-comment gitignore line ignores `.space` / `.space/`. */
+/** True when a non-comment gitignore line ignores `.space` / `.space/` / `.space/*`. */
 export function isSpaceIgnoreLine(line) {
   const trimmed = line.trim();
   if (!trimmed || trimmed.startsWith('#')) return false;
-  return trimmed === '.space' || trimmed === '.space/';
+  return trimmed === '.space' || trimmed === '.space/' || trimmed === '.space/*';
 }
 
 export function hasSpaceIgnored(gitignoreText) {

@@ -73,7 +73,8 @@ run_fixture() {
   space="$tmp/.space"
   mdir="$space/missions/$mid"
   mkdir -p "$mdir"
-  for f in mission.json spec.md plan.json evidence.jsonl review.json; do
+  for f in mission.json spec.md plan.json evidence.jsonl review.json \
+    decisions.md approved-scenarios.md judge-summary.json; do
     if [ -f "$dir/$f" ]; then
       cp "$dir/$f" "$mdir/$f"
     fi

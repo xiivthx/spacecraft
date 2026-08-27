@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.58.5 - 2026-08-27
+
+- Docs: INTENT classes expand to `polish` | `optimize` | `refactor` | `adjust` (soft contract + workflow)
+- Docs: batched polish lane — backlog ≥3 in `.space/polish-backlog.md`, ≤5 files/batch, never unbounded improve; quick stops and hands off to discuss/run
+- Docs: sc-judge zero-context `structured-lines-only`; dissent labels `AGREE` / `DISAGREE_EVIDENCE` / `DISAGREE_CONCERN`; required `Cross-model critic:` or skip disposition
+- Docs: quality debt ceiling greppable as `Debt ceiling: 3` plus `Characterization waived:` grammar (mission-artifacts)
+- Feat: D6 judge-break packs plus closeout disposition predicates (known-bad fixtures wired through ship closeout)
+- Fix: `ensureSpaceIgnored` treats `.space/*` as already-ignored so polish-backlog un-ignore patterns stay intact
+
 ## 0.58.4 - 2026-08-27
 
 - Docs: map-create contract lock for multi-seam roadmaps (`roadmap-contract.md`, wireframe when `*-ui`, re-lock protocol) plus Quality concern and SEC/PERF Verify bars with `NFR source:` / relative-bar / no-tool debt patterns (dual-tree skills + `docs/mission-artifacts.md`)

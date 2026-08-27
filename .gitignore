@@ -57,7 +57,8 @@ Thumbs.db
 *.swo
 
 # Spacecraft
-.space/
+.space/*
+!.space/polish-backlog.md
 .codegraph/
 
 # Repo-local

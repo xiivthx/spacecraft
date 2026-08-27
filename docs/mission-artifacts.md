@@ -145,7 +145,8 @@ Lifecycle skills (`sc-run`, `sc-judge`, `sc-tdd`, `sc-verification`, `sc-plannin
 | diff-coverage | `Diff-coverage skipped: no project coverage tool` · `Diff-coverage waived: <reason>` (e.g. docs-only touch, generated files only) |
 | mutation | `Mutation skipped: no project mutation tool` · `Mutation skipped: not in scope` · `Mutation waived: <reason>` (rare; reason required) |
 | PBT | `Pbt skipped: no project pbt tool` · `Pbt skipped: not core logic` · `Pbt waived: <reason>` |
-| quality / NFR (no tool) | `<Gate> skipped: no tool` — D5-style quality debt when a declared SEC/PERF (or other NFR) gate cannot run because no project tool exists; pair with a debt line in `decisions.md` (never invent a passing bar) |
+| quality / NFR (no tool) | `<Gate> skipped: no tool` — quality debt when a declared SEC/PERF (or other NFR) gate cannot run because no project tool exists; pair with a debt line in `decisions.md` (never invent a passing bar). Debt-facing mutation synonym: `Mutation skipped: no tool` (same class as SoT `Mutation skipped: no project mutation tool` when mutation is in scope but no tool) |
+| characterization | `Characterization waived: <reason>` — recorded quality debt on refactor/optimize when behavior-preservation helpers are unavailable (see **Quality debt and characterization** below) |
 
 ## NFR provenance and relative bars
 
@@ -169,13 +170,49 @@ Unknown preference-bound bars → sc-clarify blocking question; do not invent.
 no p95 regression >10% vs baseline <evidence-id>
 ```
 
-**No-tool debt (D5-style):** when the gate is in scope but no project tool exists, record:
+**No-tool skip line:** when the gate is in scope but no project tool exists, record:
 
 ```
 <Gate> skipped: no tool
 ```
 
-Example: `PERF skipped: no tool` with a debt note. Each quality Verify line names tool + evidence label, or becomes this debt pattern - never checkbox theater.
+Example: `PERF skipped: no tool`. Each quality Verify line names tool + evidence label, or becomes this debt pattern - never checkbox theater. Mutation in-scope with no tool still uses the SoT skip `Mutation skipped: no project mutation tool`; debt accounting also greps the synonym `Mutation skipped: no tool` (see below).
+
+## Quality debt and characterization
+
+### Visible quality debt (D5-rule)
+
+These skips are **visible quality debt**, not silent green:
+
+- `Mutation skipped: no tool` (debt-facing synonym; SoT formal skip remains `Mutation skipped: no project mutation tool` when mutation is in scope but no tool)
+- Equivalent quality / NFR no-tool skips: `<Gate> skipped: no tool` (SEC, PERF, and similar)
+- `Characterization waived: <reason>` (refactor/optimize behavior-preservation waiver)
+
+`Mutation skipped: not in scope` is a valid ready disposition, **not** quality debt.
+
+Ship closeout **Must** list open quality debts for the mission (greppable skip/waive lines above that still count as debt).
+
+**Debt ceiling (greppable):**
+
+```
+Debt ceiling: 3
+```
+
+N=3 open quality debts ⇒ the next mission **Must** drain quality debt or be a quality mission / fold into `*-integrate`. Record the ceiling line in `decisions.md` (or ship closeout) when the tip's grammar governs.
+
+### Characterization / behavior preservation (C3)
+
+Refactor and optimize missions carry a behavior-preservation bar scaled to blast radius (characterization / golden / baseline do-not-break evidence preferred). Characterization helpers are deferred to the quality-tooling seam; until then, explicit waiver is allowed as recorded debt:
+
+```
+Characterization waived: <reason>
+```
+
+Reason required. Counts toward the debt ceiling like other quality debt.
+
+### Grandfathering
+
+New quality-debt and characterization grammar applies only after tip `Gates version: M9G7IHON` ships. Do not retro-gate missions cleared before that ship. In-flight / pre-tip missions keep prior dispositions until their next discuss that adopts the tip.
 ## Outcome evidence labels (layer B)
 
 Capture with `spacecraft evidence` when the gate runs:
@@ -205,7 +242,7 @@ Skip / waive lines: exact prefixes in **Outcome-gate skip / waive grammar (SoT)*
 
 When in scope and a mutation tool exists: run it scoped to touched packages/files when the tool allows; capture `spacecraft evidence "mutation-…" -- <cmd>`. Default target: **>80% mutation** score on that scope (or the project's documented higher bar). Below target → strengthen behavioral tests (not tautologies) or `Mutation waived: <reason>`.
 
-When in scope but no tool: `Mutation skipped: no project mutation tool` (does not invent installing a mutator mid-mission unless the human asked).
+When in scope but no tool: `Mutation skipped: no project mutation tool` (does not invent installing a mutator mid-mission unless the human asked). Same debt class as `Mutation skipped: no tool` under **Quality debt and characterization**.
 
 When not in scope: `Mutation skipped: not in scope`.
 

@@ -30,7 +30,7 @@ Keep **Goal**, **Output**, **Good vs Bad**, and **Verify** clear. Soft gaps mid-
 
 ### INTENT:
 
-Before behavior-changing edits (code, checks, or spec), state `INTENT:` with class + intended behavior. "Make tests pass" alone is not intended behavior.
+Before behavior-changing edits (code, checks, or spec), state `INTENT:` with class (`code|check|spec|polish|optimize|refactor|adjust`) + intended behavior. "Make tests pass" alone is not intended behavior.
 
 Authority when disagreement: **explicit user > approved draft (look) + spec (behavior) > `.cursor/rules/*.mdc` > tests > current code**. Look vs behavior conflict → `/sc-discuss`.
 
