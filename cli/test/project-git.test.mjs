@@ -243,6 +243,54 @@ test('ensureSpaceIgnored: appends .space/ without overwriting custom .gitignore'
   }
 });
 
+test('isSpaceIgnoreLine / hasSpaceIgnored: recognize .space/* as space ignore', async () => {
+  const { isSpaceIgnoreLine, hasSpaceIgnored } = await import('../lib/project-git.mjs');
+
+  assert.equal(
+    isSpaceIgnoreLine('.space/*'),
+    true,
+    'isSpaceIgnoreLine must treat .space/* as a space-ignore line',
+  );
+  assert.equal(
+    hasSpaceIgnored('.space/*\n'),
+    true,
+    'hasSpaceIgnored must be true when .gitignore has .space/*',
+  );
+  assert.equal(
+    hasSpaceIgnored('.space/*\n!.space/polish-backlog.md\n'),
+    true,
+    'hasSpaceIgnored must stay true with .space/* plus un-ignore exception',
+  );
+});
+
+test('ensureSpaceIgnored: does not append .space/ when .space/* already present', async () => {
+  const dir = emptyProjectRoot();
+  try {
+    for (const name of ['missions', 'archive', 'roadmaps']) {
+      mkdirSync(path.join(dir, '.space', name), { recursive: true });
+    }
+    const existing = '.space/*\n!.space/polish-backlog.md\n';
+    writeFileSync(path.join(dir, '.gitignore'), existing);
+
+    const { ensureSpaceIgnored } = await import('../lib/project-git.mjs');
+    ensureSpaceIgnored(dir);
+
+    const written = readFileSync(path.join(dir, '.gitignore'), 'utf8');
+    assert.equal(
+      written,
+      existing,
+      'ensureSpaceIgnored must leave .space/* (+ exception) alone; must not append .space/',
+    );
+    assert.equal(
+      (written.match(/^\.space\/$/gm) ?? []).length,
+      0,
+      'must not introduce a bare .space/ line when .space/* already covers the tree',
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
 test('CLI init: no .space/.git scaffolds dirs and ensures git + .gitignore', () => {
   const dir = emptyProjectRoot();
   try {
