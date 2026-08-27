@@ -528,6 +528,135 @@ test('closeoutDispositionProblems rejects retroactive-oracle-change', async () =
   }
 });
 
+// --- T4 freeze / disposition / debt (M9G7IHV3 freeze-tooling) ---
+
+function writeM9G7MissionShell(root, id, decisionsBody, approvedBody) {
+  writeReadyCloseoutMission(root, id);
+  const missionDir = path.join(root, '.space', 'missions', id);
+  writeFileSync(path.join(missionDir, 'decisions.md'), decisionsBody);
+  writeFileSync(
+    path.join(missionDir, 'approved-scenarios.md'),
+    approvedBody ??
+      '# Approved scenarios\n\n| id | status |\n| --- | --- |\n| P1 | frozen |\n\n## Freeze footer\n\n```\nApproved-scenarios: frozen-from-contract\n```\n',
+  );
+  mkdirSync(path.join(root, 'fixtures'), { recursive: true });
+  const testFile = path.join(root, 'fixtures', 'closeout-freeze.test.mjs');
+  writeFileSync(testFile, 'export const closeoutFreeze = 1;\n');
+  return {
+    missionDir,
+    freezePaths: [
+      'fixtures/closeout-freeze.test.mjs',
+      `.space/missions/${id}/approved-scenarios.md`,
+    ],
+  };
+}
+
+function runFreeze(root, id, paths) {
+  return runCLI(root, ['freeze', '--mission', id, ...paths]);
+}
+
+test('closeoutDispositionProblems rejects silent-cross-model-critic without Cross-model line (N3)', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M9G7CLOCR';
+  try {
+    const missionDir = writeDispositionMission(dir, id, {
+      'decisions.md': '# Decisions\n\nGates version: M9G7IHV3\n',
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      problems.some((p) => /silent-cross-model-critic/.test(p)),
+      `want silent-cross-model-critic problem, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('closeoutDispositionProblems passes D3 when Cross-model critic line present (P4)', async () => {
+  const closeoutDispositionProblems = await loadDispositionProblems();
+  const dir = spaceRoot();
+  const id = 'M9G7CLOCRok';
+  try {
+    const missionDir = writeDispositionMission(dir, id, {
+      'decisions.md': '# Decisions\n\nGates version: M9G7IHV3\n\nCross-model critic: gpt\n',
+    });
+
+    const problems = closeoutDispositionProblems(missionDir);
+    assert.ok(
+      !problems.some((p) => /silent-cross-model-critic/.test(p)),
+      `D3 must pass with critic line, got ${JSON.stringify(problems)}`,
+    );
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('closeout-check blocks missing Cross-model critic with silent-cross-model-critic (N3)', () => {
+  const dir = spaceRoot();
+  const id = 'M9G7CLOCRcli';
+  try {
+    const { freezePaths } = writeM9G7MissionShell(
+      dir,
+      id,
+      '# Decisions\n\nGates version: M9G7IHV3\n',
+    );
+    const freeze = runFreeze(dir, id, freezePaths);
+    assertNotStub(freeze, 'freeze');
+    assert.equal(freeze.code, 0, `setup freeze\n${combined(freeze)}`);
+
+    const res = closeout(dir);
+    assertNotStub(res, 'closeout-check');
+    assert.notEqual(res.code, 0, `expected fail for missing critic\n${combined(res)}`);
+    assert.match(combined(res), /silent-cross-model-critic/);
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('closeout-check passes with Cross-model critic line when freeze satisfied (P4)', () => {
+  const dir = spaceRoot();
+  const id = 'M9G7CLOCRpass';
+  try {
+    const { freezePaths } = writeM9G7MissionShell(
+      dir,
+      id,
+      '# Decisions\n\nGates version: M9G7IHV3\n\nCross-model critic: gpt\n',
+    );
+    const freeze = runFreeze(dir, id, freezePaths);
+    assert.equal(freeze.code, 0, `setup freeze\n${combined(freeze)}`);
+
+    const res = closeout(dir);
+    assertNotStub(res, 'closeout-check');
+    assert.equal(res.code, 0, `expected pass with critic + freeze\n${combined(res)}`);
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('closeout-check lists quality debt advisory without failing when gates pass (P5)', () => {
+  const dir = spaceRoot();
+  const id = 'M9G7CLODEBT';
+  try {
+    const { freezePaths } = writeM9G7MissionShell(
+      dir,
+      id,
+      '# Decisions\n\nGates version: M9G7IHV3\n\nCross-model critic: gpt\n\nMutation skipped: no tool\n',
+    );
+    const freeze = runFreeze(dir, id, freezePaths);
+    assert.equal(freeze.code, 0, `setup freeze\n${combined(freeze)}`);
+
+    const res = closeout(dir);
+    assertNotStub(res, 'closeout-check');
+    assert.equal(res.code, 0, `debt listing must not block exit\n${combined(res)}`);
+    assert.match(res.stdout, /Mutation skipped: no tool/);
+    assert.match(res.stdout, /quality debt|open quality|debt/i);
+  } finally {
+    cleanup(dir);
+  }
+});
+
 test('closeout-check rejects D6 false-consensus pack shape via CLI', () => {
   const dir = spaceRoot();
   const id = 'M07CLOFCcli';

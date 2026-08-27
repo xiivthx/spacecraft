@@ -8,6 +8,7 @@ import { closeoutCmd } from './lib/closeout.mjs';
 import { contextCmd } from './lib/context.mjs';
 import { driftCmd } from './lib/drift.mjs';
 import { eviCmd } from './lib/evi.mjs';
+import { freezeCheckCmd, freezeCmd } from './lib/freeze.mjs';
 import { mapCmd } from './lib/map.mjs';
 import {
   bindBranchCmd,
@@ -44,6 +45,8 @@ const KEPT_COMMANDS = [
   'clarify-status',
   'evidence',
   'validate',
+  'freeze',
+  'freeze-check',
   'closeout-check',
   'ship-check',
   'archive',
@@ -75,6 +78,8 @@ const IMPLEMENTED = new Set([
   'clarify-status',
   'evidence',
   'validate',
+  'freeze',
+  'freeze-check',
   'closeout-check',
   'ship-check',
   'map',
@@ -123,6 +128,10 @@ function dispatch(command, args, spaceDir, cwd, mid) {
       return eviCmd(args, spaceDir, mid);
     case 'validate':
       return valCmd(args, spaceDir, mid);
+    case 'freeze':
+      return freezeCmd(args, spaceDir, mid);
+    case 'freeze-check':
+      return freezeCheckCmd(args, spaceDir, mid);
     case 'closeout-check':
     case 'ship-check':
       return closeoutCmd(spaceDir, mid);

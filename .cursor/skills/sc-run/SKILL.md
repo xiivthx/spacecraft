@@ -39,7 +39,7 @@ Ordered: discuss-clear → plan → design-contract → approved-scenarios → b
 3. **design-contract** - write or `Design-contract skipped: docs/prose-only` (`docs/mission-artifacts.md`). No product RED/GREEN until complete or skip.
 4. **approved-scenarios** - freeze or `Approved-scenarios skipped: docs/prose-only`. Agents Must not thaw frozen literals; oracle changes need Commander + `Scenario oracle change:`.
 5. **build** - triage via sc-tdd. TDD: RED Task(`sc-tester`) → GREEN Task(`sc-coder`/`sc-firmware`/`sc-rtl`) → evidence; coder **Must not** edit tests. Skip: Task(`sc-writer`) docs/prose, else Task(`sc-coder`) → evidence. Commander Task-delegates product code/tests (role split).
-6. **combine** - refactor; full suite; static/diff-cov/mutation disposition → `docs/mission-artifacts.md` only (do not paste bars here). Checkpoint.
+6. **combine** - refactor; full suite; `spacecraft freeze-check` (exit 1 → handback: drift/postdate/missing freeze); static/diff-cov/mutation disposition → `docs/mission-artifacts.md` only (do not paste bars here). Checkpoint.
 7. **fix** - until suite (+ UI if UI) clean. Same issue **3** times → human. Stop reasons → `handback.md`.
 8. **browser-probe** (UI/workflow) - Task(`sc-browser-probe`) to `PROBE: CLEAN`; else handback. Skip when no runnable UI/workflow.
 9. **review** → **judge** - `validate --strict`; Task(`sc-reviewer`); sc-judge. Findings/`REFUTED` → fix → re-review → re-judge. Ready only on `VERIFIED` + empty findings: `set-state ready`. Handoff; never merge/push/tag.

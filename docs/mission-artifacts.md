@@ -133,6 +133,32 @@ Minimum shape:
 
 This is not a separate product test runner - executable proof stays in the project test suite / verify commands mapped to scenario ids via acceptance.
 
+### Test freeze (machine-checked D4)
+
+Product missions with `Gates version: M9G7IHV3` (or later in the ordered registry) get machine-checked test freeze via `spacecraft freeze` and `spacecraft freeze-check`. Pre-tip missions without a valid `Gates version:` line are grandfathered (no new freeze gates).
+
+**Capture:** `spacecraft freeze [--mission <id>] <path...>` — one append-only evidence event with label `freeze`. The `output` field holds JSON:
+
+```json
+{"kind":"freeze-manifest","files":[{"path":"<repo-relative>","sha256":"<hex>"}]}
+```
+
+Paths are explicit (no glob), repo-relative, forward slashes. When the manifest JSON exceeds 65536 bytes, the CLI truncates `output`, sets `outputTruncated` + `outputRawPath` sidecar under `evidence-raw/` (same pattern as `spacecraft evidence`).
+
+**Required-ness:**
+
+- **Machine-required** when `approved-scenarios.md` has a frozen footer (`Approved-scenarios: frozen-from-contract` or `frozen-by-human`) and Gates version ≥ M9G7IHV3.
+- **Exempt** when `Approved-scenarios skipped:` appears in `decisions.md` or `approved-scenarios.md`.
+- **Skill-gated** when neither frozen footer nor skip line exists (no new machine net).
+
+**Checks (`spacecraft freeze-check`, also enforced in `closeout-check`):**
+
+- `freeze-drift` — manifest file hash differs from disk without greppable `Scenario oracle change:` in `decisions.md` (re-freeze after oracle change).
+- `postdated-freeze` — latest `freeze` evidence line appears after any `test-…` or `test-run` evidence line in the append-only log (retroactive freeze).
+- `Cross-model critic:` or `Cross-model critic skipped:` required in `decisions.md` when Gates version ≥ M9G7IHV3 (`silent-cross-model-critic` at closeout).
+
+Run `spacecraft freeze-check` at combine/ready before product combine proceeds; exit 1 blocks ship until drift/postdate/missing freeze is resolved.
+
 ## Outcome-gate skip / waive grammar (SoT)
 
 Lifecycle skills (`sc-run`, `sc-judge`, `sc-tdd`, `sc-verification`, `sc-planning`, `sc-mission`) cite this section for greppable `decisions.md` line prefixes - do not redefine the strings elsewhere. When each gate applies and what evidence to capture: `design-contract.md` / `approved-scenarios.md` above and **Outcome evidence labels** / **Mutation** below.
@@ -223,6 +249,7 @@ Capture with `spacecraft evidence` when the gate runs:
 | Diff coverage | `diff-cov-` | combine or pre-review - coverage on **touched** executable line and branch when a project coverage tool exists |
 | Mutation testing | `mutation-` | combine or pre-review when mutation is **in scope** (see below) and a project mutation tool exists |
 | Property-based (PBT) | `pbt-` | product path: **100%** of design-contract **core-logic** modules (invariants + generators via project-existing `fast-check` / Hypothesis / equivalent) |
+| Test freeze | `freeze` | before RED / at per-mission freeze event — sha256 manifest of explicit test file list + `approved-scenarios.md`; re-checked at combine/ready via `spacecraft freeze-check` |
 
 Skip / waive lines: exact prefixes in **Outcome-gate skip / waive grammar (SoT)** above.
 

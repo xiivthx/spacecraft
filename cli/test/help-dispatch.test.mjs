@@ -25,6 +25,8 @@ const KEPT_HELP_COMMANDS = [
   'clarify-status',
   'evidence',
   'validate',
+  'freeze',
+  'freeze-check',
   'closeout-check',
   'ship-check',
   'archive',

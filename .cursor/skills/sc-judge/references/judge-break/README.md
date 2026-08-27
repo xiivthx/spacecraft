@@ -17,3 +17,6 @@ These are not LLM trap-eval suites. They prove the exit gate fails on bad disk s
 | `charitable-reviewer/` | Free-text `builderRationale` (not structured-lines-only) | `charitable-reviewer` |
 | `silent-mutation-skip/` | `Mutation: required\|high-risk` without disposition or `mutation-` evidence | `silent-mutation-skip` |
 | `retroactive-oracle-change/` | Frozen scenarios thawed/edited without `Scenario oracle change:` | `retroactive-oracle-change` |
+| `freeze-postdate/` | Test-run evidence before freeze event (retroactive freeze) | `postdated-freeze` |
+| `freeze-drift-without-oracle-line/` | Frozen file hash drift without `Scenario oracle change:` | `freeze-drift` |
+| `silent-cross-model-critic/` | Gates ≥ M9G7IHV3 without `Cross-model critic:` or skip line | `silent-cross-model-critic` |
