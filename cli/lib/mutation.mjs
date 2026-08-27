@@ -101,7 +101,7 @@ function appendEvidence(mDir, label, summary, exitCode) {
     command: 'spacecraft mutation',
     output,
     exitCode,
-    ts: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+    ts: new Date().toISOString(),
   };
   mkdirSync(mDir, { recursive: true });
   appendFileSync(path.join(mDir, 'evidence.jsonl'), `${JSON.stringify(entry)}\n`);
