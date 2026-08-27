@@ -17,7 +17,7 @@ Rules are context; hooks are enforcement. Do not treat this file as a substitute
 ## Soft contract (model)
 
 - **AUTH:** Before outward push/deploy/publish/send, state `AUTH:` with a **quoted** user authorization. AUTH does not set `SPACECRAFT_SHIP`; push still needs human approval.
-- **INTENT:** Before behavior-changing edits, state `INTENT:` with class + intended behavior.
+- **INTENT:** Before behavior-changing edits, state `INTENT:` with class (`code|check|spec|polish|optimize|refactor|adjust`) + intended behavior.
 - **Commander:** Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware` / `sc-rtl`); prose → `sc-writer`.
 - **Lanes:** `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. Small edits: `/sc-quick`.
 - **Language:** English for technical substance; Thai for HIL asks, short status, handoffs. Caveman terse by default.

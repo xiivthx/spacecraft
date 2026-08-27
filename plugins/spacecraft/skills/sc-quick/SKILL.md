@@ -16,8 +16,8 @@ Change on `main` via `--no-ff` merge + annotated tag (or blocked with exact miss
 
 ## Good / Bad
 
-- Good: docs tweak, diagram fix, config typo, prompt edit, one-file bug with obvious fix, “just commit my manual edits”
-- Bad: new product feature with unknown scope, multi-module refactor, UI needing design HIL, API contracts, anything needing evidence/review → use `/sc-discuss` then `/sc-run`
+- Good: docs tweak, diagram fix, config typo, prompt edit, one-file bug with obvious fix, one-off polish/optimize/refactor/adjust, “just commit my manual edits”
+- Bad: new product feature with unknown scope, multi-module refactor, UI needing design HIL, API contracts, batched polish (≥3 `.space/polish-backlog.md` items or explicit batch discuss), anything needing evidence/review → use `/sc-discuss` then `/sc-run`
 
 ## Verify
 
@@ -39,6 +39,12 @@ Use when **no mission is appropriate**:
 - Manual edits the human already made (or asks you to make)
 - Docs / diagrams / changelog-only / config / prompts
 - Tiny fixes where mission ceremony costs more than the change
+- One-off tiny polish / optimize / refactor / adjust (no mission ceremony)
+
+### Polish: one-off vs batch
+
+- **One-off** → stay on this lane.
+- **Batched** (≥3 items in `.space/polish-backlog.md` OR explicit batch discuss) → stop; hand off to `/sc-discuss` then `/sc-run`. Mission path: backlog + evidence + baseline do-not-break; max ≤5 files/batch; never unbounded improve.
 
 Do **not** invent a mission stub. If `spacecraft resolve` finds a mission, prefer that mission’s `/sc-run` / `/sc-ship` path unless the user explicitly wants quick lane anyway.
 
@@ -135,6 +141,7 @@ Full gate lists: `references/ship-gates.md`.
 ## Hard stops
 
 - Scope too large / unclear → hand off to `/sc-discuss`
+- Batched polish (≥3 `.space/polish-backlog.md` items or explicit batch discuss) → `/sc-discuss` then `/sc-run` (≤5 files/batch; never unbounded improve)
 - Write attempt on `main` for product commits
 - Secrets or unsafe staging
 - Self-review finds critical issues
