@@ -144,7 +144,7 @@ if [ -d "$TARGET/.git" ] || git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1
 else
   bad "git repo missing (.git / rev-parse)"
 fi
-if [ -f "$TARGET/.gitignore" ] && grep -Eq '^[[:space:]]*\.space/?[[:space:]]*$' "$TARGET/.gitignore"; then
+if [ -f "$TARGET/.gitignore" ] && grep -Eq '^[[:space:]]*\.space(/\*|/?)?[[:space:]]*$' "$TARGET/.gitignore"; then
   pass ".gitignore ignores .space/"
 else
   bad ".gitignore missing .space/ entry"
