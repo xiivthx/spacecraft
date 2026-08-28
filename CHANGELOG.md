@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.61.0 - 2026-08-28
+
+- Feat: Impeccable-primary UX craft in `/sc-discuss` — `sc-designer` routes the full Impeccable command catalog; orchestration SoT + integration contract; `.impeccable/` gitignored
+- Feat: local console empty-mission product page at `docs/console/empty-mission.html` (ported from approved draft; loading / no-results filter context / retry busy); landing Console link
+
 ## 0.60.1 - 2026-08-28
 
 - Fix: smoke `.gitignore` check accepts `.space/*` (matches `isSpaceIgnoreLine`; harness polish-backlog un-ignore)
