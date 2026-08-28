@@ -27,3 +27,5 @@ Full dimension table, machine vs critique split, and output format:
 `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md`
 
 Related: `.cursor/skills/sc-ux-design/references/checklists/README.md` (item SoT), `sc-designer` agent, `sc-ux-design` skill, `sc-judge` draft drift, `anti-slop-catalog.md`, `surface-checklist.md` (one-id adapter), `shared-draft-directives.md`, `mission-review-gates.md` (sibling for every mission).
+
+Impeccable-primary UX: [impeccable-discuss-integration.md](impeccable-discuss-integration.md) · orchestration SoT: `.cursor/skills/sc-ux-design/references/impeccable-orchestration.md`.

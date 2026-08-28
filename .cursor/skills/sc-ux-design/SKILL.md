@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # sc-ux-design
 
-UI quality companion: design brief + draft HTML under `/sc-discuss`; anti-slop and browser visual verification under `/sc-run` / sc-web-frontend. Draft discovery is discuss-owned; AFK run **ports** look from an approved draft (visual source of truth), with scenario coverage required before approval.
+UI quality companion: **Impeccable-primary** craft under `/sc-discuss` (see `references/impeccable-orchestration.md`); draft HTML remains port visual SoT; anti-slop and browser visual verification under `/sc-run` / sc-web-frontend. `sc-designer` orchestrates Impeccable and owns Spacecraft port gates. AFK run **ports** look from an approved draft, with scenario coverage required before approval.
 
 ## When to use
 
@@ -27,20 +27,21 @@ When generating draft HTML, assemble the generation prompt in this **fixed order
 1. **Shared draft directives** - always load `references/shared-draft-directives.md` (tech + fidelity + scenario matrix + anti-slop alignment).
 2. **Design system** - when `DESIGN.md` exists at the project root (or package root for the UI), load it next as the house look / tokens / personality. If missing, skip this layer; the design brief phase must produce a candidate `DESIGN.md`.
 3. **Design principles** - always load `references/design-principles.md` (Must / Should judgment checklist). Apply Must on every visual surface; apply Should when they fit the brief and surface type.
-4. **Brief / content tail** - append the approved design brief, `spec.md` feature/state requirements, and any user-supplied copy or constraints last so they bind the earlier layers.
+4. **Brief / content tail** - append the approved brief (`/impeccable shape` when `Impeccable path: active`; else sc-ux 6-dimension brief), `spec.md` feature/state requirements, and any user-supplied copy or constraints last so they bind the earlier layers.
 
 Do not reverse or interleave these layers. Shared directives set how drafts are built; `DESIGN.md` is the project look SoT when present; design principles judge structure and craft; the brief/content tail is the mission-specific layout, states, and copy for this draft.
 
 ### Design brief (forced checkpoint - `/sc-discuss`)
 
-Before clearing discuss on visual work (and before any UI implementation code):
+Before clearing discuss on visual work (and before any UI implementation code). Default: **`Impeccable path: active`** — follow `references/impeccable-orchestration.md`. Legacy 6-dimension brief only when `Impeccable path: skipped: <reason>`.
 
 1. **Product context (Must before brief on brownfield):** Record in `decisions.md`:
    - `Product context: <routes + shell/layout file paths + screenshot paths>` when editing an existing app, **or**
    - `Product context skipped: greenfield` when there is no parent product shell.
+   Also record `Impeccable path: active` (default) or `skipped: <reason>`.
    When not greenfield: read the parent shell/layout and nearby page patterns before drafting. Bake-off candidates **Must** include existing app chrome (nav, sidebar, shell) when editing in-app screens - not a floating marketing shell on operator pages.
 2. **Surface checklist:** Match one primary id via `.cursor/skills/sc-ux-design/references/checklists/README.md` and `references/surface-checklist.md`. Record `UX checklist: <id>` or `UX checklist: none - <reason>` in `decisions.md` before bake-off. Read that one file under `.cursor/skills/sc-ux-design/references/checklists/` and fold applicable `- [ ]` items into `spec.md` Must and later draft states.
-3. **Read `DESIGN.md`** when present. Treat it as the default look (tokens, type, mood, principles). Do not ask the human to pick an art-direction pack - there are no packs.
+3. **Read `DESIGN.md`** at the UI package when present. Treat it as the default look (tokens, type, mood, principles). Do not ask the human to pick an art-direction pack - there are no packs.
 4. **Reference extract (Must when images/refs supplied):** When the human supplies mood boards, screenshots, URLs, or other visual references, run `references/reference-extract.md` **before** the brief. Produce `.space/missions/<id>/design/refs/extract.md`; record `Reference extract: design/refs/extract.md` in `decisions.md`. Brief **Must** cite extract rows. Record human-confirmed `Reference borrow: <scope>`. **Must not** enter layout bake-off when `Reference borrow:` is set but the extract artifact is missing.
 5. **References (image / text):** after extract (when refs supplied), fold cues into the brief per extract rows and borrow scope. Never silent-clone full chrome from a reference. Require an explicit **borrow scope** (exactly one):
    - `mood` - atmosphere, density, motion feel only
@@ -52,16 +53,17 @@ Before clearing discuss on visual work (and before any UI implementation code):
    - `DESIGN conflict: mission exception` - this screen may diverge; leave `DESIGN.md` unchanged
    - `DESIGN conflict: update house` - edit `DESIGN.md` to the new SoT, then align the brief
    - `DESIGN conflict: keep house` - reject the new direction; brief stays on `DESIGN.md`
-   Explicit user choice wins over `DESIGN.md` only after A or B is recorded. Anti-slop catalog still wins unless a catalog exception is also recorded.
-7. **Produce a design brief** covering 6 dimensions (align to `DESIGN.md` when it exists and conflict outcome is not mission exception / update-pending; invent a candidate system when `DESIGN.md` is missing). Also name surface type (`persuade` | `operate`) and fold `references/design-principles.md` Must items; note which Should items apply or are skipped:
+   Default when house file exists and human has not chosen: **keep house**. Explicit user choice wins after A or B is recorded. Anti-slop catalog still wins unless a catalog exception is also recorded.
+7. **Brief (path active):** `/impeccable shape <surface>` is the only design brief. Ensure UI-package `.impeccable/` is gitignored; `/impeccable init` when `PRODUCT.md` missing on new/replacement world. Human approval → `Impeccable brief approved: …`. Fold checklist/spec Musts into shape constraints. **Do not** produce a parallel 6-dimension brief. Name surface type (`persuade` | `operate`) in decisions or shape notes; fold `references/design-principles.md` Must items.
+8. **Brief (path skipped only):** Produce a 6-dimension design brief (align to `DESIGN.md` when present) covering:
    - **Product metaphor and mood** - e.g., "studio dashboard", "reading room"
    - **Typography direction** - display + body pairing with rationale
    - **Color palette** - 3–5 tokens: bg, surface, text, accent, danger
    - **Layout structure** - first screen wireframe description (structure for bake-off - not a gray-box-only artifact)
    - **Motion intent** - subtle / standard / none
    - **Spacing scale** - 4pt or 8pt base (prefer modular steps near 1.25–1.618 when Should Golden Ratio / Fibonacci fit)
-   Include borrow scope, extract citations (when refs supplied), product context summary (when brownfield), `UX checklist:` id or none, and conflict outcome lines when applicable.
-8. **Present the brief for user approval**. No implementation code until explicitly approved. When `DESIGN.md` was missing, the brief includes a candidate `DESIGN.md` for approval (seeded from references within the chosen borrow scope when present).
+   Include borrow scope, extract citations (when refs supplied), product context summary (when brownfield), `UX checklist:` id or none, and conflict outcome lines when applicable. When `DESIGN.md` was missing, include a candidate `DESIGN.md`.
+9. **Present the brief for user approval**. No implementation code until explicitly approved.
 
 ### Draft preview (`/sc-discuss`)
 
@@ -90,22 +92,24 @@ After design brief approval, before `/sc-run` / real implementation:
 
 6. **Every draft MUST include**: `data-draft="true"`; scaffold with `[data-draft-chrome]` (banner, notes, scenario switcher, viewport toggles) **outside** a visible `[data-draft-frame]` that wraps `[data-draft-surface]` (production UI only); versioned filename; CSS custom properties for brief tokens on the surface; after bake-off (or skip), a **surface-relevant** scenario matrix of `data-state` panels inside the surface (happy path + failure/degraded the surface can enter; `loading` when async; `empty`/`few`/`many` when the surface presents a variable-length collection; plus feature/behavior surfaces from `spec.md`). Each panel shows real component chrome - not layout boxes only. Bake-off candidates may defer full matrix until the winner polish step.
 
-7. **Designer gate (required):** Task(`sc-designer`) on the draft presented for approval (winner after bake-off, or sole draft when skipped). Commander applies critical and important fixes (`sc-designer` is readonly). Missing scenario states (on approval candidate), missing scaffold/frame, non-portable chrome, product-continuity gaps (brownfield), missing extract when borrow is set, missing applicable `(state)` checklist items when `UX checklist: <id>` is set, or frame-resize-only / squeeze-only responsive structure at **any** preset = critical. Check all four viewport presets (375 / 768 / 1280 / 1536) and **Responsive ladder** - size-appropriate organization at each preset, not pairwise mobile-vs-desktop only - before and after fixes. Do not serve or present the **approval** draft to the human until this gate passes. Bake-off candidates may be shown for layout pick after a lighter scaffold/viewport/responsive-ladder sanity check; full designer gate still required before `UI draft approved`.
+7. **Designer port gate then Impeccable craft (required on path active):** Task(`sc-designer`) **port** gate first on the approval candidate (scaffold, scenarios, checklist, ladder, continuity, extract, port readiness) - fail-closed. Commander applies critical/important fixes. Then Impeccable craft: `/impeccable critique` default, or finish-reviewer when approved comp / craft-critical; record `Impeccable craft gate:` and `Impeccable craft: pass | waived: <reason>`. Do not serve approval draft until **both** pass (or human waive craft). Bake-off candidates may use lighter scaffold/ladder sanity only. Path skipped: designer port gate alone (legacy).
 
 8. **Serve for review**: `node .cursor/skills/sc-ux-design/scripts/serve-html.mjs .space/missions/<id>/design/drafts/ --open`
 
-9. **Under `/sc-discuss`**: iterate (draft → designer → fix → human) with dimension lock until the human likes it. On approval, record `UI draft approved: <draft-file>` in `decisions.md` only when the scenario matrix is complete, `UX checklist:` (id or none) is recorded, **and** `Layout bake-off winner:` or `Layout bake-off skipped:` is recorded; then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
+9. **Under `/sc-discuss`**: iterate (draft → designer port → craft → fix → human) with dimension lock until the human likes it. On approval, record `UI draft approved: <draft-file>` only when scenario matrix complete, `UX checklist:` recorded, bake-off winner/skip recorded, and (path active) shape brief approved + craft pass/waive; then `spacecraft clarify-status clear`. Do not start RED-GREEN until that record exists.
 
-10. **Under `/sc-run`**: do **not** invent or iterate draft HTML, and do **not** run layout bake-off. Port look from the approved draft. If approval is missing, stop and recommend `/sc-discuss`. Layout discovery belongs in discuss only.
+10. **Under `/sc-run`**: do **not** invent or iterate draft HTML, and do **not** run layout bake-off or Impeccable shape/new-work. Port look from the approved draft. Optional Impeccable polish/audit only if draft parity preserved. If approval is missing, stop and recommend `/sc-discuss`.
 
-11. **Iterate** in discuss until approved (max 3 human rounds after bake-off winner - if still unapproved, escalate to user for direction). Each new draft version re-runs the designer gate before human HIL.
+11. **Iterate** in discuss until approved (max 3 human rounds after bake-off winner - if still unapproved, escalate to user for direction). Each new draft re-runs port gate; re-run craft if the draft changed.
+
 12. **Before human approval**: exercise all four viewport presets (mobile 375, tablet 768, desktop 1280, widescreen 1536) via the draft toggles. Confirm the **Responsive ladder** at each preset - intentional, size-appropriate organization; adjacent presets not pixel-squeezed copies; widescreen uses extra width deliberately (not stretched desktop with dead space or unreadably wide lines). If layout breaks, overflows, or any preset is frame-resize/squeeze-only, fix before asking for approval.
 
 ### DESIGN.md integration
 
 1. **Read `DESIGN.md`** before any UI work.
 2. **If missing**, the design brief phase produces a candidate `DESIGN.md` for approval (from brief + reference borrow within scope).
-3. After `UI draft approved`, **update `DESIGN.md` from the approved draft** (tokens, type, spacing) so product CSS matches the draft - unless `DESIGN conflict: mission exception` was recorded (then leave house `DESIGN.md` alone; mission look lives in the approved draft only). On `DESIGN conflict: update house`, sync `DESIGN.md` to the new SoT from the approved draft. Post-approval, the approved draft owns look for port; `DESIGN.md` is the house token doc, not a license to freestyle chrome.
+3. After `UI draft approved`, default **keep house** `DESIGN.md`. Sync from the approved draft only when `DESIGN conflict: update house` was recorded. On `DESIGN conflict: mission exception`, leave house alone (mission look lives in the approved draft only). Post-approval, the approved draft owns look for port; `DESIGN.md` is the house token doc, not a license to freestyle chrome.
+
 
 ### Anti-slop detection & visual verification
 
@@ -160,8 +164,12 @@ Optional scripted audit (same Playwright family):
 - **Must**: When references are supplied, run `references/reference-extract.md` before the brief; produce `design/refs/extract.md`; record `Reference extract: design/refs/extract.md` and human-confirmed `Reference borrow:` in `decisions.md`; brief must cite extract rows.
 - **Must**: When references are supplied, record exactly one borrow scope (`mood` | `tokens` | `layout` | `chrome`) in the brief and `decisions.md`.
 - **Must**: When proposed style conflicts with `DESIGN.md`, ask once and record `DESIGN conflict: mission exception | update house | keep house` before drafting.
-- **Must**: Produce a 6-dimension design brief before writing UI implementation code.
+- **Must**: Record `Impeccable path: active` (default) or `skipped: <reason>` on visual work; follow `references/impeccable-orchestration.md` when active.
+- **Must**: When path active, obtain `/impeccable shape` brief approval (`Impeccable brief approved:`) before bake-off - do not author a parallel 6-dimension brief.
+- **Must**: When path skipped, produce a 6-dimension design brief before UI implementation code.
 - **Must**: Obtain explicit user approval on the brief before proceeding.
+- **Must**: Ensure UI-package `.impeccable/` is gitignored when path active.
+
 - **Must not**: Enter layout bake-off when `Reference borrow:` is set but `design/refs/extract.md` is missing.
 - **Must not**: Silent-clone full chrome from a reference image or text when borrow scope is narrower.
 - **Must not**: Ask the human to pick an art-direction pack (packs removed - brief + `DESIGN.md` only).
@@ -177,7 +185,8 @@ Optional scripted audit (same Playwright family):
 - **Must**: During draft iteration, apply **dimension lock** - change only one of `typography` | `color` | `layout` | `motion` | `spacing` | `chrome` per human round; do not restyle multiple dimensions in one pass.
 - **Must**: Every approval-candidate draft HTML file includes: `data-draft="true"`; scaffold with `[data-draft-chrome]` outside a framed `[data-draft-surface]`; viewport toggles for 375 / 768 / 1280 / 1536; versioned filename; and surface-relevant `data-state` panels **inside the surface** (happy path + failure/degraded the surface can enter; `loading` when implied; `empty`/`few`/`many` when variable-length collection; plus spec feature/behavior surfaces).
 - **Must**: Keep explanatory copy outside the frame; port only `[data-draft-surface]`.
-- **Must**: Run Task(`sc-designer`) and apply critical/important fixes before serving or presenting the **approval** draft to the human.
+- **Must**: Run Task(`sc-designer`) port gate then Impeccable craft gate (path active) and apply critical/important fixes before serving the **approval** draft; path skipped: designer port gate alone.
+
 - **Must**: Check draft layout at all four viewport presets before asking for approval; confirm **Responsive ladder** - size-appropriate organization at each preset, not pairwise mobile-vs-desktop only.
 - **Must**: Own draft discovery (including bake-off) under `/sc-discuss`; `/sc-run` requires `UI draft approved: …` already recorded (or non-visual skip) and must not invent layouts.
 - **Must not**: Serve or present raw/unreviewed approval-candidate draft HTML to the human.
@@ -213,14 +222,16 @@ Optional scripted audit (same Playwright family):
 
 - **Must**: Read `DESIGN.md` before any UI implementation work.
 - **Must**: Generate a candidate `DESIGN.md` when the project lacks one, during the design brief phase.
-- **Must**: After draft approval, sync `DESIGN.md` tokens from the approved draft before or during port, except when `DESIGN conflict: mission exception` is recorded (leave house unchanged).
+- **Must**: After draft approval, keep house `DESIGN.md` unless `DESIGN conflict: update house` (then sync from approved draft). Leave house unchanged on mission exception.
+
 - **Must**: Keep house `DESIGN.md` focused (prefer ≤~200 lines of durable tokens/rules) - specificity beats sprawl; evolve the file when design changes, then regenerate UI from it.
 
 ## Out of scope
 
 This skill does NOT handle:
 
-- Draft critique before human HIL - Task(`sc-designer`); Commander applies fixes
+- UX orchestrate + port/craft gates before human HIL - Task(`sc-designer`) + Impeccable; Commander applies fixes / runs Impeccable commands
+
 - Full accessibility audit (WCAG, ARIA, keyboard nav) - note gaps; escalate if blocking
 - CSS framework selection or component library decisions - ask the user
 - Product implementation - that's the build command's scope (must port from approved draft)
