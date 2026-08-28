@@ -88,7 +88,7 @@ Commander coordinates the mission without directly writing product code:
 | Subagent | Role Contract |
 |---|---|
 | `sc-planner` | Slices `spec.md` into ≤7 jigsaw tasks per phase with design contracts and approved scenarios. |
-| `sc-designer` | UI critique, anti-slop review, token auditing against `DESIGN.md`, and Draft HTML visual SoT. |
+| `sc-designer` | UX lead: orchestrates Impeccable (primary craft); owns Spacecraft port gates; approved draft HTML remains visual SoT. |
 | `sc-coder` | Surgical implementation of code making failing tests pass (GREEN) or executing triage skips. |
 | `sc-tester` | TDD RED tests, scenario test suites, diff-coverage, and mutation checks. |
 | `sc-browser-probe` | Live browser sweep using Chrome DevTools MCP with AFK fix-loop to `PROBE: CLEAN`. |

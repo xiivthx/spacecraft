@@ -59,3 +59,6 @@ Thumbs.db
 # Local AI / mission runtime
 .space/
 .codegraph/
+
+# Impeccable craft cache (mocks, review captures) — see docs/impeccable-discuss-integration.md
+.impeccable/

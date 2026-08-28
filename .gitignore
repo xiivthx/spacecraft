@@ -65,3 +65,6 @@ Thumbs.db
 /spacecraft
 signs/
 bin/
+
+# Impeccable craft cache
+.impeccable/
