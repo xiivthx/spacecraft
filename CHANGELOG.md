@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.66.0 - 2026-08-29
+
+- Feat: optional Automations+Slack HIL AFK via `sc-automate-slack` — Slack notify/resume cue; Must not AUTH/`VERIFIED`/ship from Slack; disarm on stop/ready; never required for ready/ship
+- Feat: `sc-judge` hunts `Automate-Slack:` disposition (mirror `Loop watch` ran→stopped)
+- Docs: `sc-run` / `200-workflow` / `docs/prompting.md` Automations+Slack handoff; split handoff AUTH + re-ready alignment
+
 ## 0.65.0 - 2026-08-29
 
 - Feat: optional post-ready / pre-ship `sc-split-to-prs` via Cursor `split-to-prs` — human plan approval, quoted AUTH before push, sizing untouched, Must not merge, re-ready after work-branch mutation; never required for ship

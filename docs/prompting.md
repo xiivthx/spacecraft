@@ -32,7 +32,7 @@ Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (se
 
 ## Overnight `/sc-run`
 
-After `/sc-discuss` clear, AFK `/sc-run` avoids mid-HIL except hard blocks. Stop on `3-cycle` | `timebox` | `blocked`. On those stops write `.space/missions/<id>/handback.md` with stop reason + remaining work cue. Optional overnight/AFK watch via `sc-loop` / Cursor `/loop` (CI/jobs); on stop or ready handoff, disarm the loop (and write `handback.md` on stop). Detail: `.cursor/skills/sc-run/SKILL.md`, `.cursor/skills/sc-loop/SKILL.md`. No overnight runner CLI.
+After `/sc-discuss` clear, AFK `/sc-run` avoids mid-HIL except hard blocks. Stop on `3-cycle` | `timebox` | `blocked`. On those stops write `.space/missions/<id>/handback.md` with stop reason + remaining work cue. Optional overnight/AFK watch via `sc-loop` / Cursor `/loop` (CI/jobs); on stop or ready handoff, disarm the loop (and write `handback.md` on stop). Optional Automations+Slack HIL AFK via `sc-automate-slack`: Slack notify on handback/needs-HIL; Slack reply may cue resume under `/sc-run` gates; Slack resume ≠ AUTH; never required for ready/ship; on stop or ready handoff, disarm Automations lane when armed. Detail: `.cursor/skills/sc-run/SKILL.md`, `.cursor/skills/sc-loop/SKILL.md`, `.cursor/skills/sc-automate-slack/SKILL.md`. No overnight runner CLI.
 
 ## Mission canvas artifacts (`/sc-run`)
 
