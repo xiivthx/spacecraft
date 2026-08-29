@@ -30,7 +30,7 @@ No non-blocking questions mid-AFK. Detail skills: `sc-discuss`, `sc-run`, `sc-sh
 - **Run** → plan → design-contract → approved-scenarios → build → combine (static + diff-cov + mutation) → fix → browser-probe (UI/workflow) → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.` Optional post-ready drain via `sc-post-ready-drain` (git-primary; no GitHub PR needed) after ready and before `/sc-ship`.
 - **Ship** → squash ≤5, closeout, merge `--no-ff`, archive. Roadmap continues: `Next: new session → /sc-discuss <id>`
 
-capability tips (e.g. post-ready drain via `sc-post-ready-drain`; later `/loop`, split-to-prs, Automations+Slack) may run as Cursor-primary aids. Spacecraft still owns ready/ship (orchestration / pass-fail). Never soft-pass ready/ship from Cursor chat tables alone.
+capability tips (e.g. post-ready drain via `sc-post-ready-drain`; optional overnight/AFK `/sc-run` watch via `sc-loop` / `/loop` — stop or ready handoff → disarm + `handback.md`; split-to-prs, Automations+Slack) may run as Cursor-primary aids. Spacecraft still owns ready/ship (orchestration / pass-fail). Never soft-pass ready/ship from Cursor chat tables alone.
 
 Findings: fix in `/sc-run` and report in the summary (no issue ledgers). Roadmap CLI: `spacecraft map use|current|next`.
 

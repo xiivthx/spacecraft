@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.64.0 - 2026-08-29
+
+- Feat: optional overnight/AFK `sc-loop` watch via Cursor `/loop` — Spacecraft stop + ready-handoff disarm; ticks never ready/ship authority
+- Docs: `sc-run` / `sc-judge` / `200-workflow` / `docs/prompting.md` overnight watch + disposition binding
+
 ## 0.63.2 - 2026-08-29
 
 - Docs: Cursor-primary / Spacecraft-gate policy in `000` + `200`; thin `docs/prompting.md` pointer; never soft-pass ready/ship from Cursor chat alone
