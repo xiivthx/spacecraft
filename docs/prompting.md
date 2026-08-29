@@ -44,6 +44,10 @@ Live files under managed `canvases/` only:
 
 When emitted, record matching lines in `decisions.md`: `Canvas plan: `, `Canvas findings: ` (or `Canvas findings skipped: empty`), `Canvas evidence:` - each with an absolute path; chat and `decisions.md` include absolute markdown links. Canvas files and those decisions lines are optional aids for human check - not ready or `VERIFIED` proof. Must not treat canvas as AUTH / `VERIFIED` / ready / ship authority. Do **not** put canvases under mission `.space/` or repo `.cursor/`. Do **not** replace mission brief or draft HTML / visual SoT with a canvas (brief stays Accept/Adjust/Reject chat HIL; draft stays HTML).
 
+## Goals-mirror (optional)
+
+Optional Goals-mirror via `sc-goal-roadmap` for multi-mission roadmaps (`Sizing: roadmap`). Disposition: `Goal-roadmap: ran` | `Goal-roadmap: skipped: <reason>`. Never required for ready/ship or every roadmap discuss/run. Must not treat Goals / Goal complete as AUTH / `VERIFIED` / ready / ship authority. Spacecraft `mission.json` + roadmap JSON remain SoT. Detail: `.cursor/skills/sc-goal-roadmap/SKILL.md`.
+
 ## Avoid
 
 - Threats, tips, or career-stakes framing
