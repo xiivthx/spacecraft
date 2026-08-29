@@ -14,11 +14,13 @@ Spacecraft harness process for evidence, scope, tests, and acceptance review on 
 
 | Phase | Use |
 |-------|-----|
-| `/sc-run` | Deterministic pre-review before `sc-reviewer`; validate, evidence, scope, tests |
-| Review | `sc-reviewer` per-dimension verdicts (all missions) |
+| `/sc-run` | Deterministic pre-review before review; validate, evidence, scope, tests |
+| Review | Cursor `bugbot` / `security-review` primary defect/security; `sc-reviewer` Spacecraft-supplementary dimensions |
 | Judge | `sc-judge` hunt for false completion, weakened tests, unauthorized action |
 
 Missions with visual UI also use UX/UI review gates (sibling) - apply both when both scopes apply.
+
+On the ready path, Cursor `bugbot` and `security-review` are the primary defect and security surfaces; Spacecraft review (`sc-reviewer`, and `sc-security` only as fallback / on-demand heuristic - no dynamic CVE tools) is supplementary.
 
 ## Source of truth for agents
 
@@ -26,7 +28,7 @@ Full dimension table, machine vs critique split, deterministic ordering, and out
 
 `.cursor/skills/sc-run/references/mission-review-gates.md`
 
-Related: `sc-run`, `sc-verification`, `sc-judge`, `sc-tdd`, `sc-security` (heuristic only - no dynamic CVE tools), `sc-performance`, `ux-ui-review-gates.md` (visual sibling).
+Related: `sc-run`, `sc-verification`, `sc-judge`, `sc-tdd`, Cursor `bugbot` / `security-review` (primary defect/security on the ready path; Spacecraft supplementary), `sc-performance`, `ux-ui-review-gates.md` (visual sibling).
 
 ## Mission canvas milestones
 
@@ -36,7 +38,7 @@ Related: `sc-run`, `sc-verification`, `sc-judge`, `sc-tdd`, `sc-security` (heuri
 
 Do **not** put `.canvas.tsx` under mission `.space/` or repo `.cursor/` (IDE detect is managed `canvases/` only).
 
-Ready-path order after suite clean + deterministic pre-review: `sc-reviewer` → `sc-judge` → `set-state ready` on `VERIFIED`. Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge `VERIFIED`.
+Ready-path order after suite clean + deterministic pre-review: Cursor `bugbot` + `security-review` (primary) → `sc-reviewer` (Spacecraft supplementary) → `sc-judge` → `set-state ready` on `VERIFIED`. Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge `VERIFIED`.
 
 When a canvas is emitted, record a greppable `decisions.md` line (absolute path; chat + `decisions.md` include absolute markdown links):
 

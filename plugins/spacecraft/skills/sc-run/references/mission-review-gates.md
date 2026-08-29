@@ -6,8 +6,8 @@ Authoritative harness reference for evidence, scope, tests, and acceptance revie
 
 Use this protocol whenever mission quality (evidence, validate, scope, tests, acceptance, security/perf when in scope, authorization) could influence pass/fail for `/sc-run` review, `sc-reviewer` findings, `sc-judge` ready, or ship readiness.
 
-- **`/sc-run`** - deterministic pre-review before `Task(sc-reviewer)`; evidence, validate, scope, tests, acceptance, security/perf when in scope
-- **Review** - `sc-reviewer` consumes per-dimension verdicts for all missions (mission dimensions always)
+- **`/sc-run`** - deterministic pre-review before `Task(sc-reviewer)`; evidence, validate, scope, tests, acceptance, security/perf when in scope; Cursor `bugbot` + `security-review` ingest into `review.json`
+- **Review** - `sc-reviewer` adds only mission-dimension gaps Cursor does not cover; consumes per-dimension verdicts for all missions (mission dimensions always)
 - **Judge** - `sc-judge` hunts false completion, weakened tests, scope drift, and unauthorized action on ready claims
 
 Missions with **visual UI** also apply `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` (sibling). Apply **both** when both scopes apply. Mission review covers every mission; UX gates add visual dimensions.
@@ -37,16 +37,16 @@ Required dimensions depend on mission scope. Mark **required** when the scope co
 | **scope-vs-plan** | required | Diff file list vs `plan.json` tasks; acceptance strings vs `spec.md` | Silent extras; missing acceptance coverage; done tasks without matching work |
 | **test-quality** | required when tests exist / TDD path | No removed/skipped/tautology assertions; composition contracts when FE/BE apply | Weakened expectations; GREEN without behavioral assertion |
 | **acceptance-behavior** | required | Evidence proves behavior (not config-only); re-run acceptance verify commands | Wrong behavior with green tests; config-only proof |
-| **approved-scenarios** | required on product path | `approved-scenarios.md` has freeze footer (`Approved-scenarios: frozen-from-contract` or `frozen-by-human`) or `Approved-scenarios skipped: docs/prose-only`; frozen expected literals not silently edited | Missing freeze; thawed oracles; scenarios invent values not in design-contract/spec |
+| **approved-scenarios** | required on product path | `approved-scenarios.md` has freeze footer (`Approved-scenarios: frozen-from-contract` or `frozen-by-human`) or `Approved-scenarios skipped: docs/prose-only`; `spacecraft freeze-check` passes when freeze is machine-required (Gates ≥ M9G7IHV3); frozen expected literals not silently edited | Missing freeze when required; thawed oracles; scenarios invent values not in design-contract/spec; postdated-freeze or freeze-drift |
 | **static-analysis** | required on product path | `evidence.jsonl` has `static-…` label with **0 warning / 0 error** when a project static tool runs **or** greppable `Static-analysis skipped: no project static tool` / `Static-analysis waived: <reason>` in `decisions.md`; failures fixed or waived | Lint/typecheck ignored with no skip/waive; warnings/errors left open without waive |
 | **diff-coverage** | required on product path | `diff-cov-…` evidence showing touched executable **line and branch ≥90%** (sanity band 90–95%) **or** `Diff-coverage skipped: no project coverage tool` / `Diff-coverage waived: <reason>`; never global 95–100% as the bar | Missing attempt; below 90% line+branch without waive; tautology padding for coverage |
 | **mutation** | required disposition on product path | In scope when any of: greppable `Mutation: required`, pack id `quality`, or greppable `Mutation: high-risk` (SoT: `docs/mission-artifacts.md`). Then `mutation-…` evidence (**>80%** scoped, or project higher bar) when tool present; else greppable `Mutation skipped: not in scope` / `Mutation skipped: no project mutation tool` / `Mutation waived: <reason>`. Ordinary missions: `Mutation skipped: not in scope` is valid | Silent omit; in-scope without evidence or skip; score below target without waive; inventing mutator installs without ask |
 | **pbt** | required disposition on product path | **100%** of design-contract **core-logic** modules (branching business rules / pure domain / state machines) have `pbt-…` evidence (invariants + generators via project-existing `fast-check` / Hypothesis / equivalent) **or** greppable `Pbt skipped: no project pbt tool` / `Pbt skipped: not core logic` / `Pbt waived: <reason>` | Silent omit on core-logic; missing disposition without skip/waive; inventing PBT lib install mid-mission |
-| **security-when-in-scope** | when auth/API/secrets/deps touched | Evaluate declared **SEC** Verify bars from `spec.md` (tool + evidence label; `NFR source:` when present). Default hard bar when discuss set one: `no new critical/high SAST findings vs baseline`. Commander captures read-only project checks / SAST as evidence when available; then heuristic `Task(sc-security)` scan | Heuristic gaps; patterns machines miss; missing declared SEC bar when in scope. **Boundary:** `sc-security` forbids dynamic CVE tools - do not require them here |
+| **security-when-in-scope** | when auth/API/secrets/deps touched | Evaluate declared **SEC** Verify bars from `spec.md` (tool + evidence label; `NFR source:` when present). Default hard bar when discuss set one: `no new critical/high SAST findings vs baseline`. Commander captures read-only project checks / SAST as machine evidence when available (ordering step 5). Cursor `Task(security-review)` once in ready-path ordering step 8 (parallel with bugbot). `Task(sc-security)` only on Cursor subagent failure / unavailable skip fallback or explicit on-demand heuristic | Heuristic gaps; patterns machines miss; missing declared SEC bar when in scope. **Boundary:** no dynamic CVE tools - do not require them here |
 | **perf-when-in-scope** | when perf-touched paths / hot paths | Evaluate declared **PERF** Verify bars or recorded-skip debt when perf in scope. Default relative bar when discuss set one: `no p95 regression >10% vs baseline <evidence-id>`. Measure or documented baseline when `sc-performance` applies; existing benchmark in `evidence.jsonl`; accept greppable `<Gate> skipped: no tool` debt when no tool | `measure-first` / unclear impact without evidence; invented bars; skip without debt line |
 | **unauthorized-action** | required | No outward push/deploy/publish/send without quoted `AUTH:`; no ship without `/sc-ship` gates | Outward action without authorization; merge/tag without lifecycle gates |
 
-**security-when-in-scope fail-closed:** When auth/API/secrets/deps are in scope, uncertain or skipped with no machine evidence and no heuristic `sc-security` pass ⇒ treat as `fail` (critical / `REFUTED`). Declared SEC Verify bars (tool + evidence label) are required when security is in scope - do not invent a new review dimension.
+**security-when-in-scope fail-closed:** When auth/API/secrets/deps are in scope, uncertain or skipped with no machine evidence and no `security-review` pass (and no greppable `Sc-security fallback: pass` when Cursor failed or on-demand) ⇒ treat as `fail` (critical / `REFUTED`). Fail-closed when security is in scope and both `security-review` and fallback `sc-security` fail. When security is in scope, greppable `Cursor review skipped:` is valid **only** after a greppable `Sc-security fallback: pass` (optionally also `Sc-security fallback: findings drained`; optional evidence label `sc-security-…`) **or** SEC machine-evidence pass; otherwise fail / `REFUTED` - skip alone does not satisfy security-when-in-scope. Declared SEC Verify bars (tool + evidence label) are required when security is in scope - do not invent a new review dimension.
 
 **perf-when-in-scope fail-closed:** When perf paths are in scope, `measure-first` unclear impact without evidence ⇒ `uncertain` ⇒ fail-closed for ready. Declared PERF Verify bars or recorded-skip debt are required when perf is in scope - do not invent a new review dimension.
 
@@ -56,12 +56,23 @@ Commander runs this layer in `/sc-run` **before** `Task(sc-reviewer)`:
 
 1. `spacecraft validate --strict`
 2. Confirm every `plan.json` task marked `done` has matching `evidence.jsonl` entries for its `evidence` labels
-3. Confirm approved-scenarios freeze footer or docs/prose skip; confirm static-analysis, diff-coverage, mutation, and PBT (`pbt-…` or `Pbt skipped`/`Pbt waived`) evidence labels or skip/waive lines (`docs/mission-artifacts.md`)
+3. Confirm approved-scenarios freeze footer or docs/prose skip; run `spacecraft freeze-check` when Gates version ≥ M9G7IHV3 and freeze is machine-required (`docs/mission-artifacts.md` **Test freeze**); confirm static-analysis, diff-coverage, mutation, and PBT (`pbt-…` or `Pbt skipped`/`Pbt waived`) evidence labels or skip/waive lines (`docs/mission-artifacts.md`)
 4. Re-run or spot-check claimed verify commands when acceptance is in doubt
-5. When security in scope: evaluate declared SEC Verify bars (tool + evidence label / SAST vs baseline); capture read-only project checks as evidence (lint, typecheck, documented audit scripts); then `Task(sc-security)` heuristic scan (no dynamic CVE tools per `sc-security` skill)
+5. When security in scope: evaluate declared SEC Verify bars (tool + evidence label / SAST vs baseline); capture read-only project checks as **machine evidence only** (lint, typecheck, documented audit scripts / SAST). Do **not** invoke `Task(security-review)` here
 6. When performance in scope: evaluate declared PERF Verify bars or recorded-skip debt; capture measurement or documented baseline per `sc-performance` (e.g. p95 relative-bar); flag unclear hot-path impact without evidence
 7. When UI or multi-step workflow touched: Task(`sc-browser-probe`) to `PROBE: CLEAN` (skip when no runnable UI/workflow surface)
-8. Only then: `Task(sc-reviewer)` (+ `Task(sc-designer)` / UX gates when visual UI)
+8. Parallel Cursor `Task(bugbot)` + `Task(security-review)` - **sole** ready-path `Task(security-review)` invoke (disposition per `/sc-run`); map outputs into `review.json` via `defect-finding.md` with `source` set. On Cursor security-review failure or unavailable: `Task(sc-security)` fallback or SEC machine-evidence pass before skip is valid when security in scope - write greppable `Sc-security fallback: pass` (optionally also `Sc-security fallback: findings drained`; optional evidence label `sc-security-…`) when fallback clears the gate (no dynamic CVE tools; fail-closed when both fail)
+9. Only then: `Task(sc-reviewer)` (+ `Task(sc-designer)` / UX gates when visual UI) - mission-dimension gaps only; on overlap Cursor finding wins - **remove** Spacecraft duplicate from `findings[]` (do not leave a `supersededBy` row that still counts as leftover)
+
+## Cursor ingest and all-severity drain
+
+After Cursor + `sc-reviewer` write `review.json`:
+
+1. **Ingest** - every bugbot / security-review / sc-reviewer finding is a defect-finding row with `source` set when known. When corroborating a `Cursor review: … ran` disposition without a `cursor-review-…` evidence label, write greppable `Cursor ingest: session` in `decisions.md`.
+2. **Dedupe** - same file + issue-family → keep Cursor row; **remove** Spacecraft duplicate from `findings[]` (`supersededBy` is not a ready exemption - row must be gone).
+3. **Drain all severities** (`critical` / `important` / `minor`) - fix only when `requiredFix` is concrete (no free-form whole-tree refactor from Bugbot noise); combine keeps ordinary refactor. Loop: fix → re-run Cursor reviews → re-review → re-judge until findings empty or `3-cycle` / `timebox` handback.
+
+Ready proof still requires empty `review.json` findings - soft-pass with open minors is forbidden.
 
 ## Post-review canvas handoff
 
@@ -137,7 +148,7 @@ Prior review approval does not grandfather later runs without fresh validate, ev
 - `.cursor/skills/sc-judge/SKILL.md` - adversarial prove gate; `VERIFIED` | `REFUTED` only
 - `.cursor/skills/sc-run/references/defect-finding.md` - actionable findings schema
 - `.cursor/skills/sc-tdd/SKILL.md` - test-first discipline; test-quality dimension
-- `.cursor/skills/sc-security/SKILL.md` - heuristic static scan; **no dynamic CVE tools**
+- `.cursor/skills/sc-security/SKILL.md` - fallback / on-demand heuristic static scan when Cursor `security-review` fails or is explicitly requested; **no dynamic CVE tools**
 - `.cursor/skills/sc-performance/SKILL.md` - measure-first; hot-path discipline
 - `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` - sibling for visual UI
 - `docs/mission-review.md` - short human-facing overview

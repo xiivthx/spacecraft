@@ -12,7 +12,7 @@ These are not LLM trap-eval suites. They prove the exit gate fails on bad disk s
 | --- | --- | --- |
 | `empty-evidence/` | No evidence captured | `no evidence captured` |
 | `false-completion/` | Done plan + empty evidence | `no evidence captured` |
-| `review-findings/` | Non-empty review findings | `review finding` |
+| `review-findings/` | Non-empty review findings (Cursor-sourced leftover with `source: bugbot` must fail closeout) | `review finding` |
 | `false-consensus/` | VERIFIED/ready without per-finding `AGREE\|DISAGREE_*` dissent | `false-consensus` |
 | `charitable-reviewer/` | Free-text `builderRationale` (not structured-lines-only) | `charitable-reviewer` |
 | `silent-mutation-skip/` | `Mutation: required\|high-risk` without disposition or `mutation-` evidence | `silent-mutation-skip` |

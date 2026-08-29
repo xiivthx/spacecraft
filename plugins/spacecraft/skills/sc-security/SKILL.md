@@ -6,18 +6,20 @@ disable-model-invocation: true
 
 # sc-security
 
-Static security review of source code and dependency manifests. Apply pattern-based heuristics only; never execute dynamic audit tools. Flag findings.
+Fallback and on-demand static security review of source code and dependency manifests. Cursor `security-review` is the primary ready-path security surface; this skill runs only when that subagent fails or the human/Commander explicitly requests a heuristic scan. Apply pattern-based heuristics only; never execute dynamic audit tools. Flag findings.
 
 ## When to use
 
+**Role:** fallback + on-demand only. Ready-path security uses Cursor `security-review` first.
+
 Activate on these triggers:
 
-- "security review" or "security check"
+- Cursor `security-review` subagent failure on a security-in-scope ready path (fallback)
+- Explicit on-demand heuristic: "security review" or "security check"
 - "check for secrets", "find hardcoded credentials", "scan for tokens"
 - "OWASP check" or "OWASP Top 10"
 - "injection scan", "SQL injection", "command injection"
 - "audit dependencies" or "check manifest for vulnerabilities"
-- Before final evidence capture for any mission task with security exposure
 
 ## Workflow
 
@@ -39,7 +41,14 @@ Emit findings in the output format. Include file path, line, matched pattern, ev
 
 ### 5. Record in mission evidence
 
-Add findings to the task output or `evidence.jsonl` notes.
+Add findings to the task output or `evidence.jsonl` notes. Optional evidence label: `spacecraft evidence "sc-security-…" -- …`.
+
+When this skill runs as ready-path **fallback** after Cursor `security-review` failure or unavailable skip, Commander Must write greppable disposition in `decisions.md`:
+
+- `Sc-security fallback: pass` - fallback cleared security-when-in-scope (no open critical/important security findings blocking ready)
+- Optionally also `Sc-security fallback: findings drained` - when fallback findings were fixed/drained before pass
+
+Judge and reviewer accept only these greppable lines (plus SEC machine-evidence pass) - not free-text "sc-security ran" prose.
 
 ## Rules
 
@@ -142,6 +151,7 @@ Recommendation: pass / fix-before-merge / block
 - [ ] Each finding includes file path, line, evidence snippet, and fix guidance
 - [ ] No dynamic audit tools executed
 - [ ] Results recorded in task output or `evidence.jsonl`
+- [ ] Ready-path fallback: greppable `Sc-security fallback: pass` (and optionally `Sc-security fallback: findings drained`) written in `decisions.md` when fallback clears the gate
 
 ## References
 

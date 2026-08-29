@@ -28,7 +28,7 @@ Mid `/sc-discuss` grill: if the human is stuck (confused wording, needs facts, o
 
 ## Inner-loop gates (Quick + Mission)
 
-Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission runs `sc-judge` (adversarial prove; ready only on `VERIFIED`). Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` (mission artifacts and evidence; not-doc-drift / not-10X-validate) + judge hunts.
+Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission uses Cursor `bugbot` / `security-review` as primary defect/security surfaces (Spacecraft supplementary - `docs/mission-review.md`) and runs `sc-judge` (adversarial prove; ready only on `VERIFIED`). Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` (mission artifacts and evidence; not-doc-drift / not-10X-validate) + judge hunts.
 
 ## Overnight `/sc-run`
 

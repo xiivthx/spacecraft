@@ -88,6 +88,10 @@ Findings appear in `review.json` or run summary with greppable `severity` + `req
 | `environment` | optional | Mission Platform / SFDIPOT / evidence; default `unspecified` |
 | `version` | optional | From evidence or tag; default `unspecified` |
 | `reproducible` | optional | Evidence label (e.g. `evidence: label`) or manual count (e.g. `manual: 3/3`) |
+| `source` | optional | `bugbot` \| `security-review` \| `sc-reviewer` \| `sc-security` \| …; omit when unknown - findings without `source` remain valid |
+| `supersededBy` | optional | Not a ready exemption. Prefer omit: on overlap **remove** the Spacecraft duplicate from `findings[]`. If used, it is only an optional note on a row that is **not** left in `findings[]` (e.g. transient during drain) - a row still in `findings[]` with `supersededBy` still counts as a leftover finding |
+
+**Overlap (Cursor-primary):** Same `file` + issue-family → keep the Cursor row (`bugbot` / `security-review`); **remove** the Spacecraft duplicate from `findings[]` before ready. Do not leave a superseded Spacecraft row in `findings[]` - `supersededBy` does not empty the array or waive leftover-findings / ready proof.
 
 ## Severity mapping
 

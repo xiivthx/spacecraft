@@ -4,6 +4,7 @@
     {
       "severity": "minor",
       "blocksShip": false,
+      "source": "bugbot",
       "summary": "Known-bad fixture finding"
     }
   ],
