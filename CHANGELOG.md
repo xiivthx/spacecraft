@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.65.0 - 2026-08-29
+
+- Feat: optional post-ready / pre-ship `sc-split-to-prs` via Cursor `split-to-prs` — human plan approval, quoted AUTH before push, sizing untouched, Must not merge, re-ready after work-branch mutation; never required for ship
+- Docs: `sc-run` / `200-workflow` / `docs/prompting.md` optional split handoff + opened split PRs never ready/ship proof
+
 ## 0.64.0 - 2026-08-29
 
 - Feat: optional overnight/AFK `sc-loop` watch via Cursor `/loop` — Spacecraft stop + ready-handoff disarm; ticks never ready/ship authority
