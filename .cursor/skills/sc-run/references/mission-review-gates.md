@@ -76,14 +76,14 @@ Ready proof still requires empty `review.json` findings - soft-pass with open mi
 
 ## Post-review canvas handoff
 
-After `review.json` is written, Commander may emit canvases for human check under `~/.cursor/projects/<workspace>/canvases/`:
+After `review.json` is written, Commander may optionally emit canvases for human check via `sc-canvas-sot` (disposition `Canvas-sot: ran` | `Canvas-sot: skipped: <reason>`; never required for ready/ship). Files under `~/.cursor/projects/<workspace>/canvases/`:
 
 1. **Findings:** nonempty `findings` → optional `<missionId>-findings.canvas.tsx`, `Canvas findings: ` + absolute path in `decisions.md`, and an absolute markdown link in chat. Empty `findings` → optional `Canvas findings skipped: empty` (no findings canvas file).
 2. **Evidence:** optional `<missionId>-evidence.canvas.tsx`; `Canvas evidence: ` + absolute path; absolute markdown link in chat (and `decisions.md`).
 
-Then run `sc-judge`. Missing canvas files or `decisions.md` lines do not block `sc-judge` or ready. Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge `VERIFIED`.
+Then run `sc-judge`. Missing canvas files or `decisions.md` lines do not block `sc-judge` or ready. Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge `VERIFIED`. Must not treat canvas as AUTH / `VERIFIED` / ready / ship authority; Canvas ≠ ready proof.
 
-Do not put canvases under mission `.space/` or repo `.cursor/`. Do not inspect canvas TSX/JSON shape. See `/sc-run` Optional canvas (human check).
+Do not put canvases under mission `.space/` or repo `.cursor/`. Do not inspect canvas TSX/JSON shape. See `sc-canvas-sot` and `/sc-run` optional canvas-SoT lane.
 
 ## Verdict mapping
 

@@ -36,11 +36,13 @@ After `/sc-discuss` clear, AFK `/sc-run` avoids mid-HIL except hard blocks. Stop
 
 ## Mission canvas artifacts (`/sc-run`)
 
-`/sc-run` may emit Cursor Canvas files under managed `canvases/` for human check after ready:
+Optional canvas-SoT via `sc-canvas-sot` for `/sc-run` plan | findings | evidence human-check emits. Never required for ready/ship or every `/sc-run`. Disposition: `Canvas-sot: ran` | `Canvas-sot: skipped: <reason>`. Detail: `.cursor/skills/sc-canvas-sot/SKILL.md` (upstream canvas by reference).
+
+Live files under managed `canvases/` only:
 
 `~/.cursor/projects/<workspace>/canvases/<missionId>-<kind>.canvas.tsx` (`kind` ∈ `plan` | `findings` | `evidence`).
 
-When emitted, record matching lines in `decisions.md`: `Canvas plan: `, `Canvas findings: ` (or `Canvas findings skipped: empty`), `Canvas evidence:` - each with an absolute path; chat and `decisions.md` include absolute markdown links. Canvas files and those decisions lines are optional aids for human check - not ready or `VERIFIED` proof. Do **not** put canvases under mission `.space/` or repo `.cursor/`. Do **not** replace mission brief or draft HTML / visual SoT with a canvas (brief stays Accept/Adjust/Reject chat HIL; draft stays HTML).
+When emitted, record matching lines in `decisions.md`: `Canvas plan: `, `Canvas findings: ` (or `Canvas findings skipped: empty`), `Canvas evidence:` - each with an absolute path; chat and `decisions.md` include absolute markdown links. Canvas files and those decisions lines are optional aids for human check - not ready or `VERIFIED` proof. Must not treat canvas as AUTH / `VERIFIED` / ready / ship authority. Do **not** put canvases under mission `.space/` or repo `.cursor/`. Do **not** replace mission brief or draft HTML / visual SoT with a canvas (brief stays Accept/Adjust/Reject chat HIL; draft stays HTML).
 
 ## Avoid
 
