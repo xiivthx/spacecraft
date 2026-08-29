@@ -23,7 +23,7 @@ Escape net after implement/fix or inside `/sc-run` when UI or multi-step workflo
 ## Good / Bad
 
 - Good: inventory before sweep; every in-scope foundation + matched pack scored; interaction not screenshot-only; pack items from `sc-ux-design/references/checklists/` via `surface-match.md`; severity + repro; fix every finding then re-probe; stop on CLEAN or same-issue 3-cycle; timebox; measured perf or explicit "not measured"
-- Bad: report-only when runnable product exists; one happy path; treating invalid / empty / loading / error as the same state; `CLEAN` with any finding or deferred required packs; walking unmatched packs; treating designer draft-parity as this job; claiming `ready` / replacing sc-judge; skipping setup; infinite fix without 3-cycle stop
+- Bad: report-only when runnable product exists; one happy path; treating invalid / empty / loading / error as the same state; `CLEAN` with any finding or deferred required packs; walking unmatched packs; treating designer draft-parity as this job; treating browser / MCP / chat success as `ready` / `VERIFIED` / `AUTH` / ship; replacing sc-judge; skipping setup; infinite fix without 3-cycle stop
 
 ## Verify
 
@@ -34,7 +34,8 @@ Escape net after implement/fix or inside `/sc-run` when UI or multi-step workflo
 - Fix-loop ran until no findings remain, or stop reason recorded (`3-cycle:` / `timebox:` / `blocked:`)
 - `PROBE: CLEAN` forbidden if any finding remains or any required coverage row is `deferred`
 - Perf claims only with measured data or explicit estimate assumptions
-- Does **not** alone authorize mission `ready` (sc-run may require CLEAN before ready when probe is in scope)
+- Spacecraft owns disposition: `PROBE: CLEAN` | `PROBE: ISSUES` | `PROBE: PARTIAL` | `PROBE: BLOCKED` (not MCP/chat alone)
+- Browser / MCP / chat success Must not authorize `ready` / `VERIFIED` / `AUTH` / ship (sc-run may still require `PROBE: CLEAN` before ready when probe is in scope; probe alone never grants those)
 
 ## When to use
 
@@ -90,11 +91,11 @@ Minimum when scope allows: happy + empty/invalid + boundary/long + one mobile pa
 
 ### 3. Run scenarios
 
-Browser matrix (same preference as spacecraft UI work):
+Browser matrix (probe executor preference - Cursor-first; sc-ux-design Tier 3 visual matrix stays unchanged and is not Cursor-first):
 
-1. **Chrome DevTools MCP** (Antigravity native: `navigate_page`, `click`, `fill`, `type_text`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `lighthouse_audit`, `resize_page`, `evaluate_script`)
-2. **`playwright-cli`** - standalone CLI (`open` → interact → `snapshot` / `screenshot`)
-3. **Cursor IDE browser** (`cursor-ide-browser` MCP) - Cursor fallback
+1. **Cursor IDE browser** (`cursor-ide-browser` MCP) - primary when available
+2. **`playwright-cli`** - fallback (`open` → interact → `snapshot` / `screenshot`)
+3. **Chrome DevTools MCP** - last fallback (Antigravity native: `navigate_page`, `click`, `fill`, `type_text`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `lighthouse_audit`, `resize_page`, `evaluate_script`)
 
 For each scenario: execute steps, record result, capture screenshot path on fail. Prefer interaction over passive screenshots.
 
@@ -249,7 +250,8 @@ After small fix outside mission: run this skill on the touched surface when user
 - **Must not**: Use an external checklist site as pass/fail; walk packs that are not in inventory
 - **Must not**: Claim `CLEAN` when any finding remains or any required coverage row is `deferred`
 - **Must not**: Treat designer draft-parity as this job
-- **Must not**: Replace sc-verification or sc-judge; absorb into judge/verify as the sole gate; alone allow `ready`
+- **Must not**: Replace sc-verification or sc-judge; absorb into judge/verify as the sole gate
+- **Must not**: Treat browser / MCP / chat success as authority for `ready` / `VERIFIED` / `AUTH` / ship - Spacecraft owns `PROBE:` disposition; probe alone Must not authorize those
 - **Must not**: Hardcode product-specific fixtures into this skill core
 - **Must not**: End with "recommend probe later" when a runnable UI/workflow target exists
 
@@ -272,4 +274,4 @@ After small fix outside mission: run this skill on the touched surface when user
 - [ ] Fix-loop until zero findings or stop reason recorded
 - [ ] Verdict line emitted (`CLEAN` forbidden if findings remain or required row `deferred`)
 - [ ] Perf only if in scope; measured or assumptions explicit
-- [ ] No ready/ship claim from probe alone
+- [ ] No `ready` / `VERIFIED` / `AUTH` / ship claim from browser / MCP / chat or probe alone (Spacecraft owns `PROBE:`)
