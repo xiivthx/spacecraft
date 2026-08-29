@@ -23,12 +23,12 @@ Use this exact sequence unless the user specifies otherwise:
 1. **Resolve mission** - Before git work on a mission, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`. Skip for `/sc-quick` (no mission).
 2. **Check git state** - Run `git status`, `git rev-parse`, and related plain git checks before committing/merging/releasing.
 3. **Branch** - Create a non-main work branch from latest `main` before mutating. Never write product changes on `main`.
-4. **Commit (AFK checkpoints)** - During `/sc-run` build, auto-commit one Conventional Commit per plan task after that task's acceptances are done; also after combine/refactor and material fixes (see §Checkpoint commits). These are WIP on the work branch only.
+4. **Commit (AFK checkpoints)** - During `/sc-run` build, auto-commit one Conventional Commit per plan task after that task's acceptances are done; also after combine/refactor and material fixes. Details: `references/release-policy.md` §Checkpoint commits. These are WIP on the work branch only.
 5. **Squash before ship** - On `/sc-ship`, squash/fixup checkpoints into 1–3 logical Conventional Commits (max 5) before merge. See sc-ship. `/sc-quick` keeps 1–3 commits (no mission squash ceremony).
 6. **Commit (release notes)** - Add changelog update as a **separate commit** in the work branch before merge (type `chore:` or `docs:`). Never defer after merge.
 7. **Verify** - After latest rebase, reverify. For missions, run `spacecraft closeout-check` before claiming release readiness. `/sc-quick` skips closeout (hook uses `SPACECRAFT_QUICK=1`).
 8. **Rebase & Merge** - Before merge, rebase on latest `main`. Merge with `--no-ff` only. Mission: `SPACECRAFT_SHIP=1`. Quick: `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`.
-9. **Tag** - After no-ff merge, create annotated tag. Follow bump policy from Rules §Release Prep: breaking=major, feature=minor, fix=patch, docs/chore=still tag as next patch. Do not tag before merge exists.
+9. **Tag** - After no-ff merge, create annotated tag. Bump policy and tagging tables: `references/release-policy.md`. Do not tag before merge exists.
 
 ## Rules
 
@@ -50,11 +50,11 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: `release/v<major>.<minor>.<patch>` only for release prep.
 - **Must**: If a branch needs >5 final commits, split the feature first.
 
-### Commits
+### Commits (Conventional Commits)
 
 - **Must**: Target 1–3 **final** commits per branch after ship squash, max 5 unless justified in decisions.md.
 - **Must**: Separate version bump + changelog update into its own `chore:` or `docs:` commit - do not bundle with implementation commit.
-- **Must**: During `/sc-run` AFK build, auto-create checkpoint commits (see §Checkpoint commits).
+- **Must**: During `/sc-run` AFK build, auto-create checkpoint commits (see `references/release-policy.md` §Checkpoint commits).
 - **Must**: Before `/sc-ship` merge, squash/fixup checkpoints into logical Conventional Commits (≤5). Do not squash unrelated changes.
 - **Must not**: Stage unrelated user changes. Prefer `git add <specific-files>`.
 - **Must**: Subject: `<type>: <description>` - imperative, lowercase, ~72 chars.
@@ -63,22 +63,6 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Types: `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`, `perf`, `style`, `revert`.
 - **Must**: Breaking: `!` after type or `BREAKING CHANGE:` footer.
 
-### Checkpoint commits
-
-Used by `/sc-run` on the work branch. Auto-commit; never push.
-
-| Step | When | Suggested type |
-|------|------|----------------|
-| Task | One Conventional Commit per plan task after that task's acceptances are done (TDD RED+GREEN complete, or triage-skip direct-write+evidence) - not per RED and per GREEN | `feat:` / `fix:` / `test:` / `docs:` |
-| Combine | Post-feature refactor and/or integration/functional gate | `refactor:` / `test:` |
-| Fix | Material fix during fix pass | `fix:` |
-
-- **Must**: One Conventional Commit per plan task after that task's acceptances are done. Combine and material-fix checkpoints may remain.
-- **Must**: Subject stays Conventional Commits; body may include `- wip checkpoint`, task id, acceptance summary (and `skip: <reason>` when triage skipped). Do not include the mission id.
-- **Must not**: Invent RED `test:` checkpoints for triage-skip / docs-prose wording-only acceptances - one `docs:` / `feat:` / `fix:` checkpoint is enough.
-- **Must not**: Treat checkpoint count as the final ship commit budget - squash at `/sc-ship`.
-- **Must not**: Checkpoint-commit unrelated user dirty files.
-
 ### Ignore Hygiene
 
 - **Must**: Before staging, inspect untracked/modified files. Update `.gitignore` for new build outputs, caches, logs, env files, deps, or machine files.
@@ -86,7 +70,7 @@ Used by `/sc-run` on the work branch. Auto-commit; never push.
 - **Must**: Keep source, tests, migrations, lockfiles, configs, and release notes tracked.
 - **Must**: If unsure about a file, ask before staging. Before release, verify no secrets are tracked.
 
-### Rebase & Merge
+### Rebase & Merge (ship gates)
 
 - **Must**: Before merge, rebase on latest `main`. Reverify after rebase.
 - **Must**: Identify fork point with `git log --oneline main..HEAD | head -1` before rebase. If `main` has advanced beyond the expected base, warn: "Rebase target mismatch: main HEAD differs from fork point. Confirm correct base before rebase."
@@ -94,37 +78,14 @@ Used by `/sc-run` on the work branch. Auto-commit; never push.
 - **Must**: Merge only with `--no-ff`. No fast-forward or squash-merge into `main`.
 - **Must not**: Rebase/rewrite `main`. Resolve conflicts on work branch, then reverify.
 - **Must**: After merge, delete local branch unless asked to keep.
+- **Must**: Mission merge/tag uses `SPACECRAFT_SHIP=1` (and `SPACECRAFT_QUICK=1` for `/sc-quick`). Hooks enforce closeout unless quick.
 
-### Release Prep
+### Release / tag (summary)
 
-- **Must**: User "ship/release/merge/finish/close branch" → release closeout.
-- **Must**: "stop/close/end session" → session handoff (no merge/tag/branch delete).
-- **Must**: If ambiguous, recommend ship; don't auto-merge.
-- **Must**: For missions, run `spacecraft closeout-check` (alias: `ship-check`) before claiming readiness. The CLI machine-enforces: required artifacts present; mission state `ready` or `shipped`; clarify-status not `open`; evidence.jsonl non-empty with `label`/`command`/`output`/`ts`/`exitCode`; `review.json` status `ready` with **empty** `findings` (0 errors, 0 warnings); `releaseReadiness.changelog` and `releaseReadiness.specNote` objects with status `ready` (string/boolean gates invalid); at least one commit touching `CHANGELOG.md` since `main`/`origin/main`. `/sc-quick` skips closeout; ship with `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1`.
-- **Must**: If any gate is incomplete, block and list missing actions.
-- **Must**: Cursor ship hooks re-run closeout when `SPACECRAFT_SHIP=1` before allowing merge/push/tag.
-- **Must**: Bump version by impact: breaking=major, feature=minor, fix/patch=patch, docs/chore=no bump unless part of a release (record in decisions.md).
-- **Must**: Update changelog and spec/release note when behavior changed.
-
-### Tagging
-
-- **Must**: After EVERY no-ff merge to `main`, create an annotated tag: `git tag -a v<major>.<minor>.<patch> -m "v<major>.<minor>.<patch>"`. Tagging is mandatory after every merge regardless of bump policy.
-- **Must**: When bump policy says "no bump" (docs/chore), still tag as the next patch version (e.g., v0.6.0 → v0.6.1). The tag tracks changes to main; the bump policy only controls whether the version number reflects feature/breaking scope.
-- **Must**: Create tag ONLY AFTER merge is confirmed clean (`git merge --no-ff` completes successfully). Never create tag before merge, even if merge retries are expected.
-- **Must**: If merge is reverted/redone, delete the premature tag first before retrying. Verify tag was created only once on final clean merge.
-- **Must**: Do not push unless asked.
-
-### Post-merge
-
-After the no-ff merge completes, immediately execute the mandatory steps from Rules §Tagging and §Release Prep:
-- Tag, verify tag, delete branch.
-- **Must**: Run `spacecraft set-state shipped` to trigger archive and close GitHub issues referenced in artifacts.
-- **Must**: Capture evidence of issue closing output (e.g., "Issues: X closed, Y already closed").
-- After cleanup you are on `main` - any further mutation requires a new non-main branch.
-
-### Review Gate
-
-Before shipping or merging: verify all Rules §Rebase & Merge, §Release Prep, §Tagging gates pass. Key checks: rebased on `main`, ≤5 commits, Conventional Commits, `.gitignore` current, version bump + changelog in separate commit, `--no-ff` merge plan.
+- **Must**: After every no-ff merge to `main`, create an annotated tag `v<major>.<minor>.<patch>` (see `references/release-policy.md` §Tagging).
+- **Must**: For missions, `spacecraft closeout-check` before claiming readiness (quick skips). Full closeout field bars: `references/release-policy.md` §Release Prep.
+- **Must**: After merge: tag → `spacecraft set-state shipped` → capture issue-close evidence. Details: `references/release-policy.md` §Post-merge.
+- **Must not**: Tag before merge succeeds; push unless asked.
 
 ### Dependency Freshness
 
@@ -165,5 +126,6 @@ Before claiming git work is done:
 
 ## References
 
+- `references/release-policy.md` - checkpoint table, closeout bars, tagging, post-merge (on-demand)
 - `spacecraft resolve --help` - resolver subcommand
 - `spacecraft closeout-check --help` - closeout verification

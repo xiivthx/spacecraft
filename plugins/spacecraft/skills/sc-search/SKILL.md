@@ -5,50 +5,31 @@ description: "Quick internet search with 3-tier escalation for resolving stuck i
 
 # sc-search
 
-Quick internet search with structured escalation. Find answers for stuck issues, gray areas, and stale knowledge - without leaving the development flow.
+Quick internet search with 3-tier escalation for stuck issues, gray areas, and stale knowledge.
 
 ## When to use
 
-Activate when the Commander encounters any of these triggers:
-
-- **Unfamiliar error or stack trace** - error message or crash that isn't obvious from context
-- **Deprecated or unfamiliar API** - method, function, or pattern that looks wrong or outdated
-- **Dependency version or compatibility uncertainty** - unsure about latest version, breaking changes, or peer dependencies
-- **Technical gray area** - knowledge is stale or missing, best practices may have changed
+Unfamiliar error/stack; deprecated or unfamiliar API; dependency version/compat uncertainty; technical gray area where knowledge may be stale.
 
 ## Workflow
 
-Use this exact escalation sequence. Never skip a tier unless a shortcut applies (see Tier shortcuts below).
+Never skip a tier unless a shortcut applies.
 
 ### Tier 1 - Quick search (`WebSearch`)
 
-First attempt. Fast lookup for direct answers.
-- Use `WebSearch` with a targeted query (error message, API name, package + version).
-- Goal: find a relevant page (official docs, GitHub issue, Stack Overflow, blog post).
-- Timeout: ~5s. If no clear answer, escalate.
+Targeted query (error, API, package + version). ~5s. Escalate if unclear.
 
 ### Tier 2 - Deep read (`WebFetch`)
 
-When Tier 1 returns a specific relevant URL.
-- Use `WebFetch` to fetch the page content.
-- Extract the concrete answer (version number, fix, migration path, correct syntax).
-- Timeout: ~10s. If the page doesn't resolve the question, escalate.
-- Alternative: use `ctx_fetch_and_index` to fetch + index, then `ctx_search` to query - useful when you need to cross-reference multiple sources or re-query the same page.
+Fetch a Tier-1 URL; extract concrete answer. ~10s. Optional: `ctx_fetch_and_index` → `ctx_search` for multi-query of one page.
 
-### Tier 3 - Multi-source synthesis (deeper WebSearch / WebFetch)
+### Tier 3 - Multi-source synthesis
 
-When Tiers 1–2 are insufficient.
-- Run additional `WebSearch` queries with refined terms (version pins, migration guides, changelogs).
-- `WebFetch` 2–4 high-signal sources (official docs, release notes, issue trackers).
-- Synthesize: prefer primary docs over secondary blogs; note contradictions; record the concrete answer and sources.
-- For explicit systematic open-domain research feeding discuss, use sc-storm (Tier 3) - not this skill.
+Refined WebSearch + 2–4 WebFetch (docs, release notes, issues). Prefer primary docs; note contradictions. Open-domain strategy for discuss → **sc-storm**, not this skill.
 
 ### Tier 4 - Ask user
 
-When all tiers fail to resolve the question.
-- Ask exactly one question.
-- Include: the question, what you tried (tiers 1–3), and a recommended next step.
-- Do not proceed with implementation while the question is open.
+One question: what you tried (tiers 1–3) + recommended next step. Do not implement while open.
 
 ## Rules
 

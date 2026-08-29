@@ -40,7 +40,7 @@ Use this exact sequence unless the user specifies otherwise:
 
 6. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
 
-7. **Verify (visual / live-product + draft-parity)** - After visual UI work: start the app → Tier 3 on the **running product URL** via Chrome DevTools MCP (Antigravity native) / `playwright-cli` (preferred) or Cursor IDE browser (fallback); optional `visual-verify.mjs` against that URL → capture live screenshots at 375 / 768 / 1280 (+ 1536 when multi-region) → serve/open approved draft and capture `[data-draft-surface]` shots at the same viewports → record **paired** draft-surface + live path sets in evidence / `decisions.md` → Step 0 draft-parity (side-by-side LLM/browser compare draft vs live - tokens, layout, chrome, states) → Task(`sc-designer`) live critique (**live-product** + draft-parity) with both image sets plus live URL. Layout-only match with different chrome, missing draft states, or missing pair is blocking. Draft HTML serve alone does not satisfy live-product. Fix before ready. Do not use ungrounded headless or uninspected assumptions.
+7. **Verify (visual / live-product + draft-parity)** - After visual UI work: start the app; run Tier 3 live-product + Step 0 draft-parity per `.cursor/skills/sc-ux-design/SKILL.md` (and `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md`); optional full-system sweep via `.cursor/skills/sc-browser-probe/SKILL.md`. Capture paired draft-surface + live evidence; Task(`sc-designer`) live critique (**live-product** + draft-parity). Draft HTML serve alone does not satisfy live-product. Fix before ready. **Must not** use system Chrome headless or browser-use/CDP.
 
 8. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
 
@@ -61,7 +61,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Treat `[data-draft-surface]` in the approved draft as the **visual source of truth** - port structure, tokens, spacing, type, and component chrome; sync `DESIGN.md` from the surface; never port scaffold chrome.
 - **Must not**: Freestyle alternate buttons/inputs/tables/empty/error chrome that only vaguely match the draft layout.
 - **Must**: Map each draft `data-state` (surface-relevant set from the approved draft + `spec.md`) to product UI and/or tests.
-- **Must**: After visual UI implementation, capture live product URL evidence (Tier 3 on running routes) **and** paired draft-surface screenshots at matching viewports; record both path sets; side-by-side compare; obtain Task(`sc-designer`) **live-product** + draft-parity pass (both image sets); then functional test evidence before claiming done.
+- **Must**: After visual UI implementation, complete Tier 3 live-product + draft-parity per sc-ux-design (paired evidence + Task(`sc-designer`) pass); then functional test evidence before claiming done.
 - **Must not**: Use system Chrome headless or browser-use/CDP for visual verification.
 - **Must not**: Claim visual done from draft HTML serve alone - live-product requires the running product URL; draft-parity requires paired draft-surface + live screenshots.
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
@@ -143,9 +143,7 @@ Before claiming frontend work done:
 - [ ] Styles applied via Tailwind utility classes, scoped to component
 - [ ] If the project has Storybook, new `ui/*` primitives have stories (catalog aid - not a ship gate)
 - [ ] Component / functional tests pass (`npx vitest run` or project suite)
-- [ ] Live product recheck: running product URL opened; `playwright-cli` or Cursor IDE browser live screenshots at 375 / 768 / 1280 (+ 1536 when multi-region)
-- [ ] Paired draft-surface screenshots at matching viewports; both path sets recorded; side-by-side draft vs live compare
-- [ ] Task(`sc-designer`) **live-product** + draft-parity pass (paired image sets)
+- [ ] Tier 3 live-product + draft-parity per sc-ux-design (paired evidence; designer pass)
 - [ ] Build passes (`npm run build`)
 - [ ] Evidence captured with `spacecraft evidence`
 - [ ] No unapproved dependencies
@@ -157,3 +155,6 @@ Before claiming frontend work done:
 - `references/testing.md` - Vitest + React Testing Library patterns, query strategies, mocking
 - `references/styling.md` - Tailwind CSS conventions, responsive design, accessibility utilities
 - `references/layout.md` - page structure patterns, responsive collapse, Tailwind layout sketches
+- `.cursor/skills/sc-ux-design/SKILL.md` - Tier 3 live-product, Step 0 draft-parity, responsive ladder
+- `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` - visual ready gates
+- `.cursor/skills/sc-browser-probe/SKILL.md` - optional post-run live system sweep

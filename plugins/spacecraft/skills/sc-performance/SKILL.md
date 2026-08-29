@@ -26,7 +26,7 @@ Use this sequence during implementation or review:
 1. **Scope scan** - Read the current task's `plan.json`, `spec.md`, and `evidence.jsonl`. Only flag issues tied to changed code or accepted risk.
 2. **Static pattern scan** - Walk the diff for the categories below. Look at call sites, not just declarations.
 3. **Quantify if possible** - Prefer measurements over guesses. If a benchmark, bundle analyzer output, or memory profile exists, reference it in the finding.
-4. **Classify and report** - Group every finding by category; map checklist priority to house severity (`critical` / `important` / `minor`).
+4. **Classify and report** - Group every finding by category; map checklist priority to house severity per `.cursor/rules/400-performance.mdc`. Field schema/craft: `.cursor/skills/sc-run/references/defect-finding.md`.
 5. **Propose a fix** - Give one concrete remediation per finding. Do not block on hypothetical optimizations outside the task scope.
 
 ## Rules
@@ -65,30 +65,9 @@ Use this sequence during implementation or review:
 
 ## Output format
 
+Group by category (N+1 / query, Memory, Bundle, Render, Hot path). Per finding use house fields from `.cursor/skills/sc-run/references/defect-finding.md` (`severity`, `title`, `file`, `issue`, `impact`, `requiredFix`/`Fix`, `retest`). End with:
+
 ```
-Performance scan: <scope>
-
-N+1 / query:
-  - Severity: critical | important | minor
-    Title: <impact-first - required for critical/important>
-    File: <path>:<line>
-    Issue: <performance impact in plain English>
-    Impact: <user/system effect - required for critical/important>
-    Fix: <concrete remediation = requiredFix>
-    Retest: <2-3 local verify ideas - required for critical/important>
-
-Memory:
-  <same per-finding fields>
-
-Bundle:
-  <same per-finding fields>
-
-Render:
-  <same per-finding fields>
-
-Hot path:
-  <same per-finding fields>
-
 Verdict: [clean / fix-now / fix-in-follow-up / measure-first]
 ```
 

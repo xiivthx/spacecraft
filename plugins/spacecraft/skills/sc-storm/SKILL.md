@@ -53,14 +53,9 @@ Commander confirms Synthesis is one path and Verify bar still comes from spec + 
 
 ## Out of scope
 
-- `/sc-run` build, product code, tests
-- Inventing Verify
-- Always-on use
-- Retired research lifecycle slash (replaced by this skill)
+`/sc-run` build, product code, tests · inventing Verify · always-on use
 
 ## References
 
-- `.cursor/skills/sc-discuss/references/lens-pass.md` - shared template and tier rules
-- sc-search - technical gray areas and API stuck states
-- sc-clarify - preference-bound Verify
-- `/sc-discuss` - consumer of lens pass artifacts
+- `.cursor/skills/sc-discuss/references/lens-pass.md` - template + tier rules
+- sc-search · sc-clarify · `/sc-discuss`

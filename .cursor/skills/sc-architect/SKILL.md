@@ -5,54 +5,26 @@ description: "Design system architecture, write ADRs, and analyze tradeoffs usin
 
 # sc-architect
 
-Design system architecture under mission control. Universal architecture patterns with domain-specific references. Covers ADR format, C4 diagrams, design patterns, and tradeoff analysis.
+Design system architecture under mission control: ADRs, C4, patterns, tradeoffs. Domain detail in `references/`.
 
 ## When to use
 
-Activate when the user asks to:
-
-- **"Design the system architecture" / "create C4 diagram"** - architecture documentation
-- **"Write an ADR" / "architectural decision"** - decision records and rationale
-- **"Choose between microservices and monolith"** - architectural tradeoff analysis
-- **"What pattern should I use for"** - design pattern selection and justification
-- When a mission requires architectural planning or tradeoff documentation
+Architecture docs / C4; ADR / architectural decision; stack tradeoffs (e.g. microservices vs monolith); pattern selection; mission architecture planning.
 
 ## Workflow
 
-Use this exact sequence unless the user specifies otherwise:
-
-1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
-
-2. **Understand context** - Read the mission `spec.md`, existing `decisions.md`, and any architecture artifacts. Identify the decision scope and constraints.
-
-3. **Analyze tradeoffs** - For each architectural decision:
-   - Enumerate ≥2 alternatives with pros and cons
-   - Evaluate against non-functional requirements (scalability, maintainability, cost)
-   - Select the best option with explicit rationale
-   Document the analysis in `decisions.md`.
-
-4. **Write ADR** - Use the template from `references/adr-templates.md`. Minimum sections:
-   - **Title** - descriptive and searchable
-   - **Status** - proposed, accepted, deprecated, superseded
-   - **Context** - what problem does this decision address?
-   - **Decision** - what was chosen and why
-   - **Consequences** - what becomes easier, harder, or constrained
-
-5. **Diagram** - Use C4 model levels as appropriate:
-   - **Level 1 (System Context)** - the system and its users/external systems
-   - **Level 2 (Container)** - applications, data stores, message queues
-   - **Level 3 (Component)** - major structural building blocks within a container
-   - **Level 4 (Code)** - class-level detail (only when critical)
-   - For **interactive HTML** block/wiring diagrams (click-to-trace nets), use `sc-diagram` instead of ASCII/C4 prose alone.
-
-6. **Verify** - `spacecraft evidence "<label>" -- echo "Architecture decision documented"`. ADRs and diagrams are manual artifacts. Evidence is the existence of the documented decision.
+1. **Resolve** - `spacecraft resolve`; conflict → `spacecraft use <selector>`.
+2. **Context** - Read `spec.md`, `decisions.md`, existing architecture artifacts; scope + constraints.
+3. **Tradeoffs** - ≥2 alternatives with pros/cons; score vs NFRs; pick with rationale; record in `decisions.md`.
+4. **ADR** - Template + required sections: `references/adr-templates.md` (Title, Status, Context, Decision, Consequences).
+5. **Diagram** - C4 L1→L4 as needed (drill down only where required). Interactive HTML block/wiring → `sc-diagram`.
+6. **Verify** - `spacecraft evidence "<label>" -- echo "Architecture decision documented"` (existence of the documented decision).
 
 ### Edge cases
 
-- **Domain-specific patterns** - Load the relevant `references/` file (e.g., `web.md` for web architecture, add others for mobile, embedded, data pipelines)
-- **Reversible decision** - Still write an ADR. Distinguish between one-way and two-way door decisions. One-way doors require deeper analysis.
-- **No clear winner** - Document the deadlock, pick the simplest option, note conditions that would change the decision.
-- **Team disagreement** - Record all positions in the ADR's "Alternatives considered" section.
+- Domain refs: load `references/<domain>.md` (e.g. `web.md`).
+- One-way doors need deeper analysis; still write an ADR for reversible choices.
+- No clear winner → simplest option + change conditions. Disagreement → all positions under Alternatives considered.
 
 ## Rules
 
@@ -67,39 +39,15 @@ Use this exact sequence unless the user specifies otherwise:
 
 ## Out of scope
 
-- API-level design within an established architecture - separate concern
-- Database schema design, migrations, indexing - separate concern
-- UI design or frontend architecture - separate concern
-- Interactive HTML block/wiring diagrams - use `sc-diagram`
-- Code-level implementation patterns - separate concern
-- TDD discipline - use sc-tdd
+API design inside an established architecture · DB schema/migrations · UI/frontend · interactive HTML diagrams (`sc-diagram`) · code-level patterns · TDD (`sc-tdd`)
 
 ## Output format
 
-```
-ADR: <title>
-Status: proposed | accepted | deprecated | superseded
-Context: <problem statement>
-Decision: <what and why>
-Consequences: <tradeoffs>
-Alternatives considered:
-  - <option>: pros/cons
-  - <option>: pros/cons
-C4 level: System Context | Container | Component | Code
-Diagram: <ascii or description>
-```
+ADR body + sections: `references/adr-templates.md`. Handshake note: C4 level used + diagram path/description; Alternatives considered (≥2).
 
 ## Checklist
 
-Before claiming architecture work done:
-
-- [ ] Mission resolved, spec.md and constraints understood
-- [ ] ≥2 alternatives considered for each significant decision
-- [ ] ADR written with all 5 sections (Title, Status, Context, Decision, Consequences)
-- [ ] C4 diagram at appropriate level (≥Level 1)
-- [ ] Decision linked to mission acceptance checks where applicable
-- [ ] No speculative architecture (YAGNI applied)
-- [ ] Domain-specific references consulted when applicable
+Mission resolved · ≥2 alternatives · ADR 5 sections · C4 ≥L1 · linked to acceptance when relevant · YAGNI · domain refs when needed.
 
 ## References
 

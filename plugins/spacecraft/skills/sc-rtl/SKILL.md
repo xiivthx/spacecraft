@@ -9,11 +9,9 @@ description: >-
 
 # sc-rtl
 
-Implement and maintain SystemVerilog RTL under mission control (multi-cycle RISC-V CPU defaults). Delegate production `.sv` writes to Task(`sc-rtl`) when available, else Task(`sc-coder`) with this skill active. Commander does not write RTL.
+Implement and maintain SystemVerilog RTL under mission control (multi-cycle RISC-V defaults). Delegate production `.sv` to Task(`sc-rtl`) when available, else Task(`sc-coder`) with this skill. Commander does not write RTL.
 
-Progressive disclosure: keep this file loaded. Read [references/arch.md](references/arch.md) only for ISA lists, cycle counts, or module tree. Verify gates → skill `sc-rtl-verify`. Glob rules `700`/`710`/`720` apply when editing matching files.
-
-**SoT conflict:** if project `docs/SPECIFICATION.md` (or mission `spec.md`) narrows ISA/FPGA/paths, SPEC wins for product scope. This skill still owns SV conventions, debug discipline, and quality loop.
+Progressive disclosure: keep this file loaded. ISA lists / cycle counts / module tree → `references/arch.md`. Verify gates → `sc-rtl-verify`. Glob rules `700`/`710`/`720` when editing matching files. Project SPEC / mission `spec.md` wins for ISA/FPGA/paths; this skill owns SV conventions, debug, quality loop.
 
 ## When to use
 

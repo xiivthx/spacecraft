@@ -108,6 +108,4 @@ Any `closeout-check` or `validate --strict` failure; clarify open; sc-git fail; 
 
 ## Errors
 
-- No push unless user asks. After `SPACECRAFT_SHIP=1`, the ship hook still **asks** before `git push`.
-- Conventional Commits; no mission ids in commit subjects/bodies.
-- Ship hooks enforce merge/tag/push gates; push always requires human ask after `SPACECRAFT_SHIP=1`.
+No push unless user asks (hook still asks after `SPACECRAFT_SHIP=1`). Conventional Commits; no mission ids in subjects/bodies.

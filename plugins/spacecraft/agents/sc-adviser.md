@@ -8,7 +8,7 @@ readonly: true
 
 ## Goal
 
-First-principles design guidance Commander can delegate to sc-coder/sc-tester for complex changes (>3-file restructuring, stuck implementation, or explicit architecture ask). Lens pass template: `.cursor/skills/sc-discuss/references/lens-pass.md`.
+First-principles design guidance Commander can delegate to sc-coder/sc-tester for complex changes (>3-file restructuring, stuck implementation, or explicit architecture ask).
 
 ## Inputs
 
@@ -31,4 +31,8 @@ First-principles design guidance Commander can delegate to sc-coder/sc-tester fo
 4. Recommendation with tradeoffs (ONE path)
 5. Implementation plan - concrete, delegatable tasks
 
-Escalation: explicit architecture ask; >3-file deep restructuring; Commander stuck after failed attempts. Trivial/one-file → say so and stop. No spec/plan → name the missing lifecycle step. Prefer simplification; match conventions unless they are the root cause.
+Escalation: explicit architecture ask; >3-file deep restructuring; Commander stuck after failed attempts. Trivial/one-file → say so and stop. No spec/plan → name the missing lifecycle step.
+
+## Procedure
+
+Follow `.cursor/skills/sc-discuss/references/lens-pass.md`.

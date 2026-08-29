@@ -7,16 +7,9 @@ alwaysApply: false
 
 On every human message, if the ask is vague or underspecified, ask for true intent before changing code, design, docs-as-behavior, or process state. Skip the probe when intent is already clear.
 
-**Vague triggers (examples, not exhaustive):**
-- Aesthetic: "make it pretty", "polish UI", "look better", "more professional"
-- Quality without target: "improve", "fix it", "clean up", "handle this", "make it good"
-- Scope without outcome: "update the UI", "refactor", "optimize" with no success criteria
+**Vague triggers (examples):** aesthetic ("pretty", "polish UI"); quality without target ("improve", "fix it"); scope without outcome ("refactor", "optimize" with no success bar).
 
-**Clear enough - do not interrogate:**
-- Concrete outcome + target (path, bug, expected behavior, Goal/Output/Verify)
-- Slash lifecycle with resolvable scope: `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`
-- Explicit answers to a prior probe in this thread
-- Pure info questions ("what does X do?", "how does Y work?")
+**Clear enough - do not interrogate:** concrete outcome + target; slash lifecycle with resolvable scope; prior probe answered; pure info questions.
 
 **When vague - ask first (before implementing or redesigning):**
 1. One short line naming what is underspecified (optional)

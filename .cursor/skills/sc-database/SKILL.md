@@ -5,53 +5,24 @@ description: "Design schemas, write migrations, optimize queries, and manage ind
 
 # sc-database
 
-Design and manage databases under mission control. Universal practices with PostgreSQL as the default engine. Schema design, normalization, migrations, indexing, and query optimization.
+Design and manage databases under mission control. Default engine: PostgreSQL. Schema, migrations, indexing, query optimization.
 
 ## When to use
 
-Activate when the user asks to:
-
-- **"Set up PostgreSQL" / "connect to database"** - database initialization
-- **"Create database schema" / "design tables"** - schema design and normalization
-- **"Write a migration"** - schema versioning and change management
-- **"Optimize query" / "design database indexes"** - performance tuning
-- When a mission task requires database design or management
+PostgreSQL setup; schema/tables; migrations; query optimize / indexes; mission DB tasks.
 
 ## Workflow
 
-Use this exact sequence unless the user specifies otherwise:
-
-1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
-
-2. **Choose engine** - Default: PostgreSQL. If the project already uses a different engine (MySQL, SQLite), match it. Engine-specific details are in `references/<engine>.md`.
-
-3. **Design schema** - Before writing DDL:
-   - Identify entities and relationships from the mission `spec.md`
-   - Apply normalization: 1NF (atomic columns) → 2NF (no partial dependencies) → 3NF (no transitive dependencies). Denormalize only with a documented reason.
-   - Choose column types: prefer domain-appropriate types over generic `text`/`integer`
-   - Add constraints: `NOT NULL`, `UNIQUE`, `CHECK`, `FOREIGN KEY` at schema level
-
-4. **Write migration** - Use `references/migration-patterns.md` for strategy:
-   - Up migration: creates tables, columns, indexes, constraints
-   - Down migration: reverses the up migration (drops in reverse order)
-   - Seed data: reference data inserted via separate seed files
-   Version migrations sequentially. Never modify a committed migration - write a new one.
-
-5. **Index strategy** - Add indexes for:
-   - Primary keys (automatic)
-   - Foreign keys (join performance)
-   - Columns in `WHERE` clauses of frequent queries
-   - Columns in `ORDER BY` of sorted queries
-   Do not index every column - each index costs write performance and storage.
-
-6. **Verify** - `spacecraft evidence "<label>" -- <migration-test-command>`. Migrations must apply cleanly and roll back cleanly. Query tests must demonstrate index usage (`EXPLAIN ANALYZE`).
+1. **Resolve** - `spacecraft resolve`; conflict → `spacecraft use <selector>`.
+2. **Engine** - Default PostgreSQL; else match project. Detail: `references/<engine>.md`.
+3. **Schema** - Entities/relationships from `spec.md`; 1NF→2NF→3NF (denormalize only with documented reason); domain types; constraints (`NOT NULL`, `UNIQUE`, `CHECK`, `FOREIGN KEY`) at schema level.
+4. **Migration** - `references/migration-patterns.md`: versioned up/down; never edit committed migrations; seeds separate.
+5. **Indexes** - PK/FK; frequent `WHERE` / `ORDER BY`. Do not index every column.
+6. **Verify** - `spacecraft evidence "<label>" -- <migration-test-command>`; apply + rollback clean; `EXPLAIN ANALYZE` for index claims.
 
 ### Edge cases
 
-- **Non-PostgreSQL engine** - Load the relevant `references/<engine>.md`. Universal practices (normalization, migration patterns, indexing strategy) still apply.
-- **Existing database** - Don't redesign from scratch. Add migrations incrementally. Document denormalization decisions in `decisions.md`.
-- **Performance regression** - Check query plans with `EXPLAIN ANALYZE`. Validate index usage. Consider partial indexes for filtered queries.
-- **Zero-downtime migration** - For production: add columns with defaults, deploy code that handles both old and new schema, then drop old columns in a separate migration.
+Non-PG → `references/<engine>.md`. Existing DB → incremental migrations. Regression → `EXPLAIN ANALYZE` / partial indexes. Zero-downtime → expand/contract pattern.
 
 ## Rules
 
@@ -67,44 +38,17 @@ Use this exact sequence unless the user specifies otherwise:
 
 ## Out of scope
 
-- Application-layer data access (repositories, ORMs, API endpoints) - separate concern
-- System architecture decisions - separate concern
-- UI design or frontend architecture - separate concern
-- TDD discipline - use sc-tdd
+App data access / ORMs / API endpoints · system architecture · UI · TDD (`sc-tdd`)
 
 ## Output format
 
-```
-Engine: PostgreSQL (default)
-Schema:
-  Tables: <count>
-  Relationships: <diagram or list>
-  Normalization: 3NF (or documented denormalization)
-Migration:
-  Up: create <objects>
-  Down: drop <objects> (reverse order)
-Indexes:
-  - <table>.<column>: <type> - <reason>
-Verify:
-  EXPLAIN ANALYZE <query> → <plan summary>
-Evidence: <label>
-```
+Engine · tables/relationships · normalization (or documented denorm) · up/down migration · indexes with reason · `EXPLAIN ANALYZE` summary · evidence label.
 
 ## Checklist
 
-Before claiming database work done:
-
-- [ ] Mission resolved, engine chosen
-- [ ] Schema designed: entities, relationships, column types, constraints
-- [ ] Normalization applied (3NF target, documented exceptions)
-- [ ] Migration files written: up migration, down migration, reversible
-- [ ] Indexes added for foreign keys and query WHERE/ORDER BY columns
-- [ ] `EXPLAIN ANALYZE` confirms index usage for performance-critical queries
-- [ ] Migrations apply and roll back cleanly
-- [ ] Evidence captured with `spacecraft evidence`
-- [ ] No secrets or connection strings in migration files
+Resolved + engine · schema + 3NF (or documented exception) · reversible migrations · indexes measured · evidence · no secrets in migrations.
 
 ## References
 
-- `references/postgresql.md` - PostgreSQL-specific engine details, types, index types, EXPLAIN
-- `references/migration-patterns.md` - Up/down migrations, seeding, versioning, rollback strategies
+- `references/postgresql.md` - types, index types, EXPLAIN
+- `references/migration-patterns.md` - up/down, seeding, versioning, rollback

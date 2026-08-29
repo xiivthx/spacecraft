@@ -10,14 +10,7 @@ Design code for changeability, testability, and readability. Apply principles si
 
 ## When to use
 
-Activate on these triggers:
-
-- Writing or modifying production code
-- Reviewing a diff or doing self-review
-- Planning module boundaries or task decomposition
-- Choosing between design alternatives
-- Detecting and fixing code smells
-
+Activate on production code change, diff/self-review, module-boundary planning, design alternatives, smell fix.
 ## Workflow
 
 ### On every code change
@@ -60,7 +53,7 @@ On-demand only (not every silent scan): when a human pastes a snippet to analyze
 - **Must**: Wrap domain primitives in value objects (Email, Money, UserId - never raw strings/numbers).
 - **Must**: No `else` when early return works.
 - **Must**: One dot per line (Law of Demeter).
-- **Must**: Classes < 50 lines, methods < 10 lines. (Rationale: beyond these thresholds, a class likely violates SRP. These are empirically-derived limits from clean code practice - a 50-line class can be read in one screen; a 10-line method can be understood at a glance without scrolling or mental stack.)
+- **Must**: Classes < 50 lines, methods < 10 lines.
 - **Must not**: Create abstractions before the third duplication (Rule of Three).
 - **Must not**: Use `in` operator on objects with untrusted keys - use `Object.hasOwn()`.
 
@@ -78,11 +71,7 @@ On-demand only (not every silent scan): when a human pastes a snippet to analyze
 
 ## Out of scope
 
-- Test writing and TDD discipline - separate concern, handled by test infrastructure
-- Evidence capture - handled by verification pipeline
-- Git operations and branching - handled by git infrastructure
-- Mission lifecycle - handled by mission management
-- UI design - handled by design infrastructure
+TDD / test writing · evidence capture · git · mission lifecycle · UI design
 
 ## Output format
 
@@ -95,23 +84,9 @@ Verdict: [clean / fix-before-commit / needs-refactor-task]
 
 ## Checklist
 
-Before committing code:
-
-- [ ] SOLID scan clean for all new/modified classes
-- [ ] No code smells introduced (or documented as deferred)
-- [ ] Domain primitives wrapped (no raw strings/numbers for concepts)
-- [ ] Dependencies point inward (no domain → infra refs)
-- [ ] KISS/YAGNI applied - no speculative abstractions
-- [ ] Rule of Three respected - no premature extraction
-- [ ] Naming consistent with existing codebase vocabulary
+SOLID clean · no new smells (or deferred) · domain primitives wrapped · deps inward · KISS/YAGNI · Rule of Three · naming matches codebase.
 
 ## References
 
-- `references/solid-principles.md` - 5 principles with detection questions and examples
-- `references/clean-code.md` - naming, calisthenics, formatting conventions
-- `references/code-smell.md` - 7 common smells with before/after and fix patterns
-- `references/complexity.md` - KISS, YAGNI, DRY, Rule of Three, technical debt
-- `references/architecture.md` - dependency rule, feature-first, ports-adapters
-- `references/object-design.md` - stereotypes, Tell Don't Ask, value objects vs entities
-- `references/design-patterns.md` - when patterns help, when they hurt
-- `references/code-walkthrough.md` - on-demand snippet analysis and beginner explanation (not silent SOLID default)
+- `references/solid-principles.md` · `clean-code.md` · `code-smell.md` · `complexity.md` · `architecture.md` · `object-design.md` · `design-patterns.md`
+- `references/code-walkthrough.md` - on-demand snippet analysis (not silent SOLID default)

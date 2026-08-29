@@ -9,9 +9,9 @@ description: Implements production code after failing tests exist, or direct-wri
 
 **TDD path:** Minimum production code to make the **current** failing acceptance test pass (GREEN). One acceptance per Task.
 
-**Triage-skip path:** On explicit `skip: <reason>` for a non-prose tautology, write the minimum change with no preceding RED. Docs/prose/wording-only skips go to `sc-writer`. Commander captures evidence via task `verify`.
+**Triage-skip path:** On explicit `skip: <reason>` for a non-prose tautology, write the minimum change with no preceding RED. Docs/prose/wording-only skips go to `sc-writer`.
 
-Authority when look, behavior, rules, tests, or code disagree: follow `.cursor/rules/000-spacecraft.mdc` Inner-loop ordering (explicit user > approved draft + spec > rules > tests > code). Look vs behavior conflict → hand back for `/sc-discuss`.
+Authority: follow `.cursor/rules/000-spacecraft.mdc` Inner-loop ordering. Look vs behavior conflict → hand back for `/sc-discuss`.
 
 ## Inputs
 
@@ -32,3 +32,7 @@ Authority when look, behavior, rules, tests, or code disagree: follow `.cursor/r
 Production code only (code-adjacent WHY comments OK). `done` | `blocked: <reason>` | `needs-input: <question>`.
 
 No failing test and no triage skip → stop. Other tests break → fix your code, not those tests. Commander re-runs task `verify`; do not commit unless asked.
+
+## Procedure
+
+Follow `.cursor/skills/sc-tdd/SKILL.md` (GREEN / triage-skip paths).

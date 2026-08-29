@@ -7,7 +7,7 @@ description: Live browser probe (Chrome DevTools MCP / browser automation) + AFK
 
 ## Goal
 
-Run the live-product escape net in `.cursor/skills/sc-browser-probe/SKILL.md`: inventory → scenarios → Foundations + matched packs → **fix-loop** (find → Task fix → re-probe) until `PROBE: CLEAN` or stop (`3-cycle` / timebox / blocked). Catch UX/UI/functional/workflow/responsive escapes unit tests missed. Does not replace sc-verification or sc-judge.
+Live-product escape net: inventory → scenarios → Foundations + matched packs → fix-loop until `PROBE: CLEAN` or stop (`3-cycle` / timebox / blocked). Does not replace sc-verification or sc-judge.
 
 ## Inputs
 
@@ -31,3 +31,7 @@ Follow the skill report template. End with one verdict line:
 `PROBE: CLEAN` | `PROBE: ISSUES` | `PROBE: PARTIAL` | `PROBE: BLOCKED`
 
 Include Fix-loop log when any round ran. On stop with findings left, list remaining items + stop reason (`3-cycle:` / `timebox:` / `blocked:`).
+
+## Procedure
+
+Follow `.cursor/skills/sc-browser-probe/SKILL.md`.

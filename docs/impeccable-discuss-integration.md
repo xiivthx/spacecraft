@@ -1,12 +1,12 @@
 # Impeccable × `/sc-discuss` integration contract
 
-**Status: partially enacted** - `sc-designer` + `sc-ux-design/references/impeccable-orchestration.md` updated for Impeccable-primary UX. Remaining: full `sc-discuss` / `sc-ux-design` Must rewrites and pilot mission.
+**Status: enacted in prompts** - live SoT is `sc-ux-design` + `impeccable-orchestration` + `sc-designer`. Pilot checklist below is optional human verification, not a claim of completed pilot.
 
 Related live SoT: `docs/ux-ui-review.md`, `.cursor/skills/sc-ux-design/references/impeccable-orchestration.md`, `.cursor/agents/sc-designer.md`, `.cursor/skills/sc-ux-design/SKILL.md`, `.cursor/skills/sc-discuss/SKILL.md`.
 
 ## Purpose
 
-**Impeccable is the primary UX/UI craft engine.** Use the **full** Impeccable command catalog by fitness (`init`, `shape`, new-work describe, `polish`, `critique`, `audit`, `live`, plus refine/enhance/fix family) — invoker may be Commander, `sc-designer` Next, or human slash. Spacecraft keeps mission gates and the port visual SoT (approved draft HTML). `sc-designer` routes commands + owns port gates.
+**Impeccable is the primary UX/UI craft engine.** Use the **full** Impeccable command catalog by fitness (`init`, `shape`, new-work describe, `polish`, `critique`, `audit`, `live`, plus refine/enhance/fix family) - invoker may be Commander, `sc-designer` Next, or human slash. Spacecraft keeps mission gates and the port visual SoT (approved draft HTML). `sc-designer` routes commands + owns port gates.
 
 Canonical command map: `.cursor/skills/sc-ux-design/references/impeccable-orchestration.md`.
 
@@ -39,9 +39,7 @@ Spacecraft already uses `npx impeccable detect` for anti-slop CLI. Detect alone 
 
 ## Command sequence
 
-See `.cursor/skills/sc-ux-design/references/impeccable-orchestration.md` (canonical step table). Summary:
-
-0. `Impeccable path: active` (default) · 1. context + checklist · 2. init if needed · 3. extract/borrow · 3b. context fidelity · 4. **shape** · 5. new-work/comps · 6. DESIGN conflict · 7. bake-off HTML · 8. scenarios + optional Impeccable polish · 9a. **sc-designer port** · 9b. **Impeccable craft** · 10. `UI draft approved` · 11. keep house unless update house
+Canonical step table: `.cursor/skills/sc-ux-design/references/impeccable-orchestration.md`. Shape → comps → bake-off HTML → scenarios → `sc-designer` port → Impeccable craft → `UI draft approved`; keep house unless `update house`.
 
 ## `/sc-run` boundary
 
