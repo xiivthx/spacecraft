@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.67.1 - 2026-08-29
+
+- Docs: Cursor IDE browser (`cursor-ide-browser`) primary probe executor in `sc-browser-probe` (then `playwright-cli`, then Chrome DevTools MCP); Spacecraft still owns `PROBE:` + fix-loop
+- Docs: greppable firewall — browser / MCP / chat success Must not authorize ready / `VERIFIED` / AUTH / ship; `sc-run` + `200-workflow` handoff alignment; plugin twins synced
+
 ## 0.67.0 - 2026-08-29
 
 - Feat: optional canvas-SoT via `sc-canvas-sot` for `/sc-run` plan|findings|evidence human-check emits — upstream canvas by reference; managed `canvases/` only; disposition `Canvas-sot:`; Must not treat canvas as AUTH/`VERIFIED`/ready/ship; never required for ready/ship
