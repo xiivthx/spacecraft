@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.67.0 - 2026-08-29
+
+- Feat: optional canvas-SoT via `sc-canvas-sot` for `/sc-run` plan|findings|evidence human-check emits — upstream canvas by reference; managed `canvases/` only; disposition `Canvas-sot:`; Must not treat canvas as AUTH/`VERIFIED`/ready/ship; never required for ready/ship
+- Docs: `sc-run` / `200-workflow` / `docs/prompting.md` / `docs/mission-review.md` canvas-SoT handoff + never-ready-from-canvas
+
 ## 0.66.0 - 2026-08-29
 
 - Feat: optional Automations+Slack HIL AFK via `sc-automate-slack` — Slack notify/resume cue; Must not AUTH/`VERIFIED`/ship from Slack; disarm on stop/ready; never required for ready/ship

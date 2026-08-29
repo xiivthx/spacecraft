@@ -32,7 +32,9 @@ Related: `sc-run`, `sc-verification`, `sc-judge`, `sc-tdd`, Cursor `bugbot` / `s
 
 ## Mission canvas milestones
 
-`/sc-run` may emit Cursor Canvas artifacts at plan, post-review findings, and evidence for human check. Live files live only under Cursor-managed `canvases/`:
+Optional canvas-SoT via `sc-canvas-sot` for `/sc-run` plan, post-review findings, and evidence human-check emits. Never required for ready/ship or every `/sc-run`. Disposition: `Canvas-sot: ran` | `Canvas-sot: skipped: <reason>`. Detail: `.cursor/skills/sc-canvas-sot/SKILL.md`.
+
+Live files live only under Cursor-managed `canvases/`:
 
 `~/.cursor/projects/<workspace>/canvases/<missionId>-<kind>.canvas.tsx` where `kind` ∈ `plan` | `findings` | `evidence`.
 
@@ -49,6 +51,6 @@ When a canvas is emitted, record a greppable `decisions.md` line (absolute path;
 | After review (empty findings) | `Canvas findings skipped: empty` |
 | Evidence | `Canvas evidence: ` + absolute path to `<missionId>-evidence.canvas.tsx` |
 
-Those files and lines are optional aids for human check - not ready or `VERIFIED` proof. Do not inspect canvas TSX/JSON shape. Mid-build short chat dumps are not canvases.
+Those files and lines are optional aids for human check - not ready or `VERIFIED` proof. Must not treat canvas as AUTH / `VERIFIED` / ready / ship authority. Do not inspect canvas TSX/JSON shape. Mid-build short chat dumps are not canvases.
 
 **Must not:** replace mission brief (Accept/Adjust/Reject chat HIL) with a canvas; use canvas as draft HTML / visual SoT.
