@@ -12,7 +12,7 @@ After `/sc-discuss` clear, AFK incomplete work to `ready` for human check, then 
 
 ## Output
 
-Missions at `state=ready`, or stop on `3-cycle` / `timebox` / `blocked` / clarify / missing draft → write `.space/missions/<id>/handback.md`. Handoff: **Ready. Human check, then /sc-ship.**
+Missions at `state=ready`, or stop on `3-cycle` / `timebox` / `blocked` / clarify / missing draft → write `.space/missions/<id>/handback.md`. Handoff: **Ready. Human check, then /sc-ship.** Optional post-ready drain via `sc-post-ready-drain` (git-primary; no GitHub PR needed) after ready and before `/sc-ship`.
 
 ## Good / Bad
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.63.0 - 2026-08-29
+
+- Feat: optional git-primary `sc-post-ready-drain` after ready (conflict vs `main` → local verify; Cursor autopilot only when an open PR exists; never merge)
+- Docs: ready handoff in `sc-run`, `200-workflow`, and `docs/prompting.md`; re-ready before ship after any post-ready commit
+
 ## 0.62.0 - 2026-08-29
 
 - Feat: Cursor-native `bugbot` + `security-review` on `/sc-run` ready path — ingest into `review.json` with `source`, Cursor-primary overlap, all-severity drain
