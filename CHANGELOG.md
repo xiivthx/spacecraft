@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.68.1 - 2026-08-30
+
+- Refactor: lean agent/skill/rule prompt surfaces (hybrid inline contracts + lazy references); remove zero-consumer `sc-research` graveyard; tighten Antigravity sync prune; add prompt-lean contract tests
+
 ## 0.68.0 - 2026-08-29
 
 - Feat: optional Goals-mirror via `sc-goal-roadmap` for multi-mission roadmaps (`Sizing: roadmap`) — CreateGoal only after human ask/confirm; one Goal per roadmap; `UpdateGoal complete` only when last tip ships and a Goal exists; disposition `Goal-roadmap:`; Must not treat Goals as AUTH/`VERIFIED`/ready/ship; Spacecraft `mission.json` + roadmap JSON remain SoT; never required for ready/ship
