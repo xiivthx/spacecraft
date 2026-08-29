@@ -12,7 +12,7 @@ After `/sc-discuss` clear, AFK incomplete work to `ready` for human check, then 
 
 ## Output
 
-Missions at `state=ready`, or stop on `3-cycle` / `timebox` / `blocked` / clarify / missing draft → write `.space/missions/<id>/handback.md`. Handoff: **Ready. Human check, then /sc-ship.** Optional post-ready drain via `sc-post-ready-drain` (git-primary; no GitHub PR needed) after ready and before `/sc-ship`.
+Missions at `state=ready`, or stop on `3-cycle` / `timebox` / `blocked` / clarify / missing draft → write `.space/missions/<id>/handback.md`. Handoff: **Ready. Human check, then /sc-ship.** Optional post-ready drain via `sc-post-ready-drain` (git-primary; no GitHub PR needed) after ready and before `/sc-ship`. Optional post-ready fat-diff hygiene via `sc-split-to-prs` (Cursor `split-to-prs`; human plan approval; sizing seams untouched; Must not merge; never required for ship).
 
 ## Good / Bad
 
@@ -48,6 +48,6 @@ Overnight: stop on `3-cycle` | `timebox` | `blocked` → `handback.md`. Optional
 
 ## References
 
-- sc-tdd, sc-judge, sc-browser-probe, sc-loop (optional overnight `/loop` watch), `/sc-discuss`, `/sc-ship`, sc-git
+- sc-tdd, sc-judge, sc-browser-probe, sc-loop (optional overnight `/loop` watch), sc-split-to-prs (optional post-ready fat-diff split), `/sc-discuss`, `/sc-ship`, sc-git
 - `docs/mission-artifacts.md` - design-contract / approved-scenarios / outcome-gate SoT
 - `references/defect-finding.md`, `references/mission-review-gates.md`
