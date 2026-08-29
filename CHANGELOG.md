@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.68.0 - 2026-08-29
+
+- Feat: optional Goals-mirror via `sc-goal-roadmap` for multi-mission roadmaps (`Sizing: roadmap`) — CreateGoal only after human ask/confirm; one Goal per roadmap; `UpdateGoal complete` only when last tip ships and a Goal exists; disposition `Goal-roadmap:`; Must not treat Goals as AUTH/`VERIFIED`/ready/ship; Spacecraft `mission.json` + roadmap JSON remain SoT; never required for ready/ship
+- Docs: `sc-run` / `200-workflow` / `docs/prompting.md` Goals-mirror handoff + never-ready-from-Goals; plugin twin synced
+
 ## 0.67.1 - 2026-08-29
 
 - Docs: Cursor IDE browser (`cursor-ide-browser`) primary probe executor in `sc-browser-probe` (then `playwright-cli`, then Chrome DevTools MCP); Spacecraft still owns `PROBE:` + fix-loop
