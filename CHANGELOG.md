@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.63.2 - 2026-08-29
+
+- Docs: Cursor-primary / Spacecraft-gate policy in `000` + `200`; thin `docs/prompting.md` pointer; never soft-pass ready/ship from Cursor chat alone
+
 ## 0.63.1 - 2026-08-29
 
 - Docs: clarify `sc-post-ready-drain` — work-branch sync from `main` allowed; never merge into `main` or PRs
