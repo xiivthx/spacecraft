@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.62.0 - 2026-08-29
+
+- Feat: Cursor-native `bugbot` + `security-review` on `/sc-run` ready path — ingest into `review.json` with `source`, Cursor-primary overlap, all-severity drain
+- Feat: `sc-security` fallback-only with greppable `Sc-security fallback:`; `Cursor review:` / `Cursor ingest:` disposition + judge corroboration
+- Test: judge-break `review-findings` fixture includes leftover `source: bugbot`
+- Docs: `docs/mission-review.md` and `docs/prompting.md` ready-path primary/supplementary surfaces
+
 ## 0.61.0 - 2026-08-28
 
 - Feat: Impeccable-primary UX craft in `/sc-discuss` — `sc-designer` routes the full Impeccable command catalog; orchestration SoT + integration contract; `.impeccable/` gitignored
