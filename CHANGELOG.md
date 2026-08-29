@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.69.0 - 2026-08-30
+
+- Feat: maintainer harness quality scorecard (`docs/harness-scorecard.md` + `scripts/harness-scorecard.sh`) — install-smoke, false-completion, judge-skill, process-grammar; greppable fail-closed report; `make test-harness-scorecard` in `make test`
+- Test: force-fail prove harness for scorecard runner; Antigravity remains a separate make test leg (not a required scorecard dimension)
+
 ## 0.68.1 - 2026-08-30
 
 - Refactor: lean agent/skill/rule prompt surfaces (hybrid inline contracts + lazy references); remove zero-consumer `sc-research` graveyard; tighten Antigravity sync prune; add prompt-lean contract tests

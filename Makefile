@@ -1,4 +1,4 @@
-.PHONY: build install install-cli install-project install-global install-machine smoke uninstall clean help \
+.PHONY: build install install-cli install-project install-global install-machine smoke uninstall clean help test-harness-scorecard \
         test test-cli test-config test-install test-gen-user-rules test-judge-break gate \
         sync-antigravity test-antigravity install-antigravity install-antigravity-global install-antigravity-project
 
@@ -11,11 +11,12 @@ PROJECT   ?= .
 help:
 	@echo "Spacecraft targets:"
 	@echo "  build           Link Node CLI (cli/spacecraft.mjs) -> ./spacecraft"
-	@echo "  test            Full verification: Node CLI tests + config + judge-break + install smoke + antigravity"
+	@echo "  test            Full verification: Node CLI tests + config + judge-break + install smoke + harness scorecard + antigravity"
 	@echo "  test-cli        Node CLI unit tests (cli/test/)"
 	@echo "  test-config     Static config smoke (mcp/hooks JSON, frontmatter, no commands/)"
 	@echo "  test-antigravity Smoke check for Antigravity plugin, rules, skills, and hooks"
 	@echo "  test-judge-break  Known-bad closeout fixtures must be rejected"
+	@echo "  test-harness-scorecard  Required harness quality dimensions (install-smoke, judge-break, judge-skill, process-grammar)"
 	@echo "  test-install    Bootstrap/install smoke into a throwaway temp dir"
 	@echo "  test-gen-user-rules  RED/GREEN test for scripts/gen-user-rules.sh"
 	@echo "  gate            Node CLI tests + Cursor hook unit tests (hooks_test.sh)"
@@ -33,7 +34,7 @@ help:
 	@echo "  clean           Remove ./spacecraft CLI link"
 
 # Full verification suite. Runs everything CI runs; humans use `make test`.
-test: test-cli test-config test-antigravity test-judge-break test-install
+test: test-cli test-config test-antigravity test-judge-break test-install test-harness-scorecard
 	@echo "All tests passed."
 
 # Local pre-ship / PR gate: Node CLI tests plus Cursor hook assertions.
@@ -49,6 +50,10 @@ test-config:
 # Deterministic judge-break: known-bad fixtures must fail closeout-check.
 test-judge-break: build
 	@sh $(ROOT)/scripts/check-judge-break.sh "$(ROOT)" "$(BIN)"
+
+# Required harness quality dimensions (Antigravity stays a separate make test leg).
+test-harness-scorecard: build
+	@sh $(ROOT)/scripts/harness-scorecard.sh "$(ROOT)" "$(BIN)"
 
 # Install the surface + build the CLI into a throwaway dir, then smoke it.
 # Temp dir lives under the repo (.tmp/, gitignored) so it works both in a
