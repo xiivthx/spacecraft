@@ -1,0 +1,2 @@
+{"label":"unit","command":"true","output":"ok\n","ts":"2026-01-01T00:00:00Z","exitCode":0}
+{"label":"freeze","command":"spacecraft freeze .space/missions/JBREAKFDL/approved-scenarios.md","output":"{\"kind\":\"freeze-manifest\",\"files\":[{\"path\":\".space/missions/JBREAKFDL/approved-scenarios.md\",\"sha256\":\"30d986324197a06313a79b56ec0c4833ae166c04018587d31d929f0f42d52243\"}]}","outputHash":"placeholder","exitCode":0,"ts":"2026-01-01T01:00:00Z"}

@@ -34,19 +34,7 @@ Self-review of `git diff` + project tests when code changed (or note docs-only s
 
 ## When to use
 
-Use when **no mission is appropriate**:
-
-- Manual edits the human already made (or asks you to make)
-- Docs / diagrams / changelog-only / config / prompts
-- Tiny fixes where mission ceremony costs more than the change
-- One-off tiny polish / optimize / refactor / adjust (no mission ceremony)
-
-### Polish: one-off vs batch
-
-- **One-off** → stay on this lane.
-- **Batched** (≥3 items in `.space/polish-backlog.md` OR explicit batch discuss) → stop; hand off to `/sc-discuss` then `/sc-run`. Mission path: backlog + evidence + baseline do-not-break; max ≤5 files/batch; never unbounded improve.
-
-Do **not** invent a mission stub. If `spacecraft resolve` finds a mission, prefer that mission’s `/sc-run` / `/sc-ship` path unless the user explicitly wants quick lane anyway.
+No-mission work matching Good above. **One-off** polish stays here; **batched** (≥3 `.space/polish-backlog.md` items or explicit batch discuss) → `/sc-discuss` then `/sc-run` (≤5 files/batch; never unbounded improve). Do not invent a mission stub. If `spacecraft resolve` finds a mission, prefer that mission’s `/sc-run` / `/sc-ship` unless user explicitly wants quick.
 
 ## Pre-flight
 
@@ -149,13 +137,7 @@ Full gate lists: `references/ship-gates.md`.
 
 ## Errors
 
-- Never use `closeout-check` as a blocker on this lane (hook skips it when `SPACECRAFT_QUICK=1`)
-- Never create `.space/missions/…` for quick work unless the user asks for a mission
-- After merge you are on `main` — next mutation needs a new branch
-
-## Research
-
-Unfamiliar tooling/APIs: use sc-search before committing. Fast ≠ skip-research.
+Never use `closeout-check` as a blocker (`SPACECRAFT_QUICK=1` skips it). Never create `.space/missions/…` unless user asks for a mission. After merge you are on `main` - next mutation needs a new branch. Unfamiliar APIs → sc-search before commit.
 
 ## Summary format
 

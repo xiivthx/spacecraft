@@ -28,25 +28,32 @@ Mid `/sc-discuss` grill: if the human is stuck (confused wording, needs facts, o
 
 ## Inner-loop gates (Quick + Mission)
 
-Quick and Mission share always-on INTENT / AUTH / TWINS and the 3-cycle stop (see `.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`. Before `ready`, Mission uses Cursor `bugbot` / `security-review` as primary defect/security surfaces (Spacecraft supplementary - `docs/mission-review.md`) and runs `sc-judge` (adversarial prove; ready only on `VERIFIED`). Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` (mission artifacts and evidence; not-doc-drift / not-10X-validate) + judge hunts. After `ready` and before `/sc-ship`, humans may run an optional post-ready drain via `sc-post-ready-drain` (git-primary; GitHub PR and Cursor `autopilot` are optional add-ons, not mandatory). After `ready` and before `/sc-ship`, humans may also run optional fat-diff hygiene via `sc-split-to-prs` (Cursor `split-to-prs`; human plan approval; quoted `AUTH:` before any outward push or PR publish; Must not replace `/sc-discuss` sizing or mid-run map resize; Must not merge; never required for ship; re-ready if the mission work branch mutates after `ready`). AUTH + `/sc-ship` remain merge/tag authority; capability → Cursor primary; orchestration / pass-fail → Spacecraft gate (same rules). Never soft-pass ready/ship from Cursor chat tables alone. Opened split PRs are never ready or ship proof.
+Shared always-on INTENT / AUTH / TWINS and 3-cycle stop (`.cursor/rules/000-spacecraft.mdc`, `200-workflow.mdc`). AUTH does not bypass `/sc-ship` or `SPACECRAFT_SHIP=1`.
+
+- Before `ready`: Cursor `bugbot` / `security-review` primary; Spacecraft supplementary (`docs/mission-review.md`); `sc-judge` adversarial prove - ready only on `VERIFIED`.
+- Ready proof: `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge hunts.
+- Optional post-ready (before `/sc-ship`): `sc-post-ready-drain` (git-primary; PR / autopilot optional); `sc-split-to-prs` (human plan approval; quoted `AUTH:` before outward push/PR publish; never merge; never required for ship; re-ready if work branch mutates after `ready`).
+- Firewalls: never soft-pass ready/ship from Cursor chat alone; opened split PRs are never ready or ship proof. AUTH + `/sc-ship` remain merge/tag authority.
 
 ## Overnight `/sc-run`
 
-After `/sc-discuss` clear, AFK `/sc-run` avoids mid-HIL except hard blocks. Stop on `3-cycle` | `timebox` | `blocked`. On those stops write `.space/missions/<id>/handback.md` with stop reason + remaining work cue. Optional overnight/AFK watch via `sc-loop` / Cursor `/loop` (CI/jobs); on stop or ready handoff, disarm the loop (and write `handback.md` on stop). Optional Automations+Slack HIL AFK via `sc-automate-slack`: Slack notify on handback/needs-HIL; Slack reply may cue resume under `/sc-run` gates; Slack resume ≠ AUTH; never required for ready/ship; on stop or ready handoff, disarm Automations lane when armed. Detail: `.cursor/skills/sc-run/SKILL.md`, `.cursor/skills/sc-loop/SKILL.md`, `.cursor/skills/sc-automate-slack/SKILL.md`. No overnight runner CLI.
+After `/sc-discuss` clear, AFK `/sc-run` avoids mid-HIL except hard blocks. Stop on `3-cycle` | `timebox` | `blocked` → write `.space/missions/<id>/handback.md`.
+
+- Optional watch: `sc-loop` (disarm on stop or ready handoff).
+- Optional Slack HIL: `sc-automate-slack` (Slack notify / reply may cue resume under `/sc-run` gates; Slack resume ≠ AUTH; never required for ready/ship; disarm when armed).
+- Detail: `sc-run`, `sc-loop`, `sc-automate-slack`. No overnight runner CLI.
 
 ## Mission canvas artifacts (`/sc-run`)
 
-Optional canvas-SoT via `sc-canvas-sot` for `/sc-run` plan | findings | evidence human-check emits. Never required for ready/ship or every `/sc-run`. Disposition: `Canvas-sot: ran` | `Canvas-sot: skipped: <reason>`. Detail: `.cursor/skills/sc-canvas-sot/SKILL.md` (upstream canvas by reference).
+Optional via `sc-canvas-sot` for plan | findings | evidence human-check emits. Disposition: `Canvas-sot: ran` | `Canvas-sot: skipped: <reason>`. Never required for ready/ship.
 
-Live files under managed `canvases/` only:
+Live path: `~/.cursor/projects/<workspace>/canvases/<missionId>-<kind>.canvas.tsx` (`kind` ∈ `plan` | `findings` | `evidence`). Record matching `decisions.md` lines with absolute paths when emitted.
 
-`~/.cursor/projects/<workspace>/canvases/<missionId>-<kind>.canvas.tsx` (`kind` ∈ `plan` | `findings` | `evidence`).
-
-When emitted, record matching lines in `decisions.md`: `Canvas plan: `, `Canvas findings: ` (or `Canvas findings skipped: empty`), `Canvas evidence:` - each with an absolute path; chat and `decisions.md` include absolute markdown links. Canvas files and those decisions lines are optional aids for human check - not ready or `VERIFIED` proof. Must not treat canvas as AUTH / `VERIFIED` / ready / ship authority. Do **not** put canvases under mission `.space/` or repo `.cursor/`. Do **not** replace mission brief or draft HTML / visual SoT with a canvas (brief stays Accept/Adjust/Reject chat HIL; draft stays HTML).
+Firewalls: canvas ≠ AUTH / `VERIFIED` / ready / ship. Do not put canvases under `.space/` or repo `.cursor/`. Do not replace mission brief or draft HTML with a canvas.
 
 ## Goals-mirror (optional)
 
-Optional Goals-mirror via `sc-goal-roadmap` for multi-mission roadmaps (`Sizing: roadmap`). Disposition: `Goal-roadmap: ran` | `Goal-roadmap: skipped: <reason>`. Never required for ready/ship or every roadmap discuss/run. Must not treat Goals / Goal complete as AUTH / `VERIFIED` / ready / ship authority. Spacecraft `mission.json` + roadmap JSON remain SoT. Detail: `.cursor/skills/sc-goal-roadmap/SKILL.md`.
+Optional via `sc-goal-roadmap` for multi-mission roadmaps (`Sizing: roadmap`). Disposition: `Goal-roadmap: ran` | `Goal-roadmap: skipped: <reason>`. Never required for ready/ship. Goals / Goal complete ≠ AUTH / `VERIFIED` / ready / ship. SoT remains `mission.json` + roadmap JSON.
 
 ## Avoid
 
@@ -57,4 +64,17 @@ Optional Goals-mirror via `sc-goal-roadmap` for multi-mission roadmaps (`Sizing:
 
 Role names (Commander, Coder, Tester) are routing contracts, not expertise claims.
 
-**Note:** Lens pass = five decision jobs that write `## Lens pass` or `Lens pass skipped:` in `decisions.md` - not expertise cosplay. See `.cursor/skills/sc-discuss/references/lens-pass.md` and sc-storm (Tier 3). Testability pass, Strategy pass, and RCRCRC pass are the same class of discuss decision jobs (`## Testability pass` / `## Strategy pass` / `## RCRCRC pass` or skips) - not QA personas. See `requirement-testability.md`, `htsm-strategy.md`, and `rcrcrc-impact.md`. Test Ideas use structured buckets (Positive / Negative / Edge / Overlooked) plus Implementation pitfalls (impl bugs, distinct from Requirement Bugs). SFDIPOT coverage review of **existing tests** vs requirement is on-demand via `sfdipot-coverage.md` - not an always-on discuss gate. On-demand test data design (`test-data-design.md`) produces variable-level rows (Positive/Negative/Boundary/Exploratory/Security) that map to Test Ideas buckets - not an always-on gate. On-demand oracle evaluation (`test-oracles.md`, FEW HICCUPPS) grounds problem judgment for observations - not expertise cosplay, not a tutor. Defect findings use `sc-run/references/defect-finding.md` (impact-first craft in `review.json` / run summary - not a ledger); domain security/performance/database scans map checklist priority to the same house severity before filing. On-demand code walkthrough via `sc-solid/references/code-walkthrough.md` - not expertise cosplay. On-demand prose craft (`sc-writer/references/prose-rhythm.md`, `narrative-context.md`) is the same class of decision job - rhythm rewrite and narrative context harvest, not expertise cosplay, not a tutor; source prompts that demonstrated threats, cosplay, and forced CoT are anti-patterns - extract craft only. On-demand prompt-refine (`sc-writer/references/prompt-refine.md`) is the same class of decision job - diagnose→rewrite for agent/skill/rule prompt fidelity to the Spec Contract, not expertise cosplay; extract craft only.
+## On-demand decision jobs
+
+Same class: decision jobs that write greppable `decisions.md` / craft artifacts - not expertise cosplay, not tutors, not always-on gates unless noted.
+
+- **Lens pass** - five jobs → `## Lens pass` or `Lens pass skipped:` - `.cursor/skills/sc-discuss/references/lens-pass.md`; Tier 3 → `sc-storm`
+- **Testability / Strategy / RCRCRC** - `## Testability pass` / `## Strategy pass` / `## RCRCRC pass` or skips - `requirement-testability.md`, `htsm-strategy.md`, `rcrcrc-impact.md`
+- **Test Ideas** - Positive / Negative / Edge / Overlooked + Implementation pitfalls (impl bugs ≠ Requirement Bugs)
+- **SFDIPOT** - coverage of existing tests vs requirement - `sfdipot-coverage.md` (on-demand)
+- **Test data design** - Positive/Negative/Boundary/Exploratory/Security rows → Test Ideas buckets - `test-data-design.md` (on-demand)
+- **Oracles** - FEW HICCUPPS judgment - `test-oracles.md` (on-demand)
+- **Defect findings** - impact-first craft in `review.json` / run summary - `sc-run/references/defect-finding.md`
+- **Code walkthrough** - `sc-solid/references/code-walkthrough.md` (on-demand)
+- **Prose craft** - rhythm / narrative context - `sc-writer/references/prose-rhythm.md`, `narrative-context.md` (extract craft only; threats/cosplay/forced CoT are anti-patterns)
+- **Prompt-refine** - diagnose→rewrite for Spec Contract fidelity - `sc-writer/references/prompt-refine.md`

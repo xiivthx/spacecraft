@@ -34,9 +34,7 @@ Open the HTML in a browser. Click each net: matching wires + endpoints highlight
 
 ## When to use
 
-Activate on: "block diagram", "interactive diagram", "wiring diagram", "architecture blocks HTML", `/sc-diagram`.
-
-Prefer this over ASCII/Mermaid when the human needs **click-to-trace** nets. Prefer `sc-architect` for C4/ADR text decisions.
+"block diagram", "interactive diagram", "wiring diagram", "architecture blocks HTML", `/sc-diagram`. Prefer over ASCII/Mermaid when click-to-trace nets matter. Prefer `sc-architect` for C4/ADR text.
 
 ## Pre-flight
 

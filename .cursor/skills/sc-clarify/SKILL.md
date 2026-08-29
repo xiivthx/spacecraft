@@ -69,64 +69,7 @@ Use this exact sequence unless the user specifies otherwise:
 
    **Micro-example:** Auto-pick - "Repo and existing tests already standardize on Vitest; house convention unanimous → record Vitest in `decisions.md` with evidence; do not ask." Ask - "Bench shows ~1.2x and docs conflict → ask with Chat ask format."
 
-6. **Ask a frontier round** - If the frontier is non-empty after auto-pick: ask every independent frontier question in one round, capped at **max 3**. A question that still depends on another open question belongs to a later round - ask the prerequisite only. Present directly in chat using the **Chat ask format** below (short or rich). Number `Q1`…`Qn` for the round (use `Q1` even for a single-question round).
-
-### Chat ask format
-
-**Language:** Chat ask field bodies are **Thai content**; bold **English labels** stay greppable (`Plain explain`, `Context`, `Question`, `Trade-offs`, `Why it matters`, `Recommendation`, `If accepted`). Paths, commands, product names, and tech terms stay as-is. No dual `ไทย:`/`EN:` Chat blocks. `questions.md` / `decisions.md` stay English. Skill instructions on disk stay US English.
-
-**Short vs rich:**
-- **Rich** - question has explicit choices (A/B/…) **or** is a heavy blocking class (Verify / architecture fork / in-out scope). Requires Plain explain, Context, and per-choice Trade-offs.
-- **Short** - simple yes/no or single-path questions. Skip Plain explain / Context / Trade-offs.
-
-**Short template** (English labels; Thai bodies):
-```
-**Q1 - <short title>:** <คำถาม>
-
-**Why it matters:** <หนึ่งประโยค>
-**Recommendation:** <คำแนะนำ + เหตุผลสั้น>
-**If accepted:** <ขั้นถัดไป>
-```
-
-**Rich template** (English labels; Thai bodies):
-```
-**Q1 - <short title>**
-
-**Plain explain:** <ปัญหาคืออะไร ทำไมต้องตัดสินใจ เลือกแล้วเปลี่ยนอะไร - ภาษาง่าย สั้น>
-**Context:** <รู้อะไรแล้วจาก spec/decisions/repo; อะไรยังคลุมเครือ; stake คืออะไร>
-**Question:** <คำถาม>
-- A) ...
-- B) ...
-
-**Trade-offs:**
-- **A)** Pros: … | Cons: …
-- **B)** Pros: … | Cons: …
-
-**Why it matters:** <หนึ่งประโยค>
-**Recommendation:** <คำแนะนำ + เหตุผลสั้น>
-**If accepted:** <ขั้นถัดไป>
-```
-
-Keep trade-offs tight: 1-2 bullets each side per choice. Field order and bold labels above are greppable - do not rename.
-
-**Rich micro-example** (copy shape, not content):
-```
-**Q1 - Choose API framework**
-
-**Plain explain:** ต้องเลือก HTTP library สำหรับเซิร์ฟเวอร์ การเลือกมีผลต่อความเร็วตอนสตาร์ท การซัพพอร์ต TypeScript และความคุ้นของทีมตอนดีบัก
-**Context:** Spec ล็อก Node.js + TypeScript แล้ว แต่ยังไม่ล็อก framework ในรีโปยังไม่มี server package Stake คือ binding เส้นทาง/plugin ก่อนวางแผน
-**Question:** ใช้ Fastify หรือ Express?
-- A) Fastify
-- B) Express
-
-**Trade-offs:**
-- **A)** Pros: เร็ว, TS-first | Cons: ทีมอาจคุ้น Express มากกว่า
-- **B)** Pros: เอกสาร/ตัวอย่างเยอะ | Cons: ช้ากว่า พิมพ์ยากกว่า
-
-**Why it matters:** เลือกผิดต้อง rewrite routing ตอน implement
-**Recommendation:** A) Fastify - เข้ากับสแต็ก TS และเป้าสตาร์ท
-**If accepted:** บันทึกใน decisions.md แล้วถาม frontier ข้อถัดไป (หรือ clear ถ้า frontier ว่าง)
-```
+6. **Ask a frontier round** - If the frontier is non-empty after auto-pick: ask every independent frontier question in one round, capped at **max 3**. A question that still depends on another open question belongs to a later round - ask the prerequisite only. Number `Q1`…`Qn` for the round (use `Q1` even for a single-question round). **Before the first frontier ask in the session, load `references/chat-ask-format.md`** and present with that Chat ask format (short or rich).
 
 ### Re-pitch on confusion
 
@@ -184,7 +127,7 @@ During `/sc-run` (mission `in_progress` with clarify-status clear): **do not aut
 - **Must**: Classify every ambiguity as blocking, non-blocking, or researchable.
 - **Must**: Maintain a design tree; ask only the open frontier, max 3 independent questions per turn; serial when dependent.
 - **Must**: During `/sc-discuss`, keep Verify / architecture / scope soft gaps on the frontier until settled or explicitly deferred - do not silently assume them.
-- **Must**: Every asked question uses the Chat ask format (short or rich). Short: Question + Why it matters + Recommendation + If accepted. Rich (choices or Verify / architecture / in-out scope): also Plain explain + Context + Trade-offs (Pros/Cons per choice). Field bodies are Thai content; bold labels are English.
+- **Must**: Every asked question uses the Chat ask format (short or rich) from `references/chat-ask-format.md`. Short: Question + Why it matters + Recommendation + If accepted. Rich (choices or Verify / architecture / in-out scope): also Plain explain + Context + Trade-offs (Pros/Cons per choice). Field bodies are Thai content; bold labels are English.
 - **Must**: On mid-ask confusion or escape cues, run Re-pitch on confusion or mid-ask escape (research via sc-search then sc-storm when needed; visualize via bake-off/draft or state/example table) - no new slash skills.
 - **Must not**: Auto-pick Verify, architecture fork, or in/out scope - even if "obvious."
 - **Must not**: Dump mutually dependent questions in one round, or exceed 3 questions per round.
@@ -226,23 +169,16 @@ After `/sc-discuss` clears clarify:
 
 ## Checklist
 
-- [ ] Mission resolved, context inspected
-- [ ] Research auto-trigger checked via sc-search (if applicable)
-- [ ] Technical / performance / library: research (+ optional cheap measure) before ask
-- [ ] Ambiguity classified (blocking / non-blocking / researchable)
-- [ ] Design tree updated; frontier identified
-- [ ] Auto-pick applied only for large-and-clear technical wins; never for Verify / architecture / scope
-- [ ] Frontier round asked (≤3 independent; serial if dependent) for remaining open items
-- [ ] Each question uses Chat ask format (short or rich; Thai content + English labels; rich adds Plain explain + Context + Trade-offs)
-- [ ] Mid-ask confusion handled via Re-pitch on confusion or mid-ask escape when cued
-- [ ] Answer or auto-pick recorded in `questions.md`
-- [ ] Decision, auto-pick evidence, or explicit deferral recorded in `decisions.md` (English)
-- [ ] Verify / architecture / scope gaps not silently assumed or auto-picked during discuss
-- [ ] Blocking frontier empty before planning or implementation
+Confirm Rules Must / Must-not hold, then:
+
+- [ ] Mission resolved; context inspected; design tree + frontier identified
+- [ ] Frontier round asked (≤3 independent; Chat ask format) or auto-pick/deferral closed remaining items
+- [ ] Blocking frontier empty; Verify / architecture / scope not silently assumed
 - [ ] After clarify clear: handoff `Spec clear. New session: /sc-run.`
 
 ## References
 
+- `references/chat-ask-format.md` - Chat ask templates (load before first frontier ask)
 - `questions.md` - open and answered questions per mission (English)
 - `decisions.md` - confirmed choices, auto-picks, assumptions, and deferrals (English)
 - sc-search - WebSearch/WebFetch escalation for researchable questions and mid-ask research escape

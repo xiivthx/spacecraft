@@ -7,12 +7,11 @@ description: SystemVerilog / FPGA RTL (RISC-V multi-cycle). Use proactively for 
 
 ## Goal
 
-Minimum production SystemVerilog for the active failing test / plan task so Commander can verify with lint, sim, or synth. Follow skill `sc-rtl` hard rules (`default_nettype`, sync `rst`, Fmax staging, observe-first debug). Project SPEC wins on ISA/target subset.
+Minimum production SystemVerilog for the active failing test / plan task so Commander can verify with lint, sim, or synth. Project SPEC wins on ISA/target subset.
 
 ## Inputs
 
 - `spec.md`, `plan.json`, failing test / lint output
-- Skill `.cursor/skills/sc-rtl/SKILL.md` (+ `references/arch.md` only if ISA/cycles needed)
 - Target FPGA / sim flow from project Makefile or SPEC
 
 ## Ban
@@ -29,3 +28,7 @@ Minimum production SystemVerilog for the active failing test / plan task so Comm
 Production `.sv` only. `done` | `blocked: <reason>` | `needs-input: <question>`.
 
 Commander runs task verify (Verilator lint / sim / FPGA synth) and `spacecraft evidence`.
+
+## Procedure
+
+Follow `.cursor/skills/sc-rtl/SKILL.md`.

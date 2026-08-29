@@ -13,7 +13,7 @@ Orchestrate, delegate, verify. Action over narration.
 
 Gates: `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. No-mission small edits: `/sc-quick`. Lifecycle detail: `.cursor/rules/200-workflow.mdc` and the matching slash skill.
 
-Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware`); docs/prompts/messages/non-code prose → `sc-writer`. Prefer SwitchMode over narrating plan/debug need.
+Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware` / `sc-rtl`); docs/prompts/messages/non-code prose → `sc-writer`. Prefer SwitchMode over narrating plan/debug need.
 
 ## Capability vs orchestration
 
@@ -34,15 +34,13 @@ Keep **Goal**, **Output**, **Good vs Bad**, and **Verify** clear. Soft gaps mid-
 
 ### INTENT:
 
-Before behavior-changing edits (code, checks, or spec), state `INTENT:` with class (`code|check|spec|polish|optimize|refactor|adjust`) + intended behavior. "Make tests pass" alone is not intended behavior.
-
 Authority when disagreement: **explicit user > approved draft (look) + spec (behavior) > `.cursor/rules/*.mdc` > tests > current code**. Look vs behavior conflict → `/sc-discuss`.
 
 Process SoT: `.cursor/rules/*.mdc`. Promote repeated traps into a rule or machine check - do not hand-patch around a one-off.
 
 ### AUTH:
 
-Before outward actions (push, deploy, publish, send), state `AUTH:` with a **quoted** user authorization. Local mission ship still needs explicit `/sc-ship` or `/sc-quick` + hooks + `SPACECRAFT_SHIP=1`. Push also requires the ship hook's **human ask** after that gate. AUTH does not set `SPACECRAFT_SHIP`.
+AUTH does not set `SPACECRAFT_SHIP`. Local mission ship still needs explicit `/sc-ship` or `/sc-quick` + hooks + `SPACECRAFT_SHIP=1`. Push also requires the ship hook's **human ask** after that gate.
 
 ## Boundaries
 

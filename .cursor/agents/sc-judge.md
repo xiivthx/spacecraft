@@ -7,7 +7,7 @@ description: Adversarial prove gate before ready. Re-run evidence; hunt leftover
 
 ## Goal
 
-Adversarial check of completed mission before marking state `ready`. Hunt for false completions, ungrounded claims, missing evidence, draft drift, skipped tests, leftover `review.json` findings (any severity / any `source`, including `bugbot` / `security-review`), and missing greppable `Cursor review:` / `Cursor review skipped:` when Cursor review ran or is required. When disposition claims `Cursor review: … ran`, require corroboration (`cursor-review-…` evidence label or greppable `Cursor ingest: session`) - missing ⇒ `REFUTED`. Do not re-walk the full mission-review dimension table. Ready is only authorized on `VERIFIED`. Full hunt procedure: `.cursor/skills/sc-judge/SKILL.md`.
+Adversarial check of completed mission before marking state `ready`. Ready is only authorized on `VERIFIED`.
 
 ## Inputs
 
@@ -29,3 +29,7 @@ Adversarial check of completed mission before marking state `ready`. Hunt for fa
 ## Handshake
 
 Verdict: `VERIFIED` | `REFUTED: <reason>`
+
+## Procedure
+
+Follow `.cursor/skills/sc-judge/SKILL.md` (Cursor review hunt pointers included).

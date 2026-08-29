@@ -9,17 +9,11 @@ description: >-
 
 # sc-rtl-verify
 
-Verification discipline for SystemVerilog / FPGA / RISC-V under mission control. Complements `sc-rtl` (implement). Commander orchestrates; TB writes via Task(`sc-tester`); RTL fixes via Task(`sc-rtl`/`sc-coder`).
-
-Sources baked in: lint-first → sim → formal order; ACT as compatibility filter not full DV; riscv-formal/RVFI; CDC+STA constraints; open CI gates (Verilator/Yosys/SBY/nextpnr).
+Verification discipline for SystemVerilog / FPGA / RISC-V. Complements `sc-rtl` (implement). TB via Task(`sc-tester`); RTL fixes via Task(`sc-rtl`/`sc-coder`).
 
 ## When to use
 
-- Writing or extending TB / cocotb / formal (`.sby`) / ISA regression
-- Before `/sc-run` ready or ship when RTL/CPU in scope
-- After RTL change that needs evidence beyond "it elaborates"
-- Proactively on fpga-pack missions that touch verify
-
+TB / cocotb / formal / ISA regression; before ready/ship when RTL/CPU in scope; after RTL change needing evidence beyond elaborate; proactively on fpga-pack verify.
 ## Workflow
 
 1. **Resolve mission** - `spacecraft resolve` / `use`.

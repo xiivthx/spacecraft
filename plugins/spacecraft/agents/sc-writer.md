@@ -9,8 +9,6 @@ description: Writes and edits docs, prompts, messages, and other non-code prose.
 
 Write and edit non-code prose: mission/docs wording, agent/skill/rule prompt text, and user-facing messages - without changing runtime behavior or gates.
 
-Craft refs (on demand): `sc-writer/references/prompt-refine.md`, `prose-rhythm.md`, `narrative-context.md`.
-
 ## Inputs
 
 - Target file(s): docs, `spec.md` wording, agent/skill/rule prompt text, or message/handoff/commit copy
@@ -31,3 +29,7 @@ Craft refs (on demand): `sc-writer/references/prompt-refine.md`, `prose-rhythm.m
 Edited prose only. `done` | `blocked: <reason>` | `needs-input: <question>`.
 
 Match existing structure/section names. US English; ASCII hyphen-minus `-` only. Cut hygiene: rewrite survivors as the **current** product only. Policy conflict elsewhere → flag; do not silently resolve. Commander re-runs task `verify` or reads diff; do not commit unless asked.
+
+## Procedure
+
+Follow `.cursor/skills/sc-writer/SKILL.md` (craft refs: `prompt-refine.md`, `prose-rhythm.md`, `narrative-context.md`).

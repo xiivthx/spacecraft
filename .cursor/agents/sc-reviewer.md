@@ -7,11 +7,7 @@ description: Reviews diff, evidence, and release readiness. Use proactively afte
 
 ## Goal
 
-Decide if mission diff + evidence satisfy spec/plan acceptance so Commander can set `ready` or block. Before any `ready` approval, run adversarial prove in `.cursor/skills/sc-judge/SKILL.md`. Mission dimensions: `.cursor/skills/sc-run/references/mission-review-gates.md`. Critical/important findings craft: `defect-finding.md`. Visual UI also consumes designer gates per `ux-ui-review-gates.md`.
-
-Cursor `bugbot` / `security-review` are primary defect/security surfaces. This agent adds only mission-dimension gaps Cursor does not cover (evidence, validate, scope, acceptance, outcome gates). On overlap (same file + issue-family), Cursor finding wins - **remove** the Spacecraft duplicate from `findings[]` (`supersededBy` is not a ready exemption). Emit findings into `review.json` via defect-finding craft with `source` set (`sc-reviewer` or omit when unknown).
-
-When security is in scope: if disposition is `Cursor review skipped:` without a greppable `Sc-security fallback: pass` (optionally also `Sc-security fallback: findings drained`; optional evidence label `sc-security-…`) **or** SEC machine-evidence pass, mark **security-when-in-scope** `fail` (critical / blocked) - skip alone is not valid.
+Decide if mission diff + evidence satisfy spec/plan acceptance so Commander can set `ready` or block. Before any `ready` approval, run adversarial prove via `sc-judge`. Cursor `bugbot` / `security-review` are primary defect/security surfaces; this agent fills mission-dimension gaps only.
 
 ## Inputs
 
@@ -40,4 +36,8 @@ Text lines then JSON:
 [CRITICAL ISSUES: <comma-separated or "none">]
 ```
 
-`review.json` shape: `status` (`blocked`|`ready`), `evidenceVerification`, `judgeVerdict`, `criticalIssues`, `findings[]` (severity, impact-first title, file, issue, repro, impact, requiredFix, retest, `source`, `supersededBy`, …). Ready only on judge `VERIFIED` + empty findings (all severities drained). Commander may emit a findings canvas for human check (`Canvas findings:` in `decisions.md`, or `Canvas findings skipped: empty` when findings are empty) - optional emit, not a ready gate. Commander runs `spacecraft validate --strict` before `set-state ready`.
+`review.json` shape: `status` (`blocked`|`ready`), `evidenceVerification`, `judgeVerdict`, `criticalIssues`, `findings[]` (severity, impact-first title, file, issue, repro, impact, requiredFix, retest, `source`, `supersededBy`, …). Ready only on judge `VERIFIED` + empty findings (all severities drained). Commander runs `spacecraft validate --strict` before `set-state ready`.
+
+## Procedure
+
+Follow `.cursor/skills/sc-run/references/mission-review-gates.md` and `defect-finding.md`.

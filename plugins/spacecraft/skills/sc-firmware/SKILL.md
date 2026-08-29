@@ -24,16 +24,21 @@ Use this exact sequence unless the user specifies otherwise:
 
 1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
 
-2. **Consult firmware rules** - Read before editing:
-   - `.cursor/rules/600-firmware.mdc` - architecture, HAL, state machines, coding standards
-   - `.cursor/rules/610-firmware-peripherals.mdc` - GPIO, IRQ, LCD, UART, SPI, DMA, protocols
-   - `.cursor/rules/620-firmware-testing.mdc` - host unit, target integration, HIL, CI
+2. **Consult firmware rules** - Read before editing (invariants only; load recipes on demand):
+   - `.cursor/rules/600-firmware.mdc` - architecture Must / Must-not
+   - `.cursor/rules/610-firmware-peripherals.mdc` - peripheral Must / Must-not
+   - `.cursor/rules/620-firmware-testing.mdc` - test Must / Must-not
 
-3. **Confirm target and scope** - Match board/MCU from `spec.md` and existing CubeMX2 layout. Prefer surgical changes inside `app/`, `hal_if/`, `drivers/`, `bsp/` - never edit generated `MX_*` bodies; wrap them.
+3. **Load recipes as needed** (on-demand, not always):
+   - `references/architecture.md` - board, CubeMX, MPU, linker, cache helpers, layering
+   - `references/peripherals.md` - GPIO/UART/SPI/I2C/LCD/QSPI/LF/UHF/DMA examples
+   - `references/verification.md` - Unity/Ceedling, target, HIL, CI
 
-4. **Delegate implementation** - Task(`sc-firmware`) for production C writes. Commander does not write firmware source. Pair with sc-tester / rule 620 for failing tests and evidence when the plan requires TDD.
+4. **Confirm target and scope** - Match board/MCU from `spec.md` and existing CubeMX2 layout. Prefer surgical changes inside `app/`, `hal_if/`, `drivers/`, `bsp/` - never edit generated `MX_*` bodies; wrap them.
 
-5. **Verify** - `spacecraft evidence "<label>" -- <host-or-hil-test-command>`. Prefer host unit tests for logic; target/HIL for hardware-dependent paths per `620-firmware-testing.mdc`.
+5. **Delegate implementation** - Task(`sc-firmware`) for production C writes. Commander does not write firmware source. Pair with sc-tester / rule 620 for failing tests and evidence when the plan requires TDD.
+
+6. **Verify** - `spacecraft evidence "<label>" -- <host-or-hil-test-command>`. Prefer host unit tests for logic; target/HIL for hardware-dependent paths per `620-firmware-testing.mdc` and `references/verification.md`.
 
 ### Edge cases
 
@@ -44,7 +49,7 @@ Use this exact sequence unless the user specifies otherwise:
 ## Rules
 
 - **Must**: Resolve mission with `spacecraft resolve` before mutating work. On conflict/ambiguity use `spacecraft use <selector>`.
-- **Must**: Consult rules `600`, `610`, and `620` before firmware changes in their domains.
+- **Must**: Consult rules `600`, `610`, and `620` before firmware changes in their domains; load matching `references/*.md` when implementing recipes.
 - **Must**: Delegate production firmware writes to Task(`sc-firmware`), not Commander.
 - **Must**: Capture evidence with `spacecraft evidence` for verify steps.
 - **Must**: Keep ISR short; no blocking, delay, or printf in ISR.
@@ -64,6 +69,7 @@ Use this exact sequence unless the user specifies otherwise:
 ```
 Target: <MCU / board>
 Rules consulted: 600 | 610 | 620
+Recipes loaded: architecture | peripherals | verification | none
 Scope:
   Files: <paths>
   Layer: app | hal_if | drivers | bsp
@@ -78,7 +84,7 @@ Verify:
 Before claiming firmware work done:
 
 - [ ] Mission resolved
-- [ ] Rules 600/610/620 consulted as needed
+- [ ] Rules 600/610/620 consulted as needed; recipes loaded when implementing
 - [ ] Implementation delegated to Task(`sc-firmware`)
 - [ ] No direct `MX_*` body edits; wrappers used
 - [ ] Cache/DMA and ISR constraints respected on F7 when applicable
@@ -87,7 +93,10 @@ Before claiming firmware work done:
 
 ## References
 
-- `.cursor/rules/600-firmware.mdc` - firmware architecture and coding standards
-- `.cursor/rules/610-firmware-peripherals.mdc` - peripheral and protocol guidance
-- `.cursor/rules/620-firmware-testing.mdc` - host, target, HIL, CI testing
+- `.cursor/rules/600-firmware.mdc` - firmware architecture Must / Must-not
+- `.cursor/rules/610-firmware-peripherals.mdc` - peripheral Must / Must-not
+- `.cursor/rules/620-firmware-testing.mdc` - host / target / HIL Must / Must-not
+- `references/architecture.md` - board, CubeMX, MPU, linker, cache, layering recipes (on-demand)
+- `references/peripherals.md` - peripheral and protocol examples (on-demand)
+- `references/verification.md` - Unity, target, HIL, CI recipes (on-demand)
 - `.cursor/agents/sc-firmware.md` - write-capable firmware agent

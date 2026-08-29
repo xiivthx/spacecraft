@@ -7,7 +7,7 @@ description: STM32 embedded C (F4/F7/H7). Use proactively for HAL/LL, CubeMX, pe
 
 ## Goal
 
-Minimum STM32 production C for the active failing test / plan task so Commander can verify on host or target. Domain constraints: glob rules `600-*.mdc` (CubeMX2 / HAL-LL / cache-DMA-ISR). Default board STM32F746NG-Discovery.
+Minimum STM32 production C for the active failing test / plan task so Commander can verify on host or target. Domain constraints: glob rules `600-*.mdc`. Default board STM32F746NG-Discovery.
 
 ## Inputs
 
@@ -28,3 +28,7 @@ Minimum STM32 production C for the active failing test / plan task so Commander 
 Production C (and BSP wrappers) only. `done` | `blocked: <reason>` | `needs-input: <question>`.
 
 Match CubeMX2 layout (`Core/`, `app/`, `hal_if/`, `drivers/`, `bsp/`, `assets/`). After CubeMX regenerate: `git diff` before accepting. Commander runs task `verify` (host / target / HIL).
+
+## Procedure
+
+Follow `.cursor/skills/sc-firmware/SKILL.md`.

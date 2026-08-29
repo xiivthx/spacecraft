@@ -201,86 +201,59 @@ console.log('  ok: generated plugins/spacecraft/rules/AGENTS.md');
 fs.writeFileSync(path.join(ROOT, 'GEMINI.md'), agentsRuleMd);
 console.log('  ok: generated workspace GEMINI.md');
 
-// 6. Generate/Sync Subagents in plugins/spacecraft/agents/
+// 6. Sync Subagents from .cursor/agents/ → plugins/spacecraft/agents/
+// SoT copy only (no fallback stubs). Intentional Antigravity patch:
+// sc-browser-probe description mentions Chrome DevTools MCP for that host.
 const agentsSourceDir = path.join(ROOT, '.cursor', 'agents');
 const agentsTargetDir = path.join(PLUGIN_DIR, 'agents');
 
-const agentFiles = fs.readdirSync(agentsSourceDir).filter(f => f.endsWith('.md'));
+const agentFiles = fs.readdirSync(agentsSourceDir).filter((f) => f.endsWith('.md'));
 for (const file of agentFiles) {
   let content = fs.readFileSync(path.join(agentsSourceDir, file), 'utf8');
-  
-  // Enhance sc-designer and sc-browser-probe with Chrome DevTools MCP awareness and Source of Trust
-  if (file === 'sc-designer.md') {
-    content = content.replace(
-      'Run critique: live product URL + paired draft-surface and live screenshots',
-      'Run critique: live product URL + Chrome DevTools MCP inspection + paired draft-surface and live screenshots'
-    );
-  } else if (file === 'sc-browser-probe.md') {
+
+  if (file === 'sc-browser-probe.md') {
     content = content.replace(
       'Live browser probe + AFK fix-loop',
       'Live browser probe (Chrome DevTools MCP / browser automation) + AFK fix-loop'
     );
   }
-  
+
   fs.writeFileSync(path.join(agentsTargetDir, file), content);
   console.log(`  ok: synced agent ${file}`);
 }
 
-// Add sc-judge agent definition if missing
-if (!fs.existsSync(path.join(agentsTargetDir, 'sc-judge.md'))) {
-  const judgeAgent = `---
-name: sc-judge
-description: Adversarial closeout judge. Verifies evidence.jsonl, review.json zero findings, draft drift, and test integrity before mission ready.
----
-
-# Judge
-
-## Goal
-
-Adversarial check of completed mission before marking state \`ready\`. Hunt for false completions, ungrounded claims, missing evidence, draft drift, or skipped tests. Ready is only authorized on \`VERIFIED\`.
-
-## Inputs
-
-- Mission directory \`.space/missions/<id>/\`
-- \`spec.md\`, \`plan.json\`, \`evidence.jsonl\`, \`review.json\`, \`decisions.md\`
-- Visual missions: approved Draft HTML vs live product screenshots
-
-## Ban
-
-- Soft-passing with unresolved review findings (even low severity)
-- Approving without runnable evidence matching \`outputHash\` and exit code 0
-- Approving visual UI with draft drift or unverified live-product review
-- Cosplay or non-deterministic verdicts
-
-## Handshake
-
-Verdict: \`VERIFIED\` | \`REFUTED: <reason>\`
-`;
-  fs.writeFileSync(path.join(agentsTargetDir, 'sc-judge.md'), judgeAgent);
-  console.log('  ok: created agent sc-judge.md');
+for (const entry of fs.readdirSync(agentsTargetDir)) {
+  if (!agentFiles.includes(entry)) {
+    const orphan = path.join(agentsTargetDir, entry);
+    fs.rmSync(orphan, { recursive: true, force: true });
+    console.log(`  ok: pruned agent ${entry}`);
+  }
 }
 
-// 7. Sync all skills from .cursor/skills/ to plugins/spacecraft/skills/
+// 7. Sync all skills from .cursor/skills/ → plugins/spacecraft/skills/
+// Full tree per skill (SKILL.md + references/). Wipe-then-copy so deleted refs prune.
+// Do not mirror .cursor/deprecated (graveyard stays local / manually curated).
 const skillsSourceDir = path.join(ROOT, '.cursor', 'skills');
 const skillsTargetDir = path.join(PLUGIN_DIR, 'skills');
 
-const copyRecursive = (src, dest) => {
-  if (fs.statSync(src).isDirectory()) {
-    fs.mkdirSync(dest, { recursive: true });
-    for (const entry of fs.readdirSync(src)) {
-      copyRecursive(path.join(src, entry), path.join(dest, entry));
-    }
-  } else {
-    fs.copyFileSync(src, dest);
-  }
-};
+const skillDirs = fs
+  .readdirSync(skillsSourceDir)
+  .filter((f) => fs.statSync(path.join(skillsSourceDir, f)).isDirectory());
 
-const skillDirs = fs.readdirSync(skillsSourceDir).filter(f => fs.statSync(path.join(skillsSourceDir, f)).isDirectory());
 for (const skill of skillDirs) {
   const src = path.join(skillsSourceDir, skill);
   const dest = path.join(skillsTargetDir, skill);
-  copyRecursive(src, dest);
+  fs.rmSync(dest, { recursive: true, force: true });
+  fs.cpSync(src, dest, { recursive: true });
   console.log(`  ok: synced skill ${skill}`);
+}
+
+for (const entry of fs.readdirSync(skillsTargetDir)) {
+  if (!skillDirs.includes(entry)) {
+    const orphan = path.join(skillsTargetDir, entry);
+    fs.rmSync(orphan, { recursive: true, force: true });
+    console.log(`  ok: pruned skill ${entry}`);
+  }
 }
 
 console.log('\nAntigravity sync complete! All assets are up to date.');

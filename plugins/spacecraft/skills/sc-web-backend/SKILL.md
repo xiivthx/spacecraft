@@ -5,50 +5,23 @@ description: "Build server APIs and services with Node.js, TypeScript, Fastify, 
 
 # sc-web-backend
 
-Build server-side APIs and services under mission control. Default stack: Node.js + TypeScript + Fastify + Vitest.
+Build server APIs/services under mission control. Default stack: Node.js + TypeScript + Fastify + Vitest.
 
 ## When to use
 
-Activate when the user asks to:
-
-- **"Create an API endpoint" / "build a web service"** - new server features
-- **"Scaffold a server" / "set up Fastify"** - project initialization
-- **"Add authentication" / "design REST API"** - API architecture and security
-- **"Add a health endpoint" / "add version endpoint"** - minimal service milestones
-- When a mission task requires server-side implementation
+API endpoint / web service; Fastify scaffold; auth / REST design; health/version milestones; mission server tasks.
 
 ## Workflow
 
-Use this exact sequence unless the user specifies otherwise:
-
-1. **Resolve mission** - `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <selector>`.
-
-2. **Choose stack** - Default: Node.js + TypeScript + Fastify + Vitest. If the user specifies a different stack, adapt accordingly. Use sc-search (WebSearch/WebFetch) for `"fastify v5 typescript setup"` before scaffolding if versions are uncertain.
-
-3. **Scaffold (new project)** - If no project exists:
-   - `package.json` - scripts: `dev`, `test`, `build`, `start`
-   - `tsconfig.json` - strict mode, ESNext target
-   - `src/server.ts` - Fastify instance with `GET /healthz` returning `{ "ok": true }` and `GET /version` returning `{ "version": "...", "build": "..." }`
-   - `src/server.test.ts` - tests for both endpoints
-   - `.gitignore` - `node_modules/`, `dist/`, `.env`
-   Wait for user approval before installing npm dependencies.
-
-4. **Build by slice** - Implement one vertical feature slice at a time:
-   - Route definition with Fastify schema validation
-   - Handler logic with typed request/response
-   - Service layer (business logic, separated from route handlers)
-   - Test for the endpoint behavior via Vitest + `fastify.inject()`
-   Prefer small, focused routes. Extract shared patterns to `references/api-patterns.md`.
-
-5. **Verify** - `spacecraft evidence "<label>" -- npm test`. Tests must pass. Build must succeed (`npm run build`). Run the full test suite after each slice.
+1. **Resolve** - `spacecraft resolve`; conflict → `spacecraft use <selector>`.
+2. **Stack** - Default above; adapt if user specifies. Uncertain versions → sc-search (`fastify v5 typescript setup`).
+3. **Scaffold (new)** - `package.json` (`dev`/`test`/`build`/`start`); strict `tsconfig`; `src/server.ts` with `GET /healthz` + `GET /version`; matching tests; `.gitignore`. **Ask before** npm install.
+4. **Slice** - Route + schema validation → typed handler → service layer → Vitest + `fastify.inject()`. Patterns: `references/api-patterns.md`.
+5. **Verify** - `spacecraft evidence "<label>" -- npm test`; `npm run build` after each slice.
 
 ### Edge cases
 
-- **Project already exists** - Don't re-scaffold. Add routes to the existing structure.
-- **User requests auth** - Implement via Fastify plugin. Use bearer tokens or session cookies. Hash passwords with bcrypt. Store secrets in environment variables.
-- **Database access needed** - This is a separate concern. Use the project's existing data layer. For schema/migration questions, defer to the appropriate concern.
-- **GraphQL requested** - Adapt route layer to resolvers. Same principles: typed schemas, tested behavior.
-- **Build or tests fail** - Fix before proceeding. Never skip verification.
+Existing project → add routes, no re-scaffold. Auth → Fastify plugin; hash passwords; secrets in env. DB → existing data layer / defer schema to sc-database. GraphQL → typed resolvers, same test bar. Failures → fix before continue.
 
 ## Rules
 
@@ -91,47 +64,17 @@ Use this checklist when reviewing backend code:
 
 ## Out of scope
 
-- UI design or frontend architecture - separate concern
-- Database schema, migrations, or query optimization - separate concern
-- System architecture decisions or ADR writing - separate concern
-- TDD discipline - use sc-tdd for test-first workflow
-- Browser-side code - separate concern
+UI/frontend · DB schema/migrations · ADRs (`sc-architect`) · TDD ceremony (`sc-tdd`) · browser code
 
 ## Output format
 
-```
-Stack: Node.js + TypeScript + Fastify + Vitest
-Scaffold (new project):
-  package.json ✓ (dev, test, build, start)
-  tsconfig.json ✓ (strict, ESNext)
-  src/server.ts ✓ (GET /healthz, GET /version)
-  src/server.test.ts ✓ (endpoint tests)
-Route: <method> <path>
-  Schema: Fastify JSON Schema (request body, params, response)
-  Handler: typed request → service → typed response
-  Test: fastify.inject() → status + body assertions
-Verify:
-  npm test → PASS
-  npm run build → PASS
-Evidence: <label>
-```
+Stack · scaffold status (if new) · route method/path + schema + service + inject test · `npm test` / `npm run build` · evidence label.
 
 ## Checklist
 
-Before claiming backend work done:
-
-- [ ] Mission resolved, branch created
-- [ ] Stack confirmed: Node.js + TypeScript + Fastify + Vitest (or approved alternative)
-- [ ] Routes use Fastify schema validation for request bodies and params
-- [ ] Handler logic separated from route registration
-- [ ] Secrets in environment variables, never hardcoded
-- [ ] Tests cover success, validation error, and server error cases
-- [ ] All tests pass (`npm test`)
-- [ ] Build passes (`npm run build`)
-- [ ] Evidence captured with `spacecraft evidence`
-- [ ] No unapproved dependencies
+Resolved · stack confirmed · schema validation · handler ≠ registration · secrets in env · tests cover success/validation/server error · test+build pass · evidence · no unapproved deps.
 
 ## References
 
-- `references/api-patterns.md` - REST route design, Fastify schema validation, error handling, middleware
-- `references/testing.md` - Vitest + Fastify inject patterns, integration testing, mocking external services
+- `references/api-patterns.md` - REST, Fastify schema, errors, middleware
+- `references/testing.md` - Vitest + inject, integration, mocking

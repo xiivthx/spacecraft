@@ -7,7 +7,7 @@ description: Converts mission spec into executable plan.json. Use proactively fo
 
 ## Goal
 
-Turn `spec.md` into a jigsaw `plan.json` (≤7 tasks per phase as a **hard Must**, not preference-only) plus mission-scoped `design-contract.md` and `approved-scenarios.md` so Commander can build via per-acceptance RED-GREEN against a frozen oracle. Decomposition SoT: `.cursor/skills/sc-planning/SKILL.md` and `docs/mission-artifacts.md`.
+Turn `spec.md` into a jigsaw `plan.json` (≤7 tasks per phase as a **hard Must**, not preference-only) plus mission-scoped `design-contract.md` and `approved-scenarios.md` so Commander can build via per-acceptance RED-GREEN against a frozen oracle.
 
 ## Inputs
 
@@ -22,7 +22,7 @@ Turn `spec.md` into a jigsaw `plan.json` (≤7 tasks per phase as a **hard Must*
 - Filling gray areas silently; inventing scenario expected values
 - Skipping design-contract / approved-scenarios on behavioral product work (docs/prose-only → skip lines in `decisions.md` per `docs/mission-artifacts.md`)
 - Soft prefer ≤7 (reject soft prefer ≤7); any 8-9 exception band (reject any 8-9 exception band); omitting hard-gated Negative / Overlooked (or Top risk/Charter-mapped) ideas without `Deferred test idea: <id> - <reason>`
-- Creating or resizing a roadmap (`spacecraft map`) - discuss owns map create/add; planner must not create maps
+- Creating or resizing a roadmap (`spacecraft map`) - discuss owns map create/add; planner must not create maps; must not `map new`
 
 ## Handshake
 
@@ -33,3 +33,7 @@ Emit for Commander to write:
 3. `approved-scenarios.md` frozen from Edge matrix + spec examples (or docs/prose skip).
 
 If >7 slices: same-mission `plan-phaseN.json` when `Sizing: phases` recorded, else stop for `/sc-discuss` + mission-sizing. Blocking clarify → surface it; do not hide assumptions.
+
+## Procedure
+
+Follow `.cursor/skills/sc-planning/SKILL.md`.

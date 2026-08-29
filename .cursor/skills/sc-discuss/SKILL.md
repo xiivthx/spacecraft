@@ -12,16 +12,30 @@ Find what we want before implement: clear `spec.md`, decisions, answered questio
 
 ## Output
 
-Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated; visual: `UI draft approved: <file>` (or non-visual skip); mission brief accepted or skip recorded; `spacecraft clarify-status clear`. Handoff by sizing (see Exit). Never plan AFK, RED-GREEN, product code, or ship.
+Mission ready to build: solid `spec.md`; `questions.md` / `decisions.md` updated; visual: `UI draft approved: <file>` (or non-visual skip); mission brief accepted or skip recorded; `spacecraft clarify-status clear`. Handoff by sizing (see Verify / Exit). Never plan AFK, RED-GREEN, product code, or ship.
 
 ## Good / Bad
 
-- Good: sharp Goal / Output / Good-Bad / Verify; sizing recorded (`Sizing: …`); lens pass or skip recorded before clear; testability pass or skip recorded before clear (structured Test Ideas Positive/Negative/Edge/Overlooked + Implementation pitfalls when testability runs); on-demand test-data design via `test-data-design.md` when variable-level fixtures matter (not a clear gate); on-demand oracle evaluation via `test-oracles.md` when problem judgment needs grounding (not a clear gate); strategy pass or skip recorded before clear; RCRCRC when two requirement versions exist; frontier rounds via sc-clarify (≤3 independent blocking questions per turn; serial when dependent); Verify / architecture / scope soft gaps stay on the open frontier until settled or explicitly deferred; true soft gaps → `decisions.md`; visual brief + product context + reference extract (when refs) + context fidelity + layout bake-off (or skip) + responsive ladder (all four presets) + scenario-complete draft with designer gate before human; dimension-locked polish; mission brief via Spec Mirror + stake map + Goal / Will do / Impact / Extra bullets (plain + technical; pre-mortem Wrong-if under Extra when non-trivial) then Accept/Adjust/Reject before clear; mid-ask unblock via natural language (re-pitch / research / visualize) per sc-clarify - no new slash commands
-- Bad: implementing; writing `plan.json` AFK; shipping; skipping bake-off silently; polishing type+color+layout in one pass; serving unreviewed or scenario-incomplete draft HTML; clearing while draft unapproved or mission brief undecided; clearing while Testability is `Not Testable` and Verify soft/missing; dumping the full testability queue or more than a frontier round (≤3 independent) in one turn; quizzing the human instead of presenting the brief; hollow briefs (vague Goal/Will do/Impact, no Wrong-if when required, Spec Mirror soft/empty yet posed); cross-feature layer waterfalls or `*-ux` roadmap seams; replacing mission brief (Accept/Adjust/Reject chat HIL) with a canvas; using canvas as draft HTML / visual SoT; inventing mid-ask slash skills; throwaway HTML for mid-ask visualize
+**Good**
+- Sharp Goal / Output / Good-Bad / Verify; `Sizing: …` recorded
+- Soft-pass: `## Lens pass` / `Lens pass skipped:`, `## Testability pass` / `Testability pass skipped:`, `## Strategy pass` / `Strategy pass skipped:`, and when two requirement versions `## RCRCRC pass` / `RCRCRC pass skipped:` - or eligible `Discuss path: fast`
+- Testability when run: structured Test Ideas + Implementation pitfalls; on-demand `test-data-design.md` / `test-oracles.md` (not clear gates)
+- Frontier rounds via sc-clarify (≤3 independent; serial when dependent); Verify / architecture / scope stay on frontier until settled or explicitly deferred; true soft → `decisions.md`
+- Visual: product context + reference extract (when refs) + bake-off (or skip) + responsive ladder + scenario-complete draft; designer port + Impeccable craft before human; dimension-locked polish; then `UI draft approved:`
+- Mission brief via Spec Mirror + stake map + Goal / Will do / Impact / Extra (Wrong-if when required); Accept / Adjust / Reject before clear
+- Mid-ask via natural language per sc-clarify - no new slash commands
+
+**Bad**
+- Implementing; writing `plan.json` AFK; shipping
+- Skipping bake-off silently; multi-dimension polish in one pass; unreviewed or scenario-incomplete draft HTML
+- Clearing while draft unapproved, mission brief undecided, or Testability `Not Testable` + Verify soft/missing
+- Dumping full testability queue or >1 frontier round (≤3) in one turn; quizzing instead of presenting the brief; hollow briefs
+- Cross-feature layer waterfalls or `*-ux` roadmap seams; canvas as mission brief or draft HTML / visual SoT
+- Inventing mid-ask slash skills; throwaway HTML for mid-ask visualize
 
 ## Verify
 
-Human confirms spec (and draft when visual), then Accepts (or skip) the mission brief:
+Human confirms spec (and draft when visual), then Accepts (or skip) the mission brief. All of the following must hold before clear:
 
 ```
 spacecraft clarify-status clear
@@ -35,7 +49,16 @@ spacecraft clarify-status clear
 #   OR (eligible fast path) "Discuss path: fast" stands in for lens/testability/strategy/RCRCRC soft-pass
 ```
 
-Handoff by sizing: roadmap → `/sc-run <id>`; single|phases → `/sc-run` (mission-only).
+Also: no open blocking questions; Verify present; do not clear while Testability is `Not Testable` and Verify soft/missing.
+
+### Exit clear checklist
+
+Before clear, Confirm: soft-pass lines present - `Lens pass skipped:` / `Testability pass skipped:` / `Strategy pass skipped:` / `RCRCRC pass skipped:` (when two versions) **or** eligible `Discuss path: fast`. Handoff by sizing (`references/mission-sizing.md`):
+- `Sizing: roadmap <id>` → **Spec clear. New session: `/sc-run <id>`.**
+- `Sizing: single` or `phases` → **Spec clear. New session: `/sc-run`.** (mission-only)
+
+On handoff, set or update optional `mission.json` `pickup` (`phase`, `next` one-liner, `updatedAt`) so `spacecraft status` / session-start shows Pickup. Not a clear or closeout gate.
+
 ## Arguments
 
 ```
@@ -107,32 +130,18 @@ When existing and updated requirements are both available, apply `references/rcr
 
 ### Mid-ask unblock
 
-When the human is stuck mid-frontier (confused wording, needs facts, or cannot picture state), unlock via **natural language** - **no new slash** commands. Owner of Re-pitch / mid-ask escape details: **sc-clarify**.
-
-| Cue | Route |
-|-----|-------|
-| Re-pitch | sc-clarify **Re-pitch on confusion** |
-| Research | `sc-search` first → escalate `sc-storm` for open-domain/strategy |
-| Visualize | Existing layout **bake-off** / draft (UI) or chat state/example table (non-UI) |
-
-Do not add `/wait-what`, `/prototype`, or `/research` skills. After research or visualize, return to the open frontier round.
+When the human is stuck mid-frontier (confused wording, needs facts, or cannot picture state), unlock via **natural language** - **no new slash** commands. Owner of Re-pitch / mid-ask escape details: **sc-clarify**. Cue → route: Re-pitch → sc-clarify Re-pitch on confusion; Research → `sc-search` then `sc-storm` for open-domain/strategy; Visualize → existing bake-off / draft (UI) or chat state/example table (non-UI). Do not add `/wait-what`, `/prototype`, or `/research` skills.
 
 ### Visual design (when UI/FE)
 
-Detect from intent / `spec.md`. If visual: **Impeccable is the primary craft engine.** Follow `.cursor/skills/sc-ux-design/references/impeccable-orchestration.md`. Task(`sc-designer`) orchestrates Impeccable + owns Spacecraft port gates. Default `Impeccable path: active` unless `skipped: <reason>`.
+Detect from intent / `spec.md`. If visual:
 
-1. **Product context:** Record `Product context: <routes + shell/layout file paths + screenshot paths>` or `Product context skipped: greenfield` in `decisions.md`. When brownfield, read parent shell/layout and nearby pages before craft; bake-off candidates must include existing app chrome for in-app screens. Record `Impeccable path: active` (default) or `skipped: <reason>`.
-2. **Surface checklist:** Match one primary id via `.cursor/skills/sc-ux-design/references/checklists/README.md` and `sc-ux-design/references/surface-checklist.md`. Record `UX checklist: <id>` or `UX checklist: none - <reason>` in `decisions.md` before bake-off. Read that one file under `.cursor/skills/sc-ux-design/references/checklists/` and fold applicable `- [ ]` items into `spec.md` Must and the approval draft.
-3. **Impeccable brief + house (path active):** Ensure UI-package `.impeccable/` is gitignored. `/impeccable init` when `PRODUCT.md` missing on new/replacement world. **Reference extract when images/refs supplied:** run `sc-ux-design/references/reference-extract.md` before shape → `design/refs/extract.md`; record `Reference extract:` and `Reference borrow:` (`mood` | `tokens` | `layout` | `chrome`). **Must not** enter bake-off when borrow is set but extract is missing. Read package `DESIGN.md` when present. If style conflicts, ask once and record `DESIGN conflict: mission exception | update house | keep house` (default keep house when file exists). Then `/impeccable shape <surface>` as the **only** design brief; human approval → `Impeccable brief approved: …`. **Do not** author sc-ux 6-dimension brief when path active. (Path skipped: legacy 6-dimension brief in `sc-ux-design`.)
-4. **Context fidelity before bake-off:** Record `Context fidelity: DESIGN.md | shell:<path> | extract:<path> | product-shot:<path>` (omit absent; greenfield may omit shell/product-shot).
-5. **Direction / comps:** Impeccable new-work as needed; human locks direction → `Impeccable direction: …`. Comps are craft north stars, not port SoT.
-6. **Layout bake-off:** After shape brief approval, generate **2–3** HTML layout candidates under `.space/missions/<id>/design/drafts/` (`<name>-draft-v1-<layout-id>.html`) implementing the locked direction (comps = generation refs, not substitutes) with scaffold + primary surface chrome + **Responsive ladder** across all four presets (375 / 768 / 1280 / 1536) for multi-region UIs. Serve and let the human pick. Record `Layout bake-off winner: <file>` or `Layout bake-off skipped: <reason>`. Do not skip silently. Full scenario matrix may wait until the winner.
-7. **Polish winner:** full draft with scaffold; viewport toggles; **surface-relevant scenario matrix** per `spec.md` + checklist chrome; responsive ladder. Prompt assembly: `shared directives` → `DESIGN.md` → `design-principles.md` → **shape brief** + spec Musts. Impeccable draft polish: default on Persuade / craft-critical; opt-in Operate (`Impeccable draft polish: on | skipped`). **Dimension lock:** one of `typography` | `color` | `layout` | `motion` | `spacing` | `chrome` per human round.
-8. **Designer port gate then Impeccable craft (before approval HIL):** Task(`sc-designer`) port gate first (scaffold, scenarios, checklist, ladder, continuity, extract, port readiness) - fail-closed; Commander fixes; re-check four viewports. Then Impeccable craft: `/impeccable critique` default, or finish-reviewer when approved comp / craft-critical; record `Impeccable craft gate:` and `Impeccable craft: pass | waived: <reason>`. Do not present approval draft until **both** port and craft pass (or human waive craft). Missing required states, missing frame, squeeze-only responsive, or product-continuity gaps = critical.
-9. Serve via `serve-html.mjs`; iterate (draft → designer port → craft → fix → human) with dimension lock until approved (max 3 human rounds after bake-off). Each new draft re-runs port gate; re-run craft if the draft changed.
-10. On approval: record `UI draft approved: <draft-file>` **only if** scenario matrix complete, `UX checklist:` recorded, bake-off winner/skip recorded, shape brief approved (path active), and port+craft gates pass. Default **keep house** `DESIGN.md` unless `DESIGN conflict: update house`.
-11. Skip draft for non-visual FE, or for `*-data` / `*-functional` / `*-integrate` seams: record `UI draft skipped: …`. Bake-off not required when draft is skipped.
-12. Tell the human: approved draft is the **visual source of truth** for `/sc-run` (port look; do not freestyle chrome; no layout bake-off in run). Prefer draft surface chrome that maps cleanly to reusable `components/ui` primitives.
+- Follow `.cursor/skills/sc-ux-design/references/impeccable-orchestration.md`
+- Task(`sc-designer`) owns port gates
+- Default `Impeccable path: active` unless `Impeccable path: skipped: <reason>`
+- Path skipped → legacy 6-dimension brief in sc-ux-design
+
+Record Spacecraft gates in `decisions.md` (details in sc-ux-design): `Product context:` / `Product context skipped: greenfield`; `UX checklist:`; `Reference extract:` / `Reference borrow:` when refs; `DESIGN conflict:` when style conflicts; `Context fidelity:`; `Layout bake-off winner:` or `Layout bake-off skipped:`; surface-relevant scenario matrix; Responsive ladder (all four presets); `Impeccable craft: pass | waived:`; then `UI draft approved: <draft-file>` (or `UI draft skipped:` for non-visual FE / `*-data` / `*-functional` / `*-integrate`). Bake-off not required when draft is skipped. Approved draft is visual SoT for `/sc-run`.
 
 ### Mission brief (before clear)
 
@@ -146,16 +155,6 @@ Follow `references/mission-brief.md`. Spec Mirror → stake coverage map → Goa
 Never clear while a posed brief awaits a decision (unless skip recorded).
 
 **Must not:** replace the mission brief (Accept/Adjust/Reject chat HIL) with a Cursor Canvas; do not use canvas as draft HTML / visual SoT (draft stays HTML under discuss; canvases are `/sc-run` plan/findings/evidence milestones only).
-
-### Exit
-
-1. No open blocking questions; Verify present; `Sizing: …` recorded; (`## Lens pass` or `Lens pass skipped:`) and (`## Testability pass` or `Testability pass skipped:`) and (`## Strategy pass` or `Strategy pass skipped:`) and (when two requirement versions, `## RCRCRC pass` or `RCRCRC pass skipped:`) — or, when eligible, `Discuss path: fast` stands in for those soft-pass lines; visual approved or skip recorded; mission brief accepted or skip recorded. Do not clear while Testability is `Not Testable` and Verify soft/missing.
-2. When `Sizing: roadmap`: every seam on the map **Must** record `Roadmap contract: locked <file>` **or** sanctioned `Contract lock deferred: exploratory, skeleton-first` (or grandfather `Roadmap contract skipped: pre-M1 map`) before clear - see `references/mission-sizing.md`.
-3. `spacecraft clarify-status clear`.
-4. Handoff by sizing (`references/mission-sizing.md`):
-   - `Sizing: roadmap <id>` → **Spec clear. New session: `/sc-run <id>`.**
-   - `Sizing: single` or `phases` → **Spec clear. New session: `/sc-run`.** (mission-only AFK on resolved current mission)
-5. On handoff, set or update optional `mission.json` `pickup` (`phase`, `next` one-liner, `updatedAt`) so `spacecraft status` / session-start shows Pickup. Not a clear or closeout gate.
 
 ## Rules
 
@@ -175,40 +174,9 @@ Never clear while a posed brief awaits a decision (unless skip recorded).
 - Never invent mid-ask slash skills (`wait-what` / `prototype` / `research`); route mid-ask to sc-clarify (re-pitch / research via sc-search then sc-storm / visualize via bake-off or chat state table).
 - One mission focus per discuss session.
 
-## Specialist skills
-
-| Concern | Where |
-|---------|--------|
-| Blocking questions / mid-ask escapes | sc-clarify (Re-pitch / mid-ask escape owner); research: sc-search → sc-storm; visualize: bake-off or chat state table |
-| Mission sizing / roadmap split | `references/mission-sizing.md` |
-| Requirement testability | `references/requirement-testability.md` |
-| SFDIPOT coverage review (existing tests vs requirement) | `references/sfdipot-coverage.md` (on-demand; not a soft gate) |
-| Test data design (variable-level fixtures) | `references/test-data-design.md` (on-demand; not a soft gate) |
-| Test oracles (FEW HICCUPPS) | `references/test-oracles.md` (on-demand; not a soft gate) |
-| HTSM strategy (slim) | `references/htsm-strategy.md` |
-| Requirement delta / RCRCRC | `references/rcrcrc-impact.md` |
-| Draft HTML / visual-verify | sc-ux-design |
-| Reference extract | `sc-ux-design/references/reference-extract.md` |
-| Surface checklist | `.cursor/skills/sc-ux-design/references/checklists/README.md` (item SoT) + `sc-ux-design/references/surface-checklist.md` (one-id adapter) |
-| UX orchestrate + port/craft gates | Task(`sc-designer`); Impeccable craft commands per `impeccable-orchestration.md` |
-| Mission brief | `references/mission-brief.md` |
-| Architecture | Task(`sc-adviser`) |
-| Lens pass / STORM | `references/lens-pass.md`; optional sc-storm (Tier 3) |
-| Prompt / docs / spec wording | optional Task(`sc-writer`) |
-| Plan / TDD / evidence | `/sc-run` |
-
 ## References
 
-- sc-clarify (mid-ask Re-pitch / escape owner), sc-ux-design, `/sc-run`, `/sc-ship`
-- `references/mission-sizing.md`
-- `references/mission-brief.md`
-- `references/lens-pass.md`
-- `references/requirement-testability.md`
-- `references/sfdipot-coverage.md`
-- `references/test-data-design.md`
-- `references/test-oracles.md`
-- `references/htsm-strategy.md`
-- `references/rcrcrc-impact.md`
-- `.cursor/skills/sc-ux-design/references/checklists/README.md`
-- `sc-ux-design/references/surface-checklist.md`
-- sc-search → sc-storm (mid-ask research escape)
+- sc-clarify (mid-ask Re-pitch / escape owner); sc-search → sc-storm; sc-ux-design; Task(`sc-designer`); Task(`sc-adviser`); optional Task(`sc-writer`); `/sc-run`; `/sc-ship`
+- `references/mission-sizing.md`, `references/mission-brief.md`, `references/lens-pass.md`, `references/requirement-testability.md`, `references/htsm-strategy.md`, `references/rcrcrc-impact.md`
+- On-demand (not soft gates): `references/sfdipot-coverage.md`, `references/test-data-design.md`, `references/test-oracles.md`
+- `.cursor/skills/sc-ux-design/references/impeccable-orchestration.md`, `sc-ux-design/references/reference-extract.md`, `.cursor/skills/sc-ux-design/references/checklists/README.md`, `sc-ux-design/references/surface-checklist.md`
