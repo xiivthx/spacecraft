@@ -1,6 +1,8 @@
 ---
 name: sc-planner
 description: Converts mission spec into executable plan.json. Use proactively for spec decomposition.
+model: gpt-5.6-sol-high
+force-default-model: true
 ---
 
 # Planner

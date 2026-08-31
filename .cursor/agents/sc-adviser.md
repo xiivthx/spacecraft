@@ -1,6 +1,8 @@
 ---
 name: sc-adviser
 description: Advises on complex architecture and multi-file design. Use proactively for hard design; not routine fixes.
+model: gpt-5.6-sol-high
+force-default-model: true
 readonly: true
 ---
 
