@@ -75,3 +75,4 @@ Functional/cover properties beat raw line %. Record plan + measured numbers or `
 - [references/signoff.md](references/signoff.md) - compact signoff checklist + tool map
 - Rules: `700-rtl.mdc`, `710-rtl-timing.mdc`, `720-rtl-verify.mdc`
 - Skill: `sc-rtl` (implement)
+- sc-rtl refs: `core.md`, `intent-fpga.md`, `intent-tb.md`, `intent-cdc.md`, `intent-formal.md` (CPU/ISA: `arch.md`)
