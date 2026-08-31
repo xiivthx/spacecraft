@@ -18,7 +18,7 @@ Spacecraft integrates with Antigravity via the **Customization System**:
 ├── rules/            # Consolidated rulebook (AGENTS.md)
 ├── hooks.json        # PreToolUse safety hooks (branch protection)
 ├── hooks/            # Safety script (safety-check.mjs)
-├── agents/           # 10 Subagent contracts (sc-planner, sc-designer, sc-coder, ...)
+├── agents/           # 11 Subagent contracts (sc-planner, sc-designer, sc-coder, sc-firmware, sc-rtl, ...)
 └── skills/           # 25 Modular lifecycle & domain skills (sc-run, sc-discuss, sc-ship, ...)
 ```
 
@@ -96,7 +96,8 @@ Commander coordinates the mission without directly writing product code:
 | `sc-judge` | Adversarial verify; hunts for draft drift and ungrounded claims (`VERIFIED` vs `REFUTED`). |
 | `sc-writer` | Specifications, documentation, prompt refinement, and narrative context harvest. |
 | `sc-adviser` | Architectural trade-offs and domain consultation. |
-| `sc-firmware` | Embedded hardware and firmware specialist. |
+| `sc-firmware` | Embedded system engineer: MCU firmware (STM32 and other vendors / not FPGA/RTL). |
+| `sc-rtl` | Digital IC designer: FPGA SystemVerilog RTL (not MCU firmware). |
 
 ---
 

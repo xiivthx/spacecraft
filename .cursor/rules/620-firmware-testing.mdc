@@ -10,10 +10,11 @@ Three layers: (1) host unit (Unity/Ceedling + mocks), (2) on-device integration,
 
 ### Must
 
-- Mock all hardware interfaces in host unit tests - never include real HAL headers in pure logic tests
+- Mock all hardware interfaces in host unit tests - never include real vendor HAL/SDK headers in pure logic tests
 - Cover error paths and state-machine transitions (timeout, CRC fail, overflow, every event × state when in scope)
 - Target/integration: verify peripheral init + basic I/O; ISR latency budget < 10μs when claiming IRQ timing
 - Capture verify evidence with `spacecraft evidence` for host and HIL commands used as acceptance
+- Static analysis (cppcheck or clang-tidy plus warnings-as-errors) when claiming flight-grade
 
 ### Must not
 

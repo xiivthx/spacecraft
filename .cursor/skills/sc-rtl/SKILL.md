@@ -1,15 +1,17 @@
 ---
 name: sc-rtl
 description: >-
-  Multi-cycle RISC-V SystemVerilog RTL: FSM, memory handshakes, coding
-  conventions, FPGA timing, lint/synth gates, observe-first HW debug.
-  Activate on .sv, SystemVerilog, RTL, CPU FSM, imem/dmem, Verilator, Yosys,
-  nextpnr, or FPGA pack work. Use proactively for RTL implementation.
+  Digital IC designer for FPGA SystemVerilog RTL: multi-cycle RISC-V, FSM,
+  memory handshakes, coding conventions, FPGA timing, lint/synth gates,
+  observe-first HW debug. Activate on .sv, SystemVerilog, RTL, CPU FSM,
+  imem/dmem, Verilator, Yosys, nextpnr, or FPGA pack work. Use proactively
+  for FPGA/RTL implementation. Do not activate on STM32, HAL, CubeMX, or
+  MCU firmware.
 ---
 
 # sc-rtl
 
-Implement and maintain SystemVerilog RTL under mission control (multi-cycle RISC-V defaults). Delegate production `.sv` to Task(`sc-rtl`) when available, else Task(`sc-coder`) with this skill. Commander does not write RTL.
+This skill is the digital IC designer for FPGA SystemVerilog RTL (not MCU firmware). Multi-cycle RISC-V defaults. Delegate production `.sv` to Task(`sc-rtl`) when available, else Task(`sc-coder`) with this skill. Commander does not write RTL.
 
 Progressive disclosure: keep this file loaded. ISA lists / cycle counts / module tree → `references/arch.md`. Verify gates → `sc-rtl-verify`. Glob rules `700`/`710`/`720` when editing matching files. Project SPEC / mission `spec.md` wins for ISA/FPGA/paths; this skill owns SV conventions, debug, quality loop.
 
@@ -97,7 +99,7 @@ find rtl -name '*.sv' -exec verilator --lint-only --Wno-MULTITOP {} +
 
 ## Out of scope
 
-- STM32 / HAL / CubeMX - sc-firmware
+- STM32 / HAL / CubeMX / MCU firmware - sc-firmware
 - App web/API - sc-web-frontend / sc-web-backend
 - Pure ADRs without RTL edits - sc-architect / sc-adviser
 - TDD process mechanics - sc-tdd

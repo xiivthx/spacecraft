@@ -2,7 +2,11 @@
 
 On-demand register/driver examples for GPIO, UART, SPI, I2C, LCD, QSPI, LF/UHF, and DMA. Critical Must/Must-not stay in `.cursor/rules/610-firmware-peripherals.mdc`. Load this file when implementing peripheral drivers.
 
+MCU-wide: BSP pin defines, CRC-checked bounded frames, SPI/I2C discipline, ISR enqueue-only, no GPIO busy-wait. STM32 LL/HAL snippets below are STM32-target examples. nRF uses nrfx (see target-nrf52840.md). On LTDC / DMA2D / Cortex-M7 targets, apply the LCD and D-cache notes in those sections; do not copy them onto nRF52840 or STM32L412.
+
 ## GPIO
+
+STM32-target example (LL).
 
 ```c
 #define LED_PORT  GPIOA
@@ -24,6 +28,8 @@ void led_toggle(void) { LED_PORT->ODR ^= LED_PIN; }
 - Pull-up/down: enable internal when input - floats = noise = random wakeups
 
 ## UART / Serial Protocol
+
+Frame format is MCU-wide. Tick helper in the snippet is an STM32-target example.
 
 ```
 Frame format: [SYNC] [LEN] [TYPE] [PAYLOAD...] [CRC16]
@@ -54,6 +60,8 @@ void uart_rx_isr(uint8_t byte) {
 - State machine per protocol instance - never process in ISR
 
 ## SPI Bus
+
+STM32-target example (HAL). nRF uses nrfx (see target-nrf52840.md).
 
 ```
 Modes: 0 (CPOL=0,CPHA=0) - most common, 1, 2, 3
@@ -122,6 +130,8 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef* hspi) {
 - CS pin: hardware NSS preferred; if GPIO, use BSRR for atomic toggle
 
 ## I2C Bus
+
+STM32-target example (HAL).
 
 ```
 Speed: Standard 100kHz, Fast 400kHz, Fast+ 1MHz
@@ -204,7 +214,9 @@ void i2c_scan(I2C_HandleTypeDef* hi2c) {
 | GPIO expander (MCP23017) | 0x20-0x27 | 16 GPIO, 2 register banks |
 | Accelerometer (MPU6050) | 0x68/0x69 | 6-axis, FIFO buffer, interrupt pin |
 
-## LCD Display (LTDC + DMA2D - STM32F7/F4-Discovery)
+## LCD Display (LTDC / DMA2D targets)
+
+On LTDC / DMA2D / Cortex-M7 targets only. STM32-target example below is STM32F746-Discovery. Do not apply these notes to nRF52840 or STM32L412.
 
 ```
 Layer: app/ → hal_if/lcd.h → drivers/lcd/ltdc_stm32f7.c → bsp/board.c
@@ -268,15 +280,17 @@ void LTDC_IRQHandler(void) {
 }
 ```
 
-- **Double-buffered always**: draw to back buffer, LTDC reads front, swap on vblank
-- **DMA2D for everything**: fill, blit, blend, color convert - never CPU pixel loops
+On LTDC / DMA2D / Cortex-M7 targets:
+
+- **Double-buffered**: draw to back buffer, LTDC reads front, swap on vblank
+- **DMA2D for fill/blit/blend**: color convert - never CPU pixel loops
 - **SDRAM bandwidth**: LTDC @ 9MHz pixel clock ≈ 18 MB/s - leave headroom for DMA2D
 - **Layer 1**: background. **Layer 2**: foreground. Blend with alpha
 - **Pixel format**: RGB565 native; ARGB8888 for images with DMA2D PFC
 - **Cache**: framebuffer write-through SDRAM (MPU) or `cache_clean()` before LTDC reload
 - **Touch**: FT5336 I2C at 0x38 - poll at 20-30Hz in low-priority task
 
-## QSPI Flash (128Mbit on Discovery)
+## QSPI Flash (STM32-target example - 128Mbit on Discovery)
 
 ```c
 void qspi_init(void) {
@@ -380,6 +394,8 @@ void uhf_tx_packet(uhf_radio_t* radio, uint8_t* data, uint8_t len) {
 
 ## DMA Best Practices
 
+Circular mode is MCU-wide for continuous streams. On LTDC / DMA2D / Cortex-M7 targets: flush/invalidate D-cache around DMA. STM32-target example (HAL ADC callbacks):
+
 ```c
 #define DMA_BUF_SIZE 256
 static uint16_t dma_buf[2][DMA_BUF_SIZE];
@@ -393,12 +409,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 ```
 
 - DMA priority: highest for audio/ADC, medium for SPI/UART, low for memory
-- Cache coherency: flush/invalidate D-cache before/after DMA on Cortex-M7
+- Cache coherency: on Cortex-M7 targets, flush/invalidate D-cache before/after DMA
 - Circular mode: for continuous streaming - never stop/restart mid-stream
 - Error handling: DMA transfer error ISR → log error, reset peripheral
 
 ## Related
 
 - Rule: `.cursor/rules/610-firmware-peripherals.mdc` - Must / Must-not invariants
-- Architecture: `architecture.md`
+- Core: `core.md`
+- Target refs: `target-cortex-m.md`, `target-stm32.md`, `target-nrf52840.md`
 - Verification: `verification.md`

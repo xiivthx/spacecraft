@@ -261,3 +261,35 @@ for (const file of MUST_EXIST) {
     assert.ok(existsSync(rel(file)), `${file} must exist`);
   });
 }
+
+// --- sc-firmware vs sc-rtl agent split (greppable SoT; not plugin twins) ---
+
+const FIRMWARE_AGENT = '.cursor/agents/sc-firmware.md';
+const RTL_AGENT = '.cursor/agents/sc-rtl.md';
+
+test('sc-firmware vs sc-rtl: greppable embedded vs digital-IC split', () => {
+  const firmware = readUtf8(FIRMWARE_AGENT);
+  const rtl = readUtf8(RTL_AGENT);
+  const workflow = readUtf8(WORKFLOW);
+
+  assertIncludes(firmware, 'Embedded system engineer', FIRMWARE_AGENT);
+  assertIncludes(firmware, 'Not FPGA/RTL', FIRMWARE_AGENT);
+  assertIncludes(
+    firmware,
+    'FPGA / SystemVerilog / RTL / digital IC (Task `sc-rtl`)',
+    FIRMWARE_AGENT,
+  );
+
+  assertIncludes(rtl, 'Digital IC designer', RTL_AGENT);
+  assertIncludes(rtl, 'Not MCU firmware', RTL_AGENT);
+  assertIncludes(
+    rtl,
+    'STM32 / HAL / CubeMX / MCU firmware (Task `sc-firmware`)',
+    RTL_AGENT,
+  );
+
+  const taskLine = workflow.split('\n').find((line) => line.includes('Task:'));
+  assert.ok(taskLine, `${WORKFLOW} Subagent Delegation must have a Task: line`);
+  assertIncludes(taskLine, 'sc-firmware', `${WORKFLOW} Task:`);
+  assertIncludes(taskLine, 'sc-rtl', `${WORKFLOW} Task:`);
+});

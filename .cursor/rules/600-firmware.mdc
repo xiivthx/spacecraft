@@ -1,29 +1,28 @@
 ---
-description: Firmware architecture, STM32 HAL, state machines, coding standards for embedded C
+description: MCU firmware architecture, Power-of-Ten-class invariants, FDIR handshake, and house layering
 alwaysApply: false
-globs: "**/firmware/**,**/Core/**,**/Drivers/**,**/bsp/**,**/CubeMX/**,**/STM32*,**/*stm32*,**/.ioc,**/*.ld,**/*.s"
+globs: "**/firmware/**,**/bsp/**,**/hal_if/**,**/drivers/**,**/Drivers/**,**/*.ld,**/*.s,**/Core/**,**/STM32*,**/*stm32*,**/*nrf*"
 ---
 
-## Firmware Architecture - STM32 ARM Cortex-M
+## Firmware (600) - MCU core safety
 
-Glob-triggered safety for Cortex-M (esp. F7 cache/DMA). Recipes: `.cursor/skills/sc-firmware/references/architecture.md`.
+Glob-triggered safety for all MCU firmware, not STM32-only. Recipes: `.cursor/skills/sc-firmware/references/core.md`. This glob does not require CubeMX as a Must.
 
 ### Must
 
-- Configure MPU regions before peripheral use: Flash cacheable, SRAM DMA buffers non-cacheable, SDRAM write-through (framebuffer), peripherals strongly-ordered
-- Enable I-cache and D-cache after `SystemClock_Config()`, before DMA or peripheral init that uses cached memory
-- **DMA source buffer**: `cache_clean()` before DMA TX
-- **DMA dest buffer**: `cache_clean_invalidate()` after DMA RX, before CPU read
-- Keep ISR short (< 10μs): set flag / wake task only; shared vars `volatile` + atomic or critical section
-- Layer: `app/` → `hal_if/` only; `drivers/` / `bsp/` own HAL/CMSIS. Prefer LL on hot paths; wrap HAL behind `hal_if/`
-- Fixed-width types (`stdint.h`); no recursion; no `malloc` after init in hot paths or ISR
-- Watchdog (IWDG) enabled with kick in main loop; HardFault logs PC/LR to retained RAM when possible
+- Layer: `app/` includes only `hal_if/`; wrap vendor HAL behind `hal_if/`; `drivers/` / `bsp/` own vendor headers
+- Fixed-width types (`stdint.h`); no recursion; no heap after init in hot paths or ISR; bounded loops
+- Checked returns on non-void functions; restrict preprocessor to include guards and simple macros
+- Keep ISR short: set flag / wake task only; shared vars `volatile` plus atomic or critical section
+- FDIR: enable WDT and kick in the main loop; HardFault logs PC/LR to retained RAM when possible
+- static analysis for flight-grade claims
 
 ### Must not
 
-- Disable D-cache globally (`SCB_DisableDCache()`) - manage coherency per-region via MPU / clean-invalidate
-- Skip cache clean/invalidate around DMA on Cortex-M7 (including ISR-touched DMA buffers)
-- `printf`, `HAL_Delay`, blocking, or semaphore-take inside ISR
-- Include STM32 HAL headers from `app/`; skip `hal_if/` (`app/` → `drivers/` directly)
-- Edit generated `MX_*` bodies in place - wrap in BSP / `hal_if/`
+- Recursion; heap after init in hot paths or ISR; unbounded loops
+- Ignore returns of non-void functions; heavy preprocessor (function-like control flow)
+- `printf`, delay, blocking, or semaphore-take inside ISR
+- Include vendor HAL headers from `app/`; skip `hal_if/` (`app/` -> `drivers/` directly)
 - Circular includes across layers
+
+STM32-target note: wrap generated `MX_*` in `bsp/` / `hal_if/` when that vendor path is in scope. CubeMX recipes belong to STM32 target refs, not this glob.
