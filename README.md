@@ -89,7 +89,7 @@ make install-antigravity
 
 ## Quick start
 
-Open the project in Cursor. User-facing slash skills are `/sc-discuss`, `/sc-run`, and `/sc-ship`:
+Open the project in Cursor. User-facing slash skills are `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and `/sc-debug`:
 
 ```
 /sc-discuss
@@ -113,7 +113,7 @@ spacecraft map current            # print current roadmap id
 spacecraft map next <roadmap-id>  # next incomplete mission on named roadmap
 ```
 
-Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-discuss`, `/sc-run`, `/sc-ship`, and `/sc-quick`. Spacecraft does not use `.cursor/commands/`.
+Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and `/sc-debug`. Spacecraft does not use `.cursor/commands/`.
 
 ## Cursor modes
 
@@ -123,7 +123,7 @@ Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workfl
 |---|---|---|
 | Ask / clarify / brainstorm / visual draft | Discuss | Agent + `/sc-discuss` |
 | Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
-| Bug hunt | Debug | Cursor Debug Mode (no slash skill) |
+| Bug hunt / unknown RCA | Debug | Agent + `/sc-debug` (Cursor Debug Mode only as a software-pack runtime-log tactic) |
 | Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
 | Small edit / commit | Quick | Agent + `/sc-quick` (no mission; still INTENT/AUTH/TWINS/3-cycle) |
 
@@ -236,12 +236,13 @@ On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft st
 
 ## Lean profile
 
-User-facing slash skills: **`/sc-discuss`**, **`/sc-run`**, **`/sc-ship`**, and **`/sc-quick`**.
+User-facing slash skills: **`/sc-discuss`**, **`/sc-run`**, **`/sc-ship`**, **`/sc-quick`**, and **`/sc-debug`**.
 
 - **HIL discuss:** `/sc-discuss` - clarify, decide, approve visual draft HTML
 - **AFK run:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits; UI missions require prior draft approval and live product review (running URL + **live-product**) with paired draft-parity compare and functional evidence
 - **HIL ship:** final check + `/sc-ship`
 - **Quick (no mission):** `/sc-quick` - manual edits/fixes/docs; branch → verify → commit → local ship in one pass (no mission artifacts or closeout; push still explicit)
+- **Debug (RCA):** `/sc-debug` - pack (software / hardware / visual), repro, falsify, then `/sc-quick` or `/sc-discuss`; does not merge
 - **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, sc-storm, …)
 - **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design`, `sc-diagram` - glob rules still apply. `sc-storm` activates on open-domain / strategy research feeding discuss.
 

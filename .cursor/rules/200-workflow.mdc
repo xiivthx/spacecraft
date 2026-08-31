@@ -13,12 +13,12 @@ Conversation history usually dominates the window. Prefer a **new chat** when th
 |-------------|---------------|
 | Ask, clarify, visual draft, consult, research, decide | Advisory → Agent + `/sc-discuss` when mission-scoped |
 | Add, build, create, implement, feature | Mission → Agent + `/sc-run` after discuss clear |
-| Fix, debug, diagnose, broken, error, bug, crash | Debug → Cursor Debug Mode |
+| Bug hunt, diagnose, stack/log paste, broken/failing, unknown RCA | Debug → Agent + `/sc-debug` |
 | Edit prompt/config/doc, small fix, just commit; one-off polish/optimize/refactor/adjust | Quick → Agent + `/sc-quick` |
 | Batched polish (≥3 backlog items or explicit batch discuss) | Mission → Agent + `/sc-run` after discuss clear |
 | Ship | Agent + `/sc-ship` |
 
-No non-blocking questions mid-AFK. Detail skills: `sc-discuss`, `sc-run`, `sc-ship`, `sc-quick`, `sc-mission`.
+No non-blocking questions mid-AFK. Detail skills: `sc-discuss`, `sc-run`, `sc-ship`, `sc-quick`, `sc-debug`, `sc-mission`.
 
 ## Lifecycle
 
@@ -47,7 +47,7 @@ Branch `feat/<id>/…` → `.space/missions/<id>/`. Clarify: `open` | `clear` | 
 - **Discuss:** sizing, lens, spec, decisions, visual draft, mission brief. Skills: `sc-clarify`, `sc-ux-design`, `sc-storm` (Tier 3 research only). House look: root `DESIGN.md` + `150-design.mdc` on UI globs.
 - **Mission:** plan → design-contract → approved-scenarios → build → fix → browser-probe (UI/workflow) → review → ready. Skills: `sc-planning`, `sc-tdd`, `sc-verification`, `sc-browser-probe`, `sc-judge` (ready only on `VERIFIED`). Port look from approved draft; sync tokens into `DESIGN.md`.
 - **Polish:** one-off polish/optimize/refactor/adjust stays `/sc-quick`. Batched work is mission-class with evidence — trigger ≥3 items in `.space/polish-backlog.md` OR explicit batch discuss; max ≤5 files/batch; backlog `.space/polish-backlog.md`.
-- **Ship / Quick / Debug:** matching slash skill. Quick skips mission ceremony but not INTENT / AUTH / TWINS / 3-cycle.
+- **Ship / Quick / Debug:** matching slash skill. Quick skips mission ceremony but not INTENT / AUTH / TWINS / 3-cycle. Debug is a loop (`/sc-debug`): pack + repro + falsify; small proven fix → `/sc-quick`; spec hole → `/sc-discuss`. Mid `/sc-run` uses the debug spine silently. Cursor Debug Mode (Shift+Tab) is a software-pack runtime-log tactic only.
 
 ## Subagent Delegation
 

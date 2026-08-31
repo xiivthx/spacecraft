@@ -249,7 +249,40 @@ test('sc-security: Sc-security fallback: pass', () => {
   assertIncludes(readUtf8(file), 'Sc-security fallback: pass', file);
 });
 
+// --- sc-debug lane (RCA opener; lean-core) ---
+
+const DEBUG_SKILL = '.cursor/skills/sc-debug/SKILL.md';
+
+test('sc-debug: slash lane + packs + no-ship', () => {
+  const skill = readUtf8(DEBUG_SKILL);
+  const workflow = readUtf8(WORKFLOW);
+  const lean = readUtf8('cli/lib/project-install.mjs');
+  assertIncludes(skill, 'Pack:', DEBUG_SKILL);
+  assertIncludes(skill, 'hardware-mcu', DEBUG_SKILL);
+  assertIncludes(skill, 'hardware-fpga', DEBUG_SKILL);
+  assertIncludes(skill, '/sc-quick', DEBUG_SKILL);
+  assert.ok(
+    /Must not[\s\S]*[Mm]erge/m.test(skill),
+    `${DEBUG_SKILL} must forbid merge from the debug lane`,
+  );
+  assertIncludes(workflow, '/sc-debug', WORKFLOW);
+  assertIncludes(lean, "'sc-debug'", 'cli/lib/project-install.mjs');
+  assert.ok(
+    existsSync(rel('.cursor/skills/sc-debug/references/software.md')),
+    'sc-debug software pack must exist',
+  );
+  assert.ok(
+    existsSync(rel('.cursor/skills/sc-debug/references/hardware.md')),
+    'sc-debug hardware pack must exist',
+  );
+  assert.ok(
+    existsSync(rel('.cursor/skills/sc-debug/references/visual.md')),
+    'sc-debug visual pack must exist',
+  );
+});
+
 // --- Must-exist lean SoT references (required today) ---
+
 
 const MUST_EXIST = [
   '.cursor/skills/sc-run/references/defect-finding.md',

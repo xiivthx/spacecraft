@@ -16,7 +16,7 @@ Change on `main` via `--no-ff` merge + annotated tag (or blocked with exact miss
 
 ## Good / Bad
 
-- Good: docs tweak, diagram fix, config typo, prompt edit, one-file bug with obvious fix, one-off polish/optimize/refactor/adjust, “just commit my manual edits”
+- Good: docs tweak, diagram fix, config typo, prompt edit, one-file bug with obvious fix, RCA-complete small fix after `/sc-debug`, one-off polish/optimize/refactor/adjust, “just commit my manual edits”
 - Bad: new product feature with unknown scope, multi-module refactor, UI needing design HIL, API contracts, batched polish (≥3 `.space/polish-backlog.md` items or explicit batch discuss), anything needing evidence/review → use `/sc-discuss` then `/sc-run`
 
 ## Verify

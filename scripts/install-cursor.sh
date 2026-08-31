@@ -19,7 +19,7 @@ SRC="${2:?usage: install-cursor.sh <target-project-dir> <source-repo-dir>}"
 
 # Lean-core User-layer skills (keep identical to scripts/global-sync.sh).
 # Project layer never installs these; setup → project-install mirrors the list.
-LEAN_SKILLS="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
+LEAN_SKILLS="sc-discuss sc-run sc-ship sc-quick sc-debug sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 
 # Soft User-layer depth rules — never project (mirrored in project-install.mjs).
 USER_LAYER="000-spacecraft.mdc 026-intent-coach.mdc 027-th-en-hil.mdc 050-style.mdc 100-conventions.mdc 200-workflow.mdc"

@@ -32,6 +32,7 @@ export const LEAN_SKILLS = Object.freeze([
   'sc-run',
   'sc-ship',
   'sc-quick',
+  'sc-debug',
   'sc-mission',
   'sc-planning',
   'sc-tdd',

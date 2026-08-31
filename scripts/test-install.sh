@@ -156,7 +156,7 @@ echo "  ok   install-project excludes soft User-layer basenames; includes 010-ha
 # Lean-core skills (must stay in sync with scripts/global-sync.sh LEAN_SKILLS) stay
 # User-layer only (~/.cursor/skills via lean install-global). Project install must
 # omit them — and install-cursor.sh must name the exclude like USER_LAYER for rules.
-project_lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
+project_lean_skills="sc-discuss sc-run sc-ship sc-quick sc-debug sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 for skill in $project_lean_skills; do
   if [ -e "$project_skills/$skill" ]; then
     echo "FAIL: install-project copied lean-core skill $skill into $project_skills (User-layer only)"
@@ -203,7 +203,7 @@ sel_q_skills="sc-security sc-performance sc-solid sc-architect sc-diagram"
 sel_q_rules="300-security.mdc 400-performance.mdc 010-hard-contract.mdc"
 sel_prune_skills="sc-web-frontend sc-ux-design sc-browser-probe"
 sel_prune_rules="150-design.mdc"
-sel_lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
+sel_lean_skills="sc-discuss sc-run sc-ship sc-quick sc-debug sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 sel_soft_rules="000-spacecraft 026-intent-coach 027-th-en-hil 050-style 100-conventions 200-workflow"
 sel_safety_hooks="check-main-write.sh check-ship-commands.sh block-secrets-read.sh block-destructive.sh"
 
@@ -443,7 +443,7 @@ printf '%s\n' '{"version":1,"hooks":{"beforeShellExecution":[{"command":"~/.curs
 
 HOME="$fake_home" make -C "$ROOT" install-global \
   GLOBAL="$fake_home/.cursor" LOCAL_BIN="$fake_home/.local/bin" BIN="$BIN"
-for skill in sc-run sc-ship sc-quick sc-storm; do
+for skill in sc-run sc-ship sc-quick sc-debug sc-storm; do
   test -f "$fake_home/.cursor/skills/$skill/SKILL.md" \
     || { echo "FAIL: install-global missing $skill skill"; exit 1; }
 done
@@ -451,12 +451,12 @@ test -f "$fake_home/.cursor/skills/sc-discuss/references/lens-pass.md" \
   || { echo "FAIL: install-global missing sc-discuss/references/lens-pass.md"; exit 1; }
 test -f "$fake_home/.cursor/skills/sc-judge/references/judge-break/empty-evidence/expect.json" \
   || { echo "FAIL: install-global missing sc-judge judge-break fixtures"; exit 1; }
-echo "  ok   install-global installs sc-run, sc-ship, sc-quick, sc-storm, lens-pass, and judge-break"
+echo "  ok   install-global installs sc-run, sc-ship, sc-quick, sc-debug, sc-storm, lens-pass, and judge-break"
 
 # Lean User-layer skill allowlist (default install-global / global-sync):
 # lifecycle + process only; domain encyclopedias stay out of ~/.cursor/skills.
 global_skills="$fake_home/.cursor/skills"
-lean_skills="sc-discuss sc-run sc-ship sc-quick sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
+lean_skills="sc-discuss sc-run sc-ship sc-quick sc-debug sc-mission sc-planning sc-tdd sc-verification sc-judge sc-clarify sc-git sc-search sc-storm sc-writer"
 domain_skills="sc-solid sc-security sc-performance sc-web-backend sc-web-frontend sc-database sc-firmware sc-rtl sc-rtl-verify"
 for skill in $lean_skills; do
   test -f "$global_skills/$skill/SKILL.md" \
@@ -672,7 +672,7 @@ fi
 # User-layer outcomes equivalent to install-global (under fake HOME).
 test -e "$machine_home/.local/bin/spacecraft" \
   || { echo "FAIL: install-machine did not link CLI at $machine_home/.local/bin/spacecraft"; exit 1; }
-for skill in sc-run sc-ship sc-quick; do
+for skill in sc-run sc-ship sc-quick sc-debug; do
   test -f "$machine_home/.cursor/skills/$skill/SKILL.md" \
     || { echo "FAIL: install-machine User layer missing $skill skill under fake HOME"; exit 1; }
 done
@@ -728,7 +728,7 @@ grep -qxF "$machine_marker_token" "$machine_marker" \
 
 test -e "$machine_home/.local/bin/spacecraft" \
   || { echo "FAIL: after re-run, CLI missing at $machine_home/.local/bin/spacecraft"; exit 1; }
-for skill in sc-run sc-ship sc-quick; do
+for skill in sc-run sc-ship sc-quick sc-debug; do
   test -f "$machine_home/.cursor/skills/$skill/SKILL.md" \
     || { echo "FAIL: after re-run, User layer missing $skill skill under fake HOME"; exit 1; }
 done
