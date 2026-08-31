@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.70.0 - 2026-08-31
+
+- Feat: restructure `sc-firmware` as one MCU embedded-system-engineer skill with shared core (`600` + `core.md`), OS-class refs (bare-metal / RTOS), and board targets (STM32F746NG-Discovery, NUCLEO-H723ZG, NUCLEO-L412KB, nRF52840 DK PCA10056); nRF path does not require CubeMX/HAL; Linux/Yocto out of this skill (future pack `iot`)
+- Docs: split `sc-firmware` (MCU firmware) from `sc-rtl` (FPGA RTL); pack IDs unchanged (`embedded` vs `fpga`); plugin twins synced
+- Test: firmware-core contract greps plus lean-contract identity split
+
 ## 0.69.1 - 2026-08-31
 
 - Chore: Tier A model pins — `sc-planner` / `sc-judge` / `sc-adviser` → `gpt-5.6-sol-high` + `force-default-model`; visual `sc-designer` → `gemini-3.7-flash-high` + `force-default-model`; `/sc-run` + `sc-ux-design` Task calls pass matching models; others inherit (SoT `.cursor/agents/*.md`; plugin twins synced)
