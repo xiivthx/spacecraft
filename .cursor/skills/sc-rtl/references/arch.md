@@ -18,6 +18,28 @@ top (CPU)
 
 Also: 32 FP regs `f0-f31` + FCSR when F enabled. Debug MMIO FIFO often at `0x40000000` (packet protocol) - confirm against current SPEC/memory map.
 
+## Multi-cycle FSM states
+
+Multi-cycle **non-pipelined** RV32IMACF_Zicsr defaults. External imem/dmem. Variable latency via ready/valid. `instr_complete`: 1-cycle pulse at finish.
+
+| State | Hex | Role |
+|-------|-----|------|
+| S_BOOT | 0x0 | Wait boot after reset |
+| S_FETCH | 0x1 | `imem_req`, wait `imem_ready` |
+| S_DECODE | 0x2 | Decode, read regs |
+| S_EXECUTE | 0x3 | ALU |
+| S_MEM_ADDR | 0x4 | Load/store address |
+| S_MEM_READ | 0x5 | `dmem` read, wait ready |
+| S_MEM_WRITE | 0x6 | `dmem` write, wait ready |
+| S_WRITEBACK | 0x7 | Write rd |
+| S_BRANCH | 0x8 | Branch compare + PC |
+| S_CSR | 0x9 | CSR op |
+| S_HALT | 0xA | ECALL/EBREAK |
+| S_ATOMIC_RMW | 0xB | Atomic RMW |
+
+**imem:** `imem_req`, `imem_ready`, `imem_addr`, `imem_data`  
+**dmem:** `dmem_req`, `dmem_ready`, `dmem_addr`, `dmem_wdata`, `dmem_rdata`, `dmem_we`, `dmem_re`, `dmem_size`
+
 ## Base instruction cycles
 
 Memory latency adds wait cycles in FETCH / MEM_READ / MEM_WRITE (e.g. 3-cycle mem → load ≈ 5 base + 3 + 3 = 11).

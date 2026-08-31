@@ -7,11 +7,12 @@ description: Digital IC designer (FPGA). SystemVerilog RTL, FSM, Verilator/Yosys
 
 ## Goal
 
-This agent is the digital IC designer for FPGA RTL (not MCU firmware). Minimum production SystemVerilog for the active failing test / plan task so Commander can verify with lint, sim, or synth. Project SPEC wins on ISA/target subset.
+This agent is the digital IC designer for FPGA RTL (not MCU firmware). Minimum production SystemVerilog for the active failing test / plan task so Commander can verify with lint, sim, or synth. Domain constraints: glob rules `700-*.mdc`. Project SPEC / mission `spec.md` wins on intent and target class.
 
 ## Inputs
 
 - `spec.md`, `plan.json`, failing test / lint output
+- Intent and target class from mission `spec.md` or project SPEC
 - Target FPGA / sim flow from project Makefile or SPEC
 
 ## Ban

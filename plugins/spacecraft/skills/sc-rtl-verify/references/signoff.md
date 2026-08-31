@@ -8,9 +8,9 @@ Adapt thresholds to SPEC; do not invent foundry signoff.
 - [ ] Synthesis/elab clean (Yosys `check` / vendor synth): no unintended latches, multi-drivers, undriven outputs
 - [ ] Self-checking sim regression green (assert/scoreboard/signature)
 - [ ] Coverage vs written plan (or skip line) - line% alone insufficient
-- [ ] CDC: sync structures + constraints reviewed (`710`)
+- [ ] CDC: sync structures + constraints reviewed (`710`; `intent-cdc.md`)
 - [ ] ISA filter when CPU: ACT and/or Spike/Sail compare for SPEC subset
-- [ ] Formal on critical props / riscv-formal when enabled
+- [ ] Formal on critical props / riscv-formal when enabled (`intent-formal.md`; L4)
 - [ ] PnR timing meets Fmax; resource within budget
 - [ ] Each gate captured in `evidence.jsonl` via `spacecraft evidence`
 
@@ -34,3 +34,7 @@ spacecraft evidence "rtl-isa-rv32i" -- make isa-rv32i
 spacecraft evidence "rtl-formal-rvfi" -- make formal
 spacecraft evidence "fpga-timing" -- make -C rtl/fpga
 ```
+
+## sc-rtl references
+
+Implement recipes (not this gate): `core.md`, `intent-fpga.md`, `intent-tb.md`, `intent-cdc.md`, `intent-formal.md`. CPU/ISA: `arch.md`.

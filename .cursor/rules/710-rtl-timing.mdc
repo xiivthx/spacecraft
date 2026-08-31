@@ -6,7 +6,7 @@ globs: "**/*.{sdc,xdc,pcf},**/constraints/**,**/fpga/**/*.tcl"
 
 # RTL timing / CDC (710)
 
-Thin always-on when editing constraints or FPGA timing scripts. Depth: `sc-rtl-verify` timing gate.
+Thin always-on when editing constraints or FPGA timing scripts. CDC depth in `sc-rtl` `references/intent-cdc.md`. Timing gate: `sc-rtl-verify` L5.
 
 ## Clocks
 

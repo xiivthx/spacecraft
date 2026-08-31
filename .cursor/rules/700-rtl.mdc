@@ -1,29 +1,29 @@
 ---
-description: SystemVerilog RTL hard conventions for FPGA/RISC-V (lint-first, sync reset, no latches)
+description: FPGA SystemVerilog conventions (lint-first, sync reset, no latches)
 alwaysApply: false
 globs: "**/*.{sv,svh},**/rtl/**/*.v"
 ---
 
 # RTL (700) - SystemVerilog conventions
 
-Thin always-on when editing RTL. Depth: skills `sc-rtl` / `sc-rtl-verify`.
+Thin Must / Must-not glob for FPGA DUT; no CPU ISA inventory. Recipes: `.cursor/skills/sc-rtl/references/core.md`. This glob does not require Yosys/nextpnr as the only legal flow.
 
 ## Must
 
 - Every `.sv`: open with `` `default_nettype none ``, close with `` `default_nettype wire ``
-- Sync reset inside RTL; default active-high `rst`; convert board active-low at boundary
+- Sync reset inside RTL; default active-high `rst`; convert board active-low at boundary (FPGA default: synchronous reset)
 - Sequential: `always_ff @(posedge clk)` with `if (rst)` inside the block
 - Reset **control** bits (`valid`/`pending`), not payload-only regs
 - Prefer `case` / `unique case` for mutually exclusive FSM/decode; nested `if` only when priority is real
-- No inferred latches; full assign in `always_comb` / every branch
+- no latches; full assign in `always_comb` / every branch
 - `snake_case`; purpose prefixes (`imem_`, `dmem_`); keep RISC-V port names
 - Register at natural boundaries for Fmax; multi-cycle stage large cones; document unregistered exemptions (handshake `*_ready` OK)
-- Lint before claim: Verilator `--lint-only` (or project lint target) is build-breaking unless waived with rationale
+- Lint before claim: Verilator `--lint-only` (or project lint/synth target) is build-breaking unless waived with rationale
 
 ## Must not
 
 - Async reset inside project RTL modules (FPGA default: sync)
-- Blocking (`=`) in sequential `always_ff` for flops (sim/synth mismatch class)
+- Blocking (`=`) in sequential `always_ff` for flops (`sim≠synth`)
 - Combinational loops; multi-driven nets; undriven outputs left silent
 - Blind "fix all" lint without disposition (fix / waive-system / monitor) - see `sc-rtl`
 
