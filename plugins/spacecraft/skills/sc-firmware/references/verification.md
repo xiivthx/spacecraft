@@ -7,7 +7,7 @@ On-demand Unity/Ceedling, target integration, HIL, and CI recipes. Critical Must
 ```
 Layer 1: Host Unit Tests (PC)
   → Ceedling/Unity, CMock, CppUTest
-  → Mock HAL, mock drivers, test pure logic
+  → Mock vendor HAL/SDK headers, mock drivers, test pure logic
   → Target: 80%+ coverage of app/ and hal_if/
 
 Layer 2: Target Integration (on-device)
@@ -53,7 +53,7 @@ void test_radio_tx_no_ack_timeout(void) {
 }
 ```
 
-- Mock ALL hardware interfaces - never include real HAL headers in unit tests
+- Mock ALL hardware interfaces - never include real vendor HAL/SDK headers in host unit tests
 - Test error paths: timeout, CRC fail, buffer overflow, protocol violations
 - Test state machine transitions: every event in every state
 - Test boundary values: `UINT8_MAX`, `0`, `packet_len - 1`, `packet_len + 1`
@@ -104,10 +104,12 @@ Automate with:
 
 ## CI Pipeline
 
+When claiming flight-grade: run static analysis (cppcheck or clang-tidy) with warnings-as-errors. That pass is separate from host unit, target integration, and HIL.
+
 ```yaml
 build:
-  - arm-none-eabi-gcc build → verify 0 warnings
-  - cppcheck → static analysis
+  - arm-none-eabi-gcc build → verify 0 warnings (warnings-as-errors)
+  - cppcheck / clang-tidy → static analysis
   - cmocka/ceedling → host unit tests
 
 flash:
@@ -130,5 +132,6 @@ hil:
 ## Related
 
 - Rule: `.cursor/rules/620-firmware-testing.mdc` - Must / Must-not invariants
-- Architecture: `architecture.md`
+- Core: `core.md`
+- Target refs: `target-cortex-m.md`, `target-stm32.md`, `target-nrf52840.md`
 - Peripherals: `peripherals.md`

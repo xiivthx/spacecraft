@@ -9,7 +9,7 @@ Spacecraft is a Cursor-native mission-control harness for AI-driven software dev
 - Tracked product Source of Truth under `docs/` (gitignored `.space/` stays local runtime only; prefer cold-start read order `docs/` then `.space/` - see [installation guide](docs/installation.md#product-docs-vs-local-runtime))
 - Cursor-native rules, agents, skills, hooks, and MCP configuration under `.cursor/`
 - Git safety with feature branches, Conventional Commits, and an explicit ship gate
-- Specialized support for application development, testing, design, architecture, and embedded firmware
+- Specialized support for application development, testing, design, architecture, embedded firmware, and FPGA RTL
 
 ## Requirements
 
@@ -137,8 +137,8 @@ Cursor discovers specialized agents from the User layer (`~/.cursor/agents/` aft
 - `sc-reviewer` - reviews changes, evidence, and release readiness
 - `sc-designer` - reviews UI and visual design quality
 - `sc-adviser` - advises on complex architecture and logic
-- `sc-firmware` - implements STM32 firmware and embedded C
-- `sc-rtl` - implements SystemVerilog / FPGA RTL (RISC-V multi-cycle defaults)
+- `sc-firmware` - embedded system engineer: MCU firmware (STM32 and other vendors / not FPGA/RTL)
+- `sc-rtl` - digital IC designer: FPGA SystemVerilog RTL (not MCU firmware)
 - `sc-rtl-verify` - RTL/FPGA verification gates (lint, sim, ISA, formal, STA evidence)
 - `sc-writer` - writes and edits docs, prompts, messages, and other non-code prose
 - `sc-browser-probe` - live browser sweep + AFK find→fix→re-probe until CLEAN
@@ -191,7 +191,7 @@ Use the CLI as the source of truth for current syntax:
 ```text
 .cursor/
   rules/                 always-on Commander, workflow, and domain rules
-  agents/                specialized Cursor agents (coder, tester, planner, reviewer, designer, adviser, firmware, writer, browser-probe)
+  agents/                specialized Cursor agents (coder, tester, planner, reviewer, designer, adviser, firmware, rtl, writer, browser-probe)
   skills/                workflow and domain skills
   mcp.json               project MCP server configuration
   hooks.json             Cursor hook registration

@@ -163,7 +163,7 @@ spacecraft setup --reconfigure --packs quality
 | Profile present | Silent reconcile from `.cursor/spacecraft-profile.json` (commit it with the project) |
 | `--reconfigure` | Deliberate pack change when a profile already exists; rewrite profile; install + prune |
 
-**Selectable** packs (v1): `frontend`, `backend`, `database`, `embedded`, `quality`, `fpga` (`sc-rtl`, `sc-rtl-verify`, rules `700`/`710`/`720`).
+**Selectable** packs (v1): `frontend`, `backend`, `database`, `embedded` (firmware: `sc-firmware`), `quality`, `fpga` (digital IC / RTL: `sc-rtl`, `sc-rtl-verify`, rules `700`/`710`/`720`).
 
 **Coming** packs (listed, not installable): `iot`, `pcb`, `management`.
 
@@ -284,7 +284,7 @@ Spacecraft provides first-class support for **Google Antigravity**:
 ```sh
 make install-antigravity
 ```
-Installs the Spacecraft plugin to `~/.gemini/config/plugins/spacecraft/` containing rules (`AGENTS.md`), hooks (`hooks.json`), 25 skills, and 10 subagents.
+Installs the Spacecraft plugin to `~/.gemini/config/plugins/spacecraft/` containing rules (`AGENTS.md`), hooks (`hooks.json`), 25 skills, and 11 subagents.
 
 ### 2. Project-level Install
 ```sh

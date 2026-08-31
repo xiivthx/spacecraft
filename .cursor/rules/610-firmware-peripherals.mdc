@@ -1,5 +1,5 @@
 ---
-description: Firmware peripherals - GPIO, IRQ, LCD, UART, SPI, LF/UHF protocol, DMA
+description: Firmware peripherals - GPIO, IRQ, UART, SPI, DMA, display, LF/UHF protocol
 alwaysApply: false
 globs: "**/firmware/**,**/drivers/**,**/bsp/**,**/hal_if/**,**/Core/**,**/*_radio*,**/lcd*/**,**/display*/**"
 ---
@@ -14,10 +14,9 @@ Glob-triggered safety for drivers and protocols. Recipes: `.cursor/skills/sc-fir
 - CRC-check frames before processing; bound payload size; reset parser on inter-byte timeout
 - SPI: correct mode from datasheet; keep CS low for full burst; prefer hardware NSS or BSRR for CS
 - I2C: external pull-ups on SCL/SDA; per-device timeout; handle NACK/busy with backoff
-- LCD (LTDC): double-buffer; swap on vblank; DMA2D for fill/blit/blend (not CPU pixel loops)
-- Framebuffer in write-through SDRAM (MPU) or `cache_clean()` before LTDC reload
-- DMA: flush/invalidate D-cache around transfers on Cortex-M7; circular mode for continuous streams
+- DMA: circular mode for continuous streams
 - Radio/UHF: wait GDO / IRQ for packet ready; preamble + CRC; bounded retries with backoff
+- On LTDC / DMA2D / Cortex-M7 targets: double-buffer LCD; swap on vblank; DMA2D for fill/blit/blend (not CPU pixel loops); framebuffer write-through SDRAM (MPU) or `cache_clean()` before LTDC reload; flush/invalidate D-cache around DMA
 
 ### Must not
 

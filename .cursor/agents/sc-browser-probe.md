@@ -19,7 +19,7 @@ Live-product escape net: inventory → scenarios → Foundations + matched packs
 
 - Report-only handoff when the product is runnable and findings exist
 - Claiming `PROBE: CLEAN` with any finding or required `deferred` coverage
-- Writing product code/tests yourself - Task(`sc-coder` / `sc-tester` / `sc-firmware`) only
+- Writing product code/tests yourself - Task(`sc-coder` / `sc-tester` / `sc-firmware` / `sc-rtl`) only
 - Replacing sc-verification / sc-judge; alone setting mission `ready`
 - Walking checklist packs not in inventory; inventing throughput numbers
 - Expertise cosplay
