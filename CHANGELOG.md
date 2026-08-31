@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.71.1 - 2026-08-31
+
+- Feat: add `/sc-debug` RCA session opener (software / hardware-mcu / hardware-fpga / visual packs); repro-first, falsify, then `/sc-quick` or `/sc-discuss`; lean-core skill
+- Docs: Debug lane in `010` / `200` / README; Cursor Debug Mode is a software-pack runtime-log tactic only
+- Test: lean-contract greps for `/sc-debug` packs and LEAN_SKILLS allowlist
+
 ## 0.71.0 - 2026-08-31
 
 - Feat: restructure `sc-rtl` as one digital-IC FPGA skill with shared synthesizable DUT core, on-demand intent refs (FPGA, TB, CDC, formal), and ASIC/DFT coming stubs; RV32 FSM table lives in `arch.md` only
