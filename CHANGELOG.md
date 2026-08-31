@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.71.0 - 2026-08-31
+
+- Feat: restructure `sc-rtl` as one digital-IC FPGA skill with shared synthesizable DUT core, on-demand intent refs (FPGA, TB, CDC, formal), and ASIC/DFT coming stubs; RV32 FSM table lives in `arch.md` only
+- Docs: SKILL confirms intent (`DUT | TB | constraints`) and target class (`FPGA`; `ASIC` stub) before loading refs; `700` stays thin and does not require Yosys/nextpnr as the only legal flow; `sc-rtl-verify` L0-L5 kept
+- Test: rtl-core contract greps plus plugin twins for `sc-rtl` / `sc-rtl-verify`
+
 ## 0.70.0 - 2026-08-31
 
 - Feat: restructure `sc-firmware` as one MCU embedded-system-engineer skill with shared core (`600` + `core.md`), OS-class refs (bare-metal / RTOS), and board targets (STM32F746NG-Discovery, NUCLEO-H723ZG, NUCLEO-L412KB, nRF52840 DK PCA10056); nRF path does not require CubeMX/HAL; Linux/Yocto out of this skill (future pack `iot`)
