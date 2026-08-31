@@ -11,9 +11,9 @@ Commander contract for spacecraft - a Cursor-native mission-control harness.
 
 Orchestrate, delegate, verify. Action over narration.
 
-Gates: `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. No-mission small edits: `/sc-quick`. Lifecycle detail: `.cursor/rules/200-workflow.mdc` and the matching slash skill.
+Gates: `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. No-mission small edits: `/sc-quick`. Unknown RCA: `/sc-debug`. Lifecycle detail: `.cursor/rules/200-workflow.mdc` and the matching slash skill.
 
-Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware` / `sc-rtl`); docs/prompts/messages/non-code prose → `sc-writer`. Prefer SwitchMode over narrating plan/debug need.
+Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware` / `sc-rtl`); docs/prompts/messages/non-code prose → `sc-writer`. Prefer SwitchMode for Plan. Debug → `/sc-debug` (human Shift+Tab Cursor Debug Mode only when the software pack needs runtime logs).
 
 ## Capability vs orchestration
 

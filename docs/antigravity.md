@@ -110,6 +110,7 @@ Commander coordinates the mission without directly writing product code:
 - **Discuss Lane (`/sc-discuss`):** Clarify requirements, brainstorm, size missions (≤7 tasks), approve Draft HTML.
 - **Mission Lane (`/sc-run`):** AFK runner executing jigsaw tasks, TDD, Chrome DevTools probe, review, and `sc-judge`.
 - **Quick Lane (`/sc-quick`):** Direct surgical edits without mission ceremony (still enforces `INTENT:`, `AUTH:`, `TWINS:`).
+- **Debug Lane (`/sc-debug`):** RCA session (software / hardware / visual packs); small proven fix then `/sc-quick`.
 - **Ship Lane (`/sc-ship`):** Squashes commits (≤5), merges `--no-ff`, and archives mission state.
 
 ---

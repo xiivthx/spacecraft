@@ -19,7 +19,7 @@ Rules are context; hooks are enforcement. Do not treat this file as a substitute
 - **AUTH:** Before outward push/deploy/publish/send, state `AUTH:` with a **quoted** user authorization. AUTH does not set `SPACECRAFT_SHIP`; push still needs human approval.
 - **INTENT:** Before behavior-changing edits, state `INTENT:` with class (`code|check|spec|polish|optimize|refactor|adjust`) + intended behavior.
 - **Commander:** Never write product code or tests in Commander - Task-delegate to `sc-coder` / `sc-tester` (or `sc-firmware` / `sc-rtl`); prose → `sc-writer`.
-- **Lanes:** `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. Small edits: `/sc-quick`.
+- **Lanes:** `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. Small edits: `/sc-quick`. Unknown RCA: `/sc-debug`.
 - **Language:** English for technical substance; Thai for HIL asks, short status, handoffs. Caveman terse by default.
 
 Depth: agent-requested rules `000`/`026`/`027`/`050`/`100`/`200` and skills - do not paste encyclopedias into always-on context.

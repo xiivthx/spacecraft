@@ -52,7 +52,7 @@ Resolve/list/select a mission; create artifacts; check state; route ambiguity to
 
 ## Out of scope
 
-sc-git · sc-planning · sc-ux-design / sc-designer · sc-verification · `/sc-discuss` clarify/draft · Debug Mode · Task(`sc-reviewer`)
+sc-git · sc-planning · sc-ux-design / sc-designer · sc-verification · `/sc-discuss` clarify/draft · `/sc-debug` · Task(`sc-reviewer`)
 
 ## Layout
 

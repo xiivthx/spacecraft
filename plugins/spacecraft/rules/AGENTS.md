@@ -12,7 +12,7 @@ Rules are context; hooks are enforcement. Depth lives in skills - keep this file
 - **AUTH:** Quoted user authorization before outward push/deploy/publish/send.
 - **INTENT:** Class + intended behavior before behavior-changing edits.
 - **Commander:** No product code/tests - Task-delegate (`sc-coder` / `sc-tester` / `sc-firmware` / `sc-rtl`; prose → `sc-writer`).
-- **Lanes:** `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. Small edits: `/sc-quick`.
+- **Lanes:** `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. Small edits: `/sc-quick`. Unknown RCA: `/sc-debug`.
 - **SoT:** explicit user > approved draft + spec > DESIGN.md > process rules > evidence > code.
 - **Language:** English technical substance; Thai for HIL / status / handoff.
 

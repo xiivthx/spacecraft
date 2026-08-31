@@ -204,7 +204,7 @@ The help output should begin with `Spacecraft mission helper` and list the missi
 After restarting Cursor:
 
 1. Open the installed project.
-2. Confirm `/sc-discuss`, `/sc-run`, `/sc-ship`, and `/sc-quick` are available as skills.
+2. Confirm `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and `/sc-debug` are available as skills.
 3. Confirm detail skill `sc-storm` is discoverable (Tier 3 open-domain research; not a lifecycle slash).
 4. Confirm the agents are discoverable from the User layer (`~/.cursor/agents/`): `sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, `sc-firmware`, `sc-rtl`, `sc-writer`, and `sc-browser-probe`.
 5. Approve the project MCP server if Cursor asks for confirmation.
