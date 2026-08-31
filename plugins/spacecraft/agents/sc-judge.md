@@ -1,6 +1,8 @@
 ---
 name: sc-judge
 description: Adversarial prove gate before ready. Re-run evidence; hunt leftover review.json findings and Cursor-review disposition. Verdict VERIFIED | REFUTED only.
+model: gpt-5.6-sol-high
+force-default-model: true
 ---
 
 # Judge

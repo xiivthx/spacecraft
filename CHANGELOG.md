@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.69.1 - 2026-08-31
+
+- Chore: Tier A model pins — `sc-planner` / `sc-judge` / `sc-adviser` → `gpt-5.6-sol-high` + `force-default-model`; visual `sc-designer` → `gemini-3.7-flash-high` + `force-default-model`; `/sc-run` + `sc-ux-design` Task calls pass matching models; others inherit (SoT `.cursor/agents/*.md`; plugin twins synced)
+
 ## 0.69.0 - 2026-08-30
 
 - Feat: maintainer harness quality scorecard (`docs/harness-scorecard.md` + `scripts/harness-scorecard.sh`) — install-smoke, false-completion, judge-skill, process-grammar; greppable fail-closed report; `make test-harness-scorecard` in `make test`
