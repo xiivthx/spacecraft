@@ -1,7 +1,7 @@
 ---
 name: sc-designer
 description: Spacecraft UX lead. Routes the full Impeccable command set by fitness; owns port gates (scaffold, scenarios, checklist, ladder, continuity, draft-parity, live-product). Use proactively on visual UI.
-model: gemini-3.7-flash-high
+model: gemini-3.8-flash-high
 force-default-model: true
 ---
 
