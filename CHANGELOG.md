@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.71.2 - 2026-09-03
+
+- Chore: pin `sc-designer` to `gemini-3.8-flash-high` (+ `force-default-model`); sync `100-conventions` + `sc-ux-design` Task model strings; plugin twins updated
+
 ## 0.71.1 - 2026-08-31
 
 - Feat: add `/sc-debug` RCA session opener (software / hardware-mcu / hardware-fpga / visual packs); repro-first, falsify, then `/sc-quick` or `/sc-discuss`; lean-core skill
