@@ -254,6 +254,8 @@ test -f "$sel_mcp" \
   || { echo "FAIL: selective install missing mcp.json (MCP merge)"; exit 1; }
 grep -q 'user-keep-mcp' "$sel_mcp" \
   || { echo "FAIL: selective install MCP merge dropped seeded user-keep-mcp server"; exit 1; }
+grep -q '"shadcn"' "$sel_mcp" \
+  || { echo "FAIL: selective frontend+quality missing pack MCP server shadcn"; exit 1; }
 echo "  ok   selective install frontend+quality + always-on hooks/MCP; omits backend/database/embedded"
 
 # T2 acceptance 2 (S4/E4): re-run with packs=[quality] prunes frontend-managed paths;
@@ -290,6 +292,10 @@ for safety_hook in $sel_safety_hooks; do
 done
 grep -q 'user-keep-mcp' "$sel_mcp" \
   || { echo "FAIL: after prune, MCP merge dropped seeded user-keep-mcp server"; exit 1; }
+if grep -q '"shadcn"' "$sel_mcp"; then
+  echo "FAIL: after prune to quality, pack MCP server shadcn still present (expected unmerge)"
+  exit 1
+fi
 echo "  ok   selective prune to quality keeps quality + always-on; prunes frontend"
 
 # T2 acceptance 3: lean-core skills + soft User-layer rules never land in project

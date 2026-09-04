@@ -12,7 +12,7 @@ const DEFAULT_CATALOG_PATH = path.resolve(
 /**
  * Load pack catalog SoT from disk.
  * @param {string} [catalogPath]
- * @returns {{ packs: Array<{ id: string, status: string, skills?: string[], rules?: string[] }> }}
+ * @returns {{ packs: Array<{ id: string, status: string, skills?: string[], rules?: string[], mcp?: string }> }}
  */
 export function loadCatalog(catalogPath = DEFAULT_CATALOG_PATH) {
   const raw = readFileSync(catalogPath, 'utf8');
@@ -32,25 +32,42 @@ function packById(catalog) {
 }
 
 /**
- * Union skills/rules for selectable pack ids; always includes hard-contract rule.
- * @param {string[]} packIds
- * @param {{ packs: Array<{ id: string, status: string, skills?: string[], rules?: string[] }> }} [catalog]
- * @returns {{ skills: string[], rules: string[] }}
+ * Resolve .cursor dir that owns the catalog (fragments are relative to it).
+ * @param {string} [catalogPath]
+ * @returns {string}
  */
-export function expandPacks(packIds, catalog) {
+export function catalogCursorDir(catalogPath = DEFAULT_CATALOG_PATH) {
+  return path.dirname(path.resolve(catalogPath));
+}
+
+/**
+ * Union skills/rules/mcp fragments for selectable pack ids; always includes hard-contract rule.
+ * @param {string[]} packIds
+ * @param {{ packs: Array<{ id: string, status: string, skills?: string[], rules?: string[], mcp?: string }> }} [catalog]
+ * @param {{ cursorDir?: string, catalogPath?: string }} [options]
+ * @returns {{ skills: string[], rules: string[], mcp: string[] }}
+ */
+export function expandPacks(packIds, catalog, options = {}) {
   const cat = catalog ?? loadCatalog();
   const byId = packById(cat);
   const skills = new Set();
   const rules = new Set([ALWAYS_ON_RULE]);
+  const mcp = new Set();
+  const cursorDir =
+    options.cursorDir ??
+    catalogCursorDir(options.catalogPath ?? DEFAULT_CATALOG_PATH);
 
   for (const id of packIds) {
     const entry = byId.get(id);
     if (!entry) continue;
     for (const s of entry.skills ?? []) skills.add(s);
     for (const r of entry.rules ?? []) rules.add(r);
+    if (entry.mcp) {
+      mcp.add(path.resolve(cursorDir, entry.mcp));
+    }
   }
 
-  return { skills: [...skills], rules: [...rules] };
+  return { skills: [...skills], rules: [...rules], mcp: [...mcp] };
 }
 
 /**

@@ -2,13 +2,15 @@
  * Pack catalog SoT + profile helpers (T1 / M99A9D1B).
  *
  * Expected public API from cli/lib/packs.mjs (coder exports):
- *   loadCatalog(catalogPath?) → { packs: Array<{ id, status, skills?, rules? }> }
+ *   loadCatalog(catalogPath?) → { packs: Array<{ id, status, skills?, rules?, mcp? }> }
  *     - Default SoT: .cursor/spacecraft-packs.json (repo-relative or path arg)
  *     - status is "selectable" | "coming"
- *   expandPacks(packIds, catalog?) → { skills: string[], rules: string[] }
+ *     - optional mcp: path relative to .cursor/ for pack MCP fragment
+ *   expandPacks(packIds, catalog?, options?) → { skills: string[], rules: string[], mcp: string[] }
  *     - Union of mapped skills/rules for selectable pack ids
  *     - Always includes always-on rule 010-hard-contract.mdc in rules
- *     - Coming packs contribute no skill/rule paths (catalog empty arrays)
+ *     - mcp: resolved absolute fragment paths (union; skip packs without mcp)
+ *     - Coming packs contribute no skill/rule/mcp paths (catalog empty arrays)
  *   validateProfile(profile, catalog?) → profile (or void)
  *     - Accepts { version: 1, packs: string[] } with unique selectable ids only
  *     - Throws Error for bad shape, unknown pack ids, or coming pack ids
@@ -16,6 +18,15 @@
  * Oracles: design-contract.md frozen pack map + approved-scenarios S9 / E6.
  */
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -39,6 +50,7 @@ const PACK_MAP = {
   frontend: {
     skills: ['sc-web-frontend', 'sc-ux-design', 'sc-browser-probe'],
     rules: ['150-design.mdc'],
+    mcp: 'mcp-packs/frontend.json',
   },
   backend: {
     skills: ['sc-web-backend'],
@@ -75,6 +87,8 @@ const PACK_MAP = {
     ],
   },
 };
+
+const FRONTEND_MCP_FRAGMENT = path.join(repoRoot, '.cursor', 'mcp-packs', 'frontend.json');
 
 /** Always-on rule (design-contract + S9). */
 const ALWAYS_ON_RULE = '010-hard-contract.mdc';
@@ -154,9 +168,10 @@ test('catalog exposes selectable and coming packs; coming never resolve to skill
 // --- T1 acceptance 2 (+ S9) ---
 test('expandPacks frozen pack→skill/rule map matches design-contract and S9 union', () => {
   const cat = catalog();
+  const cursorDir = path.join(repoRoot, '.cursor');
 
   for (const id of SELECTABLE) {
-    const got = expandPacks([id], cat);
+    const got = expandPacks([id], cat, { cursorDir, catalogPath: CATALOG_PATH });
     const frozen = PACK_MAP[id];
     assert.deepEqual(
       sorted(got.skills),
@@ -168,12 +183,96 @@ test('expandPacks frozen pack→skill/rule map matches design-contract and S9 un
       sorted([...frozen.rules, ALWAYS_ON_RULE]),
       `${id} rules must match design-contract plus always-on ${ALWAYS_ON_RULE}`,
     );
+    const wantMcp = frozen.mcp ? [path.resolve(cursorDir, frozen.mcp)] : [];
+    assert.deepEqual(
+      sorted(got.mcp ?? []),
+      sorted(wantMcp),
+      `${id} mcp fragment paths must match catalog`,
+    );
   }
 
   // S9: packs=[frontend,quality]
-  const s9 = expandPacks(['frontend', 'quality'], cat);
+  const s9 = expandPacks(['frontend', 'quality'], cat, { cursorDir, catalogPath: CATALOG_PATH });
   assert.deepEqual(sorted(s9.skills), sorted(S9_SKILLS), 'S9 skills union');
   assert.deepEqual(sorted(s9.rules), sorted(S9_RULES), 'S9 rules union + always-on');
+  assert.deepEqual(
+    sorted(s9.mcp ?? []),
+    sorted([FRONTEND_MCP_FRAGMENT]),
+    'S9 mcp union includes frontend fragment only',
+  );
+});
+
+test('frontend pack catalogs shadcn MCP fragment; root merge strips pack servers', () => {
+  const cat = catalog();
+  const entry = byId(cat).get('frontend');
+  assert.equal(entry?.mcp, 'mcp-packs/frontend.json');
+  assert.ok(existsSync(FRONTEND_MCP_FRAGMENT), 'frontend MCP fragment must exist');
+  const fragment = JSON.parse(readFileSync(FRONTEND_MCP_FRAGMENT, 'utf8'));
+  assert.ok(fragment.mcpServers?.shadcn, 'fragment must define shadcn server');
+  assert.equal(fragment.mcpServers.shadcn.command, 'npx');
+  assert.deepEqual(fragment.mcpServers.shadcn.args, ['shadcn@latest', 'mcp']);
+
+  // Meta checkout may keep shadcn in root .cursor/mcp.json for local Cursor;
+  // install-cursor must strip pack-managed names when merging into targets.
+  const tmp = mkdtempSync(path.join(os.tmpdir(), 'spacecraft-mcp-strip-'));
+  try {
+    const targetMcp = path.join(tmp, 'target-mcp.json');
+    const sourceMcp = path.join(tmp, 'source-mcp.json');
+    writeFileSync(
+      sourceMcp,
+      `${JSON.stringify(
+        {
+          mcpServers: {
+            shadcn: { command: 'npx', args: ['shadcn@latest', 'mcp'] },
+            'always-on-demo': { command: 'true' },
+          },
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
+    writeFileSync(
+      targetMcp,
+      `${JSON.stringify({ mcpServers: { 'user-keep-mcp': { command: 'true' } } }, null, 2)}\n`,
+      'utf8',
+    );
+
+    const merge = spawnSync(
+      'python3',
+      [
+        path.join(repoRoot, 'scripts', 'mcp-merge.py'),
+        'merge',
+        targetMcp,
+        sourceMcp,
+        '--strip-pack-mcp',
+        path.join(repoRoot, '.cursor'),
+      ],
+      { encoding: 'utf8' },
+    );
+    assert.equal(
+      merge.status,
+      0,
+      `mcp-merge --strip-pack-mcp must exit 0\nstderr=${merge.stderr}\nstdout=${merge.stdout}`,
+    );
+
+    const got = JSON.parse(readFileSync(targetMcp, 'utf8'));
+    assert.equal(
+      Object.hasOwn(got.mcpServers ?? {}, 'shadcn'),
+      false,
+      'strip-pack-mcp must not copy shadcn from root-like source into target',
+    );
+    assert.ok(
+      got.mcpServers?.['always-on-demo'],
+      'non-pack source servers must still merge',
+    );
+    assert.ok(
+      got.mcpServers?.['user-keep-mcp'],
+      'pre-existing user MCP must remain',
+    );
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
 });
 
 // --- T1 acceptance 3 ---
