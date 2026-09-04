@@ -1,8 +1,5 @@
 # Conventions
 
-Shared engineering norms for this repository.
+Shared engineering norms. One topic per short page.
 
-Add focused pages next to this file (for example naming, code style, review checklist).
-Keep each page short and current. Prefer one topic per file.
-
-See [naming.md](./naming.md) for identifiers, files, and branches.
+See [naming.md](./naming.md).

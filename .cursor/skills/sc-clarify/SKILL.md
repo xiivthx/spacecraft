@@ -59,12 +59,12 @@ Use this exact sequence unless the user specifies otherwise:
 
 5. **Auto-pick (technical)** - Before asking on a **technical / performance / library** frontier item, run research → optional measure → then auto-pick **or** ask:
 
-   **Evidence sources:** repo facts + sc-search/docs + simple local bench or existing tests when useful.
+   **Evidence sources:** repo facts + sc-search/docs + simple local bench or existing tests when useful. Web pins for auto-pick → `.cursor/skills/sc-search/references/fact-check.md`; no auto-pick while `Fact-check: contested:`.
 
    **Evidence bar (auto-pick only when the win is large and clear):** e.g. clear order-of-magnitude advantage, or unanimous house convention / already locked in `decisions.md` / `spec.md`. If unsure or the gap is modest → research/test first; if still unclear → ask with Chat ask format (rich when choices).
 
-   - **Auto-pick:** One option clearly wins by a large margin with greppable/citable evidence → write the choice + evidence summary to `decisions.md` (and Answered in `questions.md` if it was Open). Do **not** ask the user. Cite why (evidence bar). Recompute the frontier.
-   - **Ask:** Evidence is weak, conflicting, or the advantage is modest → proceed to step 6. Recommendation may still point at the better option.
+   - **Auto-pick:** One option clearly wins by a large margin with greppable/citable evidence → write the choice + evidence summary to `decisions.md` (and Answered in `questions.md` if it was Open). Do **not** ask the user. Cite why (evidence bar). External docs/version wins also need `Fact-check: corroborated` or allowed `Fact-check: skipped:` before recording. Recompute the frontier.
+   - **Ask:** Evidence is weak, conflicting, `Fact-check: contested:`, or the advantage is modest → proceed to step 6. Recommendation may still point at the better option.
    - **Never auto-pick:** Verify, architecture fork, or in/out scope - even if "obvious." Those stay on the blocking frontier until settled or explicitly deferred.
 
    **Micro-example:** Auto-pick - "Repo and existing tests already standardize on Vitest; house convention unanimous → record Vitest in `decisions.md` with evidence; do not ask." Ask - "Bench shows ~1.2x and docs conflict → ask with Chat ask format."

@@ -1,6 +1,6 @@
 ---
 name: sc-browser-probe
-description: "Live browser probe after implement/fix or sc-run UI/workflow. Inventories the running product, sweeps Foundations + matched packs, then AFK fix-loops (find → Task fix → re-probe) until CLEAN or 3-cycle handback. Optional throughput/perf estimate. Use when user asks browser test, full-system probe, post-run live sweep, tags/sec or rate feasibility."
+description: "Live browser probe after implement/fix or sc-run UI/workflow. Inventories the running product, sweeps Foundations + matched packs, then AFK fix-loops (find → Task fix → re-probe) until CLEAN or 3-cycle handback. Optional persona walkthrough pack and throughput/perf estimate. Use when user asks browser test, full-system probe, multi-persona live review, post-run live sweep, tags/sec or rate feasibility."
 ---
 
 # sc-browser-probe
@@ -17,13 +17,14 @@ Verdict line (required): `PROBE: CLEAN` | `PROBE: ISSUES` | `PROBE: PARTIAL` | `
 
 ## Good / Bad
 
-- Good: inventory before sweep; every in-scope foundation + matched pack scored; interaction not screenshot-only; severity + repro; fix every finding then re-probe; stop on CLEAN or same-issue 3-cycle / timebox / blocked; measured perf or explicit "not measured"
-- Bad: report-only when runnable product exists; one happy path; `CLEAN` with any finding or deferred required packs; walking unmatched packs / catalog; browser / MCP / chat as `ready` / `VERIFIED` / `AUTH` / ship; Commander product edits; skipping setup
+- Good: inventory before sweep; every in-scope foundation + matched pack scored; interaction not screenshot-only; severity + repro; fix every finding then re-probe; stop on CLEAN or same-issue 3-cycle / timebox / blocked; measured perf or explicit "not measured"; persona pack only when matched
+- Bad: report-only when runnable product exists; one happy path; `CLEAN` with any finding or deferred required packs; walking unmatched packs / catalog; auto persona every probe; 1-5 persona scores; STORM lens cosplay; browser / MCP / chat as `ready` / `VERIFIED` / `AUTH` / ship; Commander product edits; skipping setup
 
 ## Verify
 
 - Foundations all scored when in scope (`references/dimensions.md`)
 - Every inventoried pack scored or `n/a` / `deferred:` (`references/surface-match.md`)
+- When `persona-walkthrough` matched: `pack:persona-walkthrough` scored per `references/persona-walkthrough.md` (no 1-5 scores)
 - Scenario minimums from `references/scenario-matrix.md` (plus extra buckets when that pack is present)
 - Every finding has repro steps (or `blocked:` reason)
 - Fix-loop until no findings remain, or stop reason recorded (`3-cycle:` / `timebox:` / `blocked:`)
@@ -91,7 +92,8 @@ For each scenario: execute steps, record result, screenshot path on fail. Prefer
 1. Confirm inventory
 2. Score **Foundations** always (`references/dimensions.md`)
 3. Score **matched packs** only (`references/surface-match.md`)
-4. File a finding only on `fail` with repro
+4. If `persona-walkthrough` matched (`references/persona-walkthrough.md`), run matrix + cognitive questions; file findings (no 1-5 scores)
+5. File a finding only on `fail` with repro
 
 Mark each check `ok` | `fail` | `n/a` | `deferred`.
 
@@ -126,11 +128,12 @@ Only when user asked rate/throughput/feasibility **or** product documents a tags
 target: <url | "start app">
 scope: full | feature:<name>
 examples: <optional comma list>
+persona: off | on
 perf: none | <question e.g. "is 20 tags/sec feasible?">
 timebox: 25m | 40m | <override>
 ```
 
-Defaults: 25m `feature:<name>`, 40m `full`. Fix-loop always on when findings exist.
+Defaults: 25m `feature:<name>`, 40m `full`; `persona: off`. Fix-loop always on when findings exist. `persona: on` (or explicit multi-persona ask / `Persona pack: required` in `decisions.md`) loads `references/persona-walkthrough.md`.
 
 ### Task from sc-run
 
@@ -169,6 +172,7 @@ See **Verify** (SoT). Short track:
 - [report-template.md](references/report-template.md) - report markdown + severity/verdict
 - [dimensions.md](references/dimensions.md) - Foundations sweep (always)
 - [surface-match.md](references/surface-match.md) - inventory ids; load matched files from `.cursor/skills/sc-ux-design/references/checklists/`
+- [persona-walkthrough.md](references/persona-walkthrough.md) - optional multi-archetype cognitive walkthrough pack
 - [scenario-matrix.md](references/scenario-matrix.md) - how to build cases
 - [perf-probe.md](references/perf-probe.md) - throughput / machine estimate
 - [examples.md](examples.md) - call examples

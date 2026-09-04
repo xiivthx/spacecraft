@@ -23,7 +23,6 @@ Shipped mission on `main` (or blocked with exact missing gates). Never infer shi
 
 - **Must**: Promote only durable product contracts from mission working notes into `docs/specs` or `docs/architecture/decisions` (ADR), in human engineering language.
 - **Must not**: Dump every mission discuss into `docs/`.
-- **Must not**: Write `.space/trust` into `docs/`.
 - **Must not**: Add AI-flavored filenames or framing into product docs/.
 
 ## Verify
@@ -50,6 +49,8 @@ spacecraft closeout-check
 ```
 
 Changelog + version bump mandatory before merge. Ship hook re-runs closeout when `SPACECRAFT_SHIP=1`.
+
+**Companion dispositions (Must before merge):** greppable `Post-ready drain: ran` | `Post-ready drain: skipped: <reason>` **and** `Split-to-prs: ran` | `Split-to-prs: skipped: <reason>` in mission `decisions.md` (or equivalent greppable log). Silence ⇒ **block** ship; invoke `/sc-run` post-ready companions or emit explicit skip. See `sc-run/references/optional-lanes.md`. Lane success is never ship authority.
 
 ## Workflow
 
@@ -104,7 +105,7 @@ On handoff (especially when roadmap has a next mission), set or update that miss
 
 ## Hard stops
 
-Any `closeout-check` or `validate --strict` failure; clarify open; sc-git fail; no CHANGELOG/version commit; UI without design review when required. List exact missing actions.
+Any `closeout-check` or `validate --strict` failure; clarify open; sc-git fail; no CHANGELOG/version commit; UI without design review when required; missing `Post-ready drain:` or `Split-to-prs:` disposition. List exact missing actions.
 
 ## Errors
 

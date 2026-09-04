@@ -27,6 +27,7 @@ Do not require these on every probe. Required only when that pack is in inventor
 | keyboard-overlay | `overlay` / modal in flow | open, Tab, Esc, close |
 | double-submit | `form-submit` / `login` | mash submit |
 | blur-validate | `input-error` / `form-submit` | type invalid, blur, fix |
+| persona-step | `persona-walkthrough` matched | one critical journey step per active archetype (label `persona:<id>`) |
 
 ## Seeding order
 

@@ -42,6 +42,20 @@ perf: none
 timebox: 25m
 ```
 
+## Persona walkthrough (opt-in)
+
+```
+/sc-browser-probe
+target: http://localhost:5173
+scope: feature:onboarding
+persona: on
+examples: first-time signup, keyboard-only tab through form
+perf: none
+timebox: 25m
+```
+
+Coverage includes `pack:persona-walkthrough` with archetype ids in notes. Journeys come from inventory/spec - not from the pack file. Findings use critical/important/minor only.
+
 ## Timebox PARTIAL
 
 Sweep finished Foundations + `form-submit`. `upload` inventoried but not reached.

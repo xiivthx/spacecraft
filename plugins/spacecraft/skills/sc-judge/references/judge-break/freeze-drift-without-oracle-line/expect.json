@@ -1,5 +1,0 @@
-{
-  "id": "JBREAKFDL",
-  "predicate": "freeze-drift-without-oracle-line",
-  "mustContain": "freeze-drift"
-}

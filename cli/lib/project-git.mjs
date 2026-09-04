@@ -1,20 +1,27 @@
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const GITIGNORE_TEMPLATE = path.join(REPO_ROOT, 'templates', 'gitignore');
-const DOCS_TEMPLATE_ROOT = path.join(REPO_ROOT, 'templates', 'docs');
 
 const SPACE_DIRS = ['missions', 'archive', 'roadmaps'];
 
-/** Relpaths under `templates/docs/` → consumer `docs/` (seed only; no on-demand dirs). */
-const DOCS_SEED_REL_PATHS = [
-  'README.md',
-  'conventions/README.md',
-  'conventions/naming.md',
-];
+/**
+ * Minimal first-create `.gitignore` when the file is missing.
+ * Includes common secret/build ignores plus Spacecraft companion dirs.
+ */
+const STARTER_GITIGNORE = `.env
+.env.*
+!.env.example
+node_modules/
+dist/
+build/
+.DS_Store
+.space/
+.codegraph/
+.impeccable/
+`;
+
+/** Companion dirs to merge into an existing `.gitignore` (never full overwrite). */
+const COMPANION_IGNORE_LINES = ['.codegraph/', '.impeccable/'];
 
 /** True when a non-comment gitignore line ignores `.space` / `.space/` / `.space/*`. */
 export function isSpaceIgnoreLine(line) {
@@ -27,9 +34,27 @@ export function hasSpaceIgnored(gitignoreText) {
   return gitignoreText.split(/\r?\n/).some(isSpaceIgnoreLine);
 }
 
-function gitignoreTemplatePath() {
-  if (existsSync(GITIGNORE_TEMPLATE)) return GITIGNORE_TEMPLATE;
-  throw new Error(`missing gitignore template at ${GITIGNORE_TEMPLATE}`);
+function hasExactIgnoreLine(gitignoreText, entry) {
+  const bare = entry.endsWith('/') ? entry.slice(0, -1) : entry;
+  return gitignoreText.split(/\r?\n/).some((line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) return false;
+    return trimmed === entry || trimmed === bare;
+  });
+}
+
+/** Append missing companion ignore lines without replacing the file. */
+function ensureCompanionIgnores(projectRoot) {
+  const gitignorePath = path.join(projectRoot, '.gitignore');
+  if (!existsSync(gitignorePath)) return;
+  let current = readFileSync(gitignorePath, 'utf8');
+  let changed = false;
+  for (const entry of COMPANION_IGNORE_LINES) {
+    if (hasExactIgnoreLine(current, entry)) continue;
+    current = current.endsWith('\n') ? `${current}${entry}\n` : `${current}\n${entry}\n`;
+    changed = true;
+  }
+  if (changed) writeFileSync(gitignorePath, current);
 }
 
 function ensureSpaceDirs(projectRoot) {
@@ -65,26 +90,18 @@ function ensureGitRepo(projectRoot) {
   }
 }
 
-function writeGitignoreFromTemplate(projectRoot) {
-  const templatePath = gitignoreTemplatePath();
-  copyFileSync(templatePath, path.join(projectRoot, '.gitignore'));
-}
-
 /**
- * Copy missing product-docs seed files from `templates/docs/`.
- * Never overwrites existing targets; does not create on-demand dirs.
+ * Write starter `.gitignore` only when missing.
+ * If present, merge Spacecraft lines via `ensureSpaceIgnored` + companions (no clobber).
  */
-function ensureDocsSeeded(projectRoot) {
-  for (const rel of DOCS_SEED_REL_PATHS) {
-    const dest = path.join(projectRoot, 'docs', rel);
-    if (existsSync(dest)) continue;
-    const src = path.join(DOCS_TEMPLATE_ROOT, rel);
-    if (!existsSync(src)) {
-      throw new Error(`missing docs seed template at ${src}`);
-    }
-    mkdirSync(path.dirname(dest), { recursive: true });
-    copyFileSync(src, dest);
+function writeStarterGitignore(projectRoot) {
+  const gitignorePath = path.join(projectRoot, '.gitignore');
+  if (!existsSync(gitignorePath)) {
+    writeFileSync(gitignorePath, STARTER_GITIGNORE);
+    return;
   }
+  ensureSpaceIgnored(projectRoot);
+  ensureCompanionIgnores(projectRoot);
 }
 
 /** Soft-run `codegraph init` when the index DB is missing; never throw. */
@@ -109,20 +126,20 @@ function ensureCodegraph(projectRoot) {
 }
 
 /**
- * First `.space` create: scaffold dirs, git init if needed, overwrite `.gitignore`
- * from `templates/gitignore`, soft-init codegraph when missing, seed missing docs.
+ * First `.space` create: scaffold dirs, git init if needed, write starter `.gitignore`
+ * only when missing (else merge Spacecraft ignores), soft-init codegraph when missing.
+ * Does not seed product `docs/`.
  */
 export function ensureProjectReady(projectRoot) {
   ensureSpaceDirs(projectRoot);
   ensureGitRepo(projectRoot);
-  writeGitignoreFromTemplate(projectRoot);
+  writeStarterGitignore(projectRoot);
   ensureCodegraph(projectRoot);
-  ensureDocsSeeded(projectRoot);
 }
 
 /**
  * When `.space` already exists: ensure `.space/` is listed in `.gitignore`
- * without replacing the whole file; also seed missing docs targets.
+ * without replacing the whole file. Does not seed product `docs/`.
  */
 export function ensureSpaceIgnored(projectRoot) {
   const gitignorePath = path.join(projectRoot, '.gitignore');
@@ -135,5 +152,4 @@ export function ensureSpaceIgnored(projectRoot) {
       writeFileSync(gitignorePath, `${current}${suffix}`);
     }
   }
-  ensureDocsSeeded(projectRoot);
 }

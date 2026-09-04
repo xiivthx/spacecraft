@@ -1,20 +1,19 @@
 # Naming
 
-Keep names short, consistent, and searchable.
+Short, consistent, searchable.
 
 ## Code and files
 
-- Prefer descriptive words over abbreviations unless the short form is already team-wide.
-- Match existing patterns in the package or module you are editing.
-- Use `kebab-case` for multi-word file and directory names unless the stack already uses another convention.
-- Name tests after the behavior under test, not the implementation detail of the day.
+- Prefer descriptive words; match the module you edit
+- `kebab-case` for multi-word paths unless the stack already differs
+- Name tests after behavior under test
 
 ## Branches and commits
 
-- Branch names: short scope prefix plus a clear topic (`feat/…`, `fix/…`, `docs/…`).
-- Commit subjects: imperative mood, one change focus (`add …`, `fix …`, `update …`).
+- Branches: `feat/…`, `fix/…`, `docs/…` + clear topic
+- Subjects: imperative, one focus (`add …`, `fix …`, `update …`)
 
-## Docs and specs
+## Docs
 
-- Spec and ADR filenames: short, stable slugs that will still make sense months later.
-- Prefer product language over internal nicknames in headings and titles.
+- Spec/ADR filenames: short stable slugs
+- Prefer product language in titles

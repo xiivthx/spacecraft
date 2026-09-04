@@ -92,11 +92,6 @@ test('SKILL.md: Cross-domain HIL dual evidence and physical observe', () => {
   assertIncludes(text, 'Cross-domain HIL', RTL_SKILL);
   assertIncludes(text, 'dual evidence', RTL_SKILL);
   assertIncludes(text, 'physical board observe equals `$display`', RTL_SKILL);
-  assertIncludes(
-    text,
-    'After HIL RCA, append one greppable lesson to `.space/trust/lessons.md`',
-    RTL_SKILL,
-  );
 });
 
 test('sc-rtl agent: digital IC identity without MCU firmware', () => {

@@ -1,6 +1,6 @@
 ---
 name: sc-browser-probe
-description: Live browser probe + AFK fix-loop. Use after UI/workflow build or when asked to browser-test. Sweep Foundations and matched packs; fix every finding via Task(sc-coder/sc-tester) until CLEAN or 3-cycle.
+description: Live browser probe + AFK fix-loop. Use after UI/workflow build or when asked to browser-test. Sweep Foundations and matched packs (optional persona walkthrough); fix every finding via Task(sc-coder/sc-tester) until CLEAN or 3-cycle.
 ---
 
 # Browser probe
@@ -12,7 +12,7 @@ Live-product escape net: inventory → scenarios → Foundations + matched packs
 ## Inputs
 
 - Live product URL (start the app if needed; not API-only port when UI exists)
-- Scope: `full` | `feature:<name>`; optional examples, perf question, timebox
+- Scope: `full` | `feature:<name>`; optional examples, `persona: off|on`, perf question, timebox
 - Mission id / `decisions.md` / spec fixtures when called from `/sc-run`
 
 ## Ban
@@ -22,7 +22,8 @@ Live-product escape net: inventory → scenarios → Foundations + matched packs
 - Writing product code/tests yourself - Task(`sc-coder` / `sc-tester` / `sc-firmware` / `sc-rtl`) only
 - Replacing sc-verification / sc-judge; alone setting mission `ready`
 - Walking checklist packs not in inventory; inventing throughput numbers
-- Expertise cosplay
+- Auto-matching persona walkthrough without `persona: on` / explicit ask / `Persona pack: required`
+- Expertise cosplay; 1-5 persona scores; conflating with STORM lenses
 
 ## Handshake
 

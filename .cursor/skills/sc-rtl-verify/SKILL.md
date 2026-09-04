@@ -31,7 +31,7 @@ TB / cocotb / formal / ISA regression; before ready/ship when RTL/CPU in scope; 
 
 4. **Evidence** - each done acceptance: `spacecraft evidence "<label>" -- <cmd>`.
 5. **Disposition** lint/CDC/static hits: **fix-in-block** | **waive-system** (e.g. reset sync at top) | **monitor** (FPGA fanout until timing fails). Re-run gate after fix.
-6. **Ready bar** - do not claim CPU/RTL ready on L0 alone. Minimum for production-minded FPGA core: L0+L1+L2 green; L3 when CPU ISA in scope; L4 when formal tooling in repo; L5 when FPGA target in scope. After L5 / before claiming silicon ready: physical HIL evidence; map sim scenario IDs to physical observables when a project mapping doc exists. After HIL RCA: append one greppable lesson line to `.space/trust/lessons.md` (skill `sc-learn`) before the next task.
+6. **Ready bar** - do not claim CPU/RTL ready on L0 alone. Minimum for production-minded FPGA core: L0+L1+L2 green; L3 when CPU ISA in scope; L4 when formal tooling in repo; L5 when FPGA target in scope. After L5 / before claiming silicon ready: physical HIL evidence; map sim scenario IDs to physical observables when a project mapping doc exists.
 
 ### Observe-first (HW / sim bugs)
 
@@ -53,7 +53,6 @@ Functional/cover properties beat raw line %. Record plan + measured numbers or `
 - **Must**: Self-checking TB (assert/scoreboard/signature) - no passive pass
 - **Must**: Consult rules `700` / `710` / `720` when editing matching globs
 - **Must**: Prefer system/integration sim (DUT + software image) before board HIL when that target exists and software owns DUT bring-up
-- **Must**: After HIL RCA, append one greppable lesson to `.space/trust/lessons.md` (skill `sc-learn`) before the next task
 - **Must not**: Sign off on lint-only; invent EDA installs mid-mission
 - **Must not**: Treat ACT pass as "fully verified CPU"
 - **Must not**: Claim silicon ready without physical HIL evidence when FPGA target in scope
@@ -73,7 +72,6 @@ Functional/cover properties beat raw line %. Record plan + measured numbers or `
 - [ ] L3 if CPU ISA in scope (or skip line)
 - [ ] L4/L5 if tools/target in scope (or skip line)
 - [ ] Physical HIL when FPGA target in scope; scenario↔observable map when project doc exists
-- [ ] HIL RCA closed → lesson line in `.space/trust/lessons.md`
 - [ ] Waivers greppable; timing report if FPGA
 
 ## References

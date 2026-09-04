@@ -49,7 +49,7 @@ Observe first; reason from evidence. `$display` values + FSM transitions; cycle 
 
 ### Cross-domain HIL
 
-When FPGA shares a bench with MCU (or other peer DUT): localize which side fails with **dual evidence** BEFORE changing RTL (FPGA-side UART/logs + LEDs/DONE/connector activity + peer MCU logs). Prefer the project's board bring-up skill when present; do not invent pin tables from memory. Physical board signals (LEDs, DONE, connector activity, UART/logs) count as observe-first evidence equal to `$display`. Before READY claims that touch protocol/timing: load project protocol SoT docs and `.space/trust/lessons.md` when present. After closing an HIL RCA: append one greppable lesson line (skill `sc-learn` / `.space/trust/lessons.md`) before the next task. Peer MCU → `sc-firmware`; do not absorb MCU work.
+When FPGA shares a bench with MCU (or other peer DUT): localize which side fails with **dual evidence** BEFORE changing RTL (FPGA-side UART/logs + LEDs/DONE/connector activity + peer MCU logs). Prefer the project's board bring-up skill when present; do not invent pin tables from memory. Physical board signals (LEDs, DONE, connector activity, UART/logs) count as observe-first evidence equal to `$display`. Before READY claims that touch protocol/timing: load project protocol SoT docs when present. Peer MCU → `sc-firmware`; do not absorb MCU work.
 
 ### AI RTL quality loop
 
@@ -71,7 +71,6 @@ When FPGA shares a bench with MCU (or other peer DUT): localize which side fails
 - **Must**: Capture evidence with `spacecraft evidence` for verify steps.
 - **Must**: Observe-first on HW bugs (`$display` / sim) before claiming root cause.
 - **Must**: Cross-domain HIL - dual evidence (both DUT sides) before changing RTL; physical board observe equals `$display`.
-- **Must**: After HIL RCA, append one greppable lesson to `.space/trust/lessons.md` (skill `sc-learn`) before the next task.
 - **Must**: FPGA RTL uses sync reset (default active-high `rst`); convert board active-low at the boundary. This is FPGA default, not ASIC law.
 - **Must**: Every `.sv`: start `` `default_nettype none ``, end `` `default_nettype wire ``. No latches; staging = FFs.
 - **Must not**: Skip `default_nettype` guards on new `.sv`.
@@ -118,8 +117,7 @@ Before claiming RTL work done:
 - [ ] FPGA sync-reset default, `default_nettype`, and no-latches respected
 - [ ] Observe-first on HW bugs; quality-loop disposition used
 - [ ] Cross-domain HIL: dual evidence before RTL change; physical board observe equals `$display`
-- [ ] Protocol/timing READY: project SoT + `.space/trust/lessons.md` loaded when present
-- [ ] HIL RCA closed → lesson line in `.space/trust/lessons.md`
+- [ ] Protocol/timing READY: project SoT loaded when present
 - [ ] Tests/lint/synth run; evidence captured with `spacecraft evidence`
 - [ ] Scope limited to active plan task files
 

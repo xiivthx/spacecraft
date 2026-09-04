@@ -21,7 +21,7 @@ Handshake: `done` | `blocked: <reason>` | `needs-input: <question>`
 ## Good / Bad
 
 - Good: framed question; primary sources preferred; five lens bullets are jobs not personas; one Synthesis path; feeds discuss only; Historian uses repo history / prior decisions
-- Bad: lifecycle slash peer to discuss/run/ship/quick; always-on; product code; inventing Verify; stuck API / deprecation lookups (use sc-search); full STORM at ready (sc-judge stays Skeptic-only)
+- Bad: lifecycle slash peer to discuss/run/ship/quick; always-on; product code; inventing Verify; stuck API / deprecation lookups (use sc-search); full STORM at ready; dumping research-brief into fact-check Task
 
 ## Verify
 
@@ -48,8 +48,9 @@ Commander confirms Synthesis is one path and Verify bar still comes from spec + 
 3. **Gather sources** - `WebSearch` / `WebFetch` (sc-search-style escalation); prefer official docs, papers, primary posts; note contradictions.
 4. **Draft five lens notes** - Practitioner, Academic, Skeptic, Economist, Historian (repo history / prior decisions; `none found` allowed).
 5. **Debate contradictions** - reconcile or state what remains contested; still one Synthesis path.
-6. **Write** `research-brief.md` in the mission dir (question, sources list, lens notes, synthesis).
-7. **Copy** Synthesis + five bullets into `decisions.md` as `## Lens pass (<topic>)` per `references/lens-pass.md`; set `Lens tier used: 3`.
+6. **Fact-check** - mission-affecting external facts or source disagreement: `.cursor/skills/sc-search/references/fact-check.md`; emit `Fact-check:`; one `Task(sc-fact-check)` only when SoT requires it. Contested → not settled for auto-pick.
+7. **Write** `research-brief.md` in the mission dir (question, sources list, lens notes, synthesis).
+8. **Copy** Synthesis + five bullets into `decisions.md` as `## Lens pass (<topic>)` per `references/lens-pass.md`; set `Lens tier used: 3`.
 
 ## Out of scope
 
@@ -58,4 +59,5 @@ Commander confirms Synthesis is one path and Verify bar still comes from spec + 
 ## References
 
 - `.cursor/skills/sc-discuss/references/lens-pass.md` - template + tier rules
+- `.cursor/skills/sc-search/references/fact-check.md`
 - sc-search · sc-clarify · `/sc-discuss`

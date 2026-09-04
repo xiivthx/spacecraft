@@ -1,253 +1,74 @@
 # Spacecraft
 
-Spacecraft is a Cursor-native mission-control harness for AI-driven software development. It combines always-on project rules, specialized agents, reusable skills, safety hooks, optional MCP integration, and a local CLI for traceable mission state.
-
-## What it provides
-
-- Mission workflow from scope and planning through implementation, verification, review, and shipping
-- Local mission artifacts and evidence under `.space/` (gitignored; first-use ensure may `git init`, write starter `.gitignore` from `templates/gitignore`, seed missing product `docs/` map + conventions stubs, and soft-run `codegraph init` when no `.codegraph/` index exists - warn and continue on missing binary or failure)
-- Tracked product Source of Truth under `docs/` (gitignored `.space/` stays local runtime only; prefer cold-start read order `docs/` then `.space/` - see [installation guide](docs/installation.md#product-docs-vs-local-runtime))
-- Cursor-native rules, agents, skills, hooks, and MCP configuration under `.cursor/`
-- Git safety with feature branches, Conventional Commits, and an explicit ship gate
-- Specialized support for application development, testing, design, architecture, embedded firmware, and FPGA RTL
+Cursor-native mission-control harness: rules, agents, skills, safety hooks, and a local CLI for traceable mission work under `.space/`.
 
 ## Requirements
 
-- Cursor
-- Git
-- Node.js 18 or newer for the CLI (`cli/spacecraft.mjs`) and companion installs (`make install-machine`)
-- macOS or Linux
+Cursor · Git · Node.js 18+ · macOS or Linux
 
-## Installation
-
-Spacecraft installs in two layers. **Front door (lean):**
+## Install
 
 | Command | Role |
-|---|---|
-| `make install` | User layer + CLI + smoke (default on a checkout) |
-| `spacecraft setup` | Project layer packs (per repo) |
-| `make install-machine` | New PC: clone + User layer + companions |
-
-User layer: agents, lean-core skills, MCP, the CLI, global safety hooks, plus a short `~/.cursor/spacecraft/USER-RULES.txt` CORE (`010-hard-contract`). Paste into Settings -> Rules -> User Rules after regen. Project layer (`spacecraft setup`, `./bootstrap.sh`, or `make install-project`): alwaysApply hard-contract, **pack-selected** domain skills/rules, `session-start`, and **safety hooks** (secrets / destructive / main-write / ship+push-ask). Lean-core lifecycle skills and agents stay User layer (`~/.cursor`).
-
-**Enforcement map:** hooks = hard; `010-hard-contract` = always-on soft; skills/glob rules = on demand. Markdown alone does not block `.env` reads or push.
-
-**New PC** - User layer plus companion tools (caveman, rtk, codegraph) with Cursor wiring:
+|---------|------|
+| `make install` | User layer + CLI + smoke |
+| `spacecraft setup` | Project packs (per repo) |
+| `make install-machine` | New PC + companions |
 
 ```sh
 git clone https://github.com/xiivthx/spacecraft.git
 cd spacecraft
-make install-machine
-```
-
-**Existing checkout** - refresh User layer + CLI + smoke:
-
-```sh
 make install
+spacecraft setup --packs quality
 ```
 
-`make install-global` alone remains if you only need `~/.cursor` without smoke. Lean reconcile prunes spacecraft-managed domain encyclopedia skills under `~/.cursor/skills` that sit outside the lean allowlist; unrelated files under `~/.cursor` stay put.
+Details: [docs/installation.md](docs/installation.md)
 
-**Default project path:** install **selected** domain packs locally with `spacecraft setup` / `./bootstrap.sh` - no User `--full` required. Choose packs with `spacecraft setup` (interactive default: **quality**; coming packs such as `iot`/`pcb`/`management` are listed but not installable). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`, or fails. Existing `.cursor/spacecraft-profile.json` → silent reconcile; change packs with `--reconfigure`. User-layer lean stays the default; lean-core stays out of the project layer.
-
-Advanced escape hatch only - not the recommended default: User `--full` via `SPACECRAFT_SKILL_PROFILE=full` or `make install FULL=1` / `make install-global FULL=1` installs domain encyclopedias into `~/.cursor/skills`:
-
-```sh
-make install FULL=1
-# or: SPACECRAFT_SKILL_PROFILE=full make install-global
-```
-
-Project layer (per repo) - recommended default for domain skills:
-
-```sh
-spacecraft setup --packs frontend,quality
-# or: ./bootstrap.sh /path/to/project
-```
-
-Bootstrap / `install-cursor` first `.space` create also ensures git (init if needed), starter `.gitignore` with `.space/`, seeds missing `docs/` map and conventions stubs, and may soft-run `codegraph init` when no `.codegraph/` index exists (warn and continue on missing binary or failure).
-
-When working from a clone of this repository, build and install with:
-
-```sh
-make install
-```
-
-See the [installation guide](docs/installation.md) (project pack setup, lean vs full) and [Antigravity guide](docs/antigravity.md) for companions, Tools status output, and verification details.
-
-### Antigravity Installation
-
-Spacecraft fully supports **Google Antigravity** via its plugin and project scaffold system:
-
-```sh
-# Global Antigravity plugin (~/.gemini/config/plugins/spacecraft)
-make install-antigravity
-
-# Project layer (.agents/ + GEMINI.md)
-./bootstrap.sh --antigravity /path/to/project
-# or: make install-antigravity-project PROJECT=/path/to/project
-```
+Companions (`make install-machine`): caveman, rtk, codegraph — Tools status box.
 
 ## Quick start
 
-Open the project in Cursor. User-facing slash skills are `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and `/sc-debug`:
+Slash skills: `/sc-discuss` → `/sc-run` → human check → `/sc-ship`. Small edits: `/sc-quick`. Unknown RCA: `/sc-debug`.
 
 ```
 /sc-discuss
-/sc-run <roadmap-id>   # multi-mission
-/sc-run                # mission-only when Sizing: single|phases (or map current)
+/sc-run
 /sc-ship
 ```
 
-Flow:
+1. Discuss — size, clarify, decide; approve visual draft when needed; clear clarify-status
+2. Run — plan → build → review → judge `VERIFIED` → `ready`
+3. Human check
+4. Ship — explicit `/sc-ship` only
 
-1. `/sc-discuss` - size (`Sizing: single|phases|roadmap`), lens pass or skip (`## Lens pass` / `Lens pass skipped:`), testability pass or skip (`## Testability pass` / `Testability pass skipped:`), strategy pass or skip (`## Strategy pass` / `Strategy pass skipped:`), RCRCRC when two requirement versions (`## RCRCRC pass` / skip), clarify, brainstorm, decide; for visual UI/FE approve draft HTML; clear clarify-status. Prefer a **new session** for run.
-2. `/sc-run <roadmap-id>` AFKs incomplete roadmap missions to `ready` (or `/sc-run` mission-only for single/phases). Jigsaw plan → per-acceptance RED-GREEN via agents → combine/refactor → review. Visual UI/FE: requires draft already approved in discuss (not for `*-data` / `*-functional` seams); then live product review on the running app URL (Tier 3 + designer **live-product**) plus draft-parity (paired draft-surface vs live screenshots, side-by-side) and functional recheck before ready. `/sc-ship` squashes AFK checkpoints to ≤5 commits before merge.
-3. Human checks the ready work.
-4. `/sc-ship` validates and closes out only when explicitly requested.
+Roadmap helpers: `spacecraft map use|current|next`. Live CLI: `spacecraft help`.
 
-Roadmap selection helpers:
+Validate: `spacecraft validate` / `val` — Validate mission artifacts and evidence (not-doc-drift).
 
-```sh
-spacecraft map use <roadmap-id>   # set current roadmap
-spacecraft map current            # print current roadmap id
-spacecraft map next <roadmap-id>  # next incomplete mission on named roadmap
-```
+## Lanes
 
-Skills live under `.cursor/skills/`. User-facing slash skills are `/sc-discuss`, `/sc-run`, `/sc-ship`, `/sc-quick`, and `/sc-debug`. Spacecraft does not use `.cursor/commands/`.
+| Intent | Lane |
+|--------|------|
+| Clarify / draft | `/sc-discuss` |
+| Implement | `/sc-run` |
+| Debug RCA | `/sc-debug` |
+| Small edit | `/sc-quick` |
+| Ship | `/sc-ship` |
 
-## Cursor modes
+SoT: `.cursor/rules/200-workflow.mdc`
 
-Spacecraft lanes map to Cursor modes. Source of truth: `.cursor/rules/200-workflow.mdc`.
-
-| User intent | Spacecraft lane | Cursor mode / action |
-|---|---|---|
-| Ask / clarify / brainstorm / visual draft | Discuss | Agent + `/sc-discuss` |
-| Roadmap implement | Mission | Agent + `/sc-run` (after discuss clear) |
-| Bug hunt / unknown RCA | Debug | Agent + `/sc-debug` (Cursor Debug Mode only as a software-pack runtime-log tactic) |
-| Ship | Ship | Agent + `/sc-ship` (hooks gate git) |
-| Small edit / commit | Quick | Agent + `/sc-quick` (no mission; still INTENT/AUTH/TWINS/3-cycle) |
-
-## Agents
-
-Cursor discovers specialized agents from the User layer (`~/.cursor/agents/` after `make install` / `make install-machine`):
-
-- `sc-coder` - implements production code
-- `sc-tester` - writes tests and captures verification evidence
-- `sc-planner` - converts mission specs into executable plans
-- `sc-reviewer` - reviews changes, evidence, and release readiness
-- `sc-designer` - reviews UI and visual design quality
-- `sc-adviser` - advises on complex architecture and logic
-- `sc-firmware` - embedded system engineer: MCU firmware (STM32 and other vendors / not FPGA/RTL)
-- `sc-rtl` - digital IC designer: FPGA SystemVerilog RTL (not MCU firmware)
-- `sc-rtl-verify` - RTL/FPGA verification gates (lint, sim, ISA, formal, STA evidence)
-- `sc-writer` - writes and edits docs, prompts, messages, and other non-code prose
-- `sc-browser-probe` - live browser sweep + AFK find→fix→re-probe until CLEAN
-
-The always-on Spacecraft rules act as Commander and route work to these agents.
-
-## CLI
-
-The CLI is Node (`cli/spacecraft.mjs`). Run the checkout link as `./spacecraft`, or use `spacecraft` after installation.
-
-| Command | Purpose |
-|---|---|
-| `spacecraft init` | Initialize `.space/` (git init if needed; starter `.gitignore` with `.space/` on first create; may soft-run `codegraph init` when no `.codegraph/` index) |
-| `spacecraft setup [--packs a,b] [--reconfigure]` | Project pack selection; writes `.cursor/spacecraft-profile.json`; selective install + prune (`SPACECRAFT_PACKS` when flag absent) |
-| `spacecraft new <title>` | Create a mission with a generated ID |
-| `spacecraft missions` | List missions |
-| `spacecraft use <number\|id\|title>` | Select the current mission |
-| `spacecraft current` | Print the current mission ID |
-| `spacecraft resolve [selector]` | Resolve a mission from a selector or branch |
-| `spacecraft status` | Show mission status |
-| `spacecraft flow` | Show the resolved mission workflow snapshot |
-| `spacecraft bind-branch [selector]` | Bind the current branch to a mission |
-| `spacecraft set-state [mission-id] <new-state>` | Set mission state (mission-id optional when resolved from branch or current), alias: `state` |
-| `spacecraft clarify-status <open\|clear\|deferred>` | Set clarification status |
-| `spacecraft evidence [--mission <id>] <label> -- <command...>` | Run a command and capture evidence, alias: `evi` |
-| `spacecraft drift [--strict]` | Report docs↔mission drift (stdout only; default exit 0; `--strict` non-zero on findings) |
-| `spacecraft validate [--strict] [mission-id]` | Validate mission artifacts and evidence (not-doc-drift / not-10X-validate), alias: `val`. `--strict` also requires `exitCode` on every evidence entry and evidence for each done plan task |
-| `spacecraft closeout-check` | Check whether a mission is ready to close out, alias: `ship-check` |
-| `spacecraft ship-check` | Alias for `closeout-check` |
-| `spacecraft archive [selector]` | Archive a shipped mission |
-| `spacecraft roadmap <new\|add\|rm\|ls\|show\|next\|archive\|use\|current> [...]` | Manage roadmaps, alias: `map`. `map use` / `map current` / `map next` support `/sc-run` |
-| `spacecraft help` | Show live CLI help |
-
-Mission states progress as:
+## Layout
 
 ```text
-active -> planned -> in_progress -> ready -> shipped
+.cursor/     rules, skills, hooks, MCP
+docs/        tracked product SoT
+.space/      gitignored missions / evidence
+cli/         Node CLI (spacecraft.mjs)
 ```
 
-`blocked` is available from any active state.
+## Details
 
-Use the CLI as the source of truth for current syntax:
-
-```sh
-./spacecraft help
-```
-
-## File layout
-
-```text
-.cursor/
-  rules/                 always-on Commander, workflow, and domain rules
-  agents/                specialized Cursor agents (coder, tester, planner, reviewer, designer, adviser, firmware, rtl, writer, browser-probe)
-  skills/                workflow and domain skills
-  mcp.json               project MCP server configuration
-  hooks.json             Cursor hook registration
-  hooks/                 hook scripts
-docs/                    tracked product SoT (seed: README map + conventions stubs)
-.space/
-  missions/<id>/         spec, plan, decisions, evidence, and review artifacts
-  archive/               shipped mission archives
-  roadmaps/              multi-mission roadmaps
-cli/                     Node CLI entry (spacecraft.mjs) and tests
-spacecraft               repository CLI link (cli/spacecraft.mjs)
-bootstrap.sh             project bootstrap installer
-Makefile                 build and install targets
-```
-
-## Mission artifacts
-
-Each mission lives at `.space/missions/<id>/`. The primary files are:
-
-- `mission.json` - identity, state, branches, and creation time
-- `spec.md` - scope and intent
-- `plan.json` - tasks, acceptance criteria, verification commands, and status
-- `evidence.jsonl` - captured command evidence
-- `decisions.md` and `questions.md` - resolved and open decisions
-- `review.md` and `review.json` - formal review results
-
-## Git and shipping
-
-Mission work belongs on `feat/<mission-id>/<title>`, not directly on `main`. Immediately before `/sc-ship` merge, rename to `feat/<title>` (strip the mission id) so the merge commit uses the short name. Shipping is never inferred. `/sc-ship` runs only after an explicit request to merge or release, validates the mission, and applies the repository's release gates.
-
-No-mission small edits use `/sc-quick` on branch `<type>/<title>` (no mission id). One `/sc-quick` run goes branch → verify → commit → local merge/tag; use `SPACECRAFT_SHIP=1 SPACECRAFT_QUICK=1` so the hook skips `closeout-check`. Push still needs an explicit ask.
-
-Before claiming mission build complete, prefer `spacecraft validate --strict`. Before mission merge, run `spacecraft closeout-check` (or `ship-check`). With `SPACECRAFT_SHIP=1` alone, the Cursor ship hook re-runs closeout before allowing `git merge` / `git push` / `git tag`. With both `SPACECRAFT_SHIP=1` and `SPACECRAFT_QUICK=1`, closeout is skipped (quick lane only).
-
-Local gate (Node CLI tests + hook unit tests):
-
-```sh
-make gate
-```
-
-On Cursor `sessionStart`, `.cursor/hooks/session-start.sh` prints `spacecraft status` (or `No active spacecraft mission.`) so the agent gets mission context.
-
-## Lean profile
-
-User-facing slash skills: **`/sc-discuss`**, **`/sc-run`**, **`/sc-ship`**, **`/sc-quick`**, and **`/sc-debug`**.
-
-- **HIL discuss:** `/sc-discuss` - clarify, decide, approve visual draft HTML
-- **AFK run:** `/sc-run` loops `map next` until missions are `ready` or blocked; build is atomic RED-GREEN with auto checkpoint commits; UI missions require prior draft approval and live product review (running URL + **live-product**) with paired draft-parity compare and functional evidence
-- **HIL ship:** final check + `/sc-ship`
-- **Quick (no mission):** `/sc-quick` - manual edits/fixes/docs; branch → verify → commit → local ship in one pass (no mission artifacts or closeout; push still explicit)
-- **Debug (RCA):** `/sc-debug` - pack (software / hardware / visual), repro, falsify, then `/sc-quick` or `/sc-discuss`; does not merge
-- **Active detail skills** under `.cursor/skills/` support agents (mission, planning, tdd, git, domains, sc-storm, …)
-- **Explicit-only** (not auto-invoked): `sc-solid`, `sc-security`, `sc-performance`, `sc-ux-design`, `sc-diagram` - glob rules still apply. `sc-storm` activates on open-domain / strategy research feeding discuss.
-
-Project behavior and policy are defined by the always-on files in `.cursor/rules/`.
-
-## How we instruct agents
-
-Clarity over tricks. Agents use Goal, Output, Good vs Bad, Verify. If unclear, research then ask - never invent Verify. Details: [docs/prompting.md](docs/prompting.md). Artifact schemas: [docs/mission-artifacts.md](docs/mission-artifacts.md).
+- [Installation](docs/installation.md)
+- [Mission artifacts](docs/mission-artifacts.md)
+- [Prompting](docs/prompting.md)
+- [Docs map](docs/README.md)
+- Agents after install: `~/.cursor/agents/` (`sc-coder`, `sc-tester`, `sc-planner`, `sc-reviewer`, `sc-designer`, `sc-adviser`, `sc-firmware`, `sc-rtl`, `sc-writer`, `sc-browser-probe`, `sc-fact-check`, …)

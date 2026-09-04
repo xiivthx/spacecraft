@@ -27,10 +27,10 @@ No non-blocking questions mid-AFK. Detail skills: `sc-discuss`, `sc-run`, `sc-sh
 ```
 
 - **Discuss** → `clarify-status clear`. Handoff: `Spec clear. New session: /sc-run.`
-- **Run** → plan → design-contract → approved-scenarios → build → combine (static + diff-cov + mutation) → fix → browser-probe (UI/workflow) → review + `sc-judge` → `ready`. Handoff: `Ready. Human check, then /sc-ship.` Optional post-ready drain/split before ship (skills below).
-- **Ship** → squash ≤5, closeout, merge `--no-ff`, archive. Roadmap continues: `Next: new session → /sc-discuss <id>`
+- **Run** → plan → design-contract → approved-scenarios → build → combine (static + diff-cov + mutation) → fix → browser-probe (UI/workflow) → review + `sc-judge` → `ready` → companion dispositions (`sc-loop` at start; `sc-post-ready-drain` then `sc-split-to-prs` after ready). Handoff: `Ready. Human check, then /sc-ship.`
+- **Ship** → squash ≤5, closeout, companion dispositions present, merge `--no-ff`, archive. Roadmap continues: `Next: new session → /sc-discuss <id>`
 
-Optional Cursor-primary aids: see `docs/prompting.md` and matching skills (`sc-post-ready-drain`, `sc-split-to-prs`, `sc-loop`, `sc-automate-slack`, `sc-canvas-sot`, `sc-goal-roadmap`, `sc-browser-probe`). Must not soft-pass ready/ship from Cursor chat tables; Must not AUTH/`VERIFIED`/ship from Slack/canvas/Goals; opened split PRs never ready/ship proof; Spacecraft owns ready/ship.
+Companion lanes (Must disposition; silence forbidden; `skipped:` OK): `sc-loop`, `sc-post-ready-drain`, `sc-split-to-prs` — SoT `sc-run/references/optional-lanes.md`. Browser probe: `sc-browser-probe`. Must not soft-pass ready/ship from Cursor chat tables; opened split PRs never ready/ship proof; Spacecraft owns ready/ship.
 
 Findings: fix in `/sc-run` and report in the summary (no issue ledgers). Roadmap CLI: `spacecraft map use|current|next`.
 

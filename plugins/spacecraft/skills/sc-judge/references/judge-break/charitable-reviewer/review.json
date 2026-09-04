@@ -1,8 +1,0 @@
-{
-  "status": "ready",
-  "findings": [],
-  "releaseReadiness": {
-    "changelog": { "status": "ready" },
-    "specNote": { "status": "ready" }
-  }
-}

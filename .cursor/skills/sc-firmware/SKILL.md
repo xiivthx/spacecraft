@@ -38,7 +38,7 @@ Do not treat FPGA, SystemVerilog, RTL, or digital IC as this skill - those use `
 
 ### Cross-domain HIL
 
-When MCU shares a bench with FPGA (or other peer DUT): localize which side fails with **dual evidence** BEFORE blaming peer RTL or wiring (MCU UART/logs/GPIO + peer FPGA UART/LEDs/DONE/connector activity). Host unit green is not HIL green - require **proof oracles** on target (measurable counts / timing / lines), not only app-state asserts. Directory aliases OK if app → `hal_if` → `drivers`/`bsp` seam holds. Recipes → `references/peripherals.md`, `references/verification.md`, `references/target-*.md`. After closing an HIL RCA: append one greppable lesson line (skill `sc-learn` / `.space/trust/lessons.md`) before the next task. Peer FPGA → `sc-rtl`; do not absorb RTL work.
+When MCU shares a bench with FPGA (or other peer DUT): localize which side fails with **dual evidence** BEFORE blaming peer RTL or wiring (MCU UART/logs/GPIO + peer FPGA UART/LEDs/DONE/connector activity). Host unit green is not HIL green - require **proof oracles** on target (measurable counts / timing / lines), not only app-state asserts. Directory aliases OK if app → `hal_if` → `drivers`/`bsp` seam holds. Recipes → `references/peripherals.md`, `references/verification.md`, `references/target-*.md`. Peer FPGA → `sc-rtl`; do not absorb RTL work.
 
 ## Rules
 
@@ -51,7 +51,6 @@ When MCU shares a bench with FPGA (or other peer DUT): localize which side fails
 - **Must**: Keep ISR short; no blocking, delay, or printf in ISR.
 - **Must**: Cross-domain HIL - dual evidence before blaming peer RTL or wiring; host green ≠ HIL green without proof oracles on target.
 - **Must**: Directory aliases OK if app → `hal_if` → `drivers`/`bsp` seam holds (example paths in `references/core.md`).
-- **Must**: After HIL RCA, append one greppable lesson to `.space/trust/lessons.md` (skill `sc-learn`) before the next task.
 - **Must not**: Edit generated `MX_*` functions in place on STM32 CubeMX targets - wrap in BSP/HAL interface layers.
 - **Must not**: Use dynamic allocation after init in hot paths or ISR.
 - **Must not**: Skip cache clean/invalidate around DMA on Cortex-M7.
@@ -95,7 +94,6 @@ Before claiming firmware work done:
 - [ ] STM32 CubeMX: no direct `MX_*` body edits; wrappers used
 - [ ] Cache/DMA and ISR constraints respected when Cortex-M7 / LTDC target
 - [ ] Cross-domain HIL: dual evidence + proof oracles; host green ≠ silicon green
-- [ ] HIL RCA closed → lesson line in `.space/trust/lessons.md`
 - [ ] Tests run; evidence captured with `spacecraft evidence`
 - [ ] Scope limited to active plan task files
 

@@ -191,13 +191,10 @@ test('sc-planning: same-mission plan-phaseN + multi-mission map ban', () => {
   );
 });
 
-// --- Optional-lane disposition prefixes ---
+// --- Companion-lane disposition prefixes ---
 
 const LANE_PREFIXES = [
   ['.cursor/skills/sc-loop/SKILL.md', 'Loop watch:'],
-  ['.cursor/skills/sc-automate-slack/SKILL.md', 'Automate-Slack:'],
-  ['.cursor/skills/sc-canvas-sot/SKILL.md', 'Canvas-sot:'],
-  ['.cursor/skills/sc-goal-roadmap/SKILL.md', 'Goal-roadmap:'],
   ['.cursor/skills/sc-post-ready-drain/SKILL.md', 'Post-ready drain:'],
   ['.cursor/skills/sc-split-to-prs/SKILL.md', 'Split-to-prs:'],
 ];
@@ -207,6 +204,57 @@ for (const [file, prefix] of LANE_PREFIXES) {
     assertIncludes(readUtf8(file), prefix, file);
   });
 }
+
+test('optional-lanes.md lists only companion trio', () => {
+  const file = '.cursor/skills/sc-run/references/optional-lanes.md';
+  const text = readUtf8(file);
+  assertIncludes(text, 'sc-loop', file);
+  assertIncludes(text, 'sc-post-ready-drain', file);
+  assertIncludes(text, 'sc-split-to-prs', file);
+  assertIncludes(text, 'Silence is forbidden', file);
+  for (const gone of ['sc-automate-slack', 'sc-canvas-sot', 'sc-goal-roadmap']) {
+    if (text.includes(gone)) {
+      throw new Error(`${file} must not mention ${gone}`);
+    }
+  }
+});
+
+test('sc-judge requires Loop watch disposition; no Automate-Slack hunt', () => {
+  const file = '.cursor/skills/sc-judge/SKILL.md';
+  const text = readUtf8(file);
+  assertIncludes(text, 'Loop watch:', file);
+  assertIncludes(text, 'silence ⇒ `REFUTED`', file);
+  if (text.includes('Automate-Slack:')) {
+    throw new Error(`${file} must not hunt Automate-Slack`);
+  }
+});
+
+test('sc-ship requires post-ready companion dispositions', () => {
+  const file = '.cursor/skills/sc-ship/SKILL.md';
+  const text = readUtf8(file);
+  assertIncludes(text, 'Post-ready drain:', file);
+  assertIncludes(text, 'Split-to-prs:', file);
+});
+
+test('fact-check SoT + agent stay lean', () => {
+  const sot = '.cursor/skills/sc-search/references/fact-check.md';
+  const agent = '.cursor/agents/sc-fact-check.md';
+  const sotText = readUtf8(sot);
+  const agentText = readUtf8(agent);
+  assertIncludes(sotText, 'Fact-check:', sot);
+  assertIncludes(sotText, '≤5', sot);
+  assertIncludes(sotText, 'Task(sc-fact-check)', sot);
+  assertIncludes(sotText, 'claim block only', sot);
+  assertIncludes(agentText, 'readonly: true', agent);
+  assertIncludes(agentText, 'CLAIM', agent);
+  assertIncludes(readUtf8('.cursor/skills/sc-search/SKILL.md'), 'Fact-check:', '.cursor/skills/sc-search/SKILL.md');
+  assertIncludes(readUtf8('.cursor/skills/sc-judge/SKILL.md'), 'Fact-check:', '.cursor/skills/sc-judge/SKILL.md');
+  for (const banned of ['formerly', 'no longer', 'deprecated in favor', 'Distinct from', 'not a substitute', 'stays `sc-judge`', 'remains cross-model']) {
+    if (sotText.includes(banned) || agentText.includes(banned)) {
+      throw new Error(`tombstone/filler ${JSON.stringify(banned)} in fact-check surfaces`);
+    }
+  }
+});
 
 // --- Judge / probe / discuss / impeccable / hard-contract / security ---
 
@@ -295,7 +343,7 @@ for (const file of MUST_EXIST) {
   });
 }
 
-// --- sc-firmware vs sc-rtl agent split (greppable SoT; not plugin twins) ---
+// --- sc-firmware vs sc-rtl agent split (greppable SoT) ---
 
 const FIRMWARE_AGENT = '.cursor/agents/sc-firmware.md';
 const RTL_AGENT = '.cursor/agents/sc-rtl.md';

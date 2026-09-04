@@ -171,7 +171,7 @@ if (!IMPLEMENTED.has(command)) {
 }
 
 const cwd = process.cwd();
-// context/drift are read-only: do not seed docs/ or mutate project before run
+// context/drift are read-only: do not mutate project before run
 // (otherwise absent-tree skip / omit-missing cases cannot observe absent docs).
 if (command !== 'context' && command !== 'drift') {
   try {

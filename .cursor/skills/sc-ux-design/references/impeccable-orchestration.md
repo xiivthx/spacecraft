@@ -2,7 +2,7 @@
 
 Authoritative workflow when Impeccable is the **primary** UX/UI craft engine inside Spacecraft missions. Loaded by `sc-designer` and by `/sc-discuss` / `sc-ux-design` on visual work.
 
-Contract overview: `docs/impeccable-discuss-integration.md`.
+Contract overview: `docs/impeccable.md`.
 
 ## Primacy
 
@@ -73,7 +73,7 @@ Use when findings or human ask match — usually **after** shape + direction, on
 | Device / breakpoint fit | `/impeccable adapt <target>` |
 | UI performance | `/impeccable optimize <target>` |
 
-`craft` is deprecated → treat as new-work. Pin/hooks/doctor are tooling, not mission craft steps (run when human asks or hook status requires).
+Pin/hooks/doctor are tooling, not mission craft steps (run when human asks or hook status requires).
 
 ### Anti-patterns
 
