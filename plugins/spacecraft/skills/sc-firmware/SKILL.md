@@ -25,7 +25,7 @@ Do not treat FPGA, SystemVerilog, RTL, or digital IC as this skill - those use `
 1. **Resolve mission** - `spacecraft resolve`. Conflict/ambiguity → `spacecraft use <selector>`.
 2. **Confirm OS class and target** - Confirm OS class (bare-metal | RTOS) and target from mission `spec.md` or project SPEC before loading those references. If target omitted: handshake `needs-input` (no silent F746 default).
 3. **Load matching references** - Always `references/core.md`. Then OS: `references/os-bare-metal.md` or `references/os-rtos.md`. ISA: `references/target-cortex-m.md`. Vendor/board: `references/target-stm32.md` or `references/target-nrf52840.md`.
-4. **Scope layers** - Surgical edits in `app/`, `hal_if/`, `drivers/`, `bsp/` (or lean aliases like `src/emu/` when the same dependency seam holds). House layering: `app/` → `hal_if/` → `drivers/` / `bsp/`. STM32 CubeMX: never edit generated `MX_*` bodies; wrap them. Glob rules `600`/`610`/`620` when editing matching files.
+4. **Scope layers** - Surgical edits in `app/`, `hal_if/`, `drivers/`, `bsp/` (lean directory aliases OK if the app → `hal_if` → `drivers`/`bsp` seam holds; see `references/core.md`). House layering: `app/` → `hal_if/` → `drivers/` / `bsp/`. STM32 CubeMX: never edit generated `MX_*` bodies; wrap them. Glob rules `600`/`610`/`620` when editing matching files.
 5. **Delegate** - Task(`sc-firmware`) for production C. Commander does not write firmware. Pair with sc-tester / rule 620 when the plan requires TDD.
 6. **Verify** - `spacecraft evidence "<label>" -- <host-or-hil-test-command>`. Prefer host unit tests for logic; target/HIL for hardware-dependent paths per `620-firmware-testing.mdc` and `references/verification.md`.
 
@@ -38,7 +38,7 @@ Do not treat FPGA, SystemVerilog, RTL, or digital IC as this skill - those use `
 
 ### Cross-domain HIL
 
-When MCU shares a bench with FPGA/reader peer: localize which side fails with **dual evidence** BEFORE blaming FPGA RTL or wiring (MCU UART/logs/GPIO + peer FPGA UART/LED/DONE). Host unit green is not HIL green - require **proof oracles** on target (measurable counts / timing / lines), not only app-state asserts. Lean tree names OK (`src/emu/`, etc.) if `app` → `hal_if` → `drivers`/`bsp` dependency still holds. Cycle-accurate GPIO / RF bitbang → `references/peripherals.md`; proof-oracle + dual-board HIL → `references/verification.md`; H723 EXTI note → `references/target-stm32.md`. After closing an HIL RCA: append one greppable lesson line (skill `sc-learn` / `.space/trust/lessons.md`) before the next task. FPGA side → `sc-rtl`; do not absorb RTL work.
+When MCU shares a bench with FPGA (or other peer DUT): localize which side fails with **dual evidence** BEFORE blaming peer RTL or wiring (MCU UART/logs/GPIO + peer FPGA UART/LEDs/DONE/connector activity). Host unit green is not HIL green - require **proof oracles** on target (measurable counts / timing / lines), not only app-state asserts. Directory aliases OK if app → `hal_if` → `drivers`/`bsp` seam holds. Recipes → `references/peripherals.md`, `references/verification.md`, `references/target-*.md`. After closing an HIL RCA: append one greppable lesson line (skill `sc-learn` / `.space/trust/lessons.md`) before the next task. Peer FPGA → `sc-rtl`; do not absorb RTL work.
 
 ## Rules
 
@@ -49,7 +49,8 @@ When MCU shares a bench with FPGA/reader peer: localize which side fails with **
 - **Must**: Delegate production firmware writes to Task(`sc-firmware`), not Commander.
 - **Must**: Capture evidence with `spacecraft evidence` for verify steps.
 - **Must**: Keep ISR short; no blocking, delay, or printf in ISR.
-- **Must**: Cross-domain HIL - dual evidence before blaming FPGA RTL or wiring; host green ≠ HIL green without proof oracles on target.
+- **Must**: Cross-domain HIL - dual evidence before blaming peer RTL or wiring; host green ≠ HIL green without proof oracles on target.
+- **Must**: Directory aliases OK if app → `hal_if` → `drivers`/`bsp` seam holds (example paths in `references/core.md`).
 - **Must**: After HIL RCA, append one greppable lesson to `.space/trust/lessons.md` (skill `sc-learn`) before the next task.
 - **Must not**: Edit generated `MX_*` functions in place on STM32 CubeMX targets - wrap in BSP/HAL interface layers.
 - **Must not**: Use dynamic allocation after init in hot paths or ISR.
@@ -89,7 +90,7 @@ Before claiming firmware work done:
 - [ ] OS class and target confirmed from spec before loading references
 - [ ] Target omitted → handshake `needs-input`
 - [ ] Matching references loaded; rules 600/610/620 consulted as needed
-- [ ] House layers `app/`, `hal_if/`, `drivers/`, `bsp/` respected (lean aliases OK if seam holds)
+- [ ] House layers `app/`, `hal_if/`, `drivers/`, `bsp/` respected (directory aliases OK if app → `hal_if` → `drivers`/`bsp` seam holds)
 - [ ] Implementation delegated to Task(`sc-firmware`)
 - [ ] STM32 CubeMX: no direct `MX_*` body edits; wrappers used
 - [ ] Cache/DMA and ISR constraints respected when Cortex-M7 / LTDC target
@@ -109,7 +110,7 @@ Before claiming firmware work done:
 - `.cursor/rules/600-firmware.mdc` - firmware architecture Must / Must-not
 - `.cursor/rules/610-firmware-peripherals.mdc` - peripheral Must / Must-not
 - `.cursor/rules/620-firmware-testing.mdc` - host / target / HIL Must / Must-not
-- `references/peripherals.md` - peripheral and protocol examples (on-demand); cycle-accurate GPIO / RF bitbang
+- `references/peripherals.md` - peripheral and protocol examples (on-demand); cycle-accurate / timed GPIO bitbang
 - `references/verification.md` - Unity, target, HIL, CI recipes (on-demand); proof-oracle + dual-board HIL
 - Skill `sc-rtl` - FPGA peer on shared HIL bench (do not absorb)
 - `.cursor/agents/sc-firmware.md` - write-capable firmware agent

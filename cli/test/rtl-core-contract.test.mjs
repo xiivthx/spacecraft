@@ -178,11 +178,11 @@ test('sc-rtl-verify: L0–L5 layers; signoff links core and intent refs', () => 
   }
 });
 
-test('sc-rtl-verify: full-chip+FW before FPGA HIL; physical HIL for silicon', () => {
+test('sc-rtl-verify: system/integration sim before board HIL; physical HIL for silicon', () => {
   const skill = readUtf8(VERIFY_SKILL);
   assertIncludes(
     skill,
-    'Prefer full-chip+FW hex before FPGA HIL',
+    'Prefer system/integration sim (DUT + software image) before board HIL',
     VERIFY_SKILL,
   );
   assertIncludes(
@@ -191,7 +191,7 @@ test('sc-rtl-verify: full-chip+FW before FPGA HIL; physical HIL for silicon', ()
     VERIFY_SKILL,
   );
   const signoff = readUtf8(SIGNOFF);
-  assertIncludes(signoff, 'Full-chip', SIGNOFF);
+  assertIncludes(signoff, 'System/integration sim', SIGNOFF);
   assertIncludes(signoff, 'Physical HIL', SIGNOFF);
 });
 

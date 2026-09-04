@@ -27,13 +27,13 @@ void led_toggle(void) { LED_PORT->ODR ^= LED_PIN; }
 - Debounce: 5-20ms in software, or RC filter in hardware
 - Pull-up/down: enable internal when input - floats = noise = random wakeups
 
-## Cycle-accurate GPIO / RF bitbang
+## Cycle-accurate / timed GPIO bitbang
 
-Main-loop "step once per call" DROPS RF cycles when the loop cannot keep up. For bitbang TX: spin-wait each RF cycle index in one burst (or drive from a hardware timer) until the frame completes - do not yield mid-frame to a slow main loop.
+Main-loop "step once per call" DROPS cycles on continuous high-rate lines (e.g. RF/subcarrier) when the loop cannot keep up. For bitbang TX: spin-wait each cycle index in one burst (or drive from a hardware timer) until the frame completes - do not yield mid-frame to a slow main loop.
 
-Emit a proof counter (e.g. pause-high cycle count) on UART for HIL so host tests can assert physical work, not only app state.
+Emit a proof counter (e.g. active-level or edge count) on UART for HIL so host tests can assert physical work, not only app state.
 
-**Must not:** EXTI on every edge of a continuous multi-MHz / subcarrier line (IRQ storm). Prefer TIM capture, DMA, or a polled sample window.
+**Must not:** EXTI on every edge of a continuous high-rate line (IRQ storm). Prefer TIM capture, DMA, or a polled sample window.
 
 ## UART / Serial Protocol
 

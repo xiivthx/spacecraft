@@ -102,7 +102,7 @@ Automate with:
 - `expect` / `pexpect` for UART interaction
 - CI: GitHub Actions with self-hosted runner (board connected)
 
-**Proof oracle.** Host exact-line tests + target UART lines that prove physical work (counts, FDT window, pin IDR) - not only app-state asserts.
+**Proof oracle.** Host exact-line tests + target UART lines that prove physical work (counts, timing windows, pin IDR) - not only app-state asserts.
 
 **Dual-board bench.** FPGA + MCU: correlate both UARTs / LEDs before changing either side.
 

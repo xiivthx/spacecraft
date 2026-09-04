@@ -7,7 +7,7 @@ Adapt thresholds to SPEC; do not invent foundry signoff.
 - [ ] Lint clean (Verilator/Verible as available) + documented waivers
 - [ ] Synthesis/elab clean (Yosys `check` / vendor synth): no unintended latches, multi-drivers, undriven outputs
 - [ ] Self-checking sim regression green (assert/scoreboard/signature)
-- [ ] Full-chip sim + FW hex when in scope (FW owns activation/MMIO staging) before FPGA HIL
+- [ ] System/integration sim + software image when in scope (software owns DUT bring-up) before board HIL
 - [ ] Coverage vs written plan (or skip line) - line% alone insufficient
 - [ ] CDC: sync structures + constraints reviewed (`710`; `intent-cdc.md`)
 - [ ] ISA filter when CPU: ACT and/or Spike/Sail compare for SPEC subset
