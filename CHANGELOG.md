@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.71.3 - 2026-09-04
+
+- Docs: cross-domain HIL seam for `sc-firmware` / `sc-rtl` / `sc-rtl-verify` — dual evidence before blame, target proof oracles, full-chip+FW before FPGA HIL, physical HIL before silicon ready, HIL RCA → `.space/trust/lessons.md`; lean layout + RF bitbang / H723 EXTI notes in firmware refs; plugin twins synced
+- Test: firmware-core and rtl-core contract greps for HIL Must phrases
+
 ## 0.71.2 - 2026-09-03
 
 - Chore: pin `sc-designer` to `gemini-3.8-flash-high` (+ `force-default-model`); sync `100-conventions` + `sc-ux-design` Task model strings; plugin twins updated

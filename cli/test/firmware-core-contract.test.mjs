@@ -74,6 +74,22 @@ test('SKILL.md: OS class, needs-input, and reference routing', () => {
   assertIncludes(text, 'needs-input', FIRMWARE_SKILL);
 });
 
+test('SKILL.md: Cross-domain HIL dual evidence and proof oracles', () => {
+  const text = readUtf8(FIRMWARE_SKILL);
+  assertIncludes(text, 'Cross-domain HIL', FIRMWARE_SKILL);
+  assertIncludes(text, 'dual evidence', FIRMWARE_SKILL);
+  assertIncludes(
+    text,
+    'host green ≠ HIL green without proof oracles on target',
+    FIRMWARE_SKILL,
+  );
+  assertIncludes(
+    text,
+    'After HIL RCA, append one greppable lesson to `.space/trust/lessons.md`',
+    FIRMWARE_SKILL,
+  );
+});
+
 test('sc-firmware agent: embedded identity without F746 default board', () => {
   const text = readUtf8(FIRMWARE_AGENT);
   assertIncludes(text, 'Embedded system engineer', FIRMWARE_AGENT);

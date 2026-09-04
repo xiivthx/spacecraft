@@ -47,6 +47,10 @@ Do not treat STM32, HAL, CubeMX, or MCU firmware as this skill - those use `sc-f
 
 Observe first; reason from evidence. `$display` values + FSM transitions; cycle logs. No assumed wires / predicted FSM / guessed timing.
 
+### Cross-domain HIL
+
+When FPGA shares a bench with MCU/reader firmware: localize which side fails with **dual evidence** BEFORE changing RTL (UART / LED / DONE / JA on FPGA + peer MCU logs). Prefer project board bring-up skill when present (example name only: `cmod-a7-fpga-bringup`); do not invent pin tables from memory. Physical observe (DONE LED, silk LEDs, Pmod activity, UART SNAP) counts as observe-first evidence equal to `$display`. Before READY claims that touch protocol/timing: load project protocol SoT docs and `.space/trust/lessons.md` when present. After closing an HIL RCA: append one greppable lesson line (skill `sc-learn` / `.space/trust/lessons.md`) before the next task. MCU side → `sc-firmware`; do not absorb MCU work.
+
 ### AI RTL quality loop
 
 1. Lint (static analysis if available) before long sim debates.
@@ -66,12 +70,16 @@ Observe first; reason from evidence. `$display` values + FSM transitions; cycle 
 - **Must**: Route TB writing to Task(`sc-tester`) + `sc-rtl-verify`.
 - **Must**: Capture evidence with `spacecraft evidence` for verify steps.
 - **Must**: Observe-first on HW bugs (`$display` / sim) before claiming root cause.
+- **Must**: Cross-domain HIL - dual evidence (FPGA UART/LED/DONE/JA + peer MCU logs) before changing RTL; physical board observe equals `$display`.
+- **Must**: After HIL RCA, append one greppable lesson to `.space/trust/lessons.md` (skill `sc-learn`) before the next task.
 - **Must**: FPGA RTL uses sync reset (default active-high `rst`); convert board active-low at the boundary. This is FPGA default, not ASIC law.
 - **Must**: Every `.sv`: start `` `default_nettype none ``, end `` `default_nettype wire ``. No latches; staging = FFs.
 - **Must not**: Skip `default_nettype` guards on new `.sv`.
 - **Must not**: Async reset inside FPGA RTL modules (FPGA sync-reset default).
 - **Must not**: Treat ASIC/DFT stubs as in-scope FPGA Musts.
 - **Must not**: Invent signal behavior without sim evidence.
+- **Must not**: Invent pin tables from memory; prefer project board bring-up skill when present.
+- **Must not**: Absorb MCU firmware work - route to `sc-firmware`.
 
 ## Out of scope
 
@@ -109,6 +117,9 @@ Before claiming RTL work done:
 - [ ] Implementation delegated to Task(`sc-rtl`); TB to Task(`sc-tester`) + `sc-rtl-verify`
 - [ ] FPGA sync-reset default, `default_nettype`, and no-latches respected
 - [ ] Observe-first on HW bugs; quality-loop disposition used
+- [ ] Cross-domain HIL: dual evidence before RTL change; physical LEDs/DONE/UART count
+- [ ] Protocol/timing READY: project SoT + `.space/trust/lessons.md` loaded when present
+- [ ] HIL RCA closed → lesson line in `.space/trust/lessons.md`
 - [ ] Tests/lint/synth run; evidence captured with `spacecraft evidence`
 - [ ] Scope limited to active plan task files
 
@@ -123,5 +134,6 @@ Before claiming RTL work done:
 - [references/intent-asic.md](references/intent-asic.md) - ASIC stub (coming; not FPGA law)
 - [references/intent-dft.md](references/intent-dft.md) - DFT stub (coming; not FPGA law)
 - Skill `sc-rtl-verify` - lint/sim/ISA/formal/STA gates
+- Skill `sc-firmware` - MCU peer on shared HIL bench (do not absorb)
 - Rules `700-rtl.mdc`, `710-rtl-timing.mdc`, `720-rtl-verify.mdc`
 - `.cursor/agents/sc-rtl.md` - write-capable RTL agent

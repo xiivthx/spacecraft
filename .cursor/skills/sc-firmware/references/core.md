@@ -13,6 +13,8 @@ bsp/        Board pins, clocks, startup
 
 Dependency: `app/` -> `hal_if/` -> `drivers/` / `bsp/`. `app/` includes only `hal_if/`. Wrap vendor HAL behind `hal_if/`. Never `app/` -> `drivers/` directly. No circular includes.
 
+Alternate directory names OK (e.g. lean `src/emu/` as app logic) when that dependency seam is preserved: app logic must not include vendor HAL; portable interface still sits between app and drivers/bsp. Do not force a literal `app/` path when the project uses lean names that keep the same layering.
+
 cFS, F Prime, and Zephyr: match the consuming project. Do not force those frameworks as the house default.
 
 ## Power-of-Ten-class invariants

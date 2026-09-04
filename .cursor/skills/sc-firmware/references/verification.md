@@ -102,6 +102,12 @@ Automate with:
 - `expect` / `pexpect` for UART interaction
 - CI: GitHub Actions with self-hosted runner (board connected)
 
+**Proof oracle.** Host exact-line tests + target UART lines that prove physical work (counts, FDT window, pin IDR) - not only app-state asserts.
+
+**Dual-board bench.** FPGA + MCU: correlate both UARTs / LEDs before changing either side.
+
+**Host green ≠ silicon green.** Passing host unit tests does not claim HIL or target integration.
+
 ## CI Pipeline
 
 When claiming flight-grade: run static analysis (cppcheck or clang-tidy) with warnings-as-errors. That pass is separate from host unit, target integration, and HIL.

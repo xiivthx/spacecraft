@@ -7,11 +7,13 @@ Adapt thresholds to SPEC; do not invent foundry signoff.
 - [ ] Lint clean (Verilator/Verible as available) + documented waivers
 - [ ] Synthesis/elab clean (Yosys `check` / vendor synth): no unintended latches, multi-drivers, undriven outputs
 - [ ] Self-checking sim regression green (assert/scoreboard/signature)
+- [ ] Full-chip sim + FW hex when in scope (FW owns activation/MMIO staging) before FPGA HIL
 - [ ] Coverage vs written plan (or skip line) - line% alone insufficient
 - [ ] CDC: sync structures + constraints reviewed (`710`; `intent-cdc.md`)
 - [ ] ISA filter when CPU: ACT and/or Spike/Sail compare for SPEC subset
 - [ ] Formal on critical props / riscv-formal when enabled (`intent-formal.md`; L4)
 - [ ] PnR timing meets Fmax; resource within budget
+- [ ] Physical HIL evidence when FPGA target in scope; scenario↔observable map when project mapping doc exists
 - [ ] Each gate captured in `evidence.jsonl` via `spacecraft evidence`
 
 ## Tool map (open-source default)
