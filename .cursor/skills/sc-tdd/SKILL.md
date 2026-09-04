@@ -29,7 +29,7 @@ Design-contract → Plan → Red → Green → Verify → Repeat; then Refactor 
 ## Must / Must not
 
 - **Must**: Triage every cycle; red before green when TDD; independent oracles; one condition per test; design-contract + approved-scenarios (or docs/prose skip) before product RED/GREEN; coder Must not edit tests; disposition before ready (`docs/mission-artifacts.md`).
-- **Must not**: Phrase-echo RED for docs/prose; shallow asserts; mock internal collaborators; chase global 95-100% coverage; recompute expected like impl; invent skip-prefix strings here.
+- **Must not**: Phrase-echo RED for docs/prose; shallow asserts; mock internal collaborators; chase global 95-100% coverage; recompute expected like impl; invent skip-prefix strings here; bake developer home paths, usernames, or machine-local absolute paths into fixtures or oracles; edit production docs or code solely so a grep/string oracle passes - change the oracle or the spec instead.
 - After defect fixes: `TWINS:` project-wide. After **3** failed fix-verify → human.
 
 ## Output

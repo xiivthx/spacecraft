@@ -17,7 +17,7 @@ Shipped mission on `main` (or blocked with exact missing gates). Never infer shi
 ## Good / Bad
 
 - Good: squash checkpoints ≤5; `validate --strict` + `closeout-check` pass; CHANGELOG + version bump; strip branch to `<type>/<title>`; `SPACECRAFT_SHIP=1`
-- Bad: ship without ready/closeout; review findings present; merge while still `<type>/<id>/<title>`
+- Bad: ship without ready/closeout; review findings present; minting or emptying `review.json` at ship; merge while still `<type>/<id>/<title>`
 
 ## Must / Must not
 
@@ -71,7 +71,7 @@ Do not push rewritten history unless user asks.
 
 One commit: CHANGELOG + version bump.
 
-1. If `review.json` still has findings → **block** (fix in `/sc-run`, re-ready).
+1. If `review.json` is missing, or still has findings → **block** (fix in `/sc-run`, re-ready). **Must not** create, empty, or overwrite `review.json` during ship to pass closeout.
 2. Update CHANGELOG.md; bump version; commit.
 
 ### 3. Merge

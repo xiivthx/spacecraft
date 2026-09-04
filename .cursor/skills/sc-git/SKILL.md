@@ -38,6 +38,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **May**: Discovery, clarification, design, planning, and review may run without git.
 - **Must**: Before git work on a mission, resolve via `spacecraft resolve`. On conflict or ambiguity, use `spacecraft use <number|id|title>` or `SPACECRAFT_MISSION`. Skip resolve for `/sc-quick`.
 - **Must**: Before committing/merging/releasing, inspect git state with plain git (`git status`, `git rev-parse`, etc.).
+- **Must**: Before the first write, confirm the path is under `git rev-parse --show-toplevel` or a path the user named.
 - **Must not**: Write product changes on `main`. If on `main` when mutation is requested, create a work branch.
 - **Must not**: Ad-hoc `git init` (agents inventing repo setup). **May**: spacecraft `ensureProjectReady`, `spacecraft init`, and bootstrap / `install-cursor` run `git init` when the project is not yet a git repo.
 - **Must not**: Auto-create worktrees, rebase, merge, tag, or push unless asked.
@@ -48,7 +49,7 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: One branch = one feature/fix/scoped change. Branch from latest `main`.
 - **Must**: Pattern: `<type>/<id>/<title>` for missions - e.g. `feat/m07fp1l7z/go-rewrite`. `/sc-quick` uses `<type>/<title>` with no mission id.
 - **Must**: `release/v<major>.<minor>.<patch>` only for release prep.
-- **Must**: If a branch needs >5 final commits, split the feature first.
+- **Must**: If a branch needs >5 final commits, split the feature first. Before adding a 4th commit, if `git log main..HEAD` already mixes unrelated chores, stop and split - do not pile on.
 
 ### Commits (Conventional Commits)
 

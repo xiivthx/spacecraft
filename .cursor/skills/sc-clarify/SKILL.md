@@ -69,7 +69,7 @@ Use this exact sequence unless the user specifies otherwise:
 
    **Micro-example:** Auto-pick - "Repo and existing tests already standardize on Vitest; house convention unanimous → record Vitest in `decisions.md` with evidence; do not ask." Ask - "Bench shows ~1.2x and docs conflict → ask with Chat ask format."
 
-6. **Ask a frontier round** - If the frontier is non-empty after auto-pick: ask every independent frontier question in one round, capped at **max 3**. A question that still depends on another open question belongs to a later round - ask the prerequisite only. Number `Q1`…`Qn` for the round (use `Q1` even for a single-question round). **Before the first frontier ask in the session, load `references/chat-ask-format.md`** and present with that Chat ask format (short or rich).
+6. **Ask a frontier round** - If the frontier is non-empty after auto-pick: ask every independent frontier question in one round, capped at **max 3**. A question that still depends on another open question belongs to a later round - ask the prerequisite only. Number questions with session-stable ids (`Q1`…); never reuse an id for a different decision, including leftover vs new asks in the same turn. **Before the first frontier ask in the session, load `references/chat-ask-format.md`** and present with that Chat ask format (short or rich).
 
 ### Re-pitch on confusion
 

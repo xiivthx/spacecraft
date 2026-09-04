@@ -47,7 +47,7 @@ When `outputs/map.json` exists, prefer touchpoints for `files`, flag high-consum
 ## Rules
 
 - **Must**: Resolve; read inputs; stop on blocking clarify or soft Verify + `Not Testable`.
-- **Must**: ≤7 tasks per phase as a hard Must (not preference-only); each task fully fielded; every acceptance verifiable as one cycle.
+- **Must**: ≤7 tasks per phase as a hard Must (not preference-only); each task fully fielded; every acceptance verifiable as one cycle. Each `verify` command must run as written (real paths; shell metacharacters escaped); execute or dry-run once before recording it.
 - **Must**: Hard-gated ideas in acceptance or Deferred line; product-surface marker when UI/workflow claimed.
 - **Must**: After plan, write design-contract + approved-scenarios (or docs/prose skip lines per `docs/mission-artifacts.md`) before product build.
 - **Must not**: Soft prefer ≤7; any 8-9 exception band; soft-prefer-only for hard-gated ideas; call `map new` / invent maps/seams; invent scenario literals; unbounded architecture essays in the contract.
