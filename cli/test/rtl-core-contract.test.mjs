@@ -87,6 +87,18 @@ test('SKILL.md: intent routing and named reference list', () => {
   assertIncludes(text, 'DUT | TB | constraints', RTL_SKILL);
 });
 
+test('SKILL.md: Cross-domain HIL dual evidence and physical observe', () => {
+  const text = readUtf8(RTL_SKILL);
+  assertIncludes(text, 'Cross-domain HIL', RTL_SKILL);
+  assertIncludes(text, 'dual evidence', RTL_SKILL);
+  assertIncludes(text, 'physical board observe equals `$display`', RTL_SKILL);
+  assertIncludes(
+    text,
+    'After HIL RCA, append one greppable lesson to `.space/trust/lessons.md`',
+    RTL_SKILL,
+  );
+});
+
 test('sc-rtl agent: digital IC identity without MCU firmware', () => {
   const text = readUtf8(RTL_AGENT);
   assertIncludes(text, 'Digital IC designer', RTL_AGENT);
@@ -164,6 +176,23 @@ test('sc-rtl-verify: L0–L5 layers; signoff links core and intent refs', () => 
   for (const needle of INTENT_FILENAMES) {
     assertIncludes(signoff, needle, SIGNOFF);
   }
+});
+
+test('sc-rtl-verify: full-chip+FW before FPGA HIL; physical HIL for silicon', () => {
+  const skill = readUtf8(VERIFY_SKILL);
+  assertIncludes(
+    skill,
+    'Prefer full-chip+FW hex before FPGA HIL',
+    VERIFY_SKILL,
+  );
+  assertIncludes(
+    skill,
+    'Claim silicon ready without physical HIL evidence',
+    VERIFY_SKILL,
+  );
+  const signoff = readUtf8(SIGNOFF);
+  assertIncludes(signoff, 'Full-chip', SIGNOFF);
+  assertIncludes(signoff, 'Physical HIL', SIGNOFF);
 });
 
 test('intent-asic.md and intent-dft.md: coming stubs; ASIC reset vs FPGA 700', () => {

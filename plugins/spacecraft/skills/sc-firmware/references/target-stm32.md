@@ -136,6 +136,8 @@ STM32H723ZGT6. Cortex-M7 up to 550 MHz. Nucleo-144 with ST-LINK. CubeMX/HAL/LL i
 
 **Vendor SDK.** H7 HAL pack, not F7. In CubeMX enable I-cache and D-cache on Cortex_M7. Pick DMA1/2, BDMA, or MDMA for the bus that can reach the buffer - DTCM is the usual trap. Ethernet/USB on this Nucleo need their own clock domains and PHY/USB setup.
 
+**RF / subcarrier GPIO (HIL).** Do not EXTI-storm continuous RF/subcarrier pins - prefer TIM capture or polled listen windows. Keep FIELD vs data-line pin roles distinct in BSP; document idle polarity per pin.
+
 ## NUCLEO-L412KB
 
 STM32L412KBU6. Cortex-M4 80 MHz. Nucleo-32. 128 KB flash / 40 KB SRAM. CubeMX/HAL/LL in scope. No F7 D-cache, no LTDC. Do not copy F746 cache or LCD Musts onto L412.

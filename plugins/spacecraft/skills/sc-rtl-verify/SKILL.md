@@ -24,18 +24,18 @@ TB / cocotb / formal / ISA regression; before ready/ship when RTL/CPU in scope; 
 |-------|------|------------------------|
 | L0 Lint | Verilator lint clean (waivers documented) | `verilator --lint-only …` or `make lint` |
 | L1 Struct | Yosys elaborates; no unintended latch/multi-driver | `yosys -p '…; proc; check'` or `make synth` |
-| L2 Sim | Self-checking regression exit 0 | `make sim` / Verilator binary / cocotb |
+| L2 Sim | Self-checking regression exit 0. Distinguish **unit/block sim** vs **full-chip sim with FW hex** when FW owns activation/MMIO staging - prefer full-chip before FPGA HIL when that target exists in the project Makefile. | `make sim` / Verilator binary / cocotb |
 | L3 ISA | SPEC subset vs Spike/Sail or ACT ELFs | project `make isa` / arch-test runner |
 | L4 Formal | Critical props or riscv-formal when RVFI exists | `sby` / `make formal` |
 | L5 Impl | PnR meets Fmax + resource budget | `make` in `rtl/fpga` / nextpnr report |
 
 4. **Evidence** - each done acceptance: `spacecraft evidence "<label>" -- <cmd>`.
 5. **Disposition** lint/CDC/static hits: **fix-in-block** | **waive-system** (e.g. reset sync at top) | **monitor** (FPGA fanout until timing fails). Re-run gate after fix.
-6. **Ready bar** - do not claim CPU/RTL ready on L0 alone. Minimum for production-minded FPGA core: L0+L1+L2 green; L3 when CPU ISA in scope; L4 when formal tooling in repo; L5 when FPGA target in scope.
+6. **Ready bar** - do not claim CPU/RTL ready on L0 alone. Minimum for production-minded FPGA core: L0+L1+L2 green; L3 when CPU ISA in scope; L4 when formal tooling in repo; L5 when FPGA target in scope. After L5 / before claiming silicon ready: physical HIL evidence; map sim scenario IDs to physical observables when a project mapping doc exists. After HIL RCA: append one greppable lesson line to `.space/trust/lessons.md` (skill `sc-learn`) before the next task.
 
 ### Observe-first (HW / sim bugs)
 
-`$display` / waves / UART before theorizing FSM. Same contract as `sc-rtl` debug section.
+`$display` / waves / UART / board LEDs / DONE before theorizing FSM. Physical board observe counts equal to `$display`. Same contract as `sc-rtl` debug section.
 
 ### RISC-V notes
 
@@ -52,8 +52,11 @@ Functional/cover properties beat raw line %. Record plan + measured numbers or `
 - **Must**: Prefer Makefile/CI; evidence every verify acceptance
 - **Must**: Self-checking TB (assert/scoreboard/signature) - no passive pass
 - **Must**: Consult rules `700` / `710` / `720` when editing matching globs
+- **Must**: Prefer full-chip+FW hex before FPGA HIL when that Makefile target exists and FW owns activation/MMIO staging
+- **Must**: After HIL RCA, append one greppable lesson to `.space/trust/lessons.md` (skill `sc-learn`) before the next task
 - **Must not**: Sign off on lint-only; invent EDA installs mid-mission
 - **Must not**: Treat ACT pass as "fully verified CPU"
+- **Must not**: Claim silicon ready without physical HIL evidence when FPGA target in scope
 
 ## Out of scope
 
@@ -66,8 +69,11 @@ Functional/cover properties beat raw line %. Record plan + measured numbers or `
 
 - [ ] Layers selected vs SPEC (L0–L5)
 - [ ] L0+L1+L2 evidence present for RTL claims
+- [ ] L2: full-chip+FW hex when in scope (FW owns activation/MMIO) before FPGA HIL
 - [ ] L3 if CPU ISA in scope (or skip line)
 - [ ] L4/L5 if tools/target in scope (or skip line)
+- [ ] Physical HIL when FPGA target in scope; scenario↔observable map when project doc exists
+- [ ] HIL RCA closed → lesson line in `.space/trust/lessons.md`
 - [ ] Waivers greppable; timing report if FPGA
 
 ## References
