@@ -1,5 +1,48 @@
 # Changelog
 
+## 0.71.13 - 2026-09-04
+
+- Feat: `sc-browser-probe` optional `pack:persona-walkthrough` — opt-in cognitive walkthrough by archetype jobs (`persona: on` / ask / `Persona pack: required`); severity maps to critical/important/minor; no 1-5 scores; not STORM lenses
+- Fix: `/sc-run` disarms armed `Loop watch:` with `stopped: ready-handoff` before `sc-judge` (judge requires `stopped:` whenever prior `ran`)
+- Fix: `ensureProjectReady` writes starter `.gitignore` only when missing; existing files merge-append Spacecraft companion lines (no clobber)
+- Fix: lean README keeps validate framing (`Validate mission artifacts and evidence` / `not-doc-drift`) and install-machine Tools/companions markers for smoke
+
+## 0.71.12 - 2026-09-04
+
+- Chore: ultra-lean `docs/` — merge review overviews to `review.md`; rename `impeccable.md` / `harness.md`; move HTML demos under `docs/demos/`; slim install/prompting/artifacts; English ultra-lean root README
+
+## 0.71.11 - 2026-09-04
+
+- Feat: Fact-check for mission-affecting external claims — SoT `sc-search/references/fact-check.md`; agent `sc-fact-check`; wire `sc-search` / `sc-storm` / `sc-clarify`; `sc-judge` REFUTED on unresolved `Fact-check: contested:` as acceptance
+
+## 0.71.10 - 2026-09-04
+
+- Chore: trim companion lanes to `sc-loop` / `sc-post-ready-drain` / `sc-split-to-prs` — drop `sc-automate-slack`, `sc-canvas-sot`, `sc-goal-roadmap`; Must greppable dispositions at gates (`skipped:` OK, silence forbidden)
+- Feat: `sc-judge` requires `Loop watch:` before ready; `/sc-ship` blocks without `Post-ready drain:` + `Split-to-prs:`; scrub docs/`200-workflow`/mission-review canvas+Goals+Slack aids
+
+## 0.71.9 - 2026-09-04
+
+- Chore: drop `.cursor/deprecated` graveyard; scrub Impeccable orchestration tombstone for retired `craft` alias
+
+## 0.71.8 - 2026-09-04
+
+- Chore: drop `templates/` tree and product-docs seed — `ensureProjectReady` writes an inline starter `.gitignore` (`.space/` / `.codegraph/` / `.impeccable/`) only; scrub README/installation bootstrap-seed prose; update docs-seed and project-git tests
+
+## 0.71.7 - 2026-09-04
+
+- Chore: single prompt SoT under `.cursor/` — delete `plugins/spacecraft` skill/agent twins, `sync-plugin-twins`, and dual-tree discuss-fastpath mirror tests; smoke harness detect via `cli/` + `scripts/install-cursor.sh`
+
+## 0.71.6 - 2026-09-04
+
+- Chore: drop Google Antigravity surface — Cursor-only install (`bootstrap`, Makefile, README, installation, harness-scorecard); remove `GEMINI.md`, `docs/antigravity.md`, AGY sync/install/smoke scripts and plugin hooks/rules
+- Feat: `scripts/sync-plugin-twins.mjs` + `make sync-plugin-twins` sync `.cursor` skills/agents into `plugins/spacecraft` twins
+
+## 0.71.5 - 2026-09-04
+
+- Chore: finish drop of `sc-learn` / lessons ledger — strip HIL RCA → `.space/trust/lessons.md` Musts from `sc-firmware` / `sc-rtl` / `sc-rtl-verify`; remove lessons section from `spacecraft context`; drop sc-ship trust→docs guard; scrub `docs/installation` `.space/` trust wording; plugin twins synced
+- Test: drop lessons-top20 context oracle; firmware/rtl-core no longer grep lesson Must
+- Chore: delete local `.space/trust/` runtime leftovers (`lessons.md` / `solved.md`)
+
 ## 0.71.4 - 2026-09-04
 
 - Docs: genericize cross-domain HIL in `sc-firmware` / `sc-rtl` / `sc-rtl-verify` — portable dual-evidence Musts in SKILL; board/timing examples stay in refs; L2 prefers system/integration sim (DUT + software image) before board HIL; plugin twins synced
