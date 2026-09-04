@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.71.4 - 2026-09-04
+
+- Docs: genericize cross-domain HIL in `sc-firmware` / `sc-rtl` / `sc-rtl-verify` — portable dual-evidence Musts in SKILL; board/timing examples stay in refs; L2 prefers system/integration sim (DUT + software image) before board HIL; plugin twins synced
+- Test: rtl-core / firmware-core greps updated for system/integration and peer-blame phrasing
+
 ## 0.71.3 - 2026-09-04
 
 - Docs: cross-domain HIL seam for `sc-firmware` / `sc-rtl` / `sc-rtl-verify` — dual evidence before blame, target proof oracles, full-chip+FW before FPGA HIL, physical HIL before silicon ready, HIL RCA → `.space/trust/lessons.md`; lean layout + RF bitbang / H723 EXTI notes in firmware refs; plugin twins synced
