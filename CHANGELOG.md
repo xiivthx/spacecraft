@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.72.1 - 2026-09-04
+
+- Feat: frontend pack merges official shadcn MCP; prune removes only pack-managed servers
+- Feat: `sc-web-frontend` search→add→retoken via shadcn MCP under `DESIGN.md` / draft SoT
+- Fix: install-cursor root MCP merge strips pack servers (`--strip-pack-mcp`)
+
 ## 0.72.0 - 2026-09-04
 
 - Feat: ready fail-closed pack — tip-only static reject; HIL-honest stim; probe nav/anti-stub/overlay/covered; discuss FE↔API + domain defaults; draft-parity shared chrome; post-ship/interop follow-up stubs; `make test-ready-fail-closed-pack`
