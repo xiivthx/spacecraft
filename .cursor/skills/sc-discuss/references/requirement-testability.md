@@ -133,6 +133,9 @@ Testability pass skipped: <reason>
 - **Must**: Exhaust `spec.md` / `questions.md` / `decisions.md` / repo before asking
 - **Must**: Park question candidates; ask via sc-clarify frontier rounds (≤3 independent; serial when dependent)
 - **Must**: Write hard-gated Neg/Overlooked (+ Strategy Top risk/Charter when mapped) as planner-usable lines (stable id or quoted scenario fragment) so planning can map `acceptance[]` or `Deferred test idea: <id> - <reason>`
+- Must: Browser-to-API seam — named error-envelope fields + FE agreement with OpenAPI or shared schema before clarify-status clear
+- Must: Currency, locale, or AI seed in tip → Domain defaults: with concrete expected value before clear
+- Must: Persona pack: required when persona explicitly enabled
 - **Must not**: Invent Verify from Test Ideas (or beyond Testability/Strategy artifacts)
 - **Must not**: Absorb `sc-browser-probe` into the hard gate
 - **Must not**: Expertise cosplay ("as a QA expert…")

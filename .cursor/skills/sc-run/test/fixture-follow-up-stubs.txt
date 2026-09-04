@@ -1,0 +1,11 @@
+# Disposition samples E22+E23 / W07 — greppable post-ship and interop stubs
+# Given: follow-up disposition checkpoint at run/ship handoff
+# Expected: exact prefixes + Next: /sc-discuss pointers
+
+Post-ship UX depth: none
+Post-ship UX depth: follow-up - health-probe UX depth backlog after CLEAN
+Next: /sc-discuss ux-depth-health-probe
+
+Interop/limitation: none
+Interop/limitation: follow-up-mission - phone interop Gaps + emulator clock honesty
+Next: /sc-discuss interop-or-limitation-riscvx

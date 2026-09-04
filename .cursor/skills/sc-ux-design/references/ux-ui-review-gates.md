@@ -59,6 +59,9 @@ Rules:
 - No 1-5 scores or numeric rubrics.
 - Critique output may still label `uncertain` in notes for human follow-up.
 - `sc-judge`: uncertain draft-parity, live-product, or visual ready claim ⇒ `REFUTED` (note `uncertain` in hunt reasons). Missing paired draft-surface + live screenshot evidence for draft-parity ⇒ `REFUTED`. No third verdict string.
+- Must: Live draft-parity compares approved tip plus shared chrome at matching viewports
+- Must: draft-parity: fail or uncertain for shared chrome → VERDICT: REFUTED
+- Greppable fail labels: `product-continuity: fail`, `draft-parity: fail`
 - `sc-reviewer`: `uncertain` on a required UI dimension ⇒ critical finding; `status: blocked`.
 
 ## Output snippet (reviewers / designers)

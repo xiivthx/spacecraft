@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.72.0 - 2026-09-04
+
+- Feat: ready fail-closed pack — tip-only static reject; HIL-honest stim; probe nav/anti-stub/overlay/covered; discuss FE↔API + domain defaults; draft-parity shared chrome; post-ship/interop follow-up stubs; `make test-ready-fail-closed-pack`
+- Chore: lean fail-closed greppable stamps (cut tombstone stubs; keep pack literals)
+
 ## 0.71.13 - 2026-09-04
 
 - Feat: `sc-browser-probe` optional `pack:persona-walkthrough` — opt-in cognitive walkthrough by archetype jobs (`persona: on` / ask / `Persona pack: required`); severity maps to critical/important/minor; no 1-5 scores; not STORM lenses

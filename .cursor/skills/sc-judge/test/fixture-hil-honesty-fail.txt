@@ -1,0 +1,10 @@
+# Planted fail fixture E09+E11 / W06 — aligned-only stim + single-DUT under peer harness
+# Given: HIL GREEN claimed from aligned-only TB; peer harness exists but only one DUT side cited
+# Expected: HIL-honesty and dual-DUT fail; judge refutes
+
+Claim: HIL GREEN / ready
+Evidence: aligned-only testbench stimulus; single-DUT logs only
+HIL-honesty: fail
+dual-DUT: fail
+VERDICT: REFUTED
+Finding: aligned-only stimulus and single-DUT peer evidence do not satisfy HIL

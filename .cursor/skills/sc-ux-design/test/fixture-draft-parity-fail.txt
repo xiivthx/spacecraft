@@ -1,0 +1,9 @@
+# Planted fail fixture E19+E21 / W04 — tip-only brownfield draft + live shared-chrome drift
+# Given: approval draft omits recorded shell/header/nav; live compare diverges or uncertain
+# Expected: product-continuity fail; draft-parity fail or uncertain; approval marker absent; REFUTED
+
+Draft: tip surface only (parent shell omitted)
+product-continuity: fail
+draft-parity: fail
+VERDICT: REFUTED
+Finding: shared chrome missing in draft and divergent/uncertain at live parity

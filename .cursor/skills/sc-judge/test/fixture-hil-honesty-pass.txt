@@ -1,0 +1,9 @@
+# Pass fixture E10+E12 — boundary timing + correlated dual-DUT
+# Given: aligned + misaligned/boundary timing; both DUT sides correlated
+# Expected: HIL-honesty and dual-DUT pass
+
+Claim: HIL GREEN / ready
+Evidence: aligned + misaligned/boundary timing; correlated FPGA + peer MCU observations
+HIL-honesty: pass
+dual-DUT: pass
+Finding: honest timing stim and dual-DUT correlated evidence met

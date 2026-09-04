@@ -16,6 +16,11 @@ Delays and `$display` stay out of synthesizable DUT.
 
 TB writing stays Task(`sc-tester`) with `sc-rtl-verify`. Do not write testbenches as DUT work. Lint, self-checking sim, ISA, formal, and STA gates belong to `sc-rtl-verify`.
 
+## HIL honesty (stimulus)
+
+- Must: Aligned-only testbench stimulus MUST NOT satisfy HIL GREEN or ready
+- Must: HIL evidence requires misaligned or boundary timing relevant to the protocol
+
 ## Related
 
 - Shared DUT core: `core.md` - synthesizable subset

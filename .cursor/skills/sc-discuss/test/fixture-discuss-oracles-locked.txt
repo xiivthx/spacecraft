@@ -1,0 +1,10 @@
+# Pass fixture E14+E16+E17 — FE-API locked, domain defaults recorded, persona required
+# Given: envelope fields + OpenAPI agreement; concrete defaults; persona enabled
+# Expected: locks present; Persona pack: required
+
+Tip: FE↔API + currency + persona
+FE-API contract: locked
+Domain defaults: currency=HK$; locale=th-TH; ai-seed=island-A
+Persona pack: required
+pack:persona-walkthrough: required
+Finding: discuss oracles locked; persona pack required when enabled

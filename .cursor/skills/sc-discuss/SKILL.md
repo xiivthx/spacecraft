@@ -112,6 +112,16 @@ After sizing, when triggers fire (architecture fork, policy preference, soft Ver
 
 After lens-pass, when triggers fire (soft/missing Verify, new feature with behavioral uncertainty, human asks for requirement review, mission brief probe finds Verify skim risk), apply `references/requirement-testability.md`. Otherwise record `Testability pass skipped: <reason>` without loading the ref. Park candidates in `questions.md`; ask via sc-clarify frontier rounds (≤3 independent; serial when dependent). Do not clear while Testability is `Not Testable` and Verify is still soft/missing.
 
+Fail-closed discuss oracles (before `clarify-status clear`):
+
+- Must: Browser-to-API seam — named error-envelope fields + FE agreement with OpenAPI or shared schema before clarify-status clear
+- Must: Missing FE-API lock → clarify-status open
+- Stamp greppable `FE-API contract: locked` when seam locked
+- Must: Currency, locale, or AI seed in tip → Domain defaults: with concrete expected value before clear
+- Stamp greppable `Domain defaults:` with concrete `key=value` pairs
+- Must: Persona pack: required when persona explicitly enabled
+- Stamp greppable `Persona pack: required` when persona enabled
+
 ### Strategy soft gate
 
 After testability, when triggers fire (greenfield, multi-platform matrix, security/PII/compliance, critical integrations/SLOs, human asks for test strategy), apply `references/htsm-strategy.md`. Otherwise record `Strategy pass skipped: <reason>` without loading the ref. Strategy incompleteness does not block clear the way `Not Testable` + soft Verify does. Do not invent Verify from charters.

@@ -57,3 +57,10 @@ none | see section below
 - `PROBE: ISSUES` - any finding remains (critical / important / minor) after sweep or after stop; wins over PARTIAL; still list deferred rows
 - `PROBE: PARTIAL` - required foundation/pack not scanned (timebox or blocked mid-sweep) and no findings yet
 - `PROBE: CLEAN` - in-scope sweep finished, no required row `deferred`, **zero findings** (critical / important / minor)
+
+Fail-closed (any hit → finding + `PROBE: ISSUES`):
+
+- Must: Product 404 or blank crash on inventoried nav → foundations/nav: fail and PROBE: ISSUES
+- Must: Coming soon / SOON / disabled ghost on primary nav or primary CTA → foundations/anti-stub: fail and PROBE: ISSUES
+- Must: Missing overlay title, close path, viewport containment, or Esc → pack:overlay: fail and PROBE: ISSUES
+- Must: foundations/covered: ok only if trial-click/no-force AND elementFromPoint center topmost is control or descendant

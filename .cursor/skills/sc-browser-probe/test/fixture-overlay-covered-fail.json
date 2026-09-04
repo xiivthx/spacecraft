@@ -1,0 +1,13 @@
+{
+  "scenario": "E06+E07",
+  "given": "Inventoried dialog missing Esc/close; primary control fails elementFromPoint center (isVisible alone)",
+  "coverage": [
+    "pack:overlay: fail",
+    "foundations/covered: fail"
+  ],
+  "findings": [
+    "Overlay missing close path / Esc",
+    "elementFromPoint center topmost outside control subtree"
+  ],
+  "verdict": "PROBE: ISSUES"
+}

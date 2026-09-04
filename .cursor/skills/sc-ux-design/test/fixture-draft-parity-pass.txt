@@ -1,0 +1,8 @@
+# Pass fixture E20 — tip inside recorded shell/header/nav
+# Given: approval draft presents tip inside recorded shared chrome
+# Expected: product-continuity pass (draft-parity pass when live matches)
+
+Draft: tip inside recorded shell, header, and navigation
+product-continuity: pass
+draft-parity: pass
+Finding: shared chrome present in approval draft

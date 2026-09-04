@@ -23,3 +23,4 @@ Commander **Must** invoke each lane at its gate below and leave a greppable disp
 
 - Per-lane workflow: `.cursor/skills/<skill>/SKILL.md`
 - Upstream Cursor skills: reference only; do not copy bodies into this repo
+- Post-ship / interop stubs (not lanes): `follow-up-dispositions.md` - `Post-ship UX depth:`, `Interop/limitation:`

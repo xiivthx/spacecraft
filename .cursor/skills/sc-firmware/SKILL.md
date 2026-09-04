@@ -50,6 +50,8 @@ When MCU shares a bench with FPGA (or other peer DUT): localize which side fails
 - **Must**: Capture evidence with `spacecraft evidence` for verify steps.
 - **Must**: Keep ISR short; no blocking, delay, or printf in ISR.
 - **Must**: Cross-domain HIL - dual evidence before blaming peer RTL or wiring; host green ≠ HIL green without proof oracles on target.
+- Must: Peer DUT harness requires dual-DUT correlated evidence for HIL GREEN or ready
+- Must not: Single-DUT evidence when peer harness exists
 - **Must**: Directory aliases OK if app → `hal_if` → `drivers`/`bsp` seam holds (example paths in `references/core.md`).
 - **Must not**: Edit generated `MX_*` functions in place on STM32 CubeMX targets - wrap in BSP/HAL interface layers.
 - **Must not**: Use dynamic allocation after init in hot paths or ISR.

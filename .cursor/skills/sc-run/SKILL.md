@@ -47,9 +47,14 @@ Ordered: discuss-clear → plan → design-contract → approved-scenarios → b
 
 Overnight: stop on `3-cycle` | `timebox` | `blocked` → `handback.md` + loop disarm disposition when armed. Companion lanes: `references/optional-lanes.md` (`sc-loop`, `sc-post-ready-drain`, `sc-split-to-prs`). Checkpoint commits: one Conventional Commit per plan task after acceptances; see sc-git. Never push.
 
+## Follow-up dispositions (stubs)
+
+Out-of-scope UX depth or interop: stamp stubs per `references/follow-up-dispositions.md`. Prefixes `Post-ship UX depth:`, `Interop/limitation:`; each ends `Next: /sc-discuss`. No new lane.
+
 ## References
 
 - sc-tdd, sc-judge, sc-browser-probe, sc-debug, `/sc-discuss`, `/sc-ship`, sc-git
 - Companion lanes: `references/optional-lanes.md` (`sc-loop`, `sc-post-ready-drain`, `sc-split-to-prs`)
+- Follow-up stubs: `references/follow-up-dispositions.md`
 - `docs/mission-artifacts.md` - design-contract / approved-scenarios / outcome-gate SoT
 - `references/defect-finding.md`, `references/mission-review-gates.md`

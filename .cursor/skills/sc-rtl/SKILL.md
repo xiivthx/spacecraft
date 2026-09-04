@@ -71,6 +71,9 @@ When FPGA shares a bench with MCU (or other peer DUT): localize which side fails
 - **Must**: Capture evidence with `spacecraft evidence` for verify steps.
 - **Must**: Observe-first on HW bugs (`$display` / sim) before claiming root cause.
 - **Must**: Cross-domain HIL - dual evidence (both DUT sides) before changing RTL; physical board observe equals `$display`.
+- Must: Aligned-only testbench stimulus MUST NOT satisfy HIL GREEN or ready
+- Must: HIL evidence requires misaligned or boundary timing relevant to the protocol
+- Must: Peer DUT harness requires dual-DUT correlated evidence for HIL GREEN or ready
 - **Must**: FPGA RTL uses sync reset (default active-high `rst`); convert board active-low at the boundary. This is FPGA default, not ASIC law.
 - **Must**: Every `.sv`: start `` `default_nettype none ``, end `` `default_nettype wire ``. No latches; staging = FFs.
 - **Must not**: Skip `default_nettype` guards on new `.sv`.

@@ -1,0 +1,9 @@
+# Planted fail fixture E01 / W01 — tip-path-only static claimed sufficient for ready
+# Given: ready claim cites lint/typecheck narrowed to the changed tip path only
+# Expected: static-analysis unsatisfied; judge refutes
+
+Claim: ready
+Evidence: tip-path-only eslint/tsc on changed files (green)
+static-analysis: fail
+VERDICT: REFUTED
+Finding: tip-path-only lint/typecheck does not satisfy static-analysis for ready

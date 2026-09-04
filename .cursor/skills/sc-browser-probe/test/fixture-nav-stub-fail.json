@@ -1,0 +1,13 @@
+{
+  "scenario": "E03+E05 / W02+W03",
+  "given": "Shell nav link reaches product 404; primary CTA shows Coming soon",
+  "coverage": [
+    "foundations/nav: fail",
+    "foundations/anti-stub: fail"
+  ],
+  "findings": [
+    "Inventoried shell link → product 404",
+    "Primary CTA stub: Coming soon"
+  ],
+  "verdict": "PROBE: ISSUES"
+}

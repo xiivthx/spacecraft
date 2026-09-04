@@ -102,6 +102,10 @@ Review protocol: `references/ux-ui-review-gates.md` (five gates); per-dimension 
 - **Authority**: When `DESIGN.md` / brief and `references/anti-slop-catalog.md` disagree, anti-slop-catalog wins unless human exception in `decisions.md`.
 - **Must**: Run `npx impeccable detect` on HTML before claiming UI complete; no banned catalog patterns or Inter/Geist/Space Grotesk as sole font without deliberate pairing.
 - **Must**: After visual implementation: Tier 3 live-product + draft-parity pass (paired evidence) before ready; apply `references/ux-ui-review-gates.md`.
+- Must: Brownfield UI draft requires recorded shell, header, and navigation chrome
+- Must: Tip-only draft omitting shared chrome → product-continuity: fail
+- Must: Live draft-parity compares approved tip plus shared chrome at matching viewports
+- Must: draft-parity: fail or uncertain for shared chrome → VERDICT: REFUTED
 - **Must**: Read/keep house `DESIGN.md` (prefer ≤~200 lines); sync from draft only on update-house.
 - **Must**: Respect `prefers-reduced-motion`; micro-interactions 150-300ms, complex ≤400ms; no bounce/elastic, width/height animation, decorative-only, or linear easing for discrete UI transitions.
 

@@ -1,0 +1,9 @@
+# Planted open fixture E13+E15 / W05 — missing FE-API lock and domain defaults
+# Given: browser-to-API seam without envelope/schema lock; currency touched without default
+# Expected: clarify-status remains open
+
+Tip: FE↔API + currency
+FE-API contract: missing
+Domain defaults: missing
+clarify-status open
+Finding: missing error-envelope/schema lock and concrete domain default
