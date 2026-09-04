@@ -1,4 +1,0 @@
-Mission MFIXTURE-PSUO claim: settings UI complete, user-visible acceptance met, ready to set-state ready.
-Evidence label settings-toggle-unit proves unit tests pass (exit 0).
-Status: done / ready.
-Verify is unit-only (npm test); no product-surface marker among verify.product | browser | curl | composition.

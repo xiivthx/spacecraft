@@ -1,6 +1,5 @@
 .PHONY: build install install-cli install-project install-global install-machine smoke uninstall clean help test-harness-scorecard \
-        test test-cli test-config test-install test-gen-user-rules test-judge-break gate \
-        sync-antigravity test-antigravity install-antigravity install-antigravity-global install-antigravity-project
+        test test-cli test-config test-install test-gen-user-rules test-judge-break gate
 
 ROOT      := $(CURDIR)
 BIN       := $(ROOT)/spacecraft
@@ -11,10 +10,9 @@ PROJECT   ?= .
 help:
 	@echo "Spacecraft targets:"
 	@echo "  build           Link Node CLI (cli/spacecraft.mjs) -> ./spacecraft"
-	@echo "  test            Full verification: Node CLI tests + config + judge-break + install smoke + harness scorecard + antigravity"
+	@echo "  test            Full verification: Node CLI tests + config + judge-break + install smoke + harness scorecard"
 	@echo "  test-cli        Node CLI unit tests (cli/test/)"
 	@echo "  test-config     Static config smoke (mcp/hooks JSON, frontmatter, no commands/)"
-	@echo "  test-antigravity Smoke check for Antigravity plugin, rules, skills, and hooks"
 	@echo "  test-judge-break  Known-bad closeout fixtures must be rejected"
 	@echo "  test-harness-scorecard  Required harness quality dimensions (install-smoke, judge-break, judge-skill, process-grammar)"
 	@echo "  test-install    Bootstrap/install smoke into a throwaway temp dir"
@@ -26,15 +24,12 @@ help:
 	@echo "  install-machine New PC: durable clone + install-global + caveman/rtk/codegraph"
 	@echo "  (project)       Prefer: spacecraft setup   (alias: make install-project PROJECT=<dir>)"
 	@echo "  install-project Install project .cursor surface into PROJECT=<dir> (default .)"
-	@echo "  install-antigravity         Install global Spacecraft plugin for Antigravity"
-	@echo "  install-antigravity-project Install Spacecraft into project .agents/ for Antigravity (PROJECT=<dir>)"
-	@echo "  sync-antigravity            Regenerate/sync Antigravity plugin rules, skills, subagents, and hooks"
 	@echo "  smoke           Run post-install smoke checks (PROJECT=<dir>)"
 	@echo "  uninstall       Remove CLI link + spacecraft MCP/agents/skills from ~/.cursor"
 	@echo "  clean           Remove ./spacecraft CLI link"
 
 # Full verification suite. Runs everything CI runs; humans use `make test`.
-test: test-cli test-config test-antigravity test-judge-break test-install test-harness-scorecard
+test: test-cli test-config test-judge-break test-install test-harness-scorecard
 	@echo "All tests passed."
 
 # Local pre-ship / PR gate: Node CLI tests plus Cursor hook assertions.
@@ -51,7 +46,7 @@ test-config:
 test-judge-break: build
 	@sh $(ROOT)/scripts/check-judge-break.sh "$(ROOT)" "$(BIN)"
 
-# Required harness quality dimensions (Antigravity stays a separate make test leg).
+# Required harness quality dimensions.
 test-harness-scorecard: build
 	@sh $(ROOT)/scripts/harness-scorecard.sh "$(ROOT)" "$(BIN)"
 
@@ -116,22 +111,6 @@ install-machine: install-cli
 	@echo "install-cli -> $(LOCAL_BIN)/spacecraft; User-layer via scripts/install-machine.sh"
 	@sh $(ROOT)/scripts/install-machine.sh
 
-# Antigravity targets
-sync-antigravity:
-	node $(ROOT)/scripts/sync-antigravity.mjs
-
-test-antigravity: sync-antigravity
-	@sh $(ROOT)/scripts/antigravity-smoke.sh "$(ROOT)"
-
-install-antigravity: install-antigravity-global
-
-install-antigravity-global: build install-cli sync-antigravity
-	@sh $(ROOT)/scripts/install-antigravity.sh global
-	@echo "Antigravity global plugin installed. Skills and rules active."
-
-install-antigravity-project: build install-cli sync-antigravity
-	@sh $(ROOT)/scripts/install-antigravity.sh project "$(PROJECT)"
-
 smoke:
 	@sh $(ROOT)/scripts/smoke.sh "$(PROJECT)" "$(BIN)"
 
@@ -143,7 +122,7 @@ uninstall:
 	@sh $(ROOT)/scripts/global-sync.sh "$(ROOT)" "$(GLOBAL)" skills uninstall
 	@echo "removed spacecraft skills from $(GLOBAL)/skills"
 	@if [ -f "$(GLOBAL)/mcp.json" ]; then python3 $(ROOT)/scripts/mcp-merge.py unmerge "$(GLOBAL)/mcp.json" "$(ROOT)/.cursor/mcp.json"; fi
-	@if [ -d "$(HOME)/.gemini/config/plugins/spacecraft" ]; then rm -rf "$(HOME)/.gemini/config/plugins/spacecraft" && echo "removed global Antigravity plugin"; fi
+	@if [ -d "$(HOME)/.gemini/config/plugins/spacecraft" ]; then rm -rf "$(HOME)/.gemini/config/plugins/spacecraft" && echo "removed leftover ~/.gemini spacecraft plugin"; fi
 	@echo "Uninstall complete. Project-local .cursor/ and .space/ left untouched."
 
 clean:

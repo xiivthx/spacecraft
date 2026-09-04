@@ -1,6 +1,6 @@
 /**
  * Node CLI / unit tests for project-git ensure helpers:
- * first .space create (git init + gitignore overwrite) vs later append-only.
+ * first .space create (git init + starter .gitignore when missing) vs merge into existing.
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -20,8 +20,18 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const entryPath = path.join(repoRoot, 'cli', 'spacecraft.mjs');
-const gitignoreTemplatePath = path.join(repoRoot, 'templates', 'gitignore');
 const CODEGRAPH_DB = path.join('.codegraph', 'codegraph.db');
+const STARTER_GITIGNORE = `.env
+.env.*
+!.env.example
+node_modules/
+dist/
+build/
+.DS_Store
+.space/
+.codegraph/
+.impeccable/
+`;
 
 function emptyProjectRoot() {
   return mkdtempSync(path.join(os.tmpdir(), 'spacecraft-project-git-'));
@@ -170,18 +180,7 @@ function assertSpaceScaffold(dir) {
   }
 }
 
-test('templates/gitignore: zero case-insensitive spacecraft token matches', () => {
-  assert.ok(existsSync(gitignoreTemplatePath), 'templates/gitignore must exist');
-  const content = readFileSync(gitignoreTemplatePath, 'utf8');
-  const matches = content.match(/spacecraft/gi) ?? [];
-  assert.equal(
-    matches.length,
-    0,
-    'templates/gitignore must not contain spacecraft (case-insensitive)',
-  );
-});
-
-test('ensureProjectReady: empty dir gets git, .space scaffold, and template .gitignore', async () => {
+test('ensureProjectReady: empty dir gets git, .space scaffold, and starter .gitignore', async () => {
   const dir = emptyProjectRoot();
   try {
     assert.equal(isGitRepo(dir), false, 'fixture must start without .git');
@@ -193,20 +192,13 @@ test('ensureProjectReady: empty dir gets git, .space scaffold, and template .git
     assert.ok(isGitRepo(dir), 'ensureProjectReady must git init when .git is missing');
     assertSpaceScaffold(dir);
 
-    assert.ok(
-      existsSync(gitignoreTemplatePath),
-      'templates/gitignore must exist (consumer SoT)',
-    );
-    const template = readFileSync(gitignoreTemplatePath, 'utf8');
-    assert.match(template, /^\.space\/$/m, 'templates/gitignore must include a .space/ entry');
-
     const gitignorePath = path.join(dir, '.gitignore');
     assert.ok(existsSync(gitignorePath), 'ensureProjectReady must write .gitignore');
     const written = readFileSync(gitignorePath, 'utf8');
     assert.equal(
       written,
-      template,
-      'first .space create must overwrite .gitignore from templates/gitignore',
+      STARTER_GITIGNORE,
+      'first .space create must write starter .gitignore',
     );
     assert.match(written, /^\.space\/$/m);
   } finally {
@@ -229,15 +221,11 @@ test('ensureSpaceIgnored: appends .space/ without overwriting custom .gitignore'
     const written = readFileSync(path.join(dir, '.gitignore'), 'utf8');
     assert.match(written, /CUSTOM-MARKER-DO-NOT-DROP/, 'must keep custom .gitignore content');
     assert.match(written, /^\.space\/$/m, 'must append .space/ when missing');
-
-    if (existsSync(gitignoreTemplatePath)) {
-      const template = readFileSync(gitignoreTemplatePath, 'utf8');
-      assert.notEqual(
-        written,
-        template,
-        'ensureSpaceIgnored must not replace whole .gitignore with the template',
-      );
-    }
+    assert.notEqual(
+      written,
+      STARTER_GITIGNORE,
+      'ensureSpaceIgnored must not replace whole .gitignore with starter',
+    );
   } finally {
     cleanup(dir);
   }
@@ -329,11 +317,11 @@ test('ensureProjectReady: soft-runs codegraph init when index missing', async ()
     const marker = readMarker(fake.markerPath);
     assert.match(marker, /\binit\b/, 'fake codegraph must be invoked with init');
     assert.ok(isGitRepo(dir), 'git init outcome must remain');
-    assert.ok(existsSync(path.join(dir, '.gitignore')), 'template .gitignore must remain');
+    assert.ok(existsSync(path.join(dir, '.gitignore')), 'starter .gitignore must remain');
     assert.equal(
       readFileSync(path.join(dir, '.gitignore'), 'utf8'),
-      readFileSync(gitignoreTemplatePath, 'utf8'),
-      'first ensure must still write template .gitignore',
+      STARTER_GITIGNORE,
+      'first ensure must still write starter .gitignore',
     );
   } finally {
     cleanup(dir);
@@ -384,7 +372,7 @@ test('ensureProjectReady: missing codegraph binary still succeeds', async () => 
     assert.ok(existsSync(path.join(dir, '.gitignore')), 'must still write .gitignore');
     assert.equal(
       readFileSync(path.join(dir, '.gitignore'), 'utf8'),
-      readFileSync(gitignoreTemplatePath, 'utf8'),
+      STARTER_GITIGNORE,
     );
     assert.match(
       stderr,

@@ -9,7 +9,6 @@ import { formatStatus } from './mission.mjs';
 const DEFAULT_BUDGET = 4096;
 const ENV_BUDGET = 'SPACECRAFT_CONTEXT_BUDGET';
 const TRUNC_MARKER = '\n...[truncated]';
-const LESSONS_LINE_CAP = 20;
 
 function hasHelpFlag(args) {
   return args.some((a) => a === '--help' || a === '-h');
@@ -70,11 +69,6 @@ function listConventionRels(conventionsDir) {
   return rels;
 }
 
-function topLines(text, maxLines) {
-  const parts = text.split('\n');
-  return parts.slice(0, maxLines).join('\n');
-}
-
 function assemblePack(projectRoot, spaceDir, mid) {
   const parts = [];
 
@@ -96,12 +90,6 @@ function assemblePack(projectRoot, spaceDir, mid) {
   const status = formatStatus(spaceDir, mid);
   if (status.ok) {
     parts.push(section('spacecraft status', status.text));
-  }
-
-  const lessonsPath = path.join(spaceDir, 'trust', 'lessons.md');
-  const lessonsRaw = readUtf8IfFile(lessonsPath);
-  if (lessonsRaw !== null) {
-    parts.push(section('.space/trust/lessons.md', topLines(lessonsRaw, LESSONS_LINE_CAP)));
   }
 
   return parts.join('');

@@ -21,7 +21,7 @@ First-principles design guidance Commander can delegate to sc-coder/sc-tester fo
 
 - Editing files, implementing code, or running commands
 - New frameworks unless existing ones are insufficient
-- Guessing APIs/versions/compatibility
+- Guessing APIs/versions/compatibility (delegate research + fact-check first)
 - Advising on trivial one-file fixes (say so and stop)
 - Five-lens theater when escalation triggers do not fire; persona cosplay
 

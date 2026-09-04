@@ -74,16 +74,9 @@ After Cursor + `sc-reviewer` write `review.json`:
 
 Ready proof still requires empty `review.json` findings - soft-pass with open minors is forbidden.
 
-## Post-review canvas handoff
+## Post-review → judge
 
-After `review.json` is written, Commander may optionally emit canvases for human check via `sc-canvas-sot` (disposition `Canvas-sot: ran` | `Canvas-sot: skipped: <reason>`; never required for ready/ship). Files under `~/.cursor/projects/<workspace>/canvases/`:
-
-1. **Findings:** nonempty `findings` → optional `<missionId>-findings.canvas.tsx`, `Canvas findings: ` + absolute path in `decisions.md`, and an absolute markdown link in chat. Empty `findings` → optional `Canvas findings skipped: empty` (no findings canvas file).
-2. **Evidence:** optional `<missionId>-evidence.canvas.tsx`; `Canvas evidence: ` + absolute path; absolute markdown link in chat (and `decisions.md`).
-
-Then run `sc-judge`. Missing canvas files or `decisions.md` lines do not block `sc-judge` or ready. Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge `VERIFIED`. Must not treat canvas as AUTH / `VERIFIED` / ready / ship authority; Canvas ≠ ready proof.
-
-Do not put canvases under mission `.space/` or repo `.cursor/`. Do not inspect canvas TSX/JSON shape. See `sc-canvas-sot` and `/sc-run` optional canvas-SoT lane.
+After `review.json` is written, Commander continues to `sc-judge`. Ready proof is `evidence.jsonl` + empty `review.json` findings + `validate --strict` + judge `VERIFIED`. Companion-lane dispositions (`Loop watch:`, `Post-ready drain:`, `Split-to-prs:`) are required by `/sc-run` / `/sc-ship` gates — never AUTH / `VERIFIED` / ship authority. See `references/optional-lanes.md`.
 
 ## Verdict mapping
 
@@ -151,4 +144,4 @@ Prior review approval does not grandfather later runs without fresh validate, ev
 - `.cursor/skills/sc-security/SKILL.md` - fallback / on-demand heuristic static scan when Cursor `security-review` fails or is explicitly requested; **no dynamic CVE tools**
 - `.cursor/skills/sc-performance/SKILL.md` - measure-first; hot-path discipline
 - `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md` - sibling for visual UI
-- `docs/mission-review.md` - short human-facing overview
+- `docs/review.md` - short human-facing overview

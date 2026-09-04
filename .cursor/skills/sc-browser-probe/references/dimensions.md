@@ -66,3 +66,4 @@ Silent sweep after (or during) scenarios. File a finding only with repro - no es
 - Unit assertion quality → `sc-tdd` / `sc-judge`
 - Security deep hunt → `sc-security` when in mission scope
 - External checklist site / its AI review as a gate
+- Multi-archetype cognitive walkthrough → optional `persona-walkthrough.md` when matched (not Foundations)

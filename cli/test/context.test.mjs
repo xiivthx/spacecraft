@@ -27,10 +27,6 @@ const sessionStartHook = path.join(repoRoot, '.cursor', 'hooks', 'session-start.
 
 const HEADING_README = '## docs/README.md';
 const HEADING_STATUS = '## spacecraft status';
-/** design-contract section 4 — lessons when `.space/trust/lessons.md` exists. */
-const HEADING_LESSONS = '## .space/trust/lessons.md';
-/** design-contract: lessons body = split(`\\n`) indices 0..19 before budget trim. */
-const LESSONS_LINE_CAP = 20;
 const NO_MISSION_LINE = 'No selected mission.';
 /** Hook fallback when spacecraft binary is absent (session-start.sh). */
 const HOOK_ABSENT_FALLBACK = 'No active spacecraft mission.';
@@ -208,7 +204,7 @@ test('pos-order-happy: docs README and conventions headings appear before status
 });
 
 /**
- * T2 edge-missing-docs: no docs README/conventions, no lessons → exit 0;
+ * T2 edge-missing-docs: no docs README/conventions → exit 0;
  * status or no-mission line; no ## docs/README.md.
  */
 test('edge-missing-docs: omit docs headings; exit 0 with status or no-mission', () => {
@@ -260,62 +256,6 @@ test('over-conventions-order: conventions headings follow lexicographic rel-path
     assert.ok(
       aIdx < bIdx,
       `${headingA} must appear before ${headingB}\n${out}`,
-    );
-  } finally {
-    cleanup(dir);
-  }
-});
-
-/**
- * lessons-top20 (T2/review): `.space/trust/lessons.md` with >20 lines → heading present;
- * body = first 20 lines (split on `\n`, indices 0..19) before budget trim — not all 25.
- */
-test('lessons-top20: lessons body capped to first 20 lines before budget trim', () => {
-  const dir = spaceRoot();
-  try {
-    const lessonLines = Array.from(
-      { length: 25 },
-      (_, i) => `LESSON_LINE_${String(i).padStart(2, '0')}`,
-    );
-    const lessonsRaw = `${lessonLines.join('\n')}\n`;
-    mkdirSync(path.join(dir, '.space', 'trust'), { recursive: true });
-    writeFileSync(path.join(dir, '.space', 'trust', 'lessons.md'), lessonsRaw);
-
-    // Oracle: design-contract Lessons body — split on \n, indices 0..19, rejoin.
-    const expectedBody = lessonsRaw.split('\n').slice(0, LESSONS_LINE_CAP).join('\n');
-
-    const res = runContext(dir, ['--budget', '100000']);
-    assert.equal(res.code, 0, `context exit=${res.code}\nstderr=${res.stderr}\nstdout=${res.stdout}`);
-
-    const out = res.stdout;
-    const headingIdx = out.indexOf(HEADING_LESSONS);
-    assert.ok(headingIdx !== -1, `stdout must include ${HEADING_LESSONS}\n${out}`);
-
-    const afterHeading = out.slice(headingIdx + HEADING_LESSONS.length);
-    assert.ok(
-      afterHeading.startsWith('\n'),
-      `lessons heading must be followed by newline then body\n${out}`,
-    );
-    const afterNewline = afterHeading.slice(1);
-    const nextSec = afterNewline.indexOf('\n## ');
-    const rawSection = nextSec === -1 ? afterNewline : afterNewline.slice(0, nextSec);
-    const body = rawSection.endsWith('\n') ? rawSection.slice(0, -1) : rawSection;
-    const bodyLines = body.split('\n');
-
-    assert.equal(
-      bodyLines.length,
-      LESSONS_LINE_CAP,
-      `lessons body must have exactly ${LESSONS_LINE_CAP} lines (got ${bodyLines.length}; fixture had 25)\nbody=${JSON.stringify(body)}\n${out}`,
-    );
-    assert.equal(
-      body,
-      expectedBody,
-      `lessons body must equal split(\\n) indices 0..19 rejoined\nexpected=${JSON.stringify(expectedBody)}\nactual=${JSON.stringify(body)}\n${out}`,
-    );
-    assert.equal(
-      body.includes('LESSON_LINE_20'),
-      false,
-      `lessons body must not include line index 20+ (strict cap)\nbody=${JSON.stringify(body)}\n${out}`,
     );
   } finally {
     cleanup(dir);

@@ -17,12 +17,9 @@ REPO_REF="${SPACECRAFT_REF:-main}"
 echo "Spacecraft bootstrap"
 echo "===================="
 
-# Parse options: check if --antigravity is requested
-ANTIGRAVITY_MODE=0
 TARGET_DIR="."
 for arg in "$@"; do
   case "$arg" in
-    --antigravity|--agy) ANTIGRAVITY_MODE=1 ;;
     -*) ;;
     *) TARGET_DIR="$arg" ;;
   esac
@@ -65,16 +62,8 @@ fi
 cleanup() { [ -z "$CLEANUP" ] || rm -rf "$CLEANUP"; }
 trap cleanup EXIT INT TERM
 
-# Sync Antigravity assets
-node "$SRC/scripts/sync-antigravity.mjs" >/dev/null 2>&1 || true
-
 # Install the config surface + scaffold + merged MCP for Cursor.
 sh "$SRC/scripts/install-cursor.sh" "$TARGET" "$SRC"
-
-# If Antigravity mode or detected, install project Antigravity surface (.agents + GEMINI.md)
-if [ "$ANTIGRAVITY_MODE" = "1" ] || [ -f "$TARGET/GEMINI.md" ] || [ -d "$TARGET/.agents" ] || [ -d "$HOME/.gemini" ]; then
-  sh "$SRC/scripts/install-antigravity.sh" project "$TARGET"
-fi
 
 # Link the Node CLI (cli/spacecraft.mjs) into the target when Node is available.
 BIN="$TARGET/spacecraft"
@@ -84,7 +73,7 @@ sh "$SRC/scripts/install-binary.sh" "$TARGET" "$SRC" "$REPO_URL"
 sh "$SRC/scripts/smoke.sh" "$TARGET" "$BIN"
 
 echo ""
-echo "Done. $TARGET is spacecraft-ready (Cursor + Antigravity)."
+echo "Done. $TARGET is spacecraft-ready (Cursor)."
 echo ""
 echo "Optional global CLI:  ln -sf \"$BIN\" ~/.local/bin/spacecraft"
-echo "Restart your IDE / Agent to pick up configuration."
+echo "Restart Cursor to pick up configuration."

@@ -1,3 +1,0 @@
-Mission MFIXTURE-PASS-GATE claim: hard-gated Negative and Overlooked acceptances met with fresh passing evidence.
-Evidence label hard-gate-pass proves Neg+Overlooked coverage (exit 0, non-empty output).
-Status: done.

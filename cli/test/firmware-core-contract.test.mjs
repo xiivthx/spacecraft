@@ -84,11 +84,6 @@ test('SKILL.md: Cross-domain HIL dual evidence and proof oracles', () => {
     FIRMWARE_SKILL,
   );
   assertIncludes(text, 'blaming peer RTL or wiring', FIRMWARE_SKILL);
-  assertIncludes(
-    text,
-    'After HIL RCA, append one greppable lesson to `.space/trust/lessons.md`',
-    FIRMWARE_SKILL,
-  );
 });
 
 test('sc-firmware agent: embedded identity without F746 default board', () => {

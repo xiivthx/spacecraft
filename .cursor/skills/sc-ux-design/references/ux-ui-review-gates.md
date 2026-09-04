@@ -112,5 +112,5 @@ Include when claiming visual ready: fresh live product evidence from the running
 - `references/checklists/README.md` - item SoT
 - `references/surface-checklist.md` - discuss/designer one-id adapter
 - `references/shared-draft-directives.md` - draft scaffold, scenario matrix, responsive structure
-- `docs/ux-ui-review.md` - short human-facing overview
+- `docs/review.md` - short human-facing overview
 - `.cursor/skills/sc-run/references/mission-review-gates.md` - sibling for evidence / scope / acceptance review (all missions)

@@ -15,7 +15,7 @@ Adversarial check of completed mission before marking state `ready`. Ready is on
 
 - Mission directory `.space/missions/<id>/`
 - `spec.md`, `plan.json`, `evidence.jsonl`, `review.json`, `decisions.md`
-- Greppable disposition lines (including `Cursor review:` / `Cursor review skipped:` / `Cursor ingest:` / `Sc-security fallback:`)
+- Greppable disposition lines (including `Cursor review:` / `Cursor review skipped:` / `Cursor ingest:` / `Sc-security fallback:` / `Fact-check:`)
 - Visual missions: approved Draft HTML vs live product screenshots
 
 ## Ban
@@ -26,7 +26,7 @@ Adversarial check of completed mission before marking state `ready`. Ready is on
 - Approving when disposition claims `Cursor review: … ran` without corroboration (`cursor-review-…` evidence or greppable `Cursor ingest: session`)
 - Approving visual UI with draft drift or unverified live-product review
 - Re-walking the full mission-review dimension table inside judge
-- Cosplay or non-deterministic verdicts
+- Approving when greppable `Fact-check: contested:` is an unresolved acceptance premise
 
 ## Handshake
 

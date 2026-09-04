@@ -118,7 +118,7 @@ fi
 # Agents are User-layer only for consumer projects (install-project prunes them).
 # The spacecraft harness source tree keeps .cursor/agents as the SoT for
 # install-global / global-sync — do not fail make install when smoking self.
-if [ -f "$TARGET/plugins/spacecraft/plugin.json" ] && [ -f "$TARGET/cli/spacecraft.mjs" ]; then
+if [ -f "$TARGET/cli/spacecraft.mjs" ] && [ -f "$TARGET/scripts/install-cursor.sh" ]; then
   pass "harness source: .cursor/agents are User-layer sync SoT"
 else
   leftover_agents=$(find "$TARGET/.cursor/agents" -maxdepth 1 -type f -name 'sc-*.md' 2>/dev/null | head -n 1)

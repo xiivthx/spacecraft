@@ -1,48 +1,39 @@
-# Product documentation
+# Product docs
 
-Tracked source of truth for product behavior, design choices, and operating knowledge.
-Keep this tree readable by any engineer who joins the repo.
+Tracked product Source of Truth. Prefer short current pages. Cold-start: read `docs/` then `.space/`.
 
 ## Layout
 
 ```text
 docs/
-  README.md                 # this map
-  vision.md                 # product vision and non-goals (add when ready)
-  epics/                    # outcomes and delivery slices (add as needed)
-  specs/                    # durable product contracts and behavior
-  conventions/              # shared engineering conventions
-  architecture/
-    decisions/              # architecture decision records (ADRs)
-  runbooks/                 # operational how-tos and incident playbooks
+  README.md              # this map
+  installation.md        # install User + Project layers
+  prompting.md           # how we instruct agents
+  mission-artifacts.md   # mission schemas + outcome gates
+  review.md              # mission + UX review overview
+  impeccable.md          # Impeccable × discuss contract
+  harness.md             # maintainer scorecard
+  conventions/           # engineering norms
+  demos/                 # landing + console HTML
+  specs/                 # durable product contracts (add when needed)
+  architecture/decisions/# ADRs (add when needed)
+  runbooks/              # ops playbooks (add when needed)
 ```
 
-Create folders when you have real content. Empty placeholder directories are not required.
+Create folders when you have real content.
 
-## What belongs here
+## Belong / do not
 
-| Area | Use for |
-|------|---------|
-| `vision.md` | Why the product exists, who it serves, and what is out of scope |
-| `epics/` | Multi-step outcomes and how work is sliced for delivery |
-| `specs/` | Lasting contracts: APIs, flows, acceptance rules, invariants |
-| `conventions/` | Naming, code style, review norms, shared practices |
-| `architecture/decisions/` | Significant design choices and the tradeoffs behind them |
-| `runbooks/` | Deploy, recover, rotate, and operate the system in production |
+| Belong | Do not |
+|--------|--------|
+| Specs, ADRs, conventions, runbooks | Secrets, scratch notes, build caches |
+| Lasting product contracts | Full mission discuss dumps |
 
-Update `docs/` when product truth changes. Prefer short, current pages over historical dumps.
+At ship, promote durable contracts into `specs/` or an ADR.
 
-## What does not belong here
+## Start
 
-- Secrets, credentials, or environment-specific private values
-- Scratch notes, local experiments, or one-off investigation dumps
-- Generated build artifacts or tool caches
-- Content that only exists to satisfy an automation pipeline
-
-Put durable product rules in `specs/` or an ADR under `architecture/decisions/`. Leave temporary working notes out of this tree.
-
-## Start here
-
-1. Read `vision.md` when present, then relevant specs and ADRs.
-2. Follow `conventions/` for day-to-day engineering norms.
-3. Use `runbooks/` when operating or recovering the system.
+1. [installation.md](./installation.md) — install
+2. [mission-artifacts.md](./mission-artifacts.md) — mission shapes
+3. [prompting.md](./prompting.md) — agent instruction
+4. [conventions/](./conventions/) — day-to-day norms

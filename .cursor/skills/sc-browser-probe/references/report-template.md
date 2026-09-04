@@ -27,8 +27,9 @@ Use each sweep round:
 | foundations/ux | ok | |
 | pack:<id> | fail | item scores; see findings |
 | pack:<id> | deferred | timebox |
+| pack:persona-walkthrough | ok | archetypes: novice,a11y; journeys: … |
 
-Pack rows: list each `- [ ]` item from the loaded catalog file as `ok` | `fail` | `n/a` in notes or a sub-list. `fail` → finding.
+Pack rows: list each `- [ ]` item from the loaded catalog file as `ok` | `fail` | `n/a` in notes or a sub-list. `fail` → finding. Persona pack: notes = archetype ids + journey ids (see `persona-walkthrough.md`); no 1-5 scores.
 
 ### Findings
 - **critical** - <title> - repro: …
