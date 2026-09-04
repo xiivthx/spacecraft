@@ -65,6 +65,9 @@ Notes must include: archetype ids used + journey ids + step count.
 ## Must / Must not
 
 - **Must**: Journeys from inventory/spec; findings have repro; pass/fail via findings only
+- When enabled, stamp greppable `Persona pack: required`
+- Must: Persona pack: required → match pack:persona-walkthrough
+- Must not: Auto-match persona pack when not enabled
 - **Must not**: STORM lens names as personas; expertise monologues; 1-5 scores; MoSCoW essays in report (priority is finding severity)
 - **Must not**: Replace Foundations, surface catalog packs, draft-parity, or sc-judge
 - **Must not**: Bake product-domain scenarios into this reference

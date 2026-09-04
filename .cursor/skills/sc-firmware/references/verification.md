@@ -106,6 +106,9 @@ Automate with:
 
 **Dual-board bench.** FPGA + MCU: correlate both UARTs / LEDs before changing either side.
 
+- Must: Peer DUT harness requires dual-DUT correlated evidence for HIL GREEN or ready
+- Must not: Single-DUT evidence when peer harness exists
+
 **Host green ≠ silicon green.** Passing host unit tests does not claim HIL or target integration.
 
 ## CI Pipeline

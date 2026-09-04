@@ -1,0 +1,10 @@
+{
+  "scenario": "E04",
+  "given": "Every inventoried in-scope shell link reaches a non-404 product surface; no primary stub",
+  "coverage": [
+    "foundations/nav: ok",
+    "foundations/anti-stub: ok"
+  ],
+  "findings": [],
+  "verdict": "PROBE: CLEAN"
+}

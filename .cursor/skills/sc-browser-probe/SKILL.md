@@ -34,6 +34,16 @@ Verdict line (required): `PROBE: CLEAN` | `PROBE: ISSUES` | `PROBE: PARTIAL` | `
 - Browser / MCP / chat success Must not authorize `ready` / `VERIFIED` / `AUTH` / ship (sc-run may still require `PROBE: CLEAN` before ready when probe is in scope; probe alone never grants those)
 - Task-delegate product fixes only (`sc-coder` / `sc-tester` / `sc-firmware` / `sc-rtl`); no Commander product edits
 
+## Must / Must not (fail-closed)
+
+- Must: Inventory shell navigation; follow each in-scope link
+- Must: Product 404 or blank crash on inventoried nav → foundations/nav: fail and PROBE: ISSUES
+- Must: Coming soon / SOON / disabled ghost on primary nav or primary CTA → foundations/anti-stub: fail and PROBE: ISSUES
+- Must: When dialog/modal/drawer inventoried, overlay pack is required
+- Must: foundations/covered: ok only if trial-click/no-force AND elementFromPoint center topmost is control or descendant
+- Must: Persona pack: required → match pack:persona-walkthrough
+- Must not: Auto-match persona pack when not enabled
+
 ## When to use
 
 - After implement/fix when user asks to probe / browser-test

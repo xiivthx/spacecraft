@@ -53,6 +53,9 @@ Functional/cover properties beat raw line %. Record plan + measured numbers or `
 - **Must**: Self-checking TB (assert/scoreboard/signature) - no passive pass
 - **Must**: Consult rules `700` / `710` / `720` when editing matching globs
 - **Must**: Prefer system/integration sim (DUT + software image) before board HIL when that target exists and software owns DUT bring-up
+- Must: Aligned-only testbench stimulus MUST NOT satisfy HIL GREEN or ready
+- Must: HIL evidence requires misaligned or boundary timing relevant to the protocol
+- Must: Peer DUT harness requires dual-DUT correlated evidence for HIL GREEN or ready
 - **Must not**: Sign off on lint-only; invent EDA installs mid-mission
 - **Must not**: Treat ACT pass as "fully verified CPU"
 - **Must not**: Claim silicon ready without physical HIL evidence when FPGA target in scope

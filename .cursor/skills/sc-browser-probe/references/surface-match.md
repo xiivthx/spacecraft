@@ -34,6 +34,7 @@ Tips are hints, not gates. File a finding on `fail` with repro. Do not invent a 
 ## Must / Must not
 
 - **Must**: Inventory first; score only matched files; finding + repro on `fail`
+- Must: When dialog/modal/drawer inventoried, overlay pack is required
 - **Must not**: Walk unmatched packs or every `design-system/` file
 - **Must not**: Use an external checklist site or its AI review as pass/fail
 - **Must not**: Treat this as the discuss one-id draft gate

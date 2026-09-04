@@ -60,6 +60,18 @@ Silent sweep after (or during) scenarios. File a finding only with repro - no es
 - 200% zoom: primary path still usable
 - If motion is essential to meaning and reduced-motion is detectable, essential info still available without it
 
+## Fail-closed (nav / anti-stub / overlay / covered)
+
+- Must: Inventory shell navigation; follow each in-scope link
+- Must: Product 404 or blank crash on inventoried nav → foundations/nav: fail and PROBE: ISSUES
+- Must: Coming soon / SOON / disabled ghost on primary nav or primary CTA → foundations/anti-stub: fail and PROBE: ISSUES
+- Must not: Accept Coming soon / SOON / disabled ghost as primary nav or primary CTA ok
+- Must: When dialog/modal/drawer inventoried, overlay pack is required
+- Must: Missing overlay title, close path, viewport containment, or Esc → pack:overlay: fail and PROBE: ISSUES
+- Must: foundations/covered: ok only if trial-click/no-force AND elementFromPoint center topmost is control or descendant
+- Must not: Treat isVisible alone as foundations/covered: ok
+- Must: Either covered oracle fail → foundations/covered: fail and PROBE: ISSUES
+
 ## Out of scope here
 
 - Draft-parity / token match → `sc-ux-design`

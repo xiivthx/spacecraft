@@ -1,5 +1,5 @@
 .PHONY: build install install-cli install-project install-global install-machine smoke uninstall clean help test-harness-scorecard \
-        test test-cli test-config test-install test-gen-user-rules test-judge-break gate
+        test test-cli test-config test-install test-gen-user-rules test-judge-break test-ready-fail-closed-pack gate
 
 ROOT      := $(CURDIR)
 BIN       := $(ROOT)/spacecraft
@@ -10,10 +10,11 @@ PROJECT   ?= .
 help:
 	@echo "Spacecraft targets:"
 	@echo "  build           Link Node CLI (cli/spacecraft.mjs) -> ./spacecraft"
-	@echo "  test            Full verification: Node CLI tests + config + judge-break + install smoke + harness scorecard"
+	@echo "  test            Full verification: Node CLI tests + config + judge-break + install smoke + harness scorecard + ready-fail-closed-pack"
 	@echo "  test-cli        Node CLI unit tests (cli/test/)"
 	@echo "  test-config     Static config smoke (mcp/hooks JSON, frontmatter, no commands/)"
 	@echo "  test-judge-break  Known-bad closeout fixtures must be rejected"
+	@echo "  test-ready-fail-closed-pack  Ready fail-closed skill literals + fixtures (scripts/check-ready-fail-closed-pack.sh)"
 	@echo "  test-harness-scorecard  Required harness quality dimensions (install-smoke, judge-break, judge-skill, process-grammar)"
 	@echo "  test-install    Bootstrap/install smoke into a throwaway temp dir"
 	@echo "  test-gen-user-rules  RED/GREEN test for scripts/gen-user-rules.sh"
@@ -29,7 +30,7 @@ help:
 	@echo "  clean           Remove ./spacecraft CLI link"
 
 # Full verification suite. Runs everything CI runs; humans use `make test`.
-test: test-cli test-config test-judge-break test-install test-harness-scorecard
+test: test-cli test-config test-judge-break test-install test-harness-scorecard test-ready-fail-closed-pack
 	@echo "All tests passed."
 
 # Local pre-ship / PR gate: Node CLI tests plus Cursor hook assertions.
@@ -45,6 +46,10 @@ test-config:
 # Deterministic judge-break: known-bad fixtures must fail closeout-check.
 test-judge-break: build
 	@sh $(ROOT)/scripts/check-judge-break.sh "$(ROOT)" "$(BIN)"
+
+# Ready fail-closed pack: skill literals + planted fixtures (all modes).
+test-ready-fail-closed-pack:
+	@sh $(ROOT)/scripts/check-ready-fail-closed-pack.sh all
 
 # Required harness quality dimensions.
 test-harness-scorecard: build

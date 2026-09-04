@@ -154,6 +154,12 @@ document.querySelectorAll("[data-viewport-set]").forEach((btn) => {
 - Prefer surface chrome that maps to reusable product primitives (button, field, banner, empty, table) so `/sc-run` can upgrade or add `components/ui` first, then compose the page - not one-off page-only markup for shared controls.
 - Behavior, Verify, and acceptance remain owned by `spec.md`. If draft look and spec behavior conflict, stop and return to `/sc-discuss` - do not freestyle.
 
+## Product continuity (brownfield)
+
+- Must: Brownfield UI draft requires recorded shell, header, and navigation chrome
+- Must: Tip-only draft omitting shared chrome → product-continuity: fail
+- Must not: Record UI draft approved when product-continuity: fail
+
 ## Scenario matrix (Must)
 
 Every visual draft must include a visible **Scenario matrix** with labeled `data-state="<name>"` panels for states the primary surface can enter per `spec.md` and surface shape.

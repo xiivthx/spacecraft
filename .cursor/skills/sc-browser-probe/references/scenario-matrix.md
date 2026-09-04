@@ -52,3 +52,11 @@ Do not require these on every probe. Required only when that pack is in inventor
 - **Must**: Label agent-generated rows `gen:`
 - **Must not**: Ten tiny variants of the same happy path
 - **Must not**: Skip invalid/boundary on forms or parsers without noting `scoped skip: <reason>`
+
+Fail-closed:
+
+- Must: Product 404 or blank crash on inventoried nav → foundations/nav: fail and PROBE: ISSUES
+- Must: Coming soon / SOON / disabled ghost on primary nav or primary CTA → foundations/anti-stub: fail and PROBE: ISSUES
+- Must: Missing overlay title, close path, viewport containment, or Esc → pack:overlay: fail and PROBE: ISSUES
+- Must: Either covered oracle fail → foundations/covered: fail and PROBE: ISSUES
+- Must: Persona pack: required → match pack:persona-walkthrough

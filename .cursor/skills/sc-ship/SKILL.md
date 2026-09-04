@@ -52,6 +52,8 @@ Changelog + version bump mandatory before merge. Ship hook re-runs closeout when
 
 **Companion dispositions (Must before merge):** greppable `Post-ready drain: ran` | `Post-ready drain: skipped: <reason>` **and** `Split-to-prs: ran` | `Split-to-prs: skipped: <reason>` in mission `decisions.md` (or equivalent greppable log). Silence ⇒ **block** ship; invoke `/sc-run` post-ready companions or emit explicit skip. See `sc-run/references/optional-lanes.md`. Lane success is never ship authority.
 
+Out-of-scope depth: stamp `Post-ship UX depth:` and/or `Interop/limitation:` ending `Next: /sc-discuss` (`sc-run/references/follow-up-dispositions.md`). Stubs are not ship blockers; do not invent lanes.
+
 ## Workflow
 
 ### 1. Squash AFK checkpoints

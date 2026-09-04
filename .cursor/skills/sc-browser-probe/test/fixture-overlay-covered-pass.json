@@ -1,0 +1,10 @@
+{
+  "scenario": "E08",
+  "given": "Overlay titled/closable/in-viewport/Esc; primary control passes trial-click/no-force and elementFromPoint",
+  "coverage": [
+    "pack:overlay: ok",
+    "foundations/covered: ok"
+  ],
+  "findings": [],
+  "verdict": "PROBE: CLEAN"
+}
