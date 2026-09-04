@@ -24,7 +24,7 @@ TB / cocotb / formal / ISA regression; before ready/ship when RTL/CPU in scope; 
 |-------|------|------------------------|
 | L0 Lint | Verilator lint clean (waivers documented) | `verilator --lint-only …` or `make lint` |
 | L1 Struct | Yosys elaborates; no unintended latch/multi-driver | `yosys -p '…; proc; check'` or `make synth` |
-| L2 Sim | Self-checking regression exit 0. Distinguish **unit/block sim** vs **full-chip sim with FW hex** when FW owns activation/MMIO staging - prefer full-chip before FPGA HIL when that target exists in the project Makefile. | `make sim` / Verilator binary / cocotb |
+| L2 Sim | Self-checking regression exit 0. Distinguish **block/unit sim** vs **system/integration sim** that includes the software image when software owns runtime config / bring-up of the DUT - prefer that integration gate before board HIL when the project Makefile provides it. | `make sim` / Verilator binary / cocotb |
 | L3 ISA | SPEC subset vs Spike/Sail or ACT ELFs | project `make isa` / arch-test runner |
 | L4 Formal | Critical props or riscv-formal when RVFI exists | `sby` / `make formal` |
 | L5 Impl | PnR meets Fmax + resource budget | `make` in `rtl/fpga` / nextpnr report |
@@ -52,7 +52,7 @@ Functional/cover properties beat raw line %. Record plan + measured numbers or `
 - **Must**: Prefer Makefile/CI; evidence every verify acceptance
 - **Must**: Self-checking TB (assert/scoreboard/signature) - no passive pass
 - **Must**: Consult rules `700` / `710` / `720` when editing matching globs
-- **Must**: Prefer full-chip+FW hex before FPGA HIL when that Makefile target exists and FW owns activation/MMIO staging
+- **Must**: Prefer system/integration sim (DUT + software image) before board HIL when that target exists and software owns DUT bring-up
 - **Must**: After HIL RCA, append one greppable lesson to `.space/trust/lessons.md` (skill `sc-learn`) before the next task
 - **Must not**: Sign off on lint-only; invent EDA installs mid-mission
 - **Must not**: Treat ACT pass as "fully verified CPU"
@@ -69,7 +69,7 @@ Functional/cover properties beat raw line %. Record plan + measured numbers or `
 
 - [ ] Layers selected vs SPEC (L0–L5)
 - [ ] L0+L1+L2 evidence present for RTL claims
-- [ ] L2: full-chip+FW hex when in scope (FW owns activation/MMIO) before FPGA HIL
+- [ ] L2: system/integration sim + software image when in scope (software owns DUT bring-up) before board HIL
 - [ ] L3 if CPU ISA in scope (or skip line)
 - [ ] L4/L5 if tools/target in scope (or skip line)
 - [ ] Physical HIL when FPGA target in scope; scenario↔observable map when project doc exists

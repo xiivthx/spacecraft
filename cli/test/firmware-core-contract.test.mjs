@@ -83,6 +83,7 @@ test('SKILL.md: Cross-domain HIL dual evidence and proof oracles', () => {
     'host green ≠ HIL green without proof oracles on target',
     FIRMWARE_SKILL,
   );
+  assertIncludes(text, 'blaming peer RTL or wiring', FIRMWARE_SKILL);
   assertIncludes(
     text,
     'After HIL RCA, append one greppable lesson to `.space/trust/lessons.md`',
