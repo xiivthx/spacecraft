@@ -14,6 +14,19 @@ For visual slices ported from an approved draft:
 
 Do **not** start by painting a whole page of one-off markup and extracting later unless the markup is truly single-use (~10 lines). Do **not** install daisyUI / MUI / similar without user approval - grow a small in-project catalog that matches `DESIGN.md` + the draft.
 
+### shadcn MCP (approved primitive source)
+
+Pack `frontend` merges the official shadcn MCP (`npx shadcn@latest mcp`) into `.cursor/mcp.json`. Copy-into-project primitives under `components/ui/` are allowed; full UI kits are not.
+
+When adding missing chrome:
+
+1. Prefer MCP **search/list** over inventing markup from scratch.
+2. **Add** the matching registry item into the app (needs `components.json`).
+3. **Retoken** immediately to house `DESIGN.md` + approved draft surface (colors, radius, type, spacing). Do not ship default shadcn slate/zinc/neutral theme.
+4. Draft / `DESIGN.md` remain visual SoT - registry is structure and a11y behavior, not look.
+
+If MCP is disconnected, hand-port the primitive from the draft; still do not freestyle a second kit.
+
 ### `components/ui/` vs feature folders
 
 | Location | Owns | Example |

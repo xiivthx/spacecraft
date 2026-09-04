@@ -90,10 +90,13 @@ else
   fi
 fi
 
-# Merge MCP servers instead of overwriting the whole file.
-if [ -f "$SRC_ABS/.cursor/mcp.json" ]; then
+# Merge always-on / non-pack MCP from source. Pack-managed servers (e.g. shadcn
+# from frontend) are stripped here — installProjectSurface applies them when
+# those packs are selected. Skip when source == target (local meta SoT).
+if [ -f "$SRC_ABS/.cursor/mcp.json" ] && [ "$TARGET_ABS" != "$SRC_ABS" ]; then
   python3 "$SRC_ABS/scripts/mcp-merge.py" merge \
     "$TARGET_ABS/.cursor/mcp.json" "$SRC_ABS/.cursor/mcp.json" \
+    --strip-pack-mcp "$SRC_ABS/.cursor" \
     | sed 's/^/  mcp: /'
 fi
 

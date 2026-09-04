@@ -24,7 +24,12 @@ import {
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { expandPacks, loadCatalog, validateProfile } from './packs.mjs';
+import {
+  catalogCursorDir,
+  expandPacks,
+  loadCatalog,
+  validateProfile,
+} from './packs.mjs';
 
 /** Keep in sync with scripts/global-sync.sh / install-cursor.sh LEAN_SKILLS. */
 export const LEAN_SKILLS = Object.freeze([
@@ -72,19 +77,126 @@ export function parsePacksEnv(raw) {
 }
 
 /**
- * Union of skill dirs / rule basenames managed by selectable catalog packs.
- * @param {{ packs: Array<{ id: string, status: string, skills?: string[], rules?: string[] }> }} catalog
- * @returns {{ skills: Set<string>, rules: Set<string> }}
+ * Read mcpServers map from a pack MCP fragment file.
+ * @param {string} fragmentPath
+ * @returns {Record<string, unknown>}
  */
-export function managedCatalogPaths(catalog) {
+export function loadMcpFragmentServers(fragmentPath) {
+  if (!existsSync(fragmentPath)) {
+    throw new Error(`missing MCP fragment ${fragmentPath}`);
+  }
+  const raw = readFileSync(fragmentPath, 'utf8').trim();
+  if (!raw) return {};
+  const data = JSON.parse(raw);
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error(`${fragmentPath}: expected a JSON object`);
+  }
+  const servers = /** @type {{ mcpServers?: unknown }} */ (data).mcpServers;
+  if (servers == null) return {};
+  if (typeof servers !== 'object' || Array.isArray(servers)) {
+    throw new Error(`${fragmentPath}: mcpServers must be an object`);
+  }
+  return /** @type {Record<string, unknown>} */ (servers);
+}
+
+/**
+ * Union of skill dirs / rule basenames / MCP server names managed by selectable packs.
+ * @param {{ packs: Array<{ id: string, status: string, skills?: string[], rules?: string[], mcp?: string }> }} catalog
+ * @param {{ cursorDir?: string, catalogPath?: string }} [options]
+ * @returns {{ skills: Set<string>, rules: Set<string>, mcpServers: Set<string> }}
+ */
+export function managedCatalogPaths(catalog, options = {}) {
   const skills = new Set();
   const rules = new Set();
+  const mcpServers = new Set();
+  const cursorDir =
+    options.cursorDir ?? catalogCursorDir(options.catalogPath);
+
   for (const entry of catalog.packs) {
     if (entry.status !== 'selectable') continue;
     for (const s of entry.skills ?? []) skills.add(s);
     for (const r of entry.rules ?? []) rules.add(r);
+    if (!entry.mcp) continue;
+    const fragmentPath = path.resolve(cursorDir, entry.mcp);
+    for (const name of Object.keys(loadMcpFragmentServers(fragmentPath))) {
+      mcpServers.add(name);
+    }
   }
-  return { skills, rules };
+  return { skills, rules, mcpServers };
+}
+
+/**
+ * Load target mcp.json object (empty object when missing/blank). Mirrors mcp-merge.py load.
+ * @param {string} targetPath
+ * @returns {Record<string, unknown>}
+ */
+function loadMcpJson(targetPath) {
+  if (!existsSync(targetPath)) return {};
+  const text = readFileSync(targetPath, 'utf8').trim();
+  if (!text) return {};
+  const data = JSON.parse(text);
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error(`${targetPath}: expected a JSON object`);
+  }
+  return /** @type {Record<string, unknown>} */ (data);
+}
+
+/**
+ * Write mcp.json with trailing newline. Mirrors mcp-merge.py write.
+ * @param {string} targetPath
+ * @param {Record<string, unknown>} data
+ */
+function writeMcpJson(targetPath, data) {
+  mkdirSync(path.dirname(targetPath), { recursive: true });
+  writeFileSync(targetPath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+}
+
+/**
+ * Merge selected pack MCP servers into target; unmerge managed names not in selection.
+ * Semantics match scripts/mcp-merge.py merge + unmerge (user servers untouched).
+ * @param {string} targetPath
+ * @param {Record<string, unknown>} selectedServers
+ * @param {Set<string>} managedServerNames
+ */
+export function reconcilePackMcp(targetPath, selectedServers, managedServerNames) {
+  const target = loadMcpJson(targetPath);
+  const tgtServers = {
+    ...(typeof target.mcpServers === 'object' &&
+    target.mcpServers &&
+    !Array.isArray(target.mcpServers)
+      ? /** @type {Record<string, unknown>} */ (target.mcpServers)
+      : {}),
+  };
+  const selectedNames = new Set(Object.keys(selectedServers));
+
+  for (const [name, cfg] of Object.entries(selectedServers)) {
+    tgtServers[name] = cfg;
+  }
+
+  for (const name of managedServerNames) {
+    if (!selectedNames.has(name) && Object.hasOwn(tgtServers, name)) {
+      delete tgtServers[name];
+    }
+  }
+
+  const keys = Object.keys(target);
+  if (Object.keys(tgtServers).length > 0) {
+    target.mcpServers = tgtServers;
+    writeMcpJson(targetPath, target);
+    return;
+  }
+
+  if (!existsSync(targetPath)) {
+    return;
+  }
+
+  if (keys.length === 0 || (keys.length === 1 && keys[0] === 'mcpServers')) {
+    rmSync(targetPath, { force: true });
+    return;
+  }
+
+  target.mcpServers = tgtServers;
+  writeMcpJson(targetPath, target);
 }
 
 /**
@@ -184,7 +296,7 @@ function installSkill(srcSkills, destSkills, name) {
 }
 
 /**
- * Reconcile project .cursor skills + rules for selected packs.
+ * Reconcile project .cursor skills + rules + pack MCP for selected packs.
  * @param {string} targetDir
  * @param {string} sourceDir
  * @param {{
@@ -195,12 +307,13 @@ function installSkill(srcSkills, destSkills, name) {
  *   source?: string,
  *   allowLegacyAll?: boolean,
  * }} [options]
- * @returns {{ packIds: string[], skills: string[], rules: string[], source: string }}
+ * @returns {{ packIds: string[], skills: string[], rules: string[], mcp: string[], source: string }}
  */
 export function installProjectSurface(targetDir, sourceDir, options = {}) {
   const catalogPath =
     options.catalogPath ?? path.join(sourceDir, '.cursor', 'spacecraft-packs.json');
   const catalog = loadCatalog(catalogPath);
+  const cursorDir = catalogCursorDir(catalogPath);
   const resolved = resolveInstallPacks({
     targetDir,
     catalog,
@@ -210,8 +323,12 @@ export function installProjectSurface(targetDir, sourceDir, options = {}) {
     source: options.source,
     allowLegacyAll: options.allowLegacyAll,
   });
-  const { skills: wantSkills, rules: wantRules } = expandPacks(resolved.packIds, catalog);
-  const managed = managedCatalogPaths(catalog);
+  const {
+    skills: wantSkills,
+    rules: wantRules,
+    mcp: wantMcpPaths,
+  } = expandPacks(resolved.packIds, catalog, { cursorDir, catalogPath });
+  const managed = managedCatalogPaths(catalog, { cursorDir, catalogPath });
   const wantSkillSet = new Set(wantSkills);
   const wantRuleSet = new Set(wantRules);
 
@@ -271,10 +388,21 @@ export function installProjectSurface(targetDir, sourceDir, options = {}) {
 
   pruneAgents(targetDir);
 
+  const selectedMcpServers = {};
+  for (const fragmentPath of wantMcpPaths) {
+    Object.assign(selectedMcpServers, loadMcpFragmentServers(fragmentPath));
+  }
+  reconcilePackMcp(
+    path.join(targetDir, '.cursor', 'mcp.json'),
+    selectedMcpServers,
+    managed.mcpServers,
+  );
+
   return {
     packIds: resolved.packIds,
     skills: wantSkills.filter((s) => !LEAN_SET.has(s)),
     rules: wantRules.filter((r) => !USER_RULE_SET.has(r)),
+    mcp: Object.keys(selectedMcpServers),
     source: resolved.source,
   };
 }

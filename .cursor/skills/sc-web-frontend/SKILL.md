@@ -24,30 +24,36 @@ Use this exact sequence unless the user specifies otherwise:
 
 2. **Choose stack** - Default: React + TypeScript + Vite + Tailwind CSS + Vitest. If the project already has a frontend stack, match it. Use sc-search (WebSearch/WebFetch) for `"react latest hooks api"` before using unfamiliar APIs.
 
-3. **UI draft gate (hard)** - For any visual layout/style/component work, require `/sc-discuss` approval first (sc-ux-design brief + draft HTML):
+3. **Frontend MCP + registry (when scaffolding or missing)** - Pack `frontend` merges the official **shadcn** MCP into `.cursor/mcp.json` via `spacecraft setup`. If scaffolding a new FE app or `components.json` / shadcn MCP is missing:
+   1. Ensure project `.cursor/mcp.json` has the `shadcn` server (`npx shadcn@latest mcp`) - merge from spacecraft `.cursor/mcp-packs/frontend.json` or re-run setup with `--packs frontend,…`.
+   2. Init shadcn in the app (`npx shadcn@latest init`) so `components.json` exists before MCP install tools write files.
+   3. Tell the human to enable the `shadcn` server in Cursor Settings → MCP (green dot) once per machine/workspace.
+   Do **not** treat default shadcn theme as product look - see step 6 and Rules.
+
+4. **UI draft gate (hard)** - For any visual layout/style/component work, require `/sc-discuss` approval first (sc-ux-design brief + draft HTML):
    - `decisions.md` must contain `UI draft approved: <path>` (or recorded non-visual skip)
    - Open the approved draft; confirm the surface-relevant scenario matrix (applicable `data-state` panels per draft + `spec.md`) is present
    - If missing, stop and recommend `/sc-discuss` - do not invent draft mid-build
    - Skip only for non-visual FE (pure logic/hooks, no UI surface); record skip in `decisions.md`
 
-4. **Port from draft (visual SoT)** - Before coding chrome, open the approved draft HTML and port **`[data-draft-surface]` only** (ignore `[data-draft-chrome]` / frame bezel / viewport toolbar). Sync `DESIGN.md` tokens from the surface. Implement by **porting** structure, tokens, spacing, type, and component chrome - do not invent a second look that only "matches the brief." Map each draft `data-state` to real app states and tests. Behavior/Verify stay owned by `spec.md`; look/behavior conflict → stop and `/sc-discuss`.
+5. **Port from draft (visual SoT)** - Before coding chrome, open the approved draft HTML and port **`[data-draft-surface]` only** (ignore `[data-draft-chrome]` / frame bezel / viewport toolbar). Sync `DESIGN.md` tokens from the surface. Implement by **porting** structure, tokens, spacing, type, and component chrome - do not invent a second look that only "matches the brief." Map each draft `data-state` to real app states and tests. Behavior/Verify stay owned by `spec.md`; look/behavior conflict → stop and `/sc-discuss`.
 
-5. **Build by slice (component-first)** - Implement one vertical **feature** slice at a time (RED-GREEN under `/sc-run`), but inside each slice build **primitives before the page**:
+6. **Build by slice (component-first)** - Implement one vertical **feature** slice at a time (RED-GREEN under `/sc-run`), but inside each slice build **primitives before the page**:
    1. **Inventory chrome** in `[data-draft-surface]` for this slice (buttons, fields, banners, empty states, tables, …).
-   2. **Reuse or upgrade** matching primitives under the project's `components/ui/` (or equivalent). If missing, **add** the primitive first - typed props, styles ported from the draft, Vitest + RTL behavior test.
+   2. **Reuse or upgrade** matching primitives under the project's `components/ui/` (or equivalent). If missing: when the **shadcn** MCP is connected, **search/list** registry items that match the chrome, then **add** into the app; immediately **retoken** (CSS vars / Tailwind classes) to `DESIGN.md` + draft surface - never ship default shadcn slate/zinc/neutral look. If MCP is unavailable, hand-add the primitive with styles ported from the draft. Typed props + Vitest + RTL behavior test either path.
    3. **Compose** the feature/layout/page from those primitives (and existing feature components). Wire into routing or parent last.
-   Prefer small, focused components. Keep feature-only abstractions co-located under `components/<feature>/`. See `references/components.md` for `ui/` vs extract-after-3 and optional Storybook.
+   Prefer small, focused components. Keep feature-only abstractions co-located under `components/<feature>/`. See `references/components.md` for `ui/` vs extract-after-3, shadcn MCP, and optional Storybook.
 
-6. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
+7. **Verify (functional)** - `spacecraft evidence "<label>" -- npx vitest run` (or project functional suite). Tests must pass before claiming done. Run the full test suite after each slice to catch regressions.
 
-7. **Verify (visual / live-product + draft-parity)** - After visual UI work: start the app; run Tier 3 live-product + Step 0 draft-parity per `.cursor/skills/sc-ux-design/SKILL.md` (and `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md`); optional full-system sweep via `.cursor/skills/sc-browser-probe/SKILL.md`. Capture paired draft-surface + live evidence; Task(`sc-designer`) live critique (**live-product** + draft-parity). Draft HTML serve alone does not satisfy live-product. Fix before ready. **Must not** use system Chrome headless or browser-use/CDP.
+8. **Verify (visual / live-product + draft-parity)** - After visual UI work: start the app; run Tier 3 live-product + Step 0 draft-parity per `.cursor/skills/sc-ux-design/SKILL.md` (and `.cursor/skills/sc-ux-design/references/ux-ui-review-gates.md`); optional full-system sweep via `.cursor/skills/sc-browser-probe/SKILL.md`. Capture paired draft-surface + live evidence; Task(`sc-designer`) live critique (**live-product** + draft-parity). Draft HTML serve alone does not satisfy live-product. Fix before ready. **Must not** use system Chrome headless or browser-use/CDP.
 
-8. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
+9. **Iterate** - Each acceptance check in `plan.json` drives one slice. Keep the UI working at every checkpoint.
 
 ### Edge cases
 
 - **User specifies a different stack** - Adapt patterns. Still require component tests and build verification.
-- **Project has no frontend yet** - Scaffold with `npm create vite@latest`, install Tailwind CSS, set up Vitest.
+- **Project has no frontend yet** - Scaffold with `npm create vite@latest`, install Tailwind CSS, set up Vitest; then step 3 (shadcn MCP + `components.json` init).
 - **Design direction missing / draft not approved** - Stop. Recommend `/sc-discuss` + sc-ux-design draft HIL; do not implement UI.
 - **Draft present but freestyle temptation** - Port chrome from the approved draft. Do not rebuild a "cleaner" Tailwind look that only matches layout.
 - **Accessibility concern** - Check against Tailwind's accessibility utilities and React Testing Library's accessibility queries.
@@ -67,13 +73,15 @@ Use this exact sequence unless the user specifies otherwise:
 - **Must**: Verify with `spacecraft evidence` after each implementation slice.
 - **Must**: Prefer small vertical **feature** slices over broad horizontal scaffolding; within each slice, build or upgrade `components/ui` primitives before composing the page.
 - **Must**: Prefer reusing the project's per-app `components/ui/` catalog for draft-named chrome; do not install third-party UI kits (daisyUI, MUI, …) or create a cross-repo design-system package without user approval.
+- **Must**: When the shadcn MCP is available, search/list before inventing missing `components/ui` chrome; after add, retoken to `DESIGN.md` / approved draft - default registry theme is not the product look.
+- **Must not**: Treat shadcn MCP / registry as visual SoT over the approved draft surface or house `DESIGN.md`.
 - **Must**: Component tests cover behavior via public interfaces - render output and user interactions, not internal state.
 - **Must**: TypeScript strict mode. All props, state, and event handlers typed.
 - **Must**: Styles scoped to component or Tailwind utility classes. No global CSS churn.
 - **Must not**: Implement visual layout/style/components without an approved draft (unless non-visual skip is recorded).
 - **Must not**: Add state management (Redux, Zustand) unless the component tree exceeds simple prop drilling.
 - **Must not**: Add router unless the feature requires multiple views or URL state.
-- **Must not**: Install UI libraries or component frameworks without user approval.
+- **Must not**: Install UI libraries or component frameworks without user approval (shadcn via pack MCP + retoken is the approved primitive path; daisyUI / MUI / similar still need explicit approval).
 
 ## Reviewer checklist
 
@@ -117,7 +125,7 @@ Use this checklist when reviewing frontend code:
 Stack: React + TypeScript + Vite + Tailwind CSS + Vitest
 Draft: approved <path> | skip non-visual: <reason>
 Port: tokens/layout/chrome from draft surface; states mapped: <applicable data-state list>
-UI primitives: reused|upgraded|added under components/ui: <list>
+UI primitives: reused|upgraded|added under components/ui: <list> (shadcn MCP: search|skip; retoken: yes|n/a)
 Page: composed from primitives + feature components
   Props: <typed interface>
   Styles: Tailwind classes ported from draft (co-located in JSX)
@@ -138,7 +146,7 @@ Before claiming frontend work done:
 - [ ] Draft HTML approved (or non-visual skip recorded in `decisions.md`)
 - [ ] Look ported from approved draft surface (not freestyled from brief alone); `DESIGN.md` synced
 - [ ] Draft scenario states mapped to product UI and/or tests
-- [ ] Slice built component-first: `components/ui` primitives reused/upgraded/added before page compose
+- [ ] Slice built component-first: `components/ui` primitives reused/upgraded/added before page compose (shadcn search→add→retoken when MCP available)
 - [ ] Components typed with TypeScript interfaces
 - [ ] Styles applied via Tailwind utility classes, scoped to component
 - [ ] If the project has Storybook, new `ui/*` primitives have stories (catalog aid - not a ship gate)
@@ -146,7 +154,7 @@ Before claiming frontend work done:
 - [ ] Tier 3 live-product + draft-parity per sc-ux-design (paired evidence; designer pass)
 - [ ] Build passes (`npm run build`)
 - [ ] Evidence captured with `spacecraft evidence`
-- [ ] No unapproved dependencies
+- [ ] No unapproved dependencies (shadcn copy-in + retoken OK; daisyUI/MUI still need approval)
 - [ ] Accessibility: semantic HTML, focus management, aria labels where needed
 
 ## References

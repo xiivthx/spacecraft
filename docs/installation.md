@@ -56,7 +56,7 @@ spacecraft setup --packs frontend,quality
 spacecraft setup --reconfigure --packs quality
 ```
 
-TTY without profile → interactive (`quality` pre-checked). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`. Profile present → silent reconcile. Selectable: `frontend`, `backend`, `database`, `embedded`, `quality`, `fpga`. Coming (listed, not installable): `iot`, `pcb`, `management`.
+TTY without profile → interactive (`quality` pre-checked). Non-TTY needs `--packs` or `SPACECRAFT_PACKS`. Profile present → silent reconcile. Selectable: `frontend`, `backend`, `database`, `embedded`, `quality`, `fpga`. Coming (listed, not installable): `iot`, `pcb`, `management`. The `frontend` pack merges the official shadcn MCP into the project's `.cursor/mcp.json` (removed on reconfigure without `frontend`; unrelated user MCP servers stay).
 
 ## Verify
 

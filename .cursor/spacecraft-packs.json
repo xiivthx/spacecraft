@@ -4,7 +4,8 @@
       "id": "frontend",
       "status": "selectable",
       "skills": ["sc-web-frontend", "sc-ux-design", "sc-browser-probe"],
-      "rules": ["150-design.mdc"]
+      "rules": ["150-design.mdc"],
+      "mcp": "mcp-packs/frontend.json"
     },
     {
       "id": "backend",
