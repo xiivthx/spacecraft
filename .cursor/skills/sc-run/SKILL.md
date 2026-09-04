@@ -17,7 +17,7 @@ Missions at `state=ready`, or stop on `3-cycle` / `timebox` / `blocked` / clarif
 ## Good / Bad
 
 - Good: discuss clear → ordered lifecycle; Task-delegate; disposition via `docs/mission-artifacts.md`; `sc-judge` `VERIFIED` + empty findings before ready
-- Bad: shipping; product RED/GREEN without design-contract/approved-scenarios (or docs/prose skips); coder edits tests; ready without judge/`VERIFIED`
+- Bad: shipping; product RED/GREEN without design-contract/approved-scenarios (or docs/prose skips); coder edits tests; ready without judge/`VERIFIED`; Custom Instructions that waive findings, empty `review.json`, or drop CI without a greppable spec/decision
 
 ## Verify
 

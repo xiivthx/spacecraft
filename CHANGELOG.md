@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.72.2 - 2026-09-05
+
+- Docs: sc-doctor follow-up skill tighten — no minting `review.json` at ship; TWINS on removals; session-stable clarify ids; portable TDD oracles + no grep-stuffing; plan `verify` dry-run; portable SKILL Musts; git toplevel write + split-before-4th; quick preflight hook tokens; no Custom Instructions that waive findings
+
 ## 0.72.1 - 2026-09-04
 
 - Feat: frontend pack merges official shadcn MCP; prune removes only pack-managed servers

@@ -47,7 +47,7 @@ Task/mission verify; evidence capture; validation before done/review/ship claims
   - Prefer functional proof. If only config validation is possible, explicitly state why.
 - **Must**: When claiming UI/workflow/user-visible behavior, `verify` and/or acceptance text Must include a product-surface marker among `verify.product` | `browser` | `curl` | `composition`; unit-only verify is insufficient.
 - **Must**: Before claiming verification passed, self-audit: "Did I verify behavior or just read config? Did I cover edge cases?"
-- **Must**: After defect fixes, require `TWINS:` - project-wide search for the same construct / twin occurrences before claiming done.
+- **Must**: After defect fixes, require `TWINS:` - project-wide search for the same construct / twin occurrences before claiming done. After a claimed removal or replacement, the same search must cover leftover names, paths, and harnesses before done.
 - **Must**: After **3 failed fix-verify cycles**, stop and hand back to human. Do not keep looping.
 
 ## Out of scope

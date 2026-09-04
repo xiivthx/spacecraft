@@ -37,6 +37,7 @@ Commander re-runs task `verify` (e.g. `rg` for expected phrase) or reads diff fo
 
 - **Must**: Match existing file structure and section names when editing
 - **Must**: Use reference procedures for on-demand craft jobs
+- **Must**: When editing `SKILL.md`, keep Musts portable - named boards, products, and repo paths go in `references/`, not in the always-on Must list
 - **Must not**: Edit product code or tests
 - **Must not**: Change what a gate, rule, or check *does* while editing wording
 - **Must not**: Add always-on communication compression or chat rules

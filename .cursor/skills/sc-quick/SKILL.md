@@ -44,6 +44,7 @@ git branch --show-current
 git rev-parse --abbrev-ref HEAD
 ```
 
+- **Must not**: Extra git in preflight that matches ship-hook substrings (`tag`, `merge`, `merge-base`). Stick to the three commands above.
 - Not a git worktree → stop (unless user accepts no-git risk in chat).
 - On `main` with mutations pending → create work branch before editing/committing.
 - Unrelated dirty files → do not stage; warn.
